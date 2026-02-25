@@ -320,5 +320,200 @@
   };
 
   window.generateGrid = (isNew = true) => {
-    const mVal = document.getElementById('selectedMonth').value;
+    const mVal = document.getElementById('selectedMonth').value;if (!mVal) return; closeSettings(); 
+    let [y, m] = mVal.split('-');
+    let startD = new Date(y, parseInt(m) - 1, 21), endD = new Date(y, parseInt(m), 20);
+    const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
+    
+    for(let i=0; i < startD.getDay(); i++) grid.innerHTML += `<div class="blank-card"></div>`;
+    
+    let cur = new Date(startD);
+    while (cur <= endD) {
+      let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
+      let isDouble = doubleDates.includes(key), isSun = cur.getDay() === 0;
+      let displayDate = `${cur.getDate()} ${cur.toLocaleString('en-US',{month:'short'})}`;
+      let exportDate = `${cur.getDate()} ${cur.toLocaleString('en-US',{month:'short'})} (${myanmarDays[cur.getDay()]})`;
+
+      let div = document.createElement('div'); div.className = 'day-card';
+      div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); 
+      div.innerHTML = `
+        <label class="date-label">${displayDate}</label>
+        ${isDouble ? `<div class="double-label" style="font-size: 10px; color: #c2185b; font-weight: bold; margin-bottom: 2px;">★ နှစ်ဆရက်</div>` : `<div style="height: 10px;"></div>`}
+        <input type="hidden" class="is-double" value="${isDouble}">
+        <select class="shift-select" onchange="calculateAll()" style="background:#e9ecef;"><option value="day">☀️ နေ့ဆိုင်း</option><option value="night">🌙 ညဆိုင်း</option></select>
+        <select class="status-select" onchange="calculateAll()">
+          <option value="" ${!isSun ? 'selected' : ''}>ရွေးရန်...</option>
+          <option value="✓">✓ ဆင်းသည်</option><option value="x">x ပျက်ရက်</option>
+          <option value="-" ${isSun ? 'selected' : ''}>- ပိတ်ရက်</option>
+        </select>
+        <select class="ot-select" onchange="toggleOTInput(this)"><option value="no">OT မဆင်း</option><option value="yes">OT ဆင်း</option></select>
+        <input type="number" class="ot-hours" placeholder="နာရီ" oninput="calculateAll()" style="display: none;" min="0" step="0.5">
+        <div class="daily-info">-</div>`;
+      grid.appendChild(div); cur.setDate(cur.getDate() + 1);
+    }
+    
+    if (!isNew && appData.attendance) {
+      document.querySelectorAll('.day-card').forEach(card => {
+        let d = appData.attendance[card.getAttribute('data-real-date')];
+        if (d) {
+          card.querySelector('.shift-select').value = d.shift || 'day';
+          card.querySelector('.status-select').value = d.status || '';
+          card.querySelector('.ot-select').value = d.ot || 'no';
+          let otInput = card.querySelector('.ot-hours'); otInput.value = d.otHours || '';
+          if(d.ot === 'yes') otInput.style.display = 'block';
+        }
+      });
+    }
+    calculateAll(); 
+  };
+
+  window.calculateAll = () => {
+    const wage = parseFloat(document.getElementById('dailyWage').value) || 0;
+    const rate = parseFloat(document.getElementById('otRate').value) || 0;
+    let work=0, double=0, absent=0, holiday=0, night=0, otHrs=0, otDays=0, total=0, transport=0, food=0, nightPay=0;
+
+    document.querySelectorAll('.day-card').forEach(c => {
+      let isDouble = c.querySelector('.is-double').value === 'true';
+      let shift = c.querySelector('.shift-select').value, status = c.querySelector('.status-select').value;
+      let otStatus = c.querySelector('.ot-select').value, otVal = parseFloat(c.querySelector('.ot-hours').value) || 0;
+      let info = c.querySelector('.daily-info');
+
+      c.className = 'day-card'; 
+      if(status === '✓') c.classList.add(isDouble ? 'bg-pink' : (shift === 'night' ? 'bg-dark-gray' : 'bg-green'));
+      else if(status === '-' || status === 'x') c.classList.add('bg-red');
+
+      let dPay=0, fPay=0;
+      if (status === '✓') {
+        work++; let bPay = isDouble ? (wage * 2) : wage; if(isDouble) double++;
+        dPay += bPay + 40; transport += 40;
+        if(shift === 'night') { night++; dPay += 100; nightPay += 100; }
+        if(otStatus === 'yes') { fPay = 60; otHrs += otVal; if(otVal>0) otDays++; dPay += (otVal*rate); } else fPay = 30;
+        dPay += fPay; food += fPay; total += dPay;
+        info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
+      } else {
+        if(status === 'x') absent++; else if(status === '-') holiday++;
+        info.innerHTML = "-";
+      }
+      c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
+    });
+
+    let dOT = double * 8, grandOT = dOT + otHrs; 
+
+    document.getElementById('workCount').innerText = `${work} ရက် / ${work*8} နာရီ`;
+    document.getElementById('doubleCount').innerText = `${double} ရက် / ${double*8} နာရီ`;
+    document.getElementById('absentCount').innerText = `${absent} ရက်`;
+    document.getElementById('holidayCount').innerText = `${holiday} ရက်`;
+    document.getElementById('otDaysCount').innerText = `${otDays} ရက် / ${otHrs} နာရီ`;
+    document.getElementById('otTotalCombine').innerText = `${dOT} + ${otHrs} = ${grandOT} နာရီ`;
+    document.getElementById('nightShiftDisplay').innerText = `${night} ရက်`;
+    document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ဘတ်`;
+    document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ဘတ်`;
+    document.getElementById('foodTotal').innerText = `${food.toLocaleString()} ဘတ်`;
+    document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ဘတ်`;
+
+    saveToFirebase(); 
+  };
+
+  // 📄 CLEAN PDF EXPORT FUNCTION (စားပွဲဇယားအစစ်ဖြင့်)
+  window.exportPDF = () => {
+    let name = document.getElementById('empName').value || '-';
+    let empId = document.getElementById('empId').value || '-';
+    let month = document.getElementById('selectedMonth').value || '-';
+
+    // ဇယားခေါင်းစဉ်
+    let html = `
+      <div class="print-header">
+        <h2>Chicony Salary Report</h2>
+        <p><b>Name:</b> ${name} &nbsp;|&nbsp; <b>ID:</b> ${empId} &nbsp;|&nbsp; <b>Month:</b> ${month}</p>
+      </div>
+      <table class="print-table">
+        <thead>
+          <tr><th>Date</th><th>Shift</th><th>Status</th><th>OT Hours</th><th>Daily Total (Baht)</th></tr>
+        </thead>
+        <tbody>
+    `;
+
+    // ရက်အလိုက် ဒေတာများ
+    document.querySelectorAll('.day-card').forEach(card => {
+      let date = card.getAttribute('data-date');
+      let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
+      let status = card.querySelector('.status-select').value || "-";
+      let ot = card.getAttribute('data-ot') || "0";
+      let total = card.getAttribute('data-total') || "0";
+      html += `<tr><td>${date}</td><td>${shift}</td><td>${status}</td><td>${ot}</td><td>${total}</td></tr>`;
+    });
+
+    // အကျဉ်းချုပ် အပိုင်း
+    let work = document.getElementById('workCount').innerText;
+    let absent = document.getElementById('absentCount').innerText;
+    let otSum = document.getElementById('otTotalCombine').innerText;
+    let gTotal = document.getElementById('grandTotal').innerText;
+
+    html += `
+        </tbody>
+      </table>
+      
+      <table class="print-summary">
+        <tr><th>Total Work (Days/Hrs)</th><td>${work}</td></tr>
+        <tr><th>Total OT Hours</th><td>${otSum}</td></tr>
+        <tr><th>Absent</th><td>${absent}</td></tr>
+        <tr><th>Net Salary</th><td><b>${gTotal}</b></td></tr>
+      </table>
+      
+      <div class="print-footer">
+        Generated by Chicony Attendance System<br>
+        Developed by <b>THET AUNG</b> | Line: 678777705 | Telegram: @ThetAung7777
+      </div>
+    `;
+
+    // Print Area ထဲ ထည့်ပြီး Print ထုတ်ခြင်း
+    let pArea = document.getElementById('printArea');
+    pArea.innerHTML = html;
+    toggleMenu(null);
+    window.print();
+  };
+
+  // 📊 EXCEL EXPORT (အောက်ဆုံးတွင် နာရီစုစုပေါင်းများ ထပ်တိုးထားသည်)
+  window.exportExcel = () => {
+    const cards = document.querySelectorAll('.day-card');
+    if(cards.length === 0) { alert("ဇယား အရင်ဖန်တီးပါ။"); return; }
+    
+    let excelData = [ ["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"] ];
+    
+    cards.forEach(card => {
+      let date = card.getAttribute('data-date');
+      let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
+      let status = card.querySelector('.status-select').value || "-";
+      let ot = card.getAttribute('data-ot') || "0";
+      let total = card.getAttribute('data-total') || "0";
+      excelData.push([date, shift, status, ot, total]);
+    });
+    
+    let wStr = document.getElementById('workCount').innerText;
+    let dStr = document.getElementById('doubleCount').innerText;
+    let otCombine = document.getElementById('otTotalCombine').innerText;
+    let gTotal = document.getElementById('grandTotal').innerText;
+
+    excelData.push([]);
+    excelData.push(["", "", "", "Total Work Hours", wStr]);
+    excelData.push(["", "", "", "Double Day Hours", dStr]);
+    excelData.push(["", "", "", "Total OT Hours", otCombine]);
+    excelData.push(["", "", "", "Grand Total", gTotal]);
+    excelData.push([]);
+    excelData.push(["", "", "", "Developed by", "THET AUNG (Line: 678777705)"]);
+    
+    let wb = XLSX.utils.book_new();
+    let ws = XLSX.utils.aoa_to_sheet(excelData);
+    XLSX.utils.book_append_sheet(wb, ws, "Salary_Report");
+    let name = document.getElementById('empName').value || 'Employee';
+    XLSX.writeFile(wb, `${name}_Salary_Report.xlsx`);
+    toggleMenu(null);
+  };
+
+  // TXT Save 
+  window.saveReportToDevice = () => { /* TXT Logics... */ toggleMenu(null); };
+
+</script>
+</body>
+</html>
   
