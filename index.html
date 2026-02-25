@@ -320,7 +320,8 @@
   };
 
   window.generateGrid = (isNew = true) => {
-    const mVal = document.getElementById('selectedMonth').value;if (!mVal) return; closeSettings(); 
+    const mVal = document.getElementById('selectedMonth').value;
+    if (!mVal) return; closeSettings(); 
     let [y, m] = mVal.split('-');
     let startD = new Date(y, parseInt(m) - 1, 21), endD = new Date(y, parseInt(m), 20);
     const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
@@ -516,4 +517,3 @@
 </script>
 </body>
 </html>
-  
