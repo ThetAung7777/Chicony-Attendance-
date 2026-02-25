@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chicony Attendance & Salary (Online)</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  body { font-family: sans-serif; background-color: skyblue; margin: 0; padding-bottom: 20px; }
+  
+  /* Navbar & UI */
+  .navbar { background-color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+  .menu-btn, .profile-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; }
+  .app-title { text-align: center; margin: 0; line-height: 1.2; }
+  .logo-main { font-family: 'Arial Black', Impact, sans-serif; font-size: 26px; color: #000080; letter-spacing: -0.5px; }
+  .logo-tag { font-size: 12px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
+
+  /* Dropdown & Modals */
+  .dropdown { position: absolute; top: 50px; background-color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-radius: 5px; overflow: hidden; display: none; flex-direction: column; min-width: 200px; z-index: 200;}
+  .dropdown.left { left: 10px; }
+  .dropdown.right { right: 10px; }
+  .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; cursor: pointer;}
+  .dropdown a:hover { background-color: #f4f7f6; }
+
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 300; }
+  .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;}
+  .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #dc3545; border: none; background: none; font-weight: bold;}
+
+  /* Login Screen */
+  #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: skyblue; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .login-box { background: white; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 80%; max-width: 300px; }
+  .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
+  
+  /* Grid & Cards */
+  .container { padding: 15px; max-width: 800px; margin: auto; }
+  .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;}
+  .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
+  .setup-box input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 15px;}
+  .full-width { grid-column: span 2; }
+  .btn-generate { background-color: #007bff; color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;}
+  .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
+  .calendar-container { min-width: 700px; } 
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 14px; background: white; padding: 10px 0; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);}
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .day-card { border: 1px solid #ddd; padding: 6px; border-radius: 6px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 5px; transition: 0.3s;}
+  .blank-card { background: transparent; border: none; } 
+
+  /* Colors */
+  .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
+  .bg-red { background-color: #dc3545 !important; border-color: #b02a37 !important; }
+  .bg-pink { background-color: #c2185b !important; border-color: #ad1457 !important; }
+  .bg-dark-gray { background-color: #495057 !important; border-color: #343a40 !important; }
+  .bg-green .date-label, .bg-red .date-label, .bg-pink .date-label, .bg-dark-gray .date-label { color: white !important; }
+  .bg-pink .double-label { color: #ffeb3b !important; } 
+  .date-label { display: block; font-size: 13px; font-weight: bold; color: #007bff;}
+  
+  .day-card select, .day-card input { width: 100%; padding: 4px; font-size: 11px; border: 1px solid #ccc; border-radius: 4px; text-align: center; box-sizing: border-box; background-color: white; color: black;}
+  .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.9); padding: 4px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
+  .summary { margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .summary-item { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 6px;}
+  .summary-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .total-salary { font-size: 18px; color: #dc3545; margin-top: 10px; border-top: 2px solid #ccc; padding-top: 10px; }
+
+  /* Admin Panel Specific */
+  .user-list-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+  .user-list-item:hover { background: #f9f9f9; }
+  .badge { background: #c2185b; color: white; padding: 4px 10px; border-radius: 15px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; margin: 4px 4px 0 0; }
+  
+  .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:2000; display:none; justify-content:center; align-items:center; font-weight:bold; color:#000080;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <h2 style="color: #000080; margin-bottom: 5px;">CHICONY</h2>
+    <p style="font-size: 12px; color: #666; margin-top: 0;">ATTENDANCE SYSTEM</p>
+    <button class="google-btn" onclick="signIn()">
+      Login with Google
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingSpinner">Loading Data...</div>
+
+<div id="mainApp" style="display: none;">
+  <div class="navbar">
+    <button class="menu-btn" onclick="toggleMenu('leftMenu')">☰</button>
+    <div id="leftMenu" class="dropdown left">
+      <a href="#" onclick="saveReportToDevice()">📝 Save Report (Txt)</a>
+      <a href="#" onclick="exportExcel()">📊 Export Excel (.xlsx)</a>
+      <a href="#" onclick="exportPDF()">📄 Export PDF</a>
+      <a href="#" id="adminPanelBtn" onclick="openAdminPanel()" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;">🔐 Admin Panel (ဝန်ထမ်းစာရင်း)</a>
+      <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;">🚪 Logout</a>
+    </div>
+    
+    <h2 class="app-title">
+      <span class="logo-main">Chicony</span><br>
+      <span class="logo-tag">Attendance & Salary</span>
+    </h2>
+    
+    <button class="profile-btn" onclick="toggleMenu('rightMenu')">👤</button>
+    <div id="rightMenu" class="dropdown right">
+      <div style="padding: 10px 15px; font-size: 12px; color: #666; background: #f1f1f1;" id="userEmailDisplay"></div>
+      <a href="#" onclick="openSettings()">⚙️ Settings</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="calendar-wrapper" id="calendarSection">
+      <div class="calendar-container">
+        <div class="weekdays">
+          <div style="color: #dc3545;">တနင်္ဂနွေ</div>
+          <div>တနင်္လာ</div>
+          <div>အင်္ဂါ</div>
+          <div>ဗုဒ္ဓဟူး</div>
+          <div>ကြာသပတေး</div>
+          <div>သောကြာ</div>
+          <div style="color: #007bff;">စနေ</div>
+        </div>
+        <div class="calendar-grid" id="daysGrid"></div>
+      </div>
+    </div>
+
+    <div class="summary" id="summaryBox">
+      <div class="summary-item"><span>အလုပ်ဆင်းရက် / နာရီ</span> <span id="workCount">0 ရက် / 0 နာရီ</span></div>
+      <div class="summary-item" style="color: #c2185b;"><span>နှစ်ဆရက်</span> <span id="doubleCount">0 ရက် / 0 နာရီ</span></div>
+      <div class="summary-item" style="color: #fd7e14;"><span>OT ဆင်းသော ရက် / နာရီ</span> <span id="otDaysCount">0 ရက် / 0 နာရီ</span></div>
+      <div class="summary-item" style="color: #d35400;"><span>OT စုစုပေါင်း (2X + ပုံမှန်)</span> <span id="otTotalCombine">0 နာရီ</span></div>
+      <div class="summary-item" style="color: #dc3545;"><span>ပျက်ရက် (x)</span> <span id="absentCount">0 ရက်</span></div>
+      <div class="summary-item" style="color: #6c757d;"><span>ပိတ်ရက် (-)</span> <span id="holidayCount">0 ရက်</span></div>
+      <div class="summary-item" style="color: #17a2b8;"><span>ညဆိုင်း (Night Shift)</span> <span id="nightShiftDisplay">0 ရက်</span></div>
+      <div class="summary-item" style="color: #17a2b8;"><span>စုစုပေါင်း ညကြေး</span> <span id="nightAllowanceDisplay">0 ဘတ်</span></div>
+      <div class="summary-item" style="color: #28a745;"><span>စုစုပေါင်း ကားခ (Transport)</span> <span id="transportDisplay">0 ဘတ်</span></div>
+      <div class="summary-item" style="color: #6610f2;"><span>စုစုပေါင်း ထမင်းဖိုး</span> <span id="foodTotal">0 ဘတ်</span></div>
+      <div class="summary-item total-salary"><span>အသားတင် လစာ</span> <span id="grandTotal">0 ဘတ်</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeSettings()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #333;">⚙️ Settings</h3>
+    
+    <div class="setup-box">
+      <div class="full-width">
+        <label>အမည် (Name)</label>
+        <input type="text" id="empName" placeholder="အမည်ထည့်ပါ" oninput="saveToFirebase()">
+      </div>
+      <div class="full-width">
+        <label>ဝန်ထမ်းနံပါတ် (ID)</label>
+        <input type="text" id="empId" placeholder="ID ထည့်ပါ" oninput="saveToFirebase()">
+      </div>
+      <div class="full-width">
+        <label>လုပ်သက်စသည့်လ ရွေးရန်</label>
+        <input type="month" id="selectedMonth" oninput="saveToFirebase()">
+      </div>
+      <div><label>တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
+      <div><label>OT ကြေး (၁ နာရီ)</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
+    </div>
+    
+    <div class="holiday-box">
+      <label style="color: #c2185b;">★ နှစ်ဆရက် သတ်မှတ်ရန်</label>
+      <div style="margin-top: 5px;">
+        <input type="date" id="doubleDateInput">
+        <button class="btn-add" onclick="addDoubleDate()">ထည့်မည်</button>
+      </div>
+      <div id="doubleDatesList"></div>
+    </div>
+    <button class="btn-generate" onclick="generateGrid(true)">ဇယား ဖန်တီးမည်</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-content" style="max-width: 500px;">
+    <button class="close-modal" onclick="closeAdminPanel()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #000080;">👨‍💼 ဝန်ထမ်းစာရင်း (Admin)</h3>
+    <div id="adminUserList" style="margin-top: 15px;">
+      Fetching users...
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtE7JKTk0HhlLSYuj-8MiEkUPw4EnsmpU",
+    authDomain: "chicony-app.firebaseapp.com",
+    databaseURL: "https://chicony-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "chicony-app",
+    storageBucket: "chicony-app.firebasestorage.app",
+    messagingSenderId: "769429938968",
+    appId: "1:769429938968:web:aeb2228ab137f888ceb46d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const provider = new GoogleAuthProvider();
+
+  let currentUser = null;
+  const ADMIN_EMAIL = "ta.mmw.13.4.2018@gmail.com";
+  let appData = { settings: {}, attendance: {} };
+  let doubleDates = [];
+  window.appStats = {};
+
+  // --- Auth Functions ---
+  window.signIn = () => {
+    signInWithPopup(auth, provider).catch((error) => {
+        alert("ဝင်ရောက်ရန် အဆင်မပြေပါ။ အကြောင်းရင်း - " + error.message);
+    });
+  };
+
+  window.logout = () => {
+    signOut(auth).then(() => {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+      location.reload();
+    });
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      document.getElementById('userEmailDisplay').innerText = user.email;
+      
+      // Check Admin
+      if(user.email === ADMIN_EMAIL) {
+        document.getElementById('adminPanelBtn').style.display = 'block';
+      }
+
+      // Load Data
+      loadFromFirebase();
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+    }
+  });
+
+  // --- Database Functions ---
+  window.saveToFirebase = () => {
+    if (!currentUser) return;
+    
+    appData.settings = {
+      empName: document.getElementById('empName').value,
+      empId: document.getElementById('empId').value,
+      selectedMonth: document.getElementById('selectedMonth').value,
+      dailyWage: document.getElementById('dailyWage').value,
+      otRate: document.getElementById('otRate').value,
+      doubleDates: doubleDates
+    };
+    
+    appData.attendance = {};
+    const cards = document.querySelectorAll('.day-card');
+    cards.forEach(card => {
+      let dateKey = card.getAttribute('data-real-date');
+      if (dateKey) {
+        appData.attendance[dateKey] = {
+          shift: card.querySelector('.shift-select').value,
+          status: card.querySelector('.status-select').value,
+          ot: card.querySelector('.ot-select').value,
+          otHours: card.querySelector('.ot-hours').value
+        };
+      }
+    });
+
+    set(ref(db, 'users/' + currentUser.uid), appData);
+  };
+
+  function loadFromFirebase() {
+    document.getElementById('loadingSpinner').style.display = 'flex';
+    const userRef = ref(db, 'users/' + currentUser.uid);
+    onValue(userRef, (snapshot) => {
+      document.getElementById('loadingSpinner').style.display = 'none';
+      const data = snapshot.val();
+      if (data) {
+        appData = data;
+        if(appData.settings) {
+          document.getElementById('empName').value = appData.settings.empName || "";
+          document.getElementById('empId').value = appData.settings.empId || "";
+          document.getElementById('selectedMonth').value = appData.settings.selectedMonth || "";
+          document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
+          document.getElementById('otRate').value = appData.settings.otRate || 75;
+          doubleDates = appData.settings.doubleDates || [];
+          renderDoubleDates();
+          
+          if(appData.settings.selectedMonth) {
+            window.generateGrid(false);
+          }
+        }
+      } else {
+        let today = new Date();
+        let yyyy = today.getFullYear();
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        document.getElementById('selectedMonth').value = `${yyyy}-${mm}`;
+      }
+    }, { onlyOnce: true });
+  }
+
+  // --- Admin Functions ---
+  window.openAdminPanel = () => {
+    document.getElementById('adminModal').style.display = 'flex';
+    document.getElementById('leftMenu').style.display = 'none';
+    
+    const listDiv = document.getElementById('adminUserList');
+    listDiv.innerHTML = "Loading...";
+
+    get(ref(db, 'users')).then((snapshot) => {
+      if (snapshot.exists()) {
+        const users = snapshot.val();
+        listDiv.innerHTML = "";
+        
+        Object.keys(users).forEach(uid => {
+          const uData = users[uid];
+          const name = uData.settings?.empName || "Unknown Name";
+          const empId = uData.settings?.empId || "No ID";
+          
+          const div = document.createElement('div');
+          div.className = 'user-list-item';
+          div.innerHTML = `
+            <div>
+              <div style="font-weight:bold; color:#000080;">${name}</div>
+              <div style="font-size:12px; color:#666;">ID: ${empId}</div>
+            </div>
+            <button onclick="alert('Admin Panel အတွက် နောက်အဆင့်တွင် အသေးစိတ်ကြည့်ရန် ချိတ်ဆက်ပေးပါမည်။')" style="padding:5px 10px; background:#007bff; color:white; border:none; border-radius:4px; cursor:pointer;">View</button>
+          `;
+          listDiv.appendChild(div);
+        });
+      } else {
+        listDiv.innerHTML = "No users found.";
+      }
+    });
+  };
+
+  window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
+
+  // --- Global Logic ---
+  const myanmarDays = ["တနင်္ဂနွေ", "တနင်္လာ", "အင်္ဂါ", "ဗုဒ္ဓဟူး", "ကြာသပတေး", "သောကြာ", "စနေ"];
+  
+  window.toggleMenu = (menuId) => {
+    document.getElementById('leftMenu').style.display = 'none';
+    document.getElementById('rightMenu').style.display = 'none';
+    if(menuId) document.getElementById(menuId).style.display = 'flex';
+  };
+
+  window.openSettings = () => { document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
+  window.closeSettings = () => { document.getElementById('settingsModal').style.display = 'none'; };
+
+  window.addDoubleDate = () => {
+    const dateVal = document.getElementById('doubleDateInput').value;
+    if(dateVal && !doubleDates.includes(dateVal)) {
+      doubleDates.push(dateVal);
+      renderDoubleDates();
+      saveToFirebase();
+      if(document.getElementById('selectedMonth').value) generateGrid(true);
+    }
+  };
+
+  window.removeDoubleDate = (val) => {
+    doubleDates = doubleDates.filter(d => d !== val);
+    renderDoubleDates();
+    saveToFirebase();
+    if(document.getElementById('selectedMonth').value) generateGrid(true);
+  };
+
+  function renderDoubleDates() {
+    const container = document.getElementById('doubleDatesList');
+    container.innerHTML = '';
+    doubleDates.forEach(d => {
+      container.innerHTML += `<span class="badge">${d} <b onclick="removeDoubleDate('${d}')" style="cursor:pointer">×</b></span>`;
+    });
+  }
+
+  window.toggleOTInput = (selectElement) => {
+    const container = selectElement.parentElement;
+    const input = container.querySelector('.ot-hours');
+    if(selectElement.value === 'yes') {
+      input.style.display = 'block';
+    } else {
+      input.style.display = 'none';
+      input.value = ''; 
+    }
+    calculateAll();
+  };
+
+  window.generateGrid = (isNew = true) => {
+    const monthVal = document.getElementById('selectedMonth').value;
+    if (!monthVal) { alert("Please select a month."); return; }
+    
+    closeSettings(); 
+    let [year, month] = monthVal.split('-');
+    const startDate = new Date(year, parseInt(month) - 1, 21);
+    const endDate = new Date(year, parseInt(month), 20);
+
+    const grid = document.getElementById('daysGrid');
+    grid.innerHTML = ''; 
+    let currentDate = new Date(startDate);
+    
+    let startDayOfWeek = currentDate.getDay(); 
+    for(let i=0; i < startDayOfWeek; i++) {
+        const blankDiv = document.createElement('div');
+        blankDiv.className = 'blank-card';
+        grid.appendChild(blankDiv);
+    }
+    
+    while (currentDate <= endDate) {
+      let yyyy = currentDate.getFullYear();
+      let mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+      let dd = String(currentDate.getDate()).padStart(2, '0');
+      let dateKey = `${yyyy}-${mm}-${dd}`; 
+
+      let isDoubleDay = doubleDates.includes(dateKey);
+      let dayOfWeek = currentDate.getDay(); 
+      let isSunday = (dayOfWeek === 0);
+
+      let displayDay = currentDate.getDate();
+      let displayMonth = currentDate.toLocaleString('en-US', { month: 'short' });
+      let displayDateStr = `${displayDay} ${displayMonth}`; 
+      let fullExportDate = `${displayDay} ${displayMonth} (${myanmarDays[dayOfWeek]})`;
+
+      const div = document.createElement('div');
+      div.className = 'day-card';
+      div.setAttribute('data-date', fullExportDate);
+      div.setAttribute('data-real-date', dateKey); 
+      
+      div.innerHTML = `
+        <label class="date-label">${displayDateStr}</label>
+        ${isDoubleDay ? `<div class="double-label" style="font-size: 10px; color: #c2185b; font-weight: bold; margin-bottom: 2px;">★ နှစ်ဆရက်</div>` : `<div style="height: 10px;"></div>`}
+        <input type="hidden" class="is-double" value="${isDoubleDay}">
+
+        <select class="shift-select" onchange="calculateAll()" style="background-color: #e9ecef;">
+          <option value="day">☀️ နေ့ဆိုင်း</option>
+          <option value="night">🌙 ညဆိုင်း</option>
+        </select>
+
+        <select class="status-select" onchange="calculateAll()">
+          <option value="" ${!isSunday ? 'selected' : ''}>ရွေးရန်...</option>
+          <option value="✓">✓ ဆင်းသည်</option>
+          <option value="x">x ပျက်ရက်</option>
+          <option value="-" ${isSunday ? 'selected' : ''}>- ပိတ်ရက်</option>
+        </select>
+        
+        <select class="ot-select" onchange="toggleOTInput(this)">
+          <option value="no">OT မဆင်း</option>
+          <option value="yes">OT ဆင်း</option>
+        </select>
+        
+        <input type="number" class="ot-hours" placeholder="နာရီ" oninput="calculateAll()" style="display: none;" min="0" step="0.5">
+        <div class="daily-info">-</div>
+      `;
+      grid.appendChild(div);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    if (!isNew && appData.attendance) {
+      const cards = document.querySelectorAll('.day-card');
+      cards.forEach(card => {
+        let key = card.getAttribute('data-real-date');
+        if (appData.attendance[key]) {
+          let saved = appData.attendance[key];
+          card.querySelector('.shift-select').value = saved.shift || 'day';
+          card.querySelector('.status-select').value = saved.status || '';
+          card.querySelector('.ot-select').value = saved.ot || 'no';
+          let otInput = card.querySelector('.ot-hours');
+          otInput.value = saved.otHours || '';
+          if(saved.ot === 'yes') otInput.style.display = 'block';
+        }
+      });
+    }
+    calculateAll(); 
+  };
+
+  window.calculateAll = () => {
+    const dailyWage = parseFloat(document.getElementById('dailyWage').value) || 0;
+    const otRate = parseFloat(document.getElementById('otRate').value) || 0;
+    const cards = document.querySelectorAll('.day-card');
+    
+    let workCount = 0, doubleCount = 0, absentCount = 0, holidayCount = 0, nightCount = 0;
+    let totalOTHours = 0, otDaysCount = 0, grandTotal = 0, totalTransport = 0, totalFood = 0, totalNightAllowance = 0;
+
+    cards.forEach(card => {
+      const isDouble = card.querySelector('.is-double').value === 'true';
+      const shiftStatus = card.querySelector('.shift-select').value;
+      const status = card.querySelector('.status-select').value;
+      const otStatus = card.querySelector('.ot-select').value;
+      const otHours = parseFloat(card.querySelector('.ot-hours').value) || 0;
+      const infoBox = card.querySelector('.daily-info');
+
+      card.classList.remove('bg-green', 'bg-red', 'bg-pink', 'bg-dark-gray');
+
+      if (status === '✓') {
+        if (isDouble) {
+          card.classList.add('bg-pink'); 
+        } else if (shiftStatus === 'night') {
+          card.classList.add('bg-dark-gray'); 
+        } else {
+          card.classList.add('bg-green'); 
+        }
+      } else if (status === '-' || status === 'x') {
+        card.classList.add('bg-red'); 
+      }
+
+      let dailyPay = 0, dailyOTPay = 0, dailyFood = 0;
+
+      if (status === '✓') {
+        workCount++;
+        let basePay = isDouble ? (dailyWage * 2) : dailyWage;
+        if (isDouble) doubleCount++;
+        
+        dailyPay += basePay;
+        dailyPay += 40; 
+        totalTransport += 40;
+
+        if (shiftStatus === 'night') {
+            nightCount++;
+            dailyPay += 100;
+            totalNightAllowance += 100;
+        }
+
+        if (otStatus === 'yes') {
+          dailyFood = 60;
+          dailyOTPay = otHours * otRate;
+          totalOTHours += otHours;
+          if (otHours > 0) otDaysCount++; 
+        } else {
+          dailyFood = 30;
+        }
+
+        dailyPay += dailyFood + dailyOTPay;
+        totalFood += dailyFood;
+        grandTotal += dailyPay;
+
+        if(otHours > 0) infoBox.innerHTML = `${otHours}hr | ${dailyPay}฿`;
+        else infoBox.innerHTML = `${dailyPay}฿`;
+        
+      } else {
+        if (status === 'x') absentCount++;
+        else if (status === '-') holidayCount++;
+        infoBox.innerHTML = "-";
+      }
+      card.setAttribute('data-total', dailyPay);
+      card.setAttribute('data-ot', otHours);
+    });
+
+    window.appStats = { nightCount, doubleCount, totalOTHours, otDaysCount, grandTotal, totalTransport, totalFood, totalNightAllowance, absentCount };
+
+    let doubleDayOT = doubleCount * 8;
+    let grandTotalOT = doubleDayOT + totalOTHours; 
+
+    document.getElementById('workCount').innerText = `${workCount} ရက် / ${workCount * 8} နာရီ`;
+    document.getElementById('doubleCount').innerText = `${doubleCount} ရက် / ${doubleCount * 8} နာရီ`;
+    document.getElementById('absentCount').innerText = absentCount + " ရက်";
+    document.getElementById('holidayCount').innerText = holidayCount + " ရက်";
+    document.getElementById('otDaysCount').innerText = `${otDaysCount} ရက် / ${totalOTHours} နာရီ`;
+    document.getElementById('otTotalCombine').innerText = `${doubleDayOT} + ${totalOTHours} = ${grandTotalOT} နာရီ`;
+    
+    document.getElementById('nightShiftDisplay').innerText = nightCount + " ရက်";
+    document.getElementById('nightAllowanceDisplay').innerText = totalNightAllowance.toLocaleString() + " ဘတ်";
+    document.getElementById('transportDisplay').innerText = totalTransport.toLocaleString() + " ဘတ်";
+    document.getElementById('foodTotal').innerText = totalFood.toLocaleString() + " ဘတ်";
+    document.getElementById('grandTotal').innerText = grandTotal.toLocaleString() + " ဘတ်";
+
+    saveToFirebase(); 
+  };
+
+  window.saveReportToDevice = () => {
+    let name = document.getElementById('empName').value || 'Unknown';
+    let empId = document.getElementById('empId').value || 'Unknown';
+    let workStr = document.getElementById('workCount').innerText;
+    let doubleStr = document.getElementById('doubleCount').innerText;
+    let otStr = document.getElementById('otDaysCount').innerText;
+    let otCombineStr = document.getElementById('otTotalCombine').innerText;
+    let absentStr = document.getElementById('absentCount').innerText;
+    
+    let nightStr = window.appStats.nightCount + " ရက်";
+    let nightAllowanceStr = (window.appStats.nightCount * 100) + " ဘတ်";
+    let transportStr = document.getElementById('transportDisplay').innerText;
+    let foodStr = document.getElementById('foodTotal').innerText;
+    let grandTotal = document.getElementById('grandTotal').innerText;
+
+    let content = `[ Chicony Attendance & Salary Report ]\r\n`;
+    content += `--------------------------------------------------\r\n`;
+    content += `အမည် (Name)          : ${name}\r\n`;
+    content += `ဝန်ထမ်းနံပါတ် (ID)      : ${empId}\r\n`;
+    content += `--------------------------------------------------\r\n`;
+    content += `အလုပ်ဆင်းရက် / နာရီ    : ${workStr}\r\n`;
+    content += `နှစ်ဆရက် (2X Days)     : ${doubleStr}\r\n`;
+    content += `OT ဆင်းသော ရက် / နာရီ  : ${otStr}\r\n`;
+    content += `OT စုစုပေါင်း (2X+ပုံမှန်) : ${otCombineStr}\r\n`;
+    content += `ပျက်ရက်               : ${absentStr}\r\n`;
+    content += `ညဆိုင်း (Night Shift)   : ${nightStr}\r\n`;
+    content += `--------------------------------------------------\r\n`;
+    content += `စုစုပေါင်း ညကြေး        : ${nightAllowanceStr}\r\n`;
+    content += `စုစုပေါင်း ကားခ         : ${transportStr}\r\n`;
+    content += `စုစုပေါင်း ထမင်းဖိုး      : ${foodStr}\r\n`;
+    content += `--------------------------------------------------\r\n`;
+    content += `စုစုပေါင်း အသားတင်လစာ : ${grandTotal}\r\n`;
+    content += `--------------------------------------------------\r\n`;
+    
+    let blob = new Blob(["\uFEFF" + content], { type: "text/plain;charset=utf-8" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${name}_Salary_Report.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  window.exportPDF = () => window.print();
+
+  // Excel (.xlsx) အစစ် ထုတ်ပေးမည့် Function အသစ်
+  window.exportExcel = () => {
+    const cards = document.querySelectorAll('.day-card');
+    if(cards.length === 0) { alert("ဇယား အရင်ဖန်တီးပါ။"); return; }
+    
+    // Excel အတွက် Data များကို Array အနေဖြင့် စုစည်းခြင်း
+    let excelData = [];
+    
+    // ခေါင်းစဉ်ပိုင်း
+    excelData.push(["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"]);
+    
+    // ရက်အလိုက် Data များကို ထည့်သွင်းခြင်း
+    cards.forEach(card => {
+      let date = card.getAttribute('data-date');
+      let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
+      let status = card.querySelector('.status-select').value || "Not Set";
+      let ot = card.getAttribute('data-ot') || "0";
+      let total = card.getAttribute('data-total') || "0";
+      
+      excelData.push([date, shift, status, ot, total]);
+    });
+    
+    // အောက်ဆုံးတွင် စုစုပေါင်းလစာ ပြရန် နေရာလွတ်နှင့် စာသားထည့်ခြင်း
+    excelData.push([]); // အကွက်လွတ်
+    let grandTotal = document.getElementById('grandTotal').innerText;
+    excelData.push(["", "", "", "Grand Total", grandTotal]);
+    
+    // SheetJS အသုံးပြု၍ Excel Workbook တည်ဆောက်ခြင်း
+    let wb = XLSX.utils.book_new();
+    let ws = XLSX.utils.aoa_to_sheet(excelData);
+    XLSX.utils.book_append_sheet(wb, ws, "Salary_Report");
+    
+    // ဖိုင်နာမည် သတ်မှတ်၍ Save လုပ်ခြင်း
+    let name = document.getElementById('empName').value || 'Employee';
+    XLSX.writeFile(wb, `${name}_Salary_Report.xlsx`);
+    
+    // Menu ပြန်ပိတ်ရန်
+    toggleMenu(null);
+  };
+</script>
+</body>
+</html>
