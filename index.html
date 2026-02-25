@@ -197,9 +197,8 @@
 </div>
 
 <script type="module">
-  // Redirect System ပြန်သုံးထားသည် (Popup Error ရှင်းရန်)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -223,9 +222,29 @@
   let doubleDates = [];
   window.appStats = {};
 
-  // --- Auth Functions ---
+  // Catch the redirect result silently
+  getRedirectResult(auth).then((result) => {
+    if (result) console.log("Redirect login success");
+  }).catch((error) => {
+    console.error("Redirect Error: ", error);
+  });
+
+  // --- Hybrid Auth Functions (Popup + Redirect Fallback) ---
   window.signIn = () => {
-    signInWithRedirect(auth, provider); // Redirect is safer for mobile Github Pages
+    document.getElementById('loadingSpinner').style.display = 'flex';
+    
+    // ပထမဆုံး မြန်ဆန်တဲ့ Popup ဖြင့် စမ်းဝင်မည်
+    signInWithPopup(auth, provider).then(() => {
+        document.getElementById('loadingSpinner').style.display = 'none';
+    }).catch((error) => {
+        // ဖုန်းက Popup ကို ပိတ်ချလိုက်ရင် Redirect စနစ်သို့ အလိုအလျောက် ပြောင်းမည်
+        if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-blocked') {
+            signInWithRedirect(auth, provider);
+        } else {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            alert("ဝင်ရောက်ရန် အဆင်မပြေပါ။ အကြောင်းရင်း - " + error.message);
+        }
+    });
   };
 
   window.logout = () => {
@@ -295,7 +314,7 @@
     }, { onlyOnce: true });
   }
 
-  window.openAdminPanel = () => { /* Admin logic same as before */ };
+  window.openAdminPanel = () => { /* Admin logic */ };
   window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
 
   // --- Global Logic ---
@@ -415,13 +434,12 @@
     saveToFirebase(); 
   };
 
-  // 📄 CLEAN PDF EXPORT FUNCTION (စားပွဲဇယားအစစ်ဖြင့်)
+  // 📄 CLEAN PDF EXPORT FUNCTION
   window.exportPDF = () => {
     let name = document.getElementById('empName').value || '-';
     let empId = document.getElementById('empId').value || '-';
     let month = document.getElementById('selectedMonth').value || '-';
 
-    // ဇယားခေါင်းစဉ်
     let html = `
       <div class="print-header">
         <h2>Chicony Salary Report</h2>
@@ -434,7 +452,6 @@
         <tbody>
     `;
 
-    // ရက်အလိုက် ဒေတာများ
     document.querySelectorAll('.day-card').forEach(card => {
       let date = card.getAttribute('data-date');
       let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
@@ -444,7 +461,6 @@
       html += `<tr><td>${date}</td><td>${shift}</td><td>${status}</td><td>${ot}</td><td>${total}</td></tr>`;
     });
 
-    // အကျဉ်းချုပ် အပိုင်း
     let work = document.getElementById('workCount').innerText;
     let absent = document.getElementById('absentCount').innerText;
     let otSum = document.getElementById('otTotalCombine').innerText;
@@ -467,14 +483,13 @@
       </div>
     `;
 
-    // Print Area ထဲ ထည့်ပြီး Print ထုတ်ခြင်း
     let pArea = document.getElementById('printArea');
     pArea.innerHTML = html;
     toggleMenu(null);
     window.print();
   };
 
-  // 📊 EXCEL EXPORT (အောက်ဆုံးတွင် နာရီစုစုပေါင်းများ ထပ်တိုးထားသည်)
+  // 📊 EXCEL EXPORT
   window.exportExcel = () => {
     const cards = document.querySelectorAll('.day-card');
     if(cards.length === 0) { alert("ဇယား အရင်ဖန်တီးပါ။"); return; }
@@ -511,8 +526,7 @@
     toggleMenu(null);
   };
 
-  // TXT Save 
-  window.saveReportToDevice = () => { /* TXT Logics... */ toggleMenu(null); };
+  window.saveReportToDevice = () => { toggleMenu(null); };
 
 </script>
 </body>
