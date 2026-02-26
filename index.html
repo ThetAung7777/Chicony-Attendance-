@@ -79,12 +79,25 @@
   .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
   .dark-mode .day-card { background: #2c2c2c !important; border-color: #444 !important; }
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
-  .dark-mode div.ui-summary-box { background-color: #1e1e1e !important; box-shadow: none !important; border: 1px solid #444;}
+  
+  /* Dark Mode လစာအကျဉ်းချုပ် စာလုံးအဖြူပြောင်းရန် */
+  .dark-mode .ui-summary-box { background-color: #1e1e1e !important; box-shadow: none !important; border: 1px solid #444;}
+  .dark-mode .ui-summary-box span { color: #ccc !important; }
+  .dark-mode .ui-summary-box b { color: #fff !important; }
+  .dark-mode .ui-summary-box div { border-color: #444 !important; }
+  .dark-mode .ui-summary-box #grandTotal { color: #ff6b81 !important; } /* အသားတင်လစာကို ပိုလင်းအောင် */
+  
   .dark-mode .login-box { background: #1e1e1e !important; color: #e0e0e0; }
   .dark-mode #loginScreen { background-color: #121212 !important; }
   .dark-mode .setup-box label, .dark-mode .admin-user-details, .dark-mode .logo-tag { color: #bbb !important; }
-  .dark-mode .admin-user-card { background: #2c2c2c !important; border-color: #444 !important; }
+  .dark-mode .admin-user-card { background: #2c2c2c !important; border-color: #444 !important; color: #fff !important; }
   .dark-mode .admin-user-name { color: #82b1ff !important; }
+
+  /* Profile Dropdown Name Style */
+  .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
+  .profile-email-text { color: #666; font-size: 11px; }
+  .dark-mode .profile-name-text { color: #82b1ff !important; }
+  .dark-mode .profile-email-text { color: #bbb !important; }
 
   /* Print Styles */
   #printArea { display: none; }
@@ -109,7 +122,7 @@
 <div id="loginScreen">
   <div class="login-box">
     <h2 style="color: #000080; margin-bottom: 5px;" class="logo-main">CHICONY</h2>
-    <p style="font-size: 12px; color: #666; margin-top: 0;">ATTENDANCE SYSTEM</p>
+    <p style="font-size: 12px; color: #666; margin-top: 0;" class="logo-tag">ATTENDANCE SYSTEM</p>
     <button class="google-btn" onclick="signIn()">Login with Google</button>
   </div>
 </div>
@@ -138,7 +151,8 @@
     
     <button class="profile-btn" onclick="toggleMenu('rightMenu')">👤</button>
     <div id="rightMenu" class="dropdown right">
-      <div style="padding: 10px 15px; font-size: 12px; color: #666; background: #f1f1f1;" id="userEmailDisplay"></div>
+      <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay">
+          </div>
       <a href="#" onclick="openSettings()">⚙️ Settings</a>
     </div>
   </div>
@@ -160,8 +174,10 @@
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span>OT စုစုပေါင်း (2X + ပုံမှန်)</span> <b id="otTotalCombine">0 နာရီ</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #dc3545;"><span>ပျက်ရက် (x)</span> <b id="absentCount">0 ရက်</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span>ပိတ်ရက် (-)</span> <b id="holidayCount">0 ရက်</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span>ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0 ရက်</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span>စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0 ဘတ်</b></div>
+      
+      <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span>ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0 ရက်</b></div>
+      <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span>စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0 ဘတ်</b></div>
+      
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span>စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0 ဘတ်</b></div>
       
       <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px; color:#6610f2;">
@@ -172,7 +188,7 @@
       </div>
       
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span>ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0 ဘတ်</b></div>
-      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;"><b>အသားတင် လစာ</b> <b id="grandTotal">0 ဘတ်</b></div>
+      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;"><b>အသားတင် လစာ</b> <b id="grandTotal" style="color:#dc3545;">0 ဘတ်</b></div>
     </div>
 
     <div class="developer-footer">
@@ -189,11 +205,11 @@
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-content">
     <button class="close-modal" onclick="closeSettings()">×</button>
-    <h3 style="margin-top: 0; text-align: center; color: #333;">⚙️ Settings</h3>
+    <h3 style="margin-top: 0; text-align: center; color: #333;" class="logo-main">⚙️ Settings</h3>
     <div class="setup-box">
       <div class="full-width"><label>အမည် (Name)</label><input type="text" id="empName" placeholder="အမည်ထည့်ပါ" oninput="saveToFirebase()"></div>
       <div class="full-width"><label>ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID ထည့်ပါ" oninput="saveToFirebase()"></div>
-      <div class="full-width"><label>လုပ်သက်စသည့်လ ရွေးရန်</label><input type="month" id="selectedMonth" oninput="saveToFirebase()"></div>
+      <div class="full-width"><label>လရွေးချယ်ရန်</label><input type="month" id="selectedMonth" onchange="generateGrid(false)"></div>
       <div><label>တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
       <div><label>OT ကြေး (၁ နာရီ)</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
       <div class="full-width">
@@ -217,17 +233,16 @@
     
     <div style="display:flex; gap:10px; margin-top: 20px;">
       <button class="btn-generate" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px;">💾 ပြင်ဆင်ချက်ကို သိမ်းမည်</button>
-      <button class="btn-generate" onclick="confirmGenerateNew()" style="background:#dc3545; margin-top:0; padding:10px;">⚠️ ဇယားအသစ်ဆွဲမည်</button>
-    </div>
-    <p style="font-size: 11px; color: #666; text-align: center; margin-top: 8px;">(မှတ်ချက်: ဇယားအသစ်ဆွဲပါက ယခုမှတ်ထားသော ဒေတာများ ပျက်သွားပါမည်)</p>
+      </div>
+    <p style="font-size: 11px; color: #666; text-align: center; margin-top: 8px;">(မှတ်ချက်: ဒေတာဟောင်းများ မပျက်တော့ပါ။ အပေါ်မှ လ ပြောင်းရွေးလိုက်ပါက ယခင်လများသို့ ပြန်သွားနိုင်ပါသည်။)</p>
   </div>
 </div>
 
 <div class="modal-overlay" id="exportModal">
   <div class="modal-content">
     <button class="close-modal" onclick="closeExportModal()">×</button>
-    <h3 style="margin-top: 0; text-align: center; color: #000080;">📤 ထုတ်ယူမည့် ရက်စွဲ</h3>
-    <p style="font-size:12px; color:#666; text-align:center;">မှတ်ချက် - ဇယားတွင် နောက်ဆုံးဖြည့်ထားသည့်ရက်ကို အလိုအလျောက် ရွေးပေးထားပါသည်။</p>
+    <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main">📤 ထုတ်ယူမည့် ရက်စွဲ</h3>
+    <p style="font-size:12px; color:#666; text-align:center;">မှတ်ချက် - Database ထဲတွင် နောက်ဆုံးဖြည့်ထားသည့်ရက်ကို အလိုအလျောက် ရွေးပေးထားပါသည်။</p>
     <div class="setup-box">
       <div class="full-width"><label>စတင်မည့်ရက် (Start Date)</label><input type="date" id="exportStartDate"></div>
       <div class="full-width"><label>အဆုံးသတ်ရက် (End Date)</label><input type="date" id="exportEndDate"></div>
@@ -242,7 +257,7 @@
 <div class="modal-overlay" id="adminModal">
   <div class="modal-content" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
     <button class="close-modal" onclick="closeAdminPanel()">×</button>
-    <h3 style="margin-top: 0; text-align: center; color: #000080;">👨‍💼 ဝန်ထမ်းစာရင်း (Admin)</h3>
+    <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main">👨‍💼 ဝန်ထမ်းစာရင်း (Admin)</h3>
     <div id="adminUserList" style="margin-top: 15px;">
       </div>
   </div>
@@ -307,7 +322,13 @@
       currentUser = user;
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
-      document.getElementById('userEmailDisplay').innerText = user.email;
+      
+      // ပုံသေ အနေဖြင့် Gmail ကို အရင်ပြထားမည်
+      document.getElementById('userEmailDisplay').innerHTML = `
+        <div class="profile-name-text">Loading...</div>
+        <div class="profile-email-text">${user.email}</div>
+      `;
+
       if(user.email === ADMIN_EMAIL) document.getElementById('adminPanelBtn').style.display = 'flex';
       loadFromFirebase();
     } else {
@@ -324,7 +345,10 @@
       otRate: document.getElementById('otRate').value, attBonusSetting: document.getElementById('attBonusSetting').value,
       doubleDates: doubleDates
     };
-    appData.attendance = {};
+    
+    // ဒေတာဟောင်းများ မပျက်စေရန် အသစ်တွေကိုသာ ထပ်ပေါင်းထည့်မည် (Merge)
+    if (!appData.attendance) appData.attendance = {};
+    
     const cards = document.querySelectorAll('.day-card');
     cards.forEach(card => {
       let dateKey = card.getAttribute('data-real-date');
@@ -354,10 +378,22 @@
           document.getElementById('attBonusSetting').value = appData.settings.attBonusSetting || "0";
           doubleDates = appData.settings.doubleDates || [];
           renderDoubleDates();
+          
+          // Profile တွင် အမည် ဖော်ပြခြင်း
+          let uName = appData.settings.empName || "User";
+          document.getElementById('userEmailDisplay').innerHTML = `
+            <div class="profile-name-text">${uName}</div>
+            <div class="profile-email-text">${currentUser.email}</div>
+          `;
+
           if(appData.settings.selectedMonth) window.generateGrid(false);
         }
       } else {
         let d = new Date(); document.getElementById('selectedMonth').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        document.getElementById('userEmailDisplay').innerHTML = `
+            <div class="profile-name-text">New User</div>
+            <div class="profile-email-text">${currentUser.email}</div>
+        `;
       }
     }, { onlyOnce: true });
   }
@@ -468,8 +504,7 @@
     calculateAll();
   };
 
-  window.updateSettings = () => { saveToFirebase(); calculateAll(); closeSettings(); alert("ပြင်ဆင်ချက်များကို သိမ်းဆည်းပြီးပါပြီ။ (ဇယားဒေတာများ မပျက်ပါ)"); };
-  window.confirmGenerateNew = () => { if(confirm("သတိပေးချက်: ဇယားအသစ်ဆွဲပါက ယခုမှတ်ထားသော အချက်အလက်များ အားလုံးပျက်သွားပါမည်။ သေချာပါသလား?")) generateGrid(true); };
+  window.updateSettings = () => { saveToFirebase(); calculateAll(); closeSettings(); alert("ပြင်ဆင်ချက်များကို သိမ်းဆည်းပြီးပါပြီ။"); };
 
   window.generateGrid = (isNew = true) => {
     const mVal = document.getElementById('selectedMonth').value;
@@ -556,7 +591,18 @@
     // နေ/လ Icon ပြောင်းမည်
     document.getElementById('titleShiftIcon').innerText = (lastFilledShift === 'night') ? '🌙' : '☀️';
 
-    // ထမင်းဖိုး တွက်ချက်ခြင်း အသစ်
+    // ညဆိုင်း မဆင်းပါက ဇယားအောက်တွင် ဖျောက်ထားမည့်စနစ်
+    let rowNS = document.getElementById('rowNightShift');
+    let rowNA = document.getElementById('rowNightAllowance');
+    if (night > 0) {
+        rowNS.style.display = 'flex';
+        rowNA.style.display = 'flex';
+    } else {
+        rowNS.style.display = 'none';
+        rowNA.style.display = 'none';
+    }
+
+    // ထမင်းဖိုး တွက်ချက်ခြင်း 
     let nonOtDays = work - otDays;
     let foodOtTotal = otDays * 60;
     let foodNoOtTotal = nonOtDays * 30;
@@ -572,11 +618,13 @@
     document.getElementById('holidayCount').innerText = `${holiday} ရက်`;
     document.getElementById('otDaysCount').innerText = `${otDays} ရက် / ${otHrs} နာရီ`;
     document.getElementById('otTotalCombine').innerText = `${dOT} + ${otHrs} = ${grandOT} နာရီ`;
+    
     document.getElementById('nightShiftDisplay').innerText = `${night} ရက်`;
     document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ဘတ်`;
+    
     document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ဘတ်`;
     
-    // ထမင်းဖိုး Display အသစ်
+    // ထမင်းဖိုး Display
     document.getElementById('foodOtDays').innerText = otDays;
     document.getElementById('foodOtTotal').innerText = `${foodOtTotal.toLocaleString()} ဘတ်`;
     document.getElementById('foodNoOtDays').innerText = nonOtDays;
