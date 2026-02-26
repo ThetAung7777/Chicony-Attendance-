@@ -37,7 +37,7 @@
   .container { padding: 15px; max-width: 800px; margin: auto; }
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
-  .setup-box input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 15px;}
+  .setup-box input, .setup-box select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px;}
   .full-width { grid-column: span 2; }
   .btn-generate { background-color: #007bff; color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;}
   .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
@@ -60,12 +60,18 @@
   .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.9); padding: 4px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
   
   /* Developer Info */
-  .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
   .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
   .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
   .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
 
-  /* Print Styles (For Clean PDF Export) */
+  /* Admin Panel List Styles */
+  .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: left;}
+  .admin-user-name { font-weight: bold; color: #000080; font-size: 15px; margin-bottom: 5px;}
+  .admin-user-details { font-size: 13px; color: #444; }
+  .admin-user-salary { font-weight: bold; color: #dc3545; font-size: 14px; margin-top: 8px; border-top: 1px dashed #ccc; padding-top: 8px;}
+
+  /* Print Styles */
   #printArea { display: none; }
   @media print {
     body { background: white; padding: 0; font-family: 'Times New Roman', serif; }
@@ -89,9 +95,7 @@
   <div class="login-box">
     <h2 style="color: #000080; margin-bottom: 5px;">CHICONY</h2>
     <p style="font-size: 12px; color: #666; margin-top: 0;">ATTENDANCE SYSTEM</p>
-    <button class="google-btn" onclick="signIn()">
-      Login with Google
-    </button>
+    <button class="google-btn" onclick="signIn()">Login with Google</button>
   </div>
 </div>
 
@@ -103,10 +107,8 @@
   <div class="navbar">
     <button class="menu-btn" onclick="toggleMenu('leftMenu')">☰</button>
     <div id="leftMenu" class="dropdown left">
-      <a href="#" onclick="saveReportToDevice()">📝 Save Report (Txt)</a>
-      <a href="#" onclick="exportExcel()">📊 Export Excel (.xlsx)</a>
-      <a href="#" onclick="exportPDF()">📄 Export Clean PDF</a>
-      <a href="#" id="adminPanelBtn" onclick="openAdminPanel()" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;">🔐 Admin Panel (ဝန်ထမ်းစာရင်း)</a>
+      <a href="#" onclick="openExportModal()">📥 Export (Excel / PDF)</a>
+      <a href="#" id="adminPanelBtn" onclick="openAdminPanel()" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;">🔐 Admin Panel</a>
       <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;">🚪 Logout</a>
     </div>
     
@@ -126,13 +128,7 @@
     <div class="calendar-wrapper" id="calendarSection">
       <div class="calendar-container">
         <div class="weekdays">
-          <div style="color: #dc3545;">တနင်္ဂနွေ</div>
-          <div>တနင်္လာ</div>
-          <div>အင်္ဂါ</div>
-          <div>ဗုဒ္ဓဟူး</div>
-          <div>ကြာသပတေး</div>
-          <div>သောကြာ</div>
-          <div style="color: #007bff;">စနေ</div>
+          <div style="color: #dc3545;">တနင်္ဂနွေ</div><div>တနင်္လာ</div><div>အင်္ဂါ</div><div>ဗုဒ္ဓဟူး</div><div>ကြာသပတေး</div><div>သောကြာ</div><div style="color: #007bff;">စနေ</div>
         </div>
         <div class="calendar-grid" id="daysGrid"></div>
       </div>
@@ -149,6 +145,7 @@
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span>စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0 ဘတ်</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span>စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0 ဘတ်</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6610f2;"><span>စုစုပေါင်း ထမင်းဖိုး</span> <b id="foodTotal">0 ဘတ်</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span>ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0 ဘတ်</b></div>
       <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;"><b>အသားတင် လစာ</b> <b id="grandTotal">0 ဘတ်</b></div>
     </div>
 
@@ -167,15 +164,22 @@
   <div class="modal-content">
     <button class="close-modal" onclick="closeSettings()">×</button>
     <h3 style="margin-top: 0; text-align: center; color: #333;">⚙️ Settings</h3>
-    
     <div class="setup-box">
       <div class="full-width"><label>အမည် (Name)</label><input type="text" id="empName" placeholder="အမည်ထည့်ပါ" oninput="saveToFirebase()"></div>
       <div class="full-width"><label>ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID ထည့်ပါ" oninput="saveToFirebase()"></div>
       <div class="full-width"><label>လုပ်သက်စသည့်လ ရွေးရန်</label><input type="month" id="selectedMonth" oninput="saveToFirebase()"></div>
       <div><label>တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
       <div><label>OT ကြေး (၁ နာရီ)</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
+      <div class="full-width">
+        <label>ရက်မှန်ကြေး သတ်မှတ်ရန် (Bonus)</label>
+        <select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;">
+          <option value="0">မယူပါ (0 ฿)</option>
+          <option value="500">500 ฿</option>
+          <option value="800">800 ฿</option>
+          <option value="1000">1000 ฿</option>
+        </select>
+      </div>
     </div>
-    
     <div style="margin-top: 15px;">
       <label style="color: #c2185b; font-weight:bold; font-size:13px;">★ နှစ်ဆရက် သတ်မှတ်ရန်</label>
       <div style="margin-top: 5px; display:flex; gap:5px;">
@@ -184,22 +188,42 @@
       </div>
       <div id="doubleDatesList"></div>
     </div>
-    <button class="btn-generate" onclick="generateGrid(true)">ဇယား ဖန်တီးမည်</button>
+    
+    <div style="display:flex; gap:10px; margin-top: 20px;">
+      <button class="btn-generate" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px;">💾 ပြင်ဆင်ချက်ကို သိမ်းမည်</button>
+      <button class="btn-generate" onclick="confirmGenerateNew()" style="background:#dc3545; margin-top:0; padding:10px;">⚠️ ဇယားအသစ်ဆွဲမည်</button>
+    </div>
+    <p style="font-size: 11px; color: #666; text-align: center; margin-top: 8px;">(မှတ်ချက်: ဇယားအသစ်ဆွဲပါက ယခုမှတ်ထားသော ဒေတာများ ပျက်သွားပါမည်)</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="exportModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeExportModal()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #000080;">📤 ထုတ်ယူမည့် ရက်စွဲ</h3>
+    <p style="font-size:12px; color:#666; text-align:center;">မှတ်ချက် - မရောက်သေးသောရက်များကို ဇယားတွင် ဖော်ပြမည်မဟုတ်ပါ။</p>
+    <div class="setup-box">
+      <div class="full-width"><label>စတင်မည့်ရက် (Start Date)</label><input type="date" id="exportStartDate"></div>
+      <div class="full-width"><label>အဆုံးသတ်ရက် (End Date)</label><input type="date" id="exportEndDate"></div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top: 20px;">
+      <button class="btn-generate" onclick="exportExcel()" style="background:#28a745; margin-top:0;">📊 Excel</button>
+      <button class="btn-generate" onclick="exportPDF()" style="background:#dc3545; margin-top:0;">📄 PDF</button>
+    </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="adminModal">
-  <div class="modal-content" style="max-width: 500px;">
+  <div class="modal-content" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
     <button class="close-modal" onclick="closeAdminPanel()">×</button>
     <h3 style="margin-top: 0; text-align: center; color: #000080;">👨‍💼 ဝန်ထမ်းစာရင်း (Admin)</h3>
-    <div id="adminUserList" style="margin-top: 15px;">Fetching users...</div>
+    <div id="adminUserList" style="margin-top: 15px;">
+      </div>
   </div>
 </div>
-
 <script type="module">
-  // Redirect System ပြန်သုံးထားသည် (Popup Error ရှင်းရန်)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -218,14 +242,19 @@
   const provider = new GoogleAuthProvider();
 
   let currentUser = null;
-  const ADMIN_EMAIL = "ta.mmw.13.4.2018@gmail.com";
+  // Admin Email ကို အောက်ပါအတိုင်း သတ်မှတ်ထားပါသည်
+  const ADMIN_EMAIL = "ta.mmw.13.4.2018@gmail.com"; 
   let appData = { settings: {}, attendance: {} };
   let doubleDates = [];
-  window.appStats = {};
 
-  // --- Auth Functions ---
+  // Catch redirect login silently
+  getRedirectResult(auth).then((result) => {
+    if (result) console.log("Redirect login success");
+  }).catch((error) => console.error("Redirect Error: ", error));
+
   window.signIn = () => {
-    signInWithRedirect(auth, provider); // Redirect is safer for mobile Github Pages
+    document.getElementById('loadingSpinner').style.display = 'flex';
+    signInWithRedirect(auth, provider);
   };
 
   window.logout = () => {
@@ -242,7 +271,12 @@
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       document.getElementById('userEmailDisplay').innerText = user.email;
-      if(user.email === ADMIN_EMAIL) document.getElementById('adminPanelBtn').style.display = 'block';
+      
+      // Admin ဖြစ်ပါက Admin Panel ခလုတ်ကို ပြမည်
+      if(user.email === ADMIN_EMAIL) {
+          document.getElementById('adminPanelBtn').style.display = 'flex';
+      }
+      
       loadFromFirebase();
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
@@ -256,7 +290,8 @@
     appData.settings = {
       empName: document.getElementById('empName').value, empId: document.getElementById('empId').value,
       selectedMonth: document.getElementById('selectedMonth').value, dailyWage: document.getElementById('dailyWage').value,
-      otRate: document.getElementById('otRate').value, doubleDates: doubleDates
+      otRate: document.getElementById('otRate').value, attBonusSetting: document.getElementById('attBonusSetting').value,
+      doubleDates: doubleDates
     };
     appData.attendance = {};
     const cards = document.querySelectorAll('.day-card');
@@ -285,6 +320,7 @@
           document.getElementById('selectedMonth').value = appData.settings.selectedMonth || "";
           document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
           document.getElementById('otRate').value = appData.settings.otRate || 75;
+          document.getElementById('attBonusSetting').value = appData.settings.attBonusSetting || "0";
           doubleDates = appData.settings.doubleDates || [];
           renderDoubleDates();
           if(appData.settings.selectedMonth) window.generateGrid(false);
@@ -295,10 +331,97 @@
     }, { onlyOnce: true });
   }
 
-  window.openAdminPanel = () => { /* Admin logic same as before */ };
+  // --- Admin Panel Logic အသစ် ---
+  window.openAdminPanel = () => {
+    document.getElementById('adminModal').style.display = 'flex';
+    document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">အချက်အလက်များ ရယူနေပါသည်... ⏳</div>';
+    toggleMenu(null);
+
+    // Database ထဲရှိ အသုံးပြုသူအားလုံး၏ ဒေတာကို ဆွဲယူခြင်း
+    get(ref(db, 'users')).then((snapshot) => {
+      if (snapshot.exists()) {
+        let allUsers = snapshot.val();
+        let totalEmployees = 0;
+        let grandTotalSalary = 0;
+        let userCardsHTML = '';
+
+        for (let uid in allUsers) {
+          let uData = allUsers[uid];
+          // အမည်မဖြည့်ထားသော အကောင့်အလွတ်များကို ကျော်သွားမည်
+          if (!uData.settings || !uData.settings.empName) continue; 
+          
+          totalEmployees++;
+          let name = uData.settings.empName;
+          let empId = uData.settings.empId || '-';
+          let wage = parseFloat(uData.settings.dailyWage) || 0;
+          let otRate = parseFloat(uData.settings.otRate) || 0;
+          let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0;
+          let uDoubleDates = uData.settings.doubleDates || [];
+          
+          let uWork = 0, uAbsent = 0, uOtHrs = 0, uDouble = 0, uTotalPay = 0;
+          
+          // လစာ တွက်ချက်ခြင်း
+          if (uData.attendance) {
+            for (let dateKey in uData.attendance) {
+              let record = uData.attendance[dateKey];
+              let isDouble = uDoubleDates.includes(dateKey);
+              let status = record.status;
+              let shift = record.shift;
+              let otStatus = record.ot;
+              let otVal = parseFloat(record.otHours) || 0;
+              
+              let dPay = 0, fPay = 0;
+              if (status === '✓') {
+                uWork++;
+                let bPay = isDouble ? (wage * 2) : wage;
+                if (isDouble) uDouble++;
+                dPay += bPay + 40; // transport
+                if (shift === 'night') { dPay += 100; }
+                if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; }
+                dPay += fPay;
+                uTotalPay += dPay;
+              } else if (status === 'x') {
+                uAbsent++;
+              }
+            }
+          }
+          
+          let uBonus = (uAbsent > 0) ? 0 : bonusSetting;
+          uTotalPay += uBonus;
+          grandTotalSalary += uTotalPay;
+
+          // ဝန်ထမ်းတစ်ဦးချင်းစီ၏ Card ဒီဇိုင်း
+          userCardsHTML += `
+            <div class="admin-user-card">
+              <div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div>
+              <div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">
+                ဆင်းရက်: <b>${uWork}</b> ရက် | ပျက်ရက်: <b>${uAbsent}</b> ရက် <br>
+                OT: <b>${uOtHrs}</b> နာရီ | နှစ်ဆရက်: <b>${uDouble}</b> ရက်
+              </div>
+              <div class="admin-user-salary">💰 ခန့်မှန်းလစာ: ${uTotalPay.toLocaleString()} ဘတ်</div>
+            </div>
+          `;
+        }
+
+        // စုစုပေါင်း အကျဉ်းချုပ် ပြသခြင်း
+        let summaryHTML = `
+          <div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;">
+            <div style="font-weight:bold; color:#333; font-size: 14px;">စုစုပေါင်း ဝန်ထမ်းအရေအတွက်: <span style="color:#007bff; font-size: 16px;">${totalEmployees} ယောက်</span></div>
+            <div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">စုစုပေါင်း ပေးရမည့် လစာငွေ: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ဘတ်</span></div>
+          </div>
+        `;
+
+        document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">ဒေတာမရှိသေးပါ။</div>');
+      } else {
+        document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">ဒေတာမရှိပါ။</div>';
+      }
+    }).catch((error) => {
+      document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>';
+    });
+  };
   window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
 
-  // --- Global Logic ---
+  // --- UI & Grid Logic ---
   const myanmarDays = ["တနင်္ဂနွေ", "တနင်္လာ", "အင်္ဂါ", "ဗုဒ္ဓဟူး", "ကြာသပတေး", "သောကြာ", "စနေ"];
   window.toggleMenu = (id) => { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; if(id) document.getElementById(id).style.display='flex'; };
   window.openSettings = () => { document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
@@ -310,13 +433,28 @@
   };
   window.removeDoubleDate = (v) => { doubleDates = doubleDates.filter(d => d !== v); renderDoubleDates(); saveToFirebase(); if(document.getElementById('selectedMonth').value) generateGrid(true); };
   function renderDoubleDates() {
-    document.getElementById('doubleDatesList').innerHTML = doubleDates.map(d => `<span class="badge">${d} <b onclick="removeDoubleDate('${d}')" style="cursor:pointer">×</b></span>`).join('');
+    document.getElementById('doubleDatesList').innerHTML = doubleDates.map(d => `<span class="badge" style="background:#c2185b; color:white; padding:4px 8px; border-radius:15px; font-size:12px; display:inline-block; margin:2px;">${d} <b onclick="removeDoubleDate('${d}')" style="cursor:pointer">×</b></span>`).join('');
   }
 
   window.toggleOTInput = (el) => {
     let input = el.parentElement.querySelector('.ot-hours');
     if(el.value === 'yes') input.style.display = 'block'; else { input.style.display = 'none'; input.value = ''; }
     calculateAll();
+  };
+
+  // 💾 ပြင်ဆင်ချက်များကို သိမ်းမည့် Function
+  window.updateSettings = () => {
+    saveToFirebase();
+    calculateAll();
+    closeSettings();
+    alert("ပြင်ဆင်ချက်များကို သိမ်းဆည်းပြီးပါပြီ။ (ဇယားဒေတာများ မပျက်ပါ)");
+  };
+
+  // ⚠️ ဇယားအသစ်ဆွဲမည်ကို နှိပ်လျှင် သတိပေးမည့် Function
+  window.confirmGenerateNew = () => {
+    if(confirm("သတိပေးချက်: ဇယားအသစ်ဆွဲပါက ယခုမှတ်ထားသော အချက်အလက်များ အားလုံးပျက်သွားပါမည်။ သေချာပါသလား?")) {
+      generateGrid(true);
+    }
   };
 
   window.generateGrid = (isNew = true) => {
@@ -371,6 +509,8 @@
   window.calculateAll = () => {
     const wage = parseFloat(document.getElementById('dailyWage').value) || 0;
     const rate = parseFloat(document.getElementById('otRate').value) || 0;
+    const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
+    
     let work=0, double=0, absent=0, holiday=0, night=0, otHrs=0, otDays=0, total=0, transport=0, food=0, nightPay=0;
 
     document.querySelectorAll('.day-card').forEach(c => {
@@ -398,6 +538,10 @@
       c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
     });
 
+    // ပျက်ရက် ၁ ရက်ရှိတာနဲ့ ရက်မှန်ကြေး 0 ဖြစ်မည့်စနစ်
+    let finalBonus = (absent > 0) ? 0 : bonusSetting;
+    total += finalBonus;
+
     let dOT = double * 8, grandOT = dOT + otHrs; 
 
     document.getElementById('workCount').innerText = `${work} ရက် / ${work*8} နာရီ`;
@@ -410,22 +554,43 @@
     document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ဘတ်`;
     document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ဘတ်`;
     document.getElementById('foodTotal').innerText = `${food.toLocaleString()} ဘတ်`;
+    document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ဘတ်`;
     document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ဘတ်`;
 
     saveToFirebase(); 
   };
 
-  // 📄 CLEAN PDF EXPORT FUNCTION (စားပွဲဇယားအစစ်ဖြင့်)
+  // --- Export Date Range Logic ---
+  window.openExportModal = () => {
+    let firstCard = document.querySelector('.day-card');
+    if(firstCard) document.getElementById('exportStartDate').value = firstCard.getAttribute('data-real-date');
+    let today = new Date();
+    let todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    document.getElementById('exportEndDate').value = todayStr;
+    document.getElementById('exportModal').style.display = 'flex';
+    toggleMenu(null);
+  };
+  window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
+
+  // 📄 EXPORT PDF
   window.exportPDF = () => {
+    let sDate = document.getElementById('exportStartDate').value;
+    let eDate = document.getElementById('exportEndDate').value;
+    if(!sDate || !eDate) { alert("ရက်စွဲများကို ရွေးချယ်ပါ"); return; }
+    if(sDate > eDate) { alert("စတင်မည့်ရက်သည် အဆုံးသတ်ရက်ထက် စောရပါမည်"); return; }
+
     let name = document.getElementById('empName').value || '-';
     let empId = document.getElementById('empId').value || '-';
-    let month = document.getElementById('selectedMonth').value || '-';
+    
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let sD = new Date(sDate); let eD = new Date(eDate);
+    let dateTitle = `${sD.getDate()}-${months[sD.getMonth()]}-${sD.getFullYear()} to ${eD.getDate()}-${months[eD.getMonth()]}-${eD.getFullYear()}`;
 
-    // ဇယားခေါင်းစဉ်
     let html = `
       <div class="print-header">
         <h2>Chicony Salary Report</h2>
-        <p><b>Name:</b> ${name} &nbsp;|&nbsp; <b>ID:</b> ${empId} &nbsp;|&nbsp; <b>Month:</b> ${month}</p>
+        <p><b>Name:</b> ${name} &nbsp;|&nbsp; <b>ID:</b> ${empId}</p>
+        <p style="color:#000080; font-weight:bold; margin-top:5px;">Date: ${dateTitle}</p>
       </div>
       <table class="print-table">
         <thead>
@@ -434,72 +599,89 @@
         <tbody>
     `;
 
-    // ရက်အလိုက် ဒေတာများ
+    let expWork=0, expDouble=0, expAbsent=0, expHoliday=0, expOtHrs=0, expTotal=0;
+    let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
+
     document.querySelectorAll('.day-card').forEach(card => {
-      let date = card.getAttribute('data-date');
-      let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
-      let status = card.querySelector('.status-select').value || "-";
-      let ot = card.getAttribute('data-ot') || "0";
-      let total = card.getAttribute('data-total') || "0";
-      html += `<tr><td>${date}</td><td>${shift}</td><td>${status}</td><td>${ot}</td><td>${total}</td></tr>`;
+      let rDate = card.getAttribute('data-real-date');
+      if(rDate >= sDate && rDate <= eDate) {
+        let date = card.getAttribute('data-date');
+        let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
+        let status = card.querySelector('.status-select').value || "-";
+        let ot = card.getAttribute('data-ot') || "0";
+        let total = parseFloat(card.getAttribute('data-total') || "0");
+        
+        html += `<tr><td>${date}</td><td>${shift}</td><td>${status}</td><td>${ot}</td><td>${total}</td></tr>`;
+        
+        if(status === '✓') { expWork++; if(card.querySelector('.is-double').value === 'true') expDouble++; expOtHrs += parseFloat(ot); } 
+        else if(status === 'x') { expAbsent++; }
+        expTotal += total;
+      }
     });
 
-    // အကျဉ်းချုပ် အပိုင်း
-    let work = document.getElementById('workCount').innerText;
-    let absent = document.getElementById('absentCount').innerText;
-    let otSum = document.getElementById('otTotalCombine').innerText;
-    let gTotal = document.getElementById('grandTotal').innerText;
+    let expBonus = (expAbsent > 0) ? 0 : bonusSetting;
+    expTotal += expBonus;
+    let expGrandOt = (expDouble * 8) + expOtHrs;
 
     html += `
         </tbody>
       </table>
-      
       <table class="print-summary">
-        <tr><th>Total Work (Days/Hrs)</th><td>${work}</td></tr>
-        <tr><th>Total OT Hours</th><td>${otSum}</td></tr>
-        <tr><th>Absent</th><td>${absent}</td></tr>
-        <tr><th>Net Salary</th><td><b>${gTotal}</b></td></tr>
+        <tr><th>Attendance Bonus</th><td>${expBonus} Baht</td></tr>
+        <tr><th>Total Work (Days/Hrs)</th><td>${expWork} Days / ${expWork*8} Hrs</td></tr>
+        <tr><th>Total OT Hours</th><td>${expGrandOt} Hrs</td></tr>
+        <tr><th>Absent</th><td>${expAbsent} Days</td></tr>
+        <tr><th>Net Salary (For Selected Dates)</th><td><b>${expTotal} Baht</b></td></tr>
       </table>
-      
       <div class="print-footer">
         Generated by Chicony Attendance System<br>
         Developed by <b>THET AUNG</b> | Line: 678777705 | Telegram: @ThetAung7777
       </div>
     `;
 
-    // Print Area ထဲ ထည့်ပြီး Print ထုတ်ခြင်း
-    let pArea = document.getElementById('printArea');
-    pArea.innerHTML = html;
-    toggleMenu(null);
+    document.getElementById('printArea').innerHTML = html;
+    closeExportModal();
     window.print();
   };
 
-  // 📊 EXCEL EXPORT (အောက်ဆုံးတွင် နာရီစုစုပေါင်းများ ထပ်တိုးထားသည်)
+  // 📊 EXPORT EXCEL
   window.exportExcel = () => {
-    const cards = document.querySelectorAll('.day-card');
-    if(cards.length === 0) { alert("ဇယား အရင်ဖန်တီးပါ။"); return; }
+    let sDate = document.getElementById('exportStartDate').value;
+    let eDate = document.getElementById('exportEndDate').value;
+    if(!sDate || !eDate) { alert("ရက်စွဲများကို ရွေးချယ်ပါ"); return; }
     
     let excelData = [ ["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"] ];
     
-    cards.forEach(card => {
-      let date = card.getAttribute('data-date');
-      let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
-      let status = card.querySelector('.status-select').value || "-";
-      let ot = card.getAttribute('data-ot') || "0";
-      let total = card.getAttribute('data-total') || "0";
-      excelData.push([date, shift, status, ot, total]);
+    let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0;
+    let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
+
+    document.querySelectorAll('.day-card').forEach(card => {
+      let rDate = card.getAttribute('data-real-date');
+      if(rDate >= sDate && rDate <= eDate) {
+        let date = card.getAttribute('data-date');
+        let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
+        let status = card.querySelector('.status-select').value || "-";
+        let ot = card.getAttribute('data-ot') || "0";
+        let total = parseFloat(card.getAttribute('data-total') || "0");
+        
+        excelData.push([date, shift, status, ot, total]);
+        
+        if(status === '✓') { expWork++; if(card.querySelector('.is-double').value === 'true') expDouble++; expOtHrs += parseFloat(ot); } 
+        else if(status === 'x') { expAbsent++; }
+        expTotal += total;
+      }
     });
-    
-    let wStr = document.getElementById('workCount').innerText;
-    let dStr = document.getElementById('doubleCount').innerText;
-    let otCombine = document.getElementById('otTotalCombine').innerText;
-    let gTotal = document.getElementById('grandTotal').innerText;
+
+    let expBonus = (expAbsent > 0) ? 0 : bonusSetting;
+    expTotal += expBonus;
+    let expGrandOt = (expDouble * 8) + expOtHrs;
 
     excelData.push([]);
-    excelData.push(["", "", "", "Total Work Hours", wStr]);
-    excelData.push(["", "", "", "Double Day Hours", dStr]);
-    excelData.push(["", "", "", "Total OT Hours", otCombine]);
-    excelData.push(["", "", "", "Grand Total", gTotal]);
+    excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]);
+    excelData.push(["", "", "", "Total Work Hours", (expWork * 8) + " hrs"]);
+    excelData.push(["", "", "", "Total OT Hours", expGrandOt + " hrs"]);
+    excelData.push(["", "", "", "Absent Days", expAbsent + " Days"]);
+    excelData.push(["", "", "", "Net Salary", expTotal + " Baht"]);
     excelData.push([]);
     excelData.push(["", "", "", "Developed by", "THET AUNG (Line: 678777705)"]);
     
@@ -507,12 +689,9 @@
     let ws = XLSX.utils.aoa_to_sheet(excelData);
     XLSX.utils.book_append_sheet(wb, ws, "Salary_Report");
     let name = document.getElementById('empName').value || 'Employee';
-    XLSX.writeFile(wb, `${name}_Salary_Report.xlsx`);
-    toggleMenu(null);
+    XLSX.writeFile(wb, `${name}_Salary_${sDate}_to_${eDate}.xlsx`);
+    closeExportModal();
   };
-
-  // TXT Save 
-  window.saveReportToDevice = () => { /* TXT Logics... */ toggleMenu(null); };
 
 </script>
 </body>
