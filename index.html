@@ -80,17 +80,21 @@
   .dark-mode .day-card { background: #2c2c2c !important; border-color: #444 !important; }
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
   
-  /* Dark Mode လစာအကျဉ်းချုပ် စာလုံးအဖြူပြောင်းရန် */
   .dark-mode .ui-summary-box { background-color: #1e1e1e !important; box-shadow: none !important; border: 1px solid #444;}
   .dark-mode .ui-summary-box span { color: #ccc !important; }
   .dark-mode .ui-summary-box b { color: #fff !important; }
   .dark-mode .ui-summary-box div { border-color: #444 !important; }
-  .dark-mode .ui-summary-box #grandTotal { color: #ff6b81 !important; } /* အသားတင်လစာကို ပိုလင်းအောင် */
+  .dark-mode .ui-summary-box #grandTotal { color: #ff6b81 !important; }
   
   .dark-mode .login-box { background: #1e1e1e !important; color: #e0e0e0; }
   .dark-mode #loginScreen { background-color: #121212 !important; }
   .dark-mode .setup-box label, .dark-mode .admin-user-details, .dark-mode .logo-tag { color: #bbb !important; }
   .dark-mode .admin-user-card { background: #2c2c2c !important; border-color: #444 !important; color: #fff !important; }
+  
+  /* Developer Name Colors in Dark Mode */
+  .dark-mode .dev-name { color: #82b1ff !important; }
+  .dark-mode .dev-contact { color: #bbb !important; }
+  .dark-mode .dev-contact a { color: #82b1ff !important; }
   .dark-mode .admin-user-name { color: #82b1ff !important; }
 
   /* Profile Dropdown Name Style */
@@ -193,7 +197,7 @@
 
     <div class="developer-footer">
       <div class="dev-name">👨‍💻 Developed by THET AUNG</div>
-      <div style="font-size: 12px; color: #777; margin-bottom: 5px;">Contact for Support & Updates</div>
+      <div style="font-size: 12px; margin-bottom: 5px;" class="dev-contact">Contact for Support & Updates</div>
       <div class="dev-contact">
         <a href="http://line.me/ti/p/~678777705" target="_blank">💬 LINE: 678777705</a>
         <a href="https://t.me/ThetAung7777" target="_blank">✈️ Telegram: @ThetAung7777</a>
@@ -233,7 +237,7 @@
     
     <div style="display:flex; gap:10px; margin-top: 20px;">
       <button class="btn-generate" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px;">💾 ပြင်ဆင်ချက်ကို သိမ်းမည်</button>
-      </div>
+    </div>
     <p style="font-size: 11px; color: #666; text-align: center; margin-top: 8px;">(မှတ်ချက်: ဒေတာဟောင်းများ မပျက်တော့ပါ။ အပေါ်မှ လ ပြောင်းရွေးလိုက်ပါက ယခင်လများသို့ ပြန်သွားနိုင်ပါသည်။)</p>
   </div>
 </div>
@@ -242,7 +246,7 @@
   <div class="modal-content">
     <button class="close-modal" onclick="closeExportModal()">×</button>
     <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main">📤 ထုတ်ယူမည့် ရက်စွဲ</h3>
-    <p style="font-size:12px; color:#666; text-align:center;">မှတ်ချက် - Database ထဲတွင် နောက်ဆုံးဖြည့်ထားသည့်ရက်ကို အလိုအလျောက် ရွေးပေးထားပါသည်။</p>
+    <p style="font-size:12px; color:#666; text-align:center;">မှတ်ချက် - Database ထဲတွင် ယနေ့ရက် (သို့) နောက်ဆုံးဖြည့်ထားသည့်ရက်ကို အလိုအလျောက် ရွေးပေးထားပါသည်။</p>
     <div class="setup-box">
       <div class="full-width"><label>စတင်မည့်ရက် (Start Date)</label><input type="date" id="exportStartDate"></div>
       <div class="full-width"><label>အဆုံးသတ်ရက် (End Date)</label><input type="date" id="exportEndDate"></div>
@@ -287,7 +291,7 @@
   let appData = { settings: {}, attendance: {} };
   let doubleDates = [];
 
-  // Dark Mode Load လုပ်ခြင်း
+  // Dark Mode Load
   if(localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add('dark-mode');
     document.getElementById('darkModeIcon').innerText = '☀️';
@@ -323,7 +327,6 @@
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       
-      // ပုံသေ အနေဖြင့် Gmail ကို အရင်ပြထားမည်
       document.getElementById('userEmailDisplay').innerHTML = `
         <div class="profile-name-text">Loading...</div>
         <div class="profile-email-text">${user.email}</div>
@@ -337,6 +340,7 @@
     }
   });
 
+  // --- Database Functions ---
   window.saveToFirebase = () => {
     if (!currentUser) return;
     appData.settings = {
@@ -346,7 +350,7 @@
       doubleDates: doubleDates
     };
     
-    // ဒေတာဟောင်းများ မပျက်စေရန် အသစ်တွေကိုသာ ထပ်ပေါင်းထည့်မည် (Merge)
+    // ဒေတာဟောင်းများကို မပျက်စေရန် အသစ်များကိုသာ ထပ်ပေါင်းထည့်မည် (Merge)
     if (!appData.attendance) appData.attendance = {};
     
     const cards = document.querySelectorAll('.day-card');
@@ -398,6 +402,7 @@
     }, { onlyOnce: true });
   }
 
+  // --- Admin Panel Logic ---
   window.openAdminPanel = () => {
     document.getElementById('adminModal').style.display = 'flex';
     document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">အချက်အလက်များ ရယူနေပါသည်... ⏳</div>';
@@ -460,7 +465,6 @@
     if(id && !isVisible) el.style.display='flex'; 
   };
   
-  // အပြင်ကိုနှိပ်လျှင် Menu ပိတ်မည်
   window.closeMenusOnClickOutside = (e) => {
     if(!e.target.closest('.navbar')) {
         document.getElementById('leftMenu').style.display='none'; 
@@ -480,7 +484,6 @@
     document.getElementById('doubleDatesList').innerHTML = doubleDates.map(d => `<span class="badge" style="background:#c2185b; color:white; padding:4px 8px; border-radius:15px; font-size:12px; display:inline-block; margin:2px;">${d} <b onclick="removeDoubleDate('${d}')" style="cursor:pointer">×</b></span>`).join('');
   }
 
-  // OT ဖြည့်လျှင် ဟာသ Alert ပြမည့်စနစ်
   window.toggleOTInput = (el) => {
     let input = el.parentElement.querySelector('.ot-hours');
     let card = el.closest('.day-card');
@@ -539,7 +542,7 @@
       grid.appendChild(div); cur.setDate(cur.getDate() + 1);
     }
     
-    if (!isNew && appData.attendance) {
+    if (appData.attendance) {
       document.querySelectorAll('.day-card').forEach(card => {
         let d = appData.attendance[card.getAttribute('data-real-date')];
         if (d) {
@@ -574,7 +577,7 @@
 
       let dPay=0, fPay=0;
       if (status === '✓') {
-        work++; lastFilledShift = shift; // နောက်ဆုံးဖြည့်ထားသည့်ဆိုင်းကို မှတ်မည်
+        work++; lastFilledShift = shift;
         let bPay = isDouble ? (wage * 2) : wage; if(isDouble) double++;
         dPay += bPay + 40; transport += 40;
         if(shift === 'night') { night++; dPay += 100; nightPay += 100; }
@@ -588,7 +591,6 @@
       c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
     });
 
-    // နေ/လ Icon ပြောင်းမည်
     document.getElementById('titleShiftIcon').innerText = (lastFilledShift === 'night') ? '🌙' : '☀️';
 
     // ညဆိုင်း မဆင်းပါက ဇယားအောက်တွင် ဖျောက်ထားမည့်စနစ်
@@ -602,7 +604,6 @@
         rowNA.style.display = 'none';
     }
 
-    // ထမင်းဖိုး တွက်ချက်ခြင်း 
     let nonOtDays = work - otDays;
     let foodOtTotal = otDays * 60;
     let foodNoOtTotal = nonOtDays * 30;
@@ -618,13 +619,10 @@
     document.getElementById('holidayCount').innerText = `${holiday} ရက်`;
     document.getElementById('otDaysCount').innerText = `${otDays} ရက် / ${otHrs} နာရီ`;
     document.getElementById('otTotalCombine').innerText = `${dOT} + ${otHrs} = ${grandOT} နာရီ`;
-    
     document.getElementById('nightShiftDisplay').innerText = `${night} ရက်`;
     document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ဘတ်`;
-    
     document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ဘတ်`;
     
-    // ထမင်းဖိုး Display
     document.getElementById('foodOtDays').innerText = otDays;
     document.getElementById('foodOtTotal').innerText = `${foodOtTotal.toLocaleString()} ဘတ်`;
     document.getElementById('foodNoOtDays').innerText = nonOtDays;
@@ -636,23 +634,32 @@
     saveToFirebase(); 
   };
 
-  // --- Export Logic (နောက်ဆုံးဖြည့်ထားသောရက် Auto ရွေးပေးခြင်း) ---
+  // --- Export Logic ---
   window.openExportModal = () => {
     let cards = document.querySelectorAll('.day-card');
     if(cards.length > 0) {
       document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date');
+      
+      // နောက်ဆုံး အလုပ်ဆင်း/ပျက်ရက် ဖြည့်ထားသောရက်ကို ရှာဖွေခြင်း (ပိတ်ရက်အလွတ်များကို ကျော်မည်)
       let lastFilledDate = cards[0].getAttribute('data-real-date');
+      let todayStr = new Date().toISOString().split('T')[0];
+      
       cards.forEach(c => {
-        if(c.querySelector('.status-select').value !== '') lastFilledDate = c.getAttribute('data-real-date');
+        let status = c.querySelector('.status-select').value;
+        if(status === '✓' || status === 'x') {
+            lastFilledDate = c.getAttribute('data-real-date');
+        }
       });
-      document.getElementById('exportEndDate').value = lastFilledDate;
+      
+      // အကယ်၍ နောက်ဆုံးဖြည့်ထားသောရက်သည် ယနေ့ထက်စောနေပါက ယနေ့ရက်ကို ရွေးပေးမည်
+      let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate;
+      document.getElementById('exportEndDate').value = finalEndDate;
     }
     document.getElementById('exportModal').style.display = 'flex';
     toggleMenu(null);
   };
   window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
 
-  // Format Date Function (ဥပမာ: 21, Feb, 2026)
   const formatExportDate = (dStr) => {
     let d = new Date(dStr);
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -683,30 +690,38 @@
     `;
 
     let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0;
-    let expOtDays=0, expNonOtDays=0;
     let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
 
     document.querySelectorAll('.day-card').forEach(card => {
       let rDate = card.getAttribute('data-real-date');
       if(rDate >= sDate && rDate <= eDate) {
         let date = card.getAttribute('data-date');
-        let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
-        let status = card.querySelector('.status-select').value || "-";
+        let shiftVal = card.querySelector('.shift-select').value;
+        let statusVal = card.querySelector('.status-select').value;
         let ot = card.getAttribute('data-ot') || "0";
         let total = parseFloat(card.getAttribute('data-total') || "0");
         
-        html += `<tr><td>${date}</td><td>${shift}</td><td>${status}</td><td>${ot}</td><td>${total}</td></tr>`;
+        let displayShift = shiftVal === 'day' ? 'Day' : 'Night';
+        let displayStatus = statusVal;
+
+        // တနင်္ဂနွေ ပိတ်ရက်ဖြစ်ပါက Holiday နှင့် All ဟု ပြောင်းရန်
+        if(statusVal === '-') {
+            displayShift = 'All';
+            displayStatus = 'Holiday';
+        } else if (statusVal === '✓') {
+            displayStatus = 'Present';
+        } else if (statusVal === 'x') {
+            displayStatus = 'Absent';
+        }
         
-        if(status === '✓') { 
+        html += `<tr><td>${date}</td><td>${displayShift}</td><td>${displayStatus}</td><td>${ot}</td><td>${total}</td></tr>`;
+        
+        if(statusVal === '✓') { 
             expWork++; 
             if(card.querySelector('.is-double').value === 'true') expDouble++; 
-            if(parseFloat(ot) > 0 || card.querySelector('.ot-select').value === 'yes') {
-                expOtHrs += parseFloat(ot); expOtDays++;
-            } else {
-                expNonOtDays++;
-            }
+            expOtHrs += parseFloat(ot); 
         } 
-        else if(status === 'x') { expAbsent++; }
+        else if(statusVal === 'x') { expAbsent++; }
         expTotal += total;
       }
     });
@@ -750,15 +765,27 @@
       let rDate = card.getAttribute('data-real-date');
       if(rDate >= sDate && rDate <= eDate) {
         let date = card.getAttribute('data-date');
-        let shift = card.querySelector('.shift-select').value === 'day' ? 'Day' : 'Night';
-        let status = card.querySelector('.status-select').value || "-";
+        let shiftVal = card.querySelector('.shift-select').value;
+        let statusVal = card.querySelector('.status-select').value;
         let ot = card.getAttribute('data-ot') || "0";
         let total = parseFloat(card.getAttribute('data-total') || "0");
         
-        excelData.push([date, shift, status, ot, total]);
+        let displayShift = shiftVal === 'day' ? 'Day' : 'Night';
+        let displayStatus = statusVal;
+
+        if(statusVal === '-') {
+            displayShift = 'All';
+            displayStatus = 'Holiday';
+        } else if (statusVal === '✓') {
+            displayStatus = 'Present';
+        } else if (statusVal === 'x') {
+            displayStatus = 'Absent';
+        }
         
-        if(status === '✓') { expWork++; if(card.querySelector('.is-double').value === 'true') expDouble++; expOtHrs += parseFloat(ot); } 
-        else if(status === 'x') { expAbsent++; }
+        excelData.push([date, displayShift, displayStatus, ot, total]);
+        
+        if(statusVal === '✓') { expWork++; if(card.querySelector('.is-double').value === 'true') expDouble++; expOtHrs += parseFloat(ot); } 
+        else if(statusVal === 'x') { expAbsent++; }
         expTotal += total;
       }
     });
