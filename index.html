@@ -268,7 +268,7 @@
 </div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -304,13 +304,16 @@
     localStorage.setItem('darkMode', isDark);
   };
 
-  getRedirectResult(auth).then((result) => {
-    if (result) console.log("Redirect login success");
-  }).catch((error) => console.error("Redirect Error: ", error));
-
+  // Redirect အစား Popup စနစ်ကို ပြောင်းသုံးထားပါသည် 💡
   window.signIn = () => {
     document.getElementById('loadingSpinner').style.display = 'flex';
-    signInWithRedirect(auth, provider);
+    signInWithPopup(auth, provider).then((result) => {
+      document.getElementById('loadingSpinner').style.display = 'none';
+      console.log("Login Success");
+    }).catch((error) => {
+      document.getElementById('loadingSpinner').style.display = 'none';
+      alert("Login Error: " + error.message);
+    });
   };
 
   window.logout = () => {
@@ -350,7 +353,6 @@
       doubleDates: doubleDates
     };
     
-    // ဒေတာဟောင်းများကို မပျက်စေရန် အသစ်များကိုသာ ထပ်ပေါင်းထည့်မည် (Merge)
     if (!appData.attendance) appData.attendance = {};
     
     const cards = document.querySelectorAll('.day-card');
@@ -383,7 +385,6 @@
           doubleDates = appData.settings.doubleDates || [];
           renderDoubleDates();
           
-          // Profile တွင် အမည် ဖော်ပြခြင်း
           let uName = appData.settings.empName || "User";
           document.getElementById('userEmailDisplay').innerHTML = `
             <div class="profile-name-text">${uName}</div>
@@ -593,7 +594,6 @@
 
     document.getElementById('titleShiftIcon').innerText = (lastFilledShift === 'night') ? '🌙' : '☀️';
 
-    // ညဆိုင်း မဆင်းပါက ဇယားအောက်တွင် ဖျောက်ထားမည့်စနစ်
     let rowNS = document.getElementById('rowNightShift');
     let rowNA = document.getElementById('rowNightAllowance');
     if (night > 0) {
@@ -634,13 +634,11 @@
     saveToFirebase(); 
   };
 
-  // --- Export Logic ---
   window.openExportModal = () => {
     let cards = document.querySelectorAll('.day-card');
     if(cards.length > 0) {
       document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date');
       
-      // နောက်ဆုံး အလုပ်ဆင်း/ပျက်ရက် ဖြည့်ထားသောရက်ကို ရှာဖွေခြင်း (ပိတ်ရက်အလွတ်များကို ကျော်မည်)
       let lastFilledDate = cards[0].getAttribute('data-real-date');
       let todayStr = new Date().toISOString().split('T')[0];
       
@@ -651,7 +649,6 @@
         }
       });
       
-      // အကယ်၍ နောက်ဆုံးဖြည့်ထားသောရက်သည် ယနေ့ထက်စောနေပါက ယနေ့ရက်ကို ရွေးပေးမည်
       let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate;
       document.getElementById('exportEndDate').value = finalEndDate;
     }
@@ -704,7 +701,6 @@
         let displayShift = shiftVal === 'day' ? 'Day' : 'Night';
         let displayStatus = statusVal;
 
-        // တနင်္ဂနွေ ပိတ်ရက်ဖြစ်ပါက Holiday နှင့် All ဟု ပြောင်းရန်
         if(statusVal === '-') {
             displayShift = 'All';
             displayStatus = 'Holiday';
