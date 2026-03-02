@@ -346,7 +346,6 @@
   window.currentViewUid = null;
   const CALENDAR_YEAR = 2026; 
   
-  // ★ ယခင်က ပြုတ်ကျန်ခဲ့သော နေ့နာမည်များစာရင်းကို ပြန်ထည့်ထားပါသည် ★
   const myanmarDays = ["တနင်္ဂနွေ", "တနင်္လာ", "အင်္ဂါ", "ဗုဒ္ဓဟူး", "ကြာသပတေး", "သောကြာ", "စနေ"];
 
   // Dark Mode Load
@@ -362,7 +361,6 @@
       localStorage.setItem('darkMode', isDark);
   };
 
-  // Auth Functions
   window.signIn = () => {
       document.getElementById('loadingSpinner').style.display = 'flex';
       signInWithPopup(auth, provider).then(() => {
@@ -400,7 +398,6 @@
       }
   });
 
-  // Database Functions
   window.saveToFirebase = () => {
       if (!currentUser) return;
       appData.settings = {
@@ -461,13 +458,14 @@
       }, { onlyOnce: true });
   }
 
-  // --- 📅 Global Calendar (Admin Managed) ---
   function loadGlobalCalendar() {
       onValue(ref(db, 'globalCalendar'), (snapshot) => {
           globalCalendar = snapshot.exists() ? snapshot.val() : {};
           renderYearCalendar();
           if(currentUser && currentUser.email === ADMIN_EMAIL) renderAdminManageList();
-          if(document.getElementById('selectedMonth').value) window.calculateAll(); 
+          if(document.getElementById('selectedMonth').value) {
+              window.generateGrid(false); // ပြက္ခဒိန် Update ဖြစ်လျှင် ဇယားကို ပြန်ဆွဲမည်
+          }
       });
   }
 
@@ -513,15 +511,11 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  // ★ Apostrophe (') Error အား ဖြေရှင်းထားသော Alert Function ★
-  window.showHolidayAlert = (desc) => { 
-      alert("📅 ပိတ်ရက်အကြောင်းအရာ:\n\n" + desc); 
-  };
+  window.showHolidayAlert = (desc) => { alert("📅 ပိတ်ရက်အကြောင်းအရာ:\n\n" + desc); };
 
   function renderYearCalendar() {
       document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR;
-      const container = document.getElementById('yearCalendarContainer'); 
-      container.innerHTML = '';
+      const container = document.getElementById('yearCalendarContainer'); container.innerHTML = '';
       const myanmarMonths = ["ဇန်နဝါရီ", "ဖေဖော်ဝါရီ", "မတ်", "ဧပြီ", "မေ", "ဇွန်", "ဇူလိုင်", "ဩဂုတ်", "စက်တင်ဘာ", "အောက်တိုဘာ", "နိုဝင်ဘာ", "ဒီဇင်ဘာ"];
       
       for(let m = 0; m < 12; m++) {
@@ -529,7 +523,6 @@
           let title = `<div class="month-title">${myanmarMonths[m]}</div>`;
           let header = `<div class="month-days-header"><div style="color:#dc3545;">တနင်္ဂနွေ</div><div>တနင်္လာ</div><div>အင်္ဂါ</div><div>ဗုဒ္ဓဟူး</div><div>ကြာသပတေး</div><div>သောကြာ</div><div style="color:#007bff;">စနေ</div></div>`;
           let gridHtml = `<div class="month-grid">`;
-          
           let firstDay = new Date(CALENDAR_YEAR, m, 1).getDay(); 
           let daysInMonth = new Date(CALENDAR_YEAR, m + 1, 0).getDate();
           
@@ -537,31 +530,24 @@
           for(let d = 1; d <= daysInMonth; d++) {
               let curDate = new Date(CALENDAR_YEAR, m, d);
               let dateKey = `${curDate.getFullYear()}-${String(curDate.getMonth()+1).padStart(2,'0')}-${String(curDate.getDate()).padStart(2,'0')}`;
-              let isSun = curDate.getDay() === 0; 
-              let isSat = curDate.getDay() === 6; 
+              let isSun = curDate.getDay() === 0; let isSat = curDate.getDay() === 6; 
               let calData = globalCalendar[dateKey];
-              let classes = 'cal-day'; 
-              let onClick = '';
+              let classes = 'cal-day'; let onClick = '';
               
               if(calData) {
                   if(calData.type === 'holiday') { 
                       classes += ' cal-holiday'; 
-                      // Apostrophe Error ဖြေရှင်းခြင်း
                       let safeDesc = calData.desc ? calData.desc.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ''; 
                       onClick = `onclick="showHolidayAlert('${safeDesc}')"`; 
                   }
                   else if(calData.type === 'double') { 
                       classes += ' cal-double'; 
-                      if(isSat) classes += ' double-saturday'; // စနေနေ့ နှစ်ဆရက် အနီဘောင်
+                      if(isSat) classes += ' double-saturday'; 
                   }
-              } else if(isSun) { 
-                  classes += ' cal-sun'; 
-              }
+              } else if(isSun) { classes += ' cal-sun'; }
               gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`;
           }
-          gridHtml += `</div>`; 
-          monthDiv.innerHTML = title + header + gridHtml; 
-          container.appendChild(monthDiv);
+          gridHtml += `</div>`; monthDiv.innerHTML = title + header + gridHtml; container.appendChild(monthDiv);
       }
   }
   
@@ -584,6 +570,10 @@
           let displayDate = `${cur.getDate()} ${cur.toLocaleString('en-US',{month:'short'})}`; 
           let exportDate = `${cur.getDate()} ${cur.toLocaleString('en-US',{month:'short'})} (${myanmarDays[cur.getDay()]})`;
           
+          let calData = globalCalendar[key];
+          let isAdminHoliday = calData && calData.type === 'holiday';
+          let isHolidayOrSun = isSun || isAdminHoliday; // ပိတ်ရက်ဖြစ်ပါက Default ကို '-' ထားမည်
+          
           let div = document.createElement('div'); div.className = 'day-card';
           div.setAttribute('data-date', exportDate); 
           div.setAttribute('data-real-date', key); 
@@ -595,9 +585,10 @@
             <div class="double-label" style="font-size: 10px; color: #0d6efd; font-weight: bold; margin-bottom: 2px; height: 12px;"></div>
             <select class="shift-select" onchange="calculateAll()" style="background:#e9ecef;"><option value="day">☀️ နေ့ဆိုင်း</option><option value="night">🌙 ညဆိုင်း</option></select>
             <select class="status-select" onchange="calculateAll()">
-              <option value="" ${!isSun ? 'selected' : ''}>ရွေးရန်...</option>
-              <option value="✓">✓ ဆင်းသည်</option><option value="x">x ပျက်ရက်</option>
-              <option value="-" ${isSun ? 'selected' : ''}>- ပိတ်ရက်</option>
+              <option value="" ${!isHolidayOrSun ? 'selected' : ''}>ရွေးရန်...</option>
+              <option value="✓">✓ ဆင်းသည်</option>
+              <option value="x">x ပျက်ရက်</option>
+              <option value="-" ${isHolidayOrSun ? 'selected' : ''}>- ပိတ်ရက်</option>
             </select>
             <select class="ot-select" onchange="toggleOTInput(this)"><option value="no">OT မဆင်း</option><option value="yes">OT ဆင်း</option></select>
             <input type="number" class="ot-hours" placeholder="နာရီ" oninput="calculateAll()" style="display: none;" min="0" step="0.5">
@@ -607,13 +598,26 @@
       
       if (appData.attendance) {
           document.querySelectorAll('.day-card').forEach(card => {
-              let d = appData.attendance[card.getAttribute('data-real-date')];
+              let dKey = card.getAttribute('data-real-date');
+              let d = appData.attendance[dKey];
+              let cData = globalCalendar[dKey];
+              let isAdminHoliday = cData && cData.type === 'holiday';
+              
               if (d) { 
                   card.querySelector('.shift-select').value = d.shift || 'day'; 
-                  card.querySelector('.status-select').value = d.status || ''; 
+                  
+                  let savedStatus = d.status || '';
+                  // User မှ အရင်က မဖြည့်ရသေးဘဲ Admin က ပိတ်ရက်သတ်မှတ်လိုက်ပါက Default ကို ပိတ်ရက် (-) အဖြစ်ထားမည်
+                  if(savedStatus === '' && isAdminHoliday) {
+                      savedStatus = '-';
+                  }
+                  card.querySelector('.status-select').value = savedStatus; 
+                  
                   card.querySelector('.ot-select').value = d.ot || 'no'; 
                   let otInput = card.querySelector('.ot-hours'); otInput.value = d.otHours || ''; 
                   if(d.ot === 'yes') { otInput.style.display = 'block'; card.setAttribute('data-alerted', 'true'); } 
+              } else if (isAdminHoliday) {
+                  card.querySelector('.status-select').value = '-';
               }
           });
       }
@@ -631,7 +635,9 @@
       document.querySelectorAll('.day-card').forEach(c => {
           let dateKey = c.getAttribute('data-real-date'); 
           let calData = globalCalendar[dateKey]; 
-          let isDouble = calData && calData.type === 'double'; 
+          let isAdminDouble = calData && calData.type === 'double'; 
+          let isAdminHoliday = calData && calData.type === 'holiday';
+          
           let shift = c.querySelector('.shift-select').value;
           let status = c.querySelector('.status-select').value; 
           let otStatus = c.querySelector('.ot-select').value;
@@ -641,23 +647,26 @@
           let info = c.querySelector('.daily-info'); 
           let doubleLbl = c.querySelector('.double-label');
           
+          // ★ အလုပ်ဆင်းသည် (✓) ရွေးထားပြီး Admin က Holiday သို့ Double သတ်မှတ်ထားပါက နှစ်ဆရက်ဖြစ်သည် ★
+          let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓');
+          
           c.className = 'day-card'; 
           
-          if(isDouble) { 
+          if(isDoubleDay) { 
               doubleLbl.innerText = '★ နှစ်ဆရက်'; 
-              if(isSat) c.classList.add('double-saturday'); // စနေ နှစ်ဆရက် အနီဘောင်
+              if(isSat) c.classList.add('double-saturday'); 
           } else { 
               doubleLbl.innerText = ''; 
           }
           
-          if(status === '✓') c.classList.add(isDouble ? 'bg-blue' : (shift === 'night' ? 'bg-dark-gray' : 'bg-green')); 
+          if(status === '✓') c.classList.add(isDoubleDay ? 'bg-blue' : (shift === 'night' ? 'bg-dark-gray' : 'bg-green')); 
           else if(status === 'x') c.classList.add('bg-gray'); 
           else if(status === '-') c.classList.add(isSun ? 'bg-red' : 'bg-yellow');
 
           let dPay=0, fPay=0;
           if (status === '✓') {
               work++; lastFilledShift = shift; 
-              let bPay = isDouble ? (wage * 2) : wage; if(isDouble) double++;
+              let bPay = isDoubleDay ? (wage * 2) : wage; if(isDoubleDay) double++;
               dPay += bPay + 40; transport += 40; 
               if(shift === 'night') { night++; dPay += 100; nightPay += 100; }
               if(otStatus === 'yes') { fPay = 60; otHrs += otVal; if(otVal>0) otDays++; dPay += (otVal*rate); } else fPay = 30;
@@ -720,12 +729,17 @@
                   if (uData.attendance) { 
                       for (let dateKey in uData.attendance) { 
                           let record = uData.attendance[dateKey]; 
-                          let isDouble = globalCalendar[dateKey]?.type === 'double'; 
+                          let calData = globalCalendar[dateKey]; 
+                          let isAdminDouble = calData?.type === 'double'; 
+                          let isAdminHoliday = calData?.type === 'holiday';
+                          
                           let status = record.status; let shift = record.shift; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; 
                           let dPay = 0, fPay = 0; 
                           
+                          let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓');
+                          
                           if (status === '✓') { 
-                              uWork++; let bPay = isDouble ? (wage * 2) : wage; if (isDouble) uDouble++; 
+                              uWork++; let bPay = isDoubleDay ? (wage * 2) : wage; if (isDoubleDay) uDouble++; 
                               dPay += bPay + 40; if (shift === 'night') dPay += 100; 
                               if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } 
                               dPay += fPay; uTotalPay += dPay; 
@@ -807,7 +821,6 @@
   
   const formatExportDate = (dStr) => { let d = new Date(dStr); const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; return `${d.getDate()}, ${months[d.getMonth()]}, ${d.getFullYear()}`; };
 
-  // ★ PDF ထုတ်ရာတွင် Error မတက်အောင် ရှင်းလင်းစွာ ရေးသားခြင်း ★
   window.exportPDF = () => { 
       let sDate = document.getElementById('exportStartDate').value; 
       let eDate = document.getElementById('exportEndDate').value; 
@@ -833,6 +846,9 @@
               let ot = card.getAttribute('data-ot') || "0"; 
               let total = parseFloat(card.getAttribute('data-total') || "0"); 
               
+              let calData = globalCalendar[rDate];
+              let isDoubleDay = (calData?.type === 'double') || (calData?.type === 'holiday' && statusVal === '✓');
+              
               let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; 
               let displayStatus = statusVal; 
               
@@ -845,7 +861,7 @@
               
               if(statusVal === '✓') { 
                   expWork++; 
-                  if(card.querySelector('.is-double').value === 'true') expDouble++; 
+                  if(isDoubleDay) expDouble++; 
                   expOtHrs += parseFloat(ot); 
               } else if(statusVal === 'x') {
                   expAbsent++; 
@@ -862,14 +878,9 @@
       
       document.getElementById('printArea').innerHTML = html; 
       closeExportModal(); 
-      
-      // Delay for Mobile Browsers to render the print area before firing the print dialog
-      setTimeout(() => {
-          window.print(); 
-      }, 500);
+      setTimeout(() => { window.print(); }, 500);
   };
   
-  // Excel Export
   window.exportExcel = () => { 
       let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; 
       if(!sDate || !eDate) { alert("ရက်စွဲများကို ရွေးချယ်ပါ"); return; }
@@ -881,12 +892,17 @@
       document.querySelectorAll('.day-card').forEach(card => { 
           let rDate = card.getAttribute('data-real-date'); 
           if(rDate >= sDate && rDate <= eDate) { 
-              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
+              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
+              
+              let calData = globalCalendar[rDate];
+              let isDoubleDay = (calData?.type === 'double') || (calData?.type === 'holiday' && statusVal === '✓');
+              
+              let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
               if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; } else if (statusVal === '✓') displayStatus = 'Present'; else if (statusVal === 'x') displayStatus = 'Absent'; else displayStatus = '-'; 
               
               excelData.push([date, displayShift, displayStatus, ot, total]); 
               
-              if(statusVal === '✓') { expWork++; if(card.querySelector('.is-double').value === 'true') expDouble++; expOtHrs += parseFloat(ot); } else if(statusVal === 'x') expAbsent++; 
+              if(statusVal === '✓') { expWork++; if(isDoubleDay) expDouble++; expOtHrs += parseFloat(ot); } else if(statusVal === 'x') expAbsent++; 
               expTotal += total; 
           } 
       }); 
@@ -901,7 +917,6 @@
       closeExportModal(); 
   };
   
-  // Admin Exports
   window.exportAdminAll = (type) => { 
       let allUsers = window.allUsersData; let exportData = []; let grandTotal = 0; let totalEmp = 0; 
       for (let uid in allUsers) { 
