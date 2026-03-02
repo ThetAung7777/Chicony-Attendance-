@@ -336,7 +336,11 @@
   window.allUsersData = {}; 
   window.currentViewUid = null;
   const CALENDAR_YEAR = 2026; 
+  
+  // ★ ယခင်က ပြုတ်ကျန်ခဲ့သော နေ့နာမည်များစာရင်းကို ပြန်ထည့်ထားပါသည် ★
+  const myanmarDays = ["တနင်္ဂနွေ", "တနင်္လာ", "အင်္ဂါ", "ဗုဒ္ဓဟူး", "ကြာသပတေး", "သောကြာ", "စနေ"];
 
+  // Dark Mode Load
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
@@ -382,7 +386,6 @@
       document.getElementById('loadingSpinner').style.display = 'none';
       const data = snapshot.val();
       
-      // Auto Month Logic (လ မရွေးထားရင် လက်ရှိလကို အလိုလို သတ်မှတ်ပေးမည်)
       let d = new Date();
       let defaultMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 
@@ -397,7 +400,7 @@
           document.getElementById('attBonusSetting').value = appData.settings.attBonusSetting || "0";
           let uName = appData.settings.empName || "User";
           document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${uName}</div><div class="profile-email-text">${currentUser.email}</div>`;
-          window.generateGrid(false); // ဇယားကို အမြဲတမ်း ပေါ်စေမည်
+          window.generateGrid(false); 
         } else {
            document.getElementById('selectedMonth').value = defaultMonth;
            window.generateGrid(true);
@@ -405,7 +408,7 @@
       } else {
         document.getElementById('selectedMonth').value = defaultMonth;
         document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
-        window.generateGrid(true); // အကောင့်သစ်ဆိုလျှင်လည်း ဇယားပေါ်စေမည်
+        window.generateGrid(true); 
       }
     }, { onlyOnce: true });
   }
@@ -469,6 +472,7 @@
   window.openCalendarModal = () => { document.getElementById('calendarModal').style.display = 'flex'; toggleMenu(null); };
   window.closeCalendarModal = () => document.getElementById('calendarModal').style.display = 'none';
 
+  // --- Grid Generation ---
   window.generateGrid = (isNew = true) => {
     const mVal = document.getElementById('selectedMonth').value;
     if (!mVal) return; closeSettings(); 
@@ -476,16 +480,20 @@
     let startD = new Date(y, parseInt(m) - 1, 21), endD = new Date(y, parseInt(m), 20);
     const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
     for(let i=0; i < startD.getDay(); i++) grid.innerHTML += `<div class="blank-card"></div>`;
+    
     let cur = new Date(startD);
     while (cur <= endD) {
       let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
       let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6;
-      let displayDate = `${cur.getDate()} ${cur.toLocaleString('en-US',{month:'short'})}`; let exportDate = `${cur.getDate()} ${cur.toLocaleString('en-US',{month:'short'})} (${myanmarDays[cur.getDay()]})`;
+      let displayDate = `${cur.getDate()} ${cur.toLocaleString('en-US',{month:'short'})}`; 
+      let exportDate = `${cur.getDate()} ${cur.toLocaleString('en-US',{month:'short'})} (${myanmarDays[cur.getDay()]})`;
+      
       let div = document.createElement('div'); div.className = 'day-card';
       div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); div.setAttribute('data-is-sun', isSun); div.setAttribute('data-is-sat', isSat);
       div.innerHTML = `<label class="date-label">${displayDate}</label><div class="double-label" style="font-size: 10px; color: #0d6efd; font-weight: bold; margin-bottom: 2px; height: 12px;"></div><select class="shift-select" onchange="calculateAll()" style="background:#e9ecef;"><option value="day">☀️ နေ့ဆိုင်း</option><option value="night">🌙 ညဆိုင်း</option></select><select class="status-select" onchange="calculateAll()"><option value="" ${!isSun ? 'selected' : ''}>ရွေးရန်...</option><option value="✓">✓ ဆင်းသည်</option><option value="x">x ပျက်ရက်</option><option value="-" ${isSun ? 'selected' : ''}>- ပိတ်ရက်</option></select><select class="ot-select" onchange="toggleOTInput(this)"><option value="no">OT မဆင်း</option><option value="yes">OT ဆင်း</option></select><input type="number" class="ot-hours" placeholder="နာရီ" oninput="calculateAll()" style="display: none;" min="0" step="0.5"><div class="daily-info">-</div>`;
       grid.appendChild(div); cur.setDate(cur.getDate() + 1);
     }
+    
     if (appData.attendance) {
       document.querySelectorAll('.day-card').forEach(card => {
         let d = appData.attendance[card.getAttribute('data-real-date')];
@@ -495,6 +503,7 @@
     calculateAll(); 
   };
 
+  // --- Calculate & Color Logic ---
   window.calculateAll = () => {
     const wage = parseFloat(document.getElementById('dailyWage').value) || 0; const rate = parseFloat(document.getElementById('otRate').value) || 0; const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
     let work=0, double=0, absent=0, holiday=0, night=0, otHrs=0, otDays=0, total=0, transport=0, nightPay=0; let lastFilledShift = 'day'; 
@@ -526,6 +535,7 @@
     saveToFirebase(); 
   };
 
+  // --- Admin Logic & Export ---
   window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">အချက်အလက်များ ရယူနေပါသည်... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let isDouble = globalCalendar[dateKey]?.type === 'double'; let status = record.status; let shift = record.shift; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; if (status === '✓') { uWork++; let bPay = isDouble ? (wage * 2) : wage; if (isDouble) uDouble++; dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') uAbsent++; } } let uBonus = (uAbsent > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">ဆင်းရက်: <b>${uWork}</b> ရက် | ပျက်ရက်: <b>${uAbsent}</b> ရက် <br>OT: <b>${uOtHrs}</b> နာရီ | နှစ်ဆရက်: <b>${uDouble}</b> ရက်</div><div class="admin-user-salary">💰 ခန့်မှန်းလစာ: ${uTotalPay.toLocaleString()} ဘတ်</div><div class="admin-btn-group"><button class="admin-action-btn btn-view" onclick="viewUserDetail('${uid}')">👁️ အသေးစိတ်ကြည့်မည်</button><button class="admin-action-btn btn-edit" onclick="editAdminUser('${uid}')">✏️ ပြင်မည်</button><button class="admin-action-btn btn-delete" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ ဖျက်မည်</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">စုစုပေါင်း ဝန်ထမ်းအရေအတွက်: <span style="color:#007bff; font-size: 16px;">${totalEmployees} ယောက်</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">စုစုပေါင်း ပေးရမည့် လစာငွေ: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ဘတ်</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">ဒေတာမရှိသေးပါ။</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">ဒေတာမရှိပါ။</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
   window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
   window.filterAdminUsers = () => { let input = document.getElementById('adminSearchInput').value.toLowerCase(); let cards = document.querySelectorAll('.admin-user-card'); cards.forEach(card => { let name = card.getAttribute('data-name'); let empid = card.getAttribute('data-empid'); if(name.includes(input) || empid.includes(input)) card.style.display = 'block'; else card.style.display = 'none'; }); };
@@ -539,10 +549,10 @@
   window.updateSettings = () => { saveToFirebase(); calculateAll(); closeSettings(); alert("ပြင်ဆင်ချက်များကို သိမ်းဆည်းပြီးပါပြီ။"); };
   window.toggleOTInput = (el) => { let input = el.parentElement.querySelector('.ot-hours'); let card = el.closest('.day-card'); let dateStr = card.getAttribute('data-date'); if(el.value === 'yes') { input.style.display = 'block'; if(!card.hasAttribute('data-alerted')) { if(dateStr.includes('တနင်္လာ')) alert("ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂"); else if(dateStr.includes('စနေ')) alert("စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ ကိုယ်လူ! 💸"); else if(dateStr.includes('တနင်္ဂနွေ')) alert("တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑"); card.setAttribute('data-alerted', 'true'); } } else { input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); } calculateAll(); };
   
-  // EXPORT LOGIC
   window.openExportModal = () => { let cards = document.querySelectorAll('.day-card'); if(cards.length > 0) { document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date'); let lastFilledDate = cards[0].getAttribute('data-real-date'); cards.forEach(c => { let status = c.querySelector('.status-select').value; if(status === '✓' || status === 'x') lastFilledDate = c.getAttribute('data-real-date'); }); let todayObj = new Date(); let tzOffset = 7 * 60 * 60000; let localISOTime = (new Date(todayObj - tzOffset)).toISOString().slice(0, -1); let todayStr = localISOTime.split('T')[0]; let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate; document.getElementById('exportEndDate').value = finalEndDate; } document.getElementById('exportModal').style.display = 'flex'; toggleMenu(null); };
   window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
   const formatExportDate = (dStr) => { let d = new Date(dStr); const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; return `${d.getDate()}, ${months[d.getMonth()]}, ${d.getFullYear()}`; };
+
   window.exportPDF = () => { let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; if(!sDate || !eDate) return alert("ရက်စွဲများကို ရွေးချယ်ပါ"); if(sDate > eDate) return alert("စတင်မည့်ရက်သည် အဆုံးသတ်ရက်ထက် စောရပါမည်"); let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-'; let dateTitle = `${formatExportDate(sDate)} - ${formatExportDate(eDate)}`; let html = `<div class="print-header"><h2>Chicony Salary Report</h2><p><b>Name:</b> ${name} &nbsp;|&nbsp; <b>ID:</b> ${empId}</p><p style="color:#000080; font-weight:bold; margin-top:5px;">Date: ${dateTitle}</p></div><table class="print-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT Hours</th><th>Daily Total (Baht)</th></tr></thead><tbody>`; let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; document.querySelectorAll('.day-card').forEach(card => { let rDate = card.getAttribute('data-real-date'); if(rDate >= sDate && rDate <= eDate) { let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; } else if (statusVal === '✓') displayStatus = 'Present'; else if (statusVal === 'x') displayStatus = 'Absent'; else displayStatus = '-'; html += `<tr><td>${date}</td><td>${displayShift}</td><td>${displayStatus}</td><td>${ot}</td><td>${total}</td></tr>`; if(statusVal === '✓') { expWork++; if(card.querySelector('.is-double').value === 'true') expDouble++; expOtHrs += parseFloat(ot); } else if(statusVal === 'x') expAbsent++; expTotal += total; } }); let expBonus = (expAbsent > 0) ? 0 : bonusSetting; expTotal += expBonus; let expGrandOt = (expDouble * 8) + expOtHrs; html += `</tbody></table><table class="print-summary"><tr><th>Attendance Bonus</th><td>${expBonus} Baht</td></tr><tr><th>Total Work (Days/Hrs)</th><td>${expWork} Days / ${expWork*8} Hrs</td></tr><tr><th>Total OT Hours</th><td>${expGrandOt} Hrs</td></tr><tr><th>Absent</th><td>${expAbsent} Days</td></tr><tr><th>Net Salary (For Selected Dates)</th><td><b>${expTotal} Baht</b></td></tr></table><div class="print-footer">Generated by Chicony Attendance System<br>Developed by <b>THET AUNG</b> | Line: 678777705</div>`; document.getElementById('printArea').innerHTML = html; closeExportModal(); window.print(); };
   window.exportExcel = () => { let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; if(!sDate || !eDate) return alert("ရက်စွဲများကို ရွေးချယ်ပါ"); let excelData = [ ["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"] ]; let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; document.querySelectorAll('.day-card').forEach(card => { let rDate = card.getAttribute('data-real-date'); if(rDate >= sDate && rDate <= eDate) { let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; } else if (statusVal === '✓') displayStatus = 'Present'; else if (statusVal === 'x') displayStatus = 'Absent'; else displayStatus = '-'; excelData.push([date, displayShift, displayStatus, ot, total]); if(statusVal === '✓') { expWork++; if(card.querySelector('.is-double').value === 'true') expDouble++; expOtHrs += parseFloat(ot); } else if(statusVal === 'x') expAbsent++; expTotal += total; } }); let expBonus = (expAbsent > 0) ? 0 : bonusSetting; expTotal += expBonus; let expGrandOt = (expDouble * 8) + expOtHrs; excelData.push([]); excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]); excelData.push(["", "", "", "Total Work Hours", (expWork * 8) + " hrs"]); excelData.push(["", "", "", "Total OT Hours", expGrandOt + " hrs"]); excelData.push(["", "", "", "Absent Days", expAbsent + " Days"]); excelData.push(["", "", "", "Net Salary", expTotal + " Baht"]); excelData.push([]); excelData.push(["", "", "", "Developed by", "THET AUNG"]); let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, "Salary_Report"); let name = document.getElementById('empName').value || 'Employee'; XLSX.writeFile(wb, `${name}_Salary_${sDate}_to_${eDate}.xlsx`); closeExportModal(); };
   window.exportAdminAll = (type) => { let allUsers = window.allUsersData; let exportData = []; let grandTotal = 0; let totalEmp = 0; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let netSalary = uData.calculatedTotal || 0; let uWork = 0, uAbsent = 0, uOtHrs = 0; if(uData.attendance) { for(let key in uData.attendance) { let s = uData.attendance[key].status; if(s === '✓') { uWork++; uOtHrs += parseFloat(uData.attendance[key].otHours) || 0; } else if(s === 'x') uAbsent++; } } exportData.push([name, empId, uWork, uOtHrs, uAbsent, netSalary]); grandTotal += netSalary; totalEmp++; } if(type === 'excel') { let excelArr = [ ["Name", "ID", "Work Days", "Total OT Hrs", "Absent Days", "Net Salary (Baht)"] ]; exportData.forEach(row => excelArr.push(row)); excelArr.push([]); excelArr.push(["Total Employees", totalEmp, "", "", "Grand Total", grandTotal + " Baht"]); let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelArr); XLSX.utils.book_append_sheet(wb, ws, "All_Employees"); XLSX.writeFile(wb, `Chicony_All_Employees_Salary.xlsx`); } else { let html = `<div class="print-header"><h2>Chicony Master Salary Report</h2><p>Total Employees: ${totalEmp}</p></div><table class="print-table"><thead><tr><th>Name</th><th>ID</th><th>Work Days</th><th>OT Hrs</th><th>Absent</th><th>Net Salary (Baht)</th></tr></thead><tbody>`; exportData.forEach(row => { html += `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td></tr>`; }); html += `</tbody></table><table class="print-summary"><tr><th>Grand Total Salary</th><td><b>${grandTotal.toLocaleString()} Baht</b></td></tr></table>`; document.getElementById('printArea').innerHTML = html; window.print(); } };
