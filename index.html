@@ -72,8 +72,11 @@
   .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none;}
   .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
   
+  /* Developer Info */
   .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
   .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
+  .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
+  .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
 
   /* Admin Panel & Visual Calendar CSS */
   .admin-search-box { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: box-shadow 0.3s;}
@@ -132,8 +135,6 @@
   .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
-  
-  /* Select option in right menu for dark mode */
   .dark-mode #rightMenu select { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
 
   /* Print Styles */
@@ -235,6 +236,15 @@
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#dc3545;">0</b></div>
     </div>
+
+    <div class="developer-footer hover-card">
+      <div class="dev-name">👨‍💻 Developed by THET AUNG</div>
+      <div style="font-size: 12px; margin-bottom: 5px;" class="dev-contact">Contact for Support & Updates</div>
+      <div class="dev-contact">
+        <a href="http://line.me/ti/p/~678777705" target="_blank" class="interactive-btn">💬 LINE: 678777705</a>
+        <a href="https://t.me/ThetAung7777" target="_blank" class="interactive-btn">✈️ Telegram: @ThetAung7777</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -333,6 +343,7 @@
     <div id="adminDetailContent"></div>
   </div>
 </div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
