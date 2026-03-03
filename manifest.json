@@ -1,15 +1,21 @@
 {
-  "short_name": "Attendance",
-  "name": "Chicony Attendance System",
+  "name": "Chicony Attendance",
+  "short_name": "Chicony",
+  "description": "Attendance and Salary System",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#87CEEB",
+  "theme_color": "#000080",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  ]
 }
