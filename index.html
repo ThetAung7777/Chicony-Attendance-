@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000080">
-<link rel="apple-touch-icon" href="icon-192.png">
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chicony Attendance & Salary</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#000080">
+<link rel="apple-touch-icon" href="icon-192.png">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style id="app-styles">
-  /* 🌟 Base Styles & Animations 🌟 */
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: skyblue; margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -23,14 +21,12 @@
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  /* Navbar & UI */
   .navbar { background-color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   .app-title { text-align: center; margin: 0; line-height: 1.2; }
   .logo-main { font-family: 'Arial Black', Impact, sans-serif; font-size: 24px; color: #000080; letter-spacing: -0.5px; }
   .logo-tag { font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
 
-  /* Dropdown & Modals */
   .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 200; transform-origin: top right;}
   .dropdown.left { left: 10px; transform-origin: top left; }
   .dropdown.right { right: 10px; }
@@ -40,12 +36,10 @@
   .modal-content { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;}
   .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; z-index: 10;}
 
-  /* Login Screen */
   #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: skyblue; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
   .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
-  /* Grid & Cards */
   .container { padding: 15px; max-width: 800px; margin: auto; }
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
@@ -60,7 +54,6 @@
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; box-sizing: border-box;}
   .blank-card { background: transparent; border: none; } 
 
-  /* Colors for Main Grid */
   .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
   .bg-red { background-color: #dc3545 !important; border-color: #b02a37 !important; }
   .bg-blue { background-color: #0d6efd !important; border-color: #0a58ca !important; } 
@@ -76,13 +69,11 @@
   .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none;}
   .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
   
-  /* Developer Info */
   .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
   .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
   .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
   .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
 
-  /* Admin Panel & Visual Calendar CSS */
   .admin-search-box { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: box-shadow 0.3s;}
   .admin-search-box:focus { box-shadow: 0 0 8px rgba(0,123,255,0.3); }
   .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; transition: transform 0.3s ease;}
@@ -110,7 +101,6 @@
   .cal-holiday:active { transform: scale(0.9); }
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; box-shadow: 0 2px 4px rgba(13,110,253,0.4); }
 
-  /* 🌙 DARK MODE STYLES 🌙 */
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
@@ -227,6 +217,8 @@
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
       
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
+      
       <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b></div>
       <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightAllowance">စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b></div>
@@ -276,12 +268,10 @@
                 <button class="interactive-btn" onclick="addAdminDate()" style="background:#17a2b8; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">Save</button>
             </div>
         </div>
-
         <div class="admin-manage-section" style="max-height: 200px; overflow-y:auto;">
             <div id="adminManageList"></div>
         </div>
     </div>
-
     <div id="yearCalendarContainer" class="year-calendar-grid"></div>
   </div>
 </div>
@@ -347,6 +337,7 @@
     <div id="adminDetailContent"></div>
   </div>
 </div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -383,7 +374,7 @@
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
           langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ",
-          otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", holiday: "ပိတ်ရက် (-)", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "စုစုပေါင်း ညကြေး",
+          otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "စုစုပေါင်း ညကြေး",
           transport: "စုစုပေါင်း ကားခ", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)",
           netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)",
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
@@ -392,7 +383,7 @@
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
           langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs",
-          otTotal: "Total OT Hrs", absent: "Absent (x)", holiday: "Holiday (-)", nightShift: "Night Shift", nightAllowance: "Night Allowance",
+          otTotal: "Total Normal OT", absent: "Absent (x)", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance",
           transport: "Transport Allowance", foodOt: "Food (OT Days)", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus",
           netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID",
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
@@ -401,7 +392,7 @@
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
           langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.",
-          otTotal: "โอทีรวม", absent: "ขาดงาน (x)", holiday: "วันหยุด (-)", nightShift: "กะดึก", nightAllowance: "ค่ากะดึก",
+          otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะดึก",
           transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร (ทำโอที)", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "เบี้ยขยัน",
           netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน",
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
@@ -431,17 +422,12 @@
   }
 
   window.changeLanguage = (lang) => {
-      currentLang = lang;
-      localStorage.setItem('appLang', lang);
-      document.getElementById('langSelector').value = lang;
-      
+      currentLang = lang; localStorage.setItem('appLang', lang); document.getElementById('langSelector').value = lang;
       document.querySelectorAll('[data-i18n]').forEach(el => {
-          let key = el.getAttribute('data-i18n');
-          if(translations[lang][key]) el.innerText = translations[lang][key];
+          let key = el.getAttribute('data-i18n'); if(translations[lang][key]) el.innerText = translations[lang][key];
       });
       updateWeekdaysHeader();
-      
-      if(isDataLoaded && document.getElementById('selectedMonth').value) { window.generateGrid(false); }
+      if(isDataLoaded && document.getElementById('selectedMonth').value) window.generateGrid(false); 
       if(Object.keys(globalCalendar).length >= 0) renderYearCalendar();
   };
 
@@ -455,15 +441,11 @@
 
   onAuthStateChanged(auth, (user) => {
       if (user) {
-          currentUser = user;
-          document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block';
+          currentUser = user; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block';
           document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
           if(user.email === ADMIN_EMAIL) { document.getElementById('adminPanelBtn').style.display = 'flex'; document.getElementById('adminCalendarControls').style.display = 'block'; }
-          loadGlobalCalendar(); 
-          loadFromFirebase();
-      } else {
-          document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none';
-      }
+          loadGlobalCalendar(); loadFromFirebase();
+      } else { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
   });
 
   window.saveToFirebase = () => {
@@ -489,26 +471,20 @@
   function loadFromFirebase() {
       document.getElementById('loadingSpinner').style.display = 'flex';
       onValue(ref(db, 'users/' + currentUser.uid), (snapshot) => {
-          document.getElementById('loadingSpinner').style.display = 'none';
-          const data = snapshot.val();
+          document.getElementById('loadingSpinner').style.display = 'none'; const data = snapshot.val();
           let d = new Date(); let defaultMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-          
           if (data) {
               appData = data;
               if(appData.settings) {
                   document.getElementById('empName').value = appData.settings.empName || ""; document.getElementById('empId').value = appData.settings.empId || "";
                   document.getElementById('selectedMonth').value = appData.settings.selectedMonth || defaultMonth; document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
                   document.getElementById('otRate').value = appData.settings.otRate || 75; document.getElementById('attBonusSetting').value = appData.settings.attBonusSetting || "0";
-                  let uName = appData.settings.empName || "User";
-                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${uName}</div><div class="profile-email-text">${currentUser.email}</div>`;
-                  isDataLoaded = true; 
-                  window.generateGrid(false); 
+                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName || "User"}</div><div class="profile-email-text">${currentUser.email}</div>`;
+                  isDataLoaded = true; window.generateGrid(false); 
               } else { document.getElementById('selectedMonth').value = defaultMonth; isDataLoaded = true; window.generateGrid(true); }
           } else {
-              document.getElementById('selectedMonth').value = defaultMonth;
-              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
-              isDataLoaded = true;
-              window.generateGrid(true); 
+              document.getElementById('selectedMonth').value = defaultMonth; document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
+              isDataLoaded = true; window.generateGrid(true); 
           }
       }, { onlyOnce: true });
   }
@@ -650,9 +626,10 @@
       calculateAll(); 
   };
 
+  // ★ တွက်ချက်မှု လော့ဂျစ် (3X အစား 2X ပြောင်းလဲထားပါသည်) ★
   window.calculateAll = () => {
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; const rate = parseFloat(document.getElementById('otRate').value) || 0; const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
-      let work=0, double=0, absent=0, holiday=0, night=0, otHrs=0, otDays=0, total=0, transport=0, nightPay=0; let lastFilledShift = 'day'; 
+      let work=0, double=0, absent=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otHrs=0, otDays=0, total=0, transport=0, nightPay=0; let lastFilledShift = 'day'; 
 
       document.querySelectorAll('.day-card').forEach(c => {
           let dateKey = c.getAttribute('data-real-date'); let calData = globalCalendar[dateKey]; 
@@ -661,21 +638,39 @@
           let isSun = c.getAttribute('data-is-sun') === 'true'; let isSat = c.getAttribute('data-is-sat') === 'true'; 
           let info = c.querySelector('.daily-info'); let doubleLbl = c.querySelector('.double-label');
           
-          let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓');
           c.className = 'day-card'; 
-          if(isDoubleDay) { doubleLbl.innerText = '★'; if(isSat) c.classList.add('double-saturday'); } else { doubleLbl.innerText = ''; }
-          
-          if(status === '✓') c.classList.add(isDoubleDay ? 'bg-blue' : (shift === 'night' ? 'bg-dark-gray' : 'bg-green')); 
-          else if(status === 'x') c.classList.add('bg-gray'); 
-          else if(status === '-') c.classList.add(isSun ? 'bg-red' : 'bg-yellow');
-
           let dPay=0, fPay=0;
-          if (status === '✓') {
-              work++; lastFilledShift = shift; let bPay = isDoubleDay ? (wage * 2) : wage; if(isDoubleDay) double++; dPay += bPay + 40; transport += 40; 
-              if(shift === 'night') { night++; dPay += 100; nightPay += 100; }
-              if(otStatus === 'yes') { fPay = 60; otHrs += otVal; if(otVal>0) otDays++; dPay += (otVal*rate); } else fPay = 30;
-              dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal} | ${dPay}฿` : `${dPay}฿`;
-          } else { if(status === 'x') absent++; else if(status === '-') holiday++; info.innerHTML = "-"; }
+
+          if (status === '-') {
+              if (isAdminHoliday) {
+                  // အစိုးရရုံးပိတ်ရက်ကို မဆင်းပါက Basic Wage သာရမည်
+                  pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay;
+                  doubleLbl.innerText = 'Paid Holiday';
+                  info.innerHTML = `${dPay}฿`;
+                  c.classList.add('bg-yellow');
+              } else {
+                  holiday++; info.innerHTML = "-"; c.classList.add(isSun ? 'bg-red' : 'bg-yellow'); doubleLbl.innerText = '';
+              }
+          } else if (status === '✓') {
+              work++; lastFilledShift = shift; let bPay = wage;
+              
+              if (isAdminHoliday || isAdminDouble) {
+                  // ပိတ်ရက် ဆင်းပါက (သို့) စနေ နှစ်ဆရက် ဆင်းပါက ၂ ဆ (2X) သာရမည်
+                  bPay = wage * 2; double++;
+                  doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue');
+                  if(isSat) c.classList.add('double-saturday'); 
+              } else {
+                  doubleLbl.innerText = '';
+                  c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green');
+              }
+
+              dPay += bPay + 40; transport += 40; 
+              if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
+              if (otStatus === 'yes') { fPay = 60; otHrs += otVal; if(otVal>0) otDays++; dPay += (otVal*rate); } else fPay = 30;
+              dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
+          } else if (status === 'x') {
+              absent++; info.innerHTML = "-"; doubleLbl.innerText = ''; c.classList.add('bg-gray');
+          }
           c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
       });
 
@@ -686,7 +681,6 @@
       let nonOtDays = work - otDays; let foodOtTotal = otDays * 60; let foodNoOtTotal = nonOtDays * 30;
       let finalBonus = (absent > 0) ? 0 : bonusSetting; total += finalBonus; let dOT = double * 8, grandOT = dOT + otHrs; 
 
-      // ★ UI တွင် ရက်/နာရီ စာသားများ ကပ်ပေးခြင်း ★
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days');
       let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
 
@@ -694,10 +688,12 @@
       document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
       document.getElementById('absentCount').innerText = `${absent} ${uDay}`; 
       document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; 
-      document.getElementById('otDaysCount').innerText = `${otDays} ${uDay} / ${otHrs} ${uHr}`; 
-      document.getElementById('otTotalCombine').innerText = `${grandOT} ${uHr}`; 
-      document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; 
       
+      document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`;
+
+      document.getElementById('otDaysCount').innerText = `${otDays} ${uDay} / ${otHrs} ${uHr}`; 
+      document.getElementById('otTotalCombine').innerText = `${otHrs} ${uHr}`; 
+      document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; 
       document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; 
       document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; 
       document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; 
@@ -711,13 +707,13 @@
   };
 
   // --- Admin Panel Logic ---
-  window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let status = record.status; let shift = record.shift; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓'); if (status === '✓') { uWork++; let bPay = isDoubleDay ? (wage * 2) : wage; if (isDoubleDay) uDouble++; dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') uAbsent++; } } let uBonus = (uAbsent > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> <br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#dc3545; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Est. Salary: ${uTotalPay.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">Total Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
+  window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let status = record.status; let shift = record.shift; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; if (status === '-') { if (isAdminHoliday) { uTotalPay += wage; } } else if (status === '✓') { uWork++; let bPay = wage; if (isAdminHoliday || isAdminDouble) { bPay = wage * 2; uDouble++; } dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') uAbsent++; } } let uBonus = (uAbsent > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> <br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#dc3545; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Est. Salary: ${uTotalPay.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">Total Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
   window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
   window.filterAdminUsers = () => { let input = document.getElementById('adminSearchInput').value.toLowerCase(); let cards = document.querySelectorAll('.admin-user-card'); cards.forEach(card => { let name = card.getAttribute('data-name'); let empid = card.getAttribute('data-empid'); if(name.includes(input) || empid.includes(input)) card.style.display = 'block'; else card.style.display = 'none'; }); };
   window.deleteAdminUser = (uid, name) => { if(confirm(`Delete ${name}?`)) { remove(ref(db, 'users/' + uid)).then(() => { openAdminPanel(); }); } };
   window.editAdminUser = (uid) => { let uData = window.allUsersData[uid]; let oldName = uData.settings?.empName || ""; let oldId = uData.settings?.empId || ""; let newName = prompt("New Name:", oldName); if(newName === null || newName.trim() === "") return; let newId = prompt("New ID:", oldId); if(newId === null) return; update(ref(db, 'users/' + uid + '/settings'), { empName: newName, empId: newId }).then(() => { openAdminPanel(); }); };
 
-  // --- EXPORT PDF/EXCEL (★ Zero to Dash ပြောင်းလဲခြင်းနှင့် OT Summary ပြင်ဆင်ချက် ★) ---
+  // --- EXPORT PDF/EXCEL ---
   window.openExportModal = () => { let cards = document.querySelectorAll('.day-card'); if(cards.length > 0) { document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date'); let lastFilledDate = cards[0].getAttribute('data-real-date'); cards.forEach(c => { let status = c.querySelector('.status-select').value; if(status === '✓' || status === 'x') lastFilledDate = c.getAttribute('data-real-date'); }); let todayObj = new Date(); let tzOffset = 7 * 60 * 60000; let localISOTime = (new Date(todayObj - tzOffset)).toISOString().slice(0, -1); let todayStr = localISOTime.split('T')[0]; let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate; document.getElementById('exportEndDate').value = finalEndDate; } document.getElementById('exportModal').style.display = 'flex'; toggleMenu(null); };
   window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
   const formatExportDate = (dStr) => { let d = new Date(dStr); const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; return `${d.getDate()}, ${months[d.getMonth()]}, ${d.getFullYear()}`; };
@@ -725,84 +721,81 @@
   window.exportPDF = () => { 
       let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; 
       if(!sDate || !eDate) return alert("Select dates"); if(sDate > eDate) return; 
-      let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-'; 
+      let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-'; let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
       let dateTitle = `${formatExportDate(sDate)} - ${formatExportDate(eDate)}`; 
       let html = `<div class="print-header"><h2>Chicony Salary Report</h2><p><b>Name:</b> ${name} &nbsp;|&nbsp; <b>ID:</b> ${empId}</p><p style="color:#000080; font-weight:bold; margin-top:5px;">Date: ${dateTitle}</p></div><table class="print-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT Hours</th><th>Daily Total (Baht)</th></tr></thead><tbody>`; 
-      let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
+      let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
       
       document.querySelectorAll('.day-card').forEach(card => { 
           let rDate = card.getAttribute('data-real-date'); 
           if(rDate >= sDate && rDate <= eDate) { 
-              let date = card.getAttribute('data-date'); 
-              let shiftVal = card.querySelector('.shift-select').value; 
-              let statusVal = card.querySelector('.status-select').value; 
-              let ot = card.getAttribute('data-ot') || "0"; 
-              let total = parseFloat(card.getAttribute('data-total') || "0"); 
+              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
+              let calData = globalCalendar[rDate]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
+              let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
               
-              let calData = globalCalendar[rDate]; 
-              let isDoubleDay = (calData?.type === 'double') || (calData?.type === 'holiday' && statusVal === '✓'); 
+              if(statusVal === '-') { 
+                  displayShift = 'All'; displayStatus = 'Holiday'; 
+                  if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; }
+              } 
+              else if (statusVal === '✓') { displayStatus = 'Present'; } 
+              else if (statusVal === 'x') { displayStatus = 'Absent'; } 
+              else { displayStatus = '-'; }
               
-              let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; 
-              let displayStatus = statusVal; 
-              
-              if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; } 
-              else if (statusVal === '✓') displayStatus = 'Present'; 
-              else if (statusVal === 'x') displayStatus = 'Absent'; 
-              else displayStatus = '-'; 
-              
-              // ★ '0' အား '-' သို့ ပြောင်းခြင်း ★
-              let displayOt = (ot === "0" || ot === 0) ? "-" : ot;
-              let displayTotal = total === 0 ? "-" : total;
+              let displayOt = (ot === "0" || ot === 0 || ot === "") ? "-" : ot;
+              let displayTotal = (total === 0 || total === "0") ? "-" : total;
               
               html += `<tr><td>${date}</td><td>${displayShift}</td><td>${displayStatus}</td><td>${displayOt}</td><td>${displayTotal}</td></tr>`; 
               
               if(statusVal === '✓') { 
-                  expWork++; if(isDoubleDay) expDouble++; expOtHrs += parseFloat(ot); 
+                  expWork++; expOtHrs += parseFloat(ot); 
+                  if(isAdminHoliday || isAdminDouble) expDouble++;
               } else if(statusVal === 'x') { expAbsent++; } 
               expTotal += total; 
           } 
       }); 
       let expBonus = (expAbsent > 0) ? 0 : bonusSetting; expTotal += expBonus; 
       
-      // ★ Summary ပုံစံအသစ် (OT ခွဲပြခြင်း) ★
       html += `</tbody></table><table class="print-summary">
       <tr><th>Attendance Bonus</th><td>${expBonus} Baht</td></tr>
+      <tr><th>Public Holiday Pay</th><td>${expPubHolCount} Days / ${expPubHolPay} Baht</td></tr>
       <tr><th>Total Work (Days/Hrs)</th><td>${expWork} Days / ${expWork*8} Hrs</td></tr>
-      <tr><th>Total OT Hours</th><td>${expOtHrs} Hrs</td></tr>
-      <tr><th>2X Days OT Hours</th><td>${expDouble * 8} Hrs</td></tr>
-      <tr><th>Absent</th><td>${expAbsent} Days</td></tr>
+      <tr><th>Total Normal OT Hours</th><td>${expOtHrs} Hrs</td></tr>`;
+      
+      if(expDouble > 0) html += `<tr><th>2X Days Work Hours</th><td>${expDouble * 8} Hrs</td></tr>`;
+      
+      html += `<tr><th>Absent</th><td>${expAbsent} Days</td></tr>
       <tr><th>Net Salary (For Selected Dates)</th><td><b>${expTotal} Baht</b></td></tr>
       </table><div class="print-footer">Generated by Chicony Attendance System<br>Developed by <b>THET AUNG</b></div>`; 
       
-      document.getElementById('printArea').innerHTML = html; 
-      closeExportModal(); 
-      setTimeout(() => { window.print(); }, 800); 
+      document.getElementById('printArea').innerHTML = html; closeExportModal(); setTimeout(() => { window.print(); }, 800); 
   };
 
   window.exportExcel = () => { 
       let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; 
       if(!sDate || !eDate) return; 
       let excelData = [ ["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"] ]; 
-      let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
+      let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
+      let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
       
       document.querySelectorAll('.day-card').forEach(card => { 
           let rDate = card.getAttribute('data-real-date'); 
           if(rDate >= sDate && rDate <= eDate) { 
-              let date = card.getAttribute('data-date'); 
-              let shiftVal = card.querySelector('.shift-select').value; 
-              let statusVal = card.querySelector('.status-select').value; 
-              let ot = card.getAttribute('data-ot') || "0"; 
-              let total = parseFloat(card.getAttribute('data-total') || "0"); 
-              
-              let calData = globalCalendar[rDate]; let isDoubleDay = (calData?.type === 'double') || (calData?.type === 'holiday' && statusVal === '✓'); 
+              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
+              let calData = globalCalendar[rDate]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
               let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
-              if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; } else if (statusVal === '✓') displayStatus = 'Present'; else if (statusVal === 'x') displayStatus = 'Absent'; else displayStatus = '-'; 
               
-              let displayOt = (ot === "0" || ot === 0) ? "-" : ot;
-              let displayTotal = total === 0 ? "-" : total;
+              if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; } } 
+              else if (statusVal === '✓') displayStatus = 'Present'; 
+              else if (statusVal === 'x') displayStatus = 'Absent'; 
+              else displayStatus = '-'; 
+              
+              let displayOt = (ot === "0" || ot === 0 || ot === "") ? "-" : ot;
+              let displayTotal = (total === 0 || total === "0") ? "-" : total;
               
               excelData.push([date, displayShift, displayStatus, displayOt, displayTotal]); 
-              if(statusVal === '✓') { expWork++; if(isDoubleDay) expDouble++; expOtHrs += parseFloat(ot); } else if(statusVal === 'x') expAbsent++; 
+              
+              if(statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot); if(isAdminHoliday || isAdminDouble) expDouble++; } 
+              else if(statusVal === 'x') expAbsent++; 
               expTotal += total; 
           } 
       }); 
@@ -811,38 +804,17 @@
       
       excelData.push([]); 
       excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]); 
+      excelData.push(["", "", "", "Public Holiday Pay", expPubHolCount + " Days / " + expPubHolPay + " Baht"]); 
       excelData.push(["", "", "", "Total Work Hours", (expWork * 8) + " hrs"]); 
-      excelData.push(["", "", "", "Total OT Hours", expOtHrs + " hrs"]); 
-      excelData.push(["", "", "", "2X Days OT Hours", (expDouble * 8) + " hrs"]); 
+      excelData.push(["", "", "", "Total Normal OT Hours", expOtHrs + " hrs"]); 
+      if(expDouble > 0) excelData.push(["", "", "", "2X Days Work Hours", (expDouble * 8) + " hrs"]); 
       excelData.push(["", "", "", "Absent Days", expAbsent + " Days"]); 
       excelData.push(["", "", "", "Net Salary", expTotal + " Baht"]); 
       excelData.push([]); excelData.push(["", "", "", "Developed by", "THET AUNG"]); 
       
       let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); 
       XLSX.utils.book_append_sheet(wb, ws, "Salary_Report"); let name = document.getElementById('empName').value || 'Employee'; 
-      XLSX.writeFile(wb, `${name}_Salary_${sDate}_to_${eDate}.xlsx`); 
-      closeExportModal(); 
-  };
-
-  window.exportAdminAll = (type) => { 
-      let allUsers = window.allUsersData; let exportData = []; let grandTotal = 0; let totalEmp = 0; 
-      for (let uid in allUsers) { 
-          let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; 
-          let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let netSalary = uData.calculatedTotal || 0; let uWork = 0, uAbsent = 0, uOtHrs = 0; 
-          if(uData.attendance) { for(let key in uData.attendance) { let s = uData.attendance[key].status; if(s === '✓') { uWork++; uOtHrs += parseFloat(uData.attendance[key].otHours) || 0; } else if(s === 'x') uAbsent++; } } 
-          exportData.push([name, empId, uWork, uOtHrs, uAbsent, netSalary]); grandTotal += netSalary; totalEmp++; 
-      } 
-      if(type === 'excel') { 
-          let excelArr = [ ["Name", "ID", "Work Days", "Total OT Hrs", "Absent Days", "Net Salary (Baht)"] ]; 
-          exportData.forEach(row => excelArr.push(row)); excelArr.push([]); excelArr.push(["Total Employees", totalEmp, "", "", "Grand Total", grandTotal + " Baht"]); 
-          let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelArr); XLSX.utils.book_append_sheet(wb, ws, "All_Employees"); XLSX.writeFile(wb, `Chicony_All_Employees_Salary.xlsx`); 
-      } else { 
-          let html = `<div class="print-header"><h2>Chicony Master Salary Report</h2><p>Total Employees: ${totalEmp}</p></div><table class="print-table"><thead><tr><th>Name</th><th>ID</th><th>Work Days</th><th>OT Hrs</th><th>Absent</th><th>Net Salary (Baht)</th></tr></thead><tbody>`; 
-          exportData.forEach(row => { html += `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td></tr>`; }); 
-          html += `</tbody></table><table class="print-summary"><tr><th>Grand Total Salary</th><td><b>${grandTotal.toLocaleString()} Baht</b></td></tr></table>`; 
-          document.getElementById('printArea').innerHTML = html; 
-          setTimeout(() => { window.print(); }, 800); 
-      } 
+      XLSX.writeFile(wb, `${name}_Salary_${sDate}_to_${eDate}.xlsx`); closeExportModal(); 
   };
 
   window.viewUserDetail = (uid) => { 
@@ -857,10 +829,8 @@
                   hasRecords = true; let dObj = new Date(d); let displayDate = `${dObj.getDate()}/${dObj.getMonth()+1}/${dObj.getFullYear()}`; 
                   let shiftStr = rec.shift === 'day' ? '☀️ နေ့' : '🌙 ည'; let statusStr = rec.status; 
                   if(rec.status === '✓') statusStr = '<span style="color:#198754; font-weight:bold;">✓ ဆင်း</span>'; else if(rec.status === 'x') statusStr = '<span style="color:#dc3545; font-weight:bold;">x ပျက်</span>'; else if(rec.status === '-') { statusStr = 'ပိတ်ရက်'; shiftStr = '-'; } 
-                  
                   let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0";
                   let displayOt = (ot === "0" || ot === 0) ? "-" : (ot + " နာရီ");
-                  
                   html += `<tr><td>${displayDate}</td><td>${shiftStr}</td><td>${statusStr}</td><td>${displayOt}</td></tr>`; 
               } 
           }); 
@@ -881,10 +851,8 @@
           if(rec.status) { 
               let shift = rec.shift === 'day' ? 'Day' : 'Night'; let stat = rec.status === '✓' ? 'Present' : (rec.status === 'x' ? 'Absent' : 'Holiday'); 
               if(rec.status === '-') shift = 'All'; 
-              
               let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0";
               let displayOt = (ot === "0" || ot === 0) ? "-" : ot;
-              
               exportArr.push([d, shift, stat, displayOt]); 
           } 
       }); 
@@ -900,17 +868,4 @@
           document.getElementById('printArea').innerHTML = html; setTimeout(() => { window.print(); }, 800); 
       } 
   };
-    // PWA Service Worker Registration
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then(reg => {
-        console.log('Service worker registered.');
-      }).catch(err => {
-        console.log('Service worker registration failed:', err);
-      });
-    });
-  }
-
 </script>
-</body>
-</html>
