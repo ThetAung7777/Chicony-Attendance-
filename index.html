@@ -214,9 +214,11 @@
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;"><span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;"><span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
       
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b></div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
       
       <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b></div>
@@ -374,7 +376,7 @@
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
           langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ",
-          otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "စုစုပေါင်း ညကြေး",
+          otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "စုစုပေါင်း ညကြေး",
           transport: "စုစုပေါင်း ကားခ", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)",
           netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)",
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
@@ -383,7 +385,7 @@
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
           langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs",
-          otTotal: "Total Normal OT", absent: "Absent (x)", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance",
+          otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance",
           transport: "Transport Allowance", foodOt: "Food (OT Days)", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus",
           netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID",
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
@@ -392,7 +394,7 @@
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
           langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.",
-          otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะดึก",
+          otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะดึก",
           transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร (ทำโอที)", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "เบี้ยขยัน",
           netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน",
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
@@ -411,9 +413,9 @@
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ ဆင်းသည်', statusAbsent: 'x ပျက်ရက်', statusHoliday: '- ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...' },
-      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...' },
-      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...' }
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ ဆင်းသည်', statusAbsent: 'x ပျက်ရက်', statusHoliday: '- ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
+      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
 
   function updateWeekdaysHeader() {
@@ -460,8 +462,11 @@
           let dateKey = card.getAttribute('data-real-date');
           if (dateKey) {
               appData.attendance[dateKey] = {
-                  shift: card.querySelector('.shift-select').value, status: card.querySelector('.status-select').value,
-                  ot: card.querySelector('.ot-select').value, otHours: card.querySelector('.ot-hours').value
+                  shift: card.querySelector('.shift-select').value, 
+                  status: card.querySelector('.status-select').value,
+                  leaveType: card.querySelector('.leave-select').value, 
+                  ot: card.querySelector('.ot-select').value, 
+                  otHours: card.querySelector('.ot-hours').value
               };
           }
       });
@@ -603,6 +608,10 @@
               <option value="x">${dd.statusAbsent}</option>
               <option value="-" ${isHolidayOrSun ? 'selected' : ''}>${dd.statusHoliday}</option>
             </select>
+            <select class="leave-select" onchange="calculateAll()" style="display:none; margin-top:3px; background:#fff3cd; border:1px solid #ffecb5; color:#664d03; border-radius:4px;">
+              <option value="unpaid">${dd.leaveUnpaid}</option>
+              <option value="medical">${dd.leaveMed}</option>
+            </select>
             <select class="ot-select" onchange="toggleOTInput(this)"><option value="no">${dd.otNo}</option><option value="yes">${dd.otYes}</option></select>
             <input type="number" class="ot-hours" placeholder="${dd.otHr}" oninput="calculateAll()" style="display: none;" min="0" step="0.5">
             <div class="daily-info">-</div>`;
@@ -617,6 +626,11 @@
                   let savedStatus = d.status || '';
                   if(savedStatus === '' && isAdminHoliday) savedStatus = '-';
                   card.querySelector('.status-select').value = savedStatus; 
+                  
+                  let leaveSelect = card.querySelector('.leave-select');
+                  leaveSelect.value = d.leaveType || 'unpaid';
+                  if(savedStatus === 'x') leaveSelect.style.display = 'block';
+
                   card.querySelector('.ot-select').value = d.ot || 'no'; 
                   let otInput = card.querySelector('.ot-hours'); otInput.value = d.otHours || ''; 
                   if(d.ot === 'yes') { otInput.style.display = 'block'; card.setAttribute('data-alerted', 'true'); } 
@@ -626,28 +640,49 @@
       calculateAll(); 
   };
 
-  // ★ တွက်ချက်မှု လော့ဂျစ် (3X အစား 2X ပြောင်းလဲထားပါသည်) ★
+  // ★ တွက်ချက်မှု လော့ဂျစ် (OT Box Auto Hide လုပ်ပေးထားပါသည်) ★
   window.calculateAll = () => {
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; const rate = parseFloat(document.getElementById('otRate').value) || 0; const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
-      let work=0, double=0, absent=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otHrs=0, otDays=0, total=0, transport=0, nightPay=0; let lastFilledShift = 'day'; 
+      let work=0, double=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otHrs=0, otDays=0, total=0, transport=0, nightPay=0; let lastFilledShift = 'day'; 
 
       document.querySelectorAll('.day-card').forEach(c => {
           let dateKey = c.getAttribute('data-real-date'); let calData = globalCalendar[dateKey]; 
           let isAdminDouble = calData && calData.type === 'double'; let isAdminHoliday = calData && calData.type === 'holiday';
-          let shift = c.querySelector('.shift-select').value; let status = c.querySelector('.status-select').value; let otStatus = c.querySelector('.ot-select').value; let otVal = parseFloat(c.querySelector('.ot-hours').value) || 0; 
+          
+          let shift = c.querySelector('.shift-select').value; 
+          let status = c.querySelector('.status-select').value; 
+          let leaveSelect = c.querySelector('.leave-select'); 
+          let otSelect = c.querySelector('.ot-select'); // OT Select Box
+          let otInput = c.querySelector('.ot-hours');   // OT Input Box
+          
+          let otStatus = otSelect.value; 
+          let otVal = parseFloat(otInput.value) || 0; 
           let isSun = c.getAttribute('data-is-sun') === 'true'; let isSat = c.getAttribute('data-is-sat') === 'true'; 
           let info = c.querySelector('.daily-info'); let doubleLbl = c.querySelector('.double-label');
           
+          let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓');
           c.className = 'day-card'; 
           let dPay=0, fPay=0;
 
+          // Status x ဆိုလျှင် Leave box ကိုဖော်မည်
+          if(status === 'x') { leaveSelect.style.display = 'block'; } else { leaveSelect.style.display = 'none'; }
+
+          // ★ အလုပ်မဆင်းပါက OT Box များကို ဖျောက်ထားမည် ★
+          if (status === '✓') {
+              otSelect.style.display = 'block';
+              if(otStatus === 'yes') otInput.style.display = 'block'; else otInput.style.display = 'none';
+          } else {
+              otSelect.style.display = 'none';
+              otInput.style.display = 'none';
+              otStatus = 'no'; // Background calculation တွင်ပါ OT ကို 0 သို့ပြောင်းမည်
+              otVal = 0;
+          }
+
           if (status === '-') {
               if (isAdminHoliday) {
-                  // အစိုးရရုံးပိတ်ရက်ကို မဆင်းပါက Basic Wage သာရမည်
                   pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay;
-                  doubleLbl.innerText = 'Paid Holiday';
-                  info.innerHTML = `${dPay}฿`;
-                  c.classList.add('bg-yellow');
+                  doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':'Paid Hol';
+                  info.innerHTML = `${dPay}฿`; c.classList.add('bg-yellow');
               } else {
                   holiday++; info.innerHTML = "-"; c.classList.add(isSun ? 'bg-red' : 'bg-yellow'); doubleLbl.innerText = '';
               }
@@ -655,13 +690,11 @@
               work++; lastFilledShift = shift; let bPay = wage;
               
               if (isAdminHoliday || isAdminDouble) {
-                  // ပိတ်ရက် ဆင်းပါက (သို့) စနေ နှစ်ဆရက် ဆင်းပါက ၂ ဆ (2X) သာရမည်
                   bPay = wage * 2; double++;
                   doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue');
                   if(isSat) c.classList.add('double-saturday'); 
               } else {
-                  doubleLbl.innerText = '';
-                  c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green');
+                  doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green');
               }
 
               dPay += bPay + 40; transport += 40; 
@@ -669,7 +702,14 @@
               if (otStatus === 'yes') { fPay = 60; otHrs += otVal; if(otVal>0) otDays++; dPay += (otVal*rate); } else fPay = 30;
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
           } else if (status === 'x') {
-              absent++; info.innerHTML = "-"; doubleLbl.innerText = ''; c.classList.add('bg-gray');
+              if(leaveSelect.value === 'medical') {
+                  medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay;
+                  doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':'Med Leave';
+                  info.innerHTML = `${dPay}฿`;
+              } else {
+                  absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = '';
+              }
+              c.classList.add('bg-gray');
           }
           c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
       });
@@ -679,16 +719,19 @@
       if (night > 0) { rowNS.style.display = 'flex'; rowNA.style.display = 'flex'; } else { rowNS.style.display = 'none'; rowNA.style.display = 'none'; }
       
       let nonOtDays = work - otDays; let foodOtTotal = otDays * 60; let foodNoOtTotal = nonOtDays * 30;
-      let finalBonus = (absent > 0) ? 0 : bonusSetting; total += finalBonus; let dOT = double * 8, grandOT = dOT + otHrs; 
+      
+      let totalAbsent = absentUnpaid + medLeaveCount;
+      let finalBonus = (totalAbsent > 0) ? 0 : bonusSetting; total += finalBonus; 
+      let dOT = double * 8, grandOT = dOT + otHrs; 
 
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days');
       let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
 
       document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; 
       document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
-      document.getElementById('absentCount').innerText = `${absent} ${uDay}`; 
+      document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; 
+      document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; 
       document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; 
-      
       document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`;
 
       document.getElementById('otDaysCount').innerText = `${otDays} ${uDay} / ${otHrs} ${uHr}`; 
@@ -707,7 +750,7 @@
   };
 
   // --- Admin Panel Logic ---
-  window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let status = record.status; let shift = record.shift; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; if (status === '-') { if (isAdminHoliday) { uTotalPay += wage; } } else if (status === '✓') { uWork++; let bPay = wage; if (isAdminHoliday || isAdminDouble) { bPay = wage * 2; uDouble++; } dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') uAbsent++; } } let uBonus = (uAbsent > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> <br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#dc3545; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Est. Salary: ${uTotalPay.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">Total Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
+  window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uMedCount=0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let status = record.status; let shift = record.shift; let leaveType = record.leaveType; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; if (status === '-') { if (isAdminHoliday) { uTotalPay += wage; } } else if (status === '✓') { uWork++; let bPay = wage; if (isAdminHoliday || isAdminDouble) { bPay = wage * 2; uDouble++; } dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') { if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; } else { uAbsent++; } } } } let totalAbs = uAbsent + uMedCount; let uBonus = (totalAbs > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#dc3545; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Est. Salary: ${uTotalPay.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">Total Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
   window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
   window.filterAdminUsers = () => { let input = document.getElementById('adminSearchInput').value.toLowerCase(); let cards = document.querySelectorAll('.admin-user-card'); cards.forEach(card => { let name = card.getAttribute('data-name'); let empid = card.getAttribute('data-empid'); if(name.includes(input) || empid.includes(input)) card.style.display = 'block'; else card.style.display = 'none'; }); };
   window.deleteAdminUser = (uid, name) => { if(confirm(`Delete ${name}?`)) { remove(ref(db, 'users/' + uid)).then(() => { openAdminPanel(); }); } };
@@ -724,24 +767,27 @@
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-'; let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
       let dateTitle = `${formatExportDate(sDate)} - ${formatExportDate(eDate)}`; 
       let html = `<div class="print-header"><h2>Chicony Salary Report</h2><p><b>Name:</b> ${name} &nbsp;|&nbsp; <b>ID:</b> ${empId}</p><p style="color:#000080; font-weight:bold; margin-top:5px;">Date: ${dateTitle}</p></div><table class="print-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT Hours</th><th>Daily Total (Baht)</th></tr></thead><tbody>`; 
-      let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
+      let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
       
       document.querySelectorAll('.day-card').forEach(card => { 
           let rDate = card.getAttribute('data-real-date'); 
           if(rDate >= sDate && rDate <= eDate) { 
-              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
+              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let leaveVal = card.querySelector('.leave-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
               let calData = globalCalendar[rDate]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
               let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
               
+              // Status check logic
               if(statusVal === '-') { 
                   displayShift = 'All'; displayStatus = 'Holiday'; 
                   if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; }
               } 
               else if (statusVal === '✓') { displayStatus = 'Present'; } 
-              else if (statusVal === 'x') { displayStatus = 'Absent'; } 
+              else if (statusVal === 'x') { displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent'; } 
               else { displayStatus = '-'; }
               
-              let displayOt = (ot === "0" || ot === 0 || ot === "") ? "-" : ot;
+              // OT များကို ပိတ်ရက်/ပျက်ရက် တွင် Dash ပြမည်
+              let isWorking = (statusVal === '✓');
+              let displayOt = (ot === "0" || ot === 0 || ot === "" || !isWorking) ? "-" : ot;
               let displayTotal = (total === 0 || total === "0") ? "-" : total;
               
               html += `<tr><td>${date}</td><td>${displayShift}</td><td>${displayStatus}</td><td>${displayOt}</td><td>${displayTotal}</td></tr>`; 
@@ -749,21 +795,26 @@
               if(statusVal === '✓') { 
                   expWork++; expOtHrs += parseFloat(ot); 
                   if(isAdminHoliday || isAdminDouble) expDouble++;
-              } else if(statusVal === 'x') { expAbsent++; } 
+              } else if(statusVal === 'x') { 
+                  if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else { expAbsent++; } 
+              } 
               expTotal += total; 
           } 
       }); 
-      let expBonus = (expAbsent > 0) ? 0 : bonusSetting; expTotal += expBonus; 
+      
+      let totalAbs = expAbsent + expMedCount;
+      let expBonus = (totalAbs > 0) ? 0 : bonusSetting; expTotal += expBonus; 
       
       html += `</tbody></table><table class="print-summary">
       <tr><th>Attendance Bonus</th><td>${expBonus} Baht</td></tr>
       <tr><th>Public Holiday Pay</th><td>${expPubHolCount} Days / ${expPubHolPay} Baht</td></tr>
+      <tr><th>Medical Leave Pay</th><td>${expMedCount} Days / ${expMedPay} Baht</td></tr>
       <tr><th>Total Work (Days/Hrs)</th><td>${expWork} Days / ${expWork*8} Hrs</td></tr>
       <tr><th>Total Normal OT Hours</th><td>${expOtHrs} Hrs</td></tr>`;
       
       if(expDouble > 0) html += `<tr><th>2X Days Work Hours</th><td>${expDouble * 8} Hrs</td></tr>`;
       
-      html += `<tr><th>Absent</th><td>${expAbsent} Days</td></tr>
+      html += `<tr><th>Absent (Unpaid)</th><td>${expAbsent} Days</td></tr>
       <tr><th>Net Salary (For Selected Dates)</th><td><b>${expTotal} Baht</b></td></tr>
       </table><div class="print-footer">Generated by Chicony Attendance System<br>Developed by <b>THET AUNG</b></div>`; 
       
@@ -775,40 +826,43 @@
       if(!sDate || !eDate) return; 
       let excelData = [ ["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"] ]; 
       let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
-      let expWork=0, expDouble=0, expAbsent=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
+      let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
       
       document.querySelectorAll('.day-card').forEach(card => { 
           let rDate = card.getAttribute('data-real-date'); 
           if(rDate >= sDate && rDate <= eDate) { 
-              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
+              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let leaveVal = card.querySelector('.leave-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
               let calData = globalCalendar[rDate]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
               let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
               
               if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; } } 
               else if (statusVal === '✓') displayStatus = 'Present'; 
-              else if (statusVal === 'x') displayStatus = 'Absent'; 
+              else if (statusVal === 'x') displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent'; 
               else displayStatus = '-'; 
               
-              let displayOt = (ot === "0" || ot === 0 || ot === "") ? "-" : ot;
+              let isWorking = (statusVal === '✓');
+              let displayOt = (ot === "0" || ot === 0 || ot === "" || !isWorking) ? "-" : ot;
               let displayTotal = (total === 0 || total === "0") ? "-" : total;
               
               excelData.push([date, displayShift, displayStatus, displayOt, displayTotal]); 
               
               if(statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot); if(isAdminHoliday || isAdminDouble) expDouble++; } 
-              else if(statusVal === 'x') expAbsent++; 
+              else if(statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else { expAbsent++; } } 
               expTotal += total; 
           } 
       }); 
       
-      let expBonus = (expAbsent > 0) ? 0 : bonusSetting; expTotal += expBonus; 
+      let totalAbs = expAbsent + expMedCount;
+      let expBonus = (totalAbs > 0) ? 0 : bonusSetting; expTotal += expBonus; 
       
       excelData.push([]); 
       excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]); 
       excelData.push(["", "", "", "Public Holiday Pay", expPubHolCount + " Days / " + expPubHolPay + " Baht"]); 
+      excelData.push(["", "", "", "Medical Leave Pay", expMedCount + " Days / " + expMedPay + " Baht"]); 
       excelData.push(["", "", "", "Total Work Hours", (expWork * 8) + " hrs"]); 
       excelData.push(["", "", "", "Total Normal OT Hours", expOtHrs + " hrs"]); 
       if(expDouble > 0) excelData.push(["", "", "", "2X Days Work Hours", (expDouble * 8) + " hrs"]); 
-      excelData.push(["", "", "", "Absent Days", expAbsent + " Days"]); 
+      excelData.push(["", "", "", "Absent (Unpaid)", expAbsent + " Days"]); 
       excelData.push(["", "", "", "Net Salary", expTotal + " Baht"]); 
       excelData.push([]); excelData.push(["", "", "", "Developed by", "THET AUNG"]); 
       
@@ -828,9 +882,13 @@
               if(rec.status) { 
                   hasRecords = true; let dObj = new Date(d); let displayDate = `${dObj.getDate()}/${dObj.getMonth()+1}/${dObj.getFullYear()}`; 
                   let shiftStr = rec.shift === 'day' ? '☀️ နေ့' : '🌙 ည'; let statusStr = rec.status; 
-                  if(rec.status === '✓') statusStr = '<span style="color:#198754; font-weight:bold;">✓ ဆင်း</span>'; else if(rec.status === 'x') statusStr = '<span style="color:#dc3545; font-weight:bold;">x ပျက်</span>'; else if(rec.status === '-') { statusStr = 'ပိတ်ရက်'; shiftStr = '-'; } 
+                  if(rec.status === '✓') statusStr = '<span style="color:#198754; font-weight:bold;">✓ ဆင်း</span>'; 
+                  else if(rec.status === 'x') statusStr = rec.leaveType === 'medical' ? '<span style="color:#fd7e14; font-weight:bold;">+ ဆေးခွင့်</span>' : '<span style="color:#dc3545; font-weight:bold;">x ပျက်</span>'; 
+                  else if(rec.status === '-') { statusStr = 'ပိတ်ရက်'; shiftStr = '-'; } 
+                  
                   let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0";
-                  let displayOt = (ot === "0" || ot === 0) ? "-" : (ot + " နာရီ");
+                  let isWorking = (rec.status === '✓');
+                  let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : (ot + " နာရီ");
                   html += `<tr><td>${displayDate}</td><td>${shiftStr}</td><td>${statusStr}</td><td>${displayOt}</td></tr>`; 
               } 
           }); 
@@ -849,10 +907,12 @@
       dates.forEach(d => { 
           let rec = uData.attendance[d]; 
           if(rec.status) { 
-              let shift = rec.shift === 'day' ? 'Day' : 'Night'; let stat = rec.status === '✓' ? 'Present' : (rec.status === 'x' ? 'Absent' : 'Holiday'); 
+              let shift = rec.shift === 'day' ? 'Day' : 'Night'; 
+              let stat = rec.status === '✓' ? 'Present' : (rec.status === 'x' ? (rec.leaveType === 'medical' ? 'Med Leave' : 'Absent') : 'Holiday'); 
               if(rec.status === '-') shift = 'All'; 
               let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0";
-              let displayOt = (ot === "0" || ot === 0) ? "-" : ot;
+              let isWorking = (rec.status === '✓');
+              let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : ot;
               exportArr.push([d, shift, stat, displayOt]); 
           } 
       }); 
