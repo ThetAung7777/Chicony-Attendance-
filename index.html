@@ -372,7 +372,6 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
-  // ★ ID မဖြည့်ပါက တောင်းဆိုမည့် စာသား (reqId) ထပ်မံဖြည့်စွက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -381,7 +380,7 @@
           transport: "စုစုပေါင်း ကားခ", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)",
           netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)",
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
-          startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!"
+          startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!"
       },
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -390,7 +389,7 @@
           transport: "Transport Allowance", foodOt: "Food (OT Days)", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus",
           netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID",
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
-          startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!"
+          startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!"
       },
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
@@ -399,7 +398,7 @@
           transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร (ทำโอที)", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "เบี้ยขยัน",
           netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน",
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
-          startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!"
+          startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!"
       }
   };
 
@@ -480,7 +479,6 @@
           document.getElementById('loadingSpinner').style.display = 'none'; const data = snapshot.val();
           let d = new Date(); let defaultMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
           
-          // ★ Name နှင့် ID နှစ်ခုစလုံး ရှိမှသာ အကောင့်ဟောင်းအဖြစ် သတ်မှတ်မည် ★
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
               document.getElementById('empName').value = appData.settings.empName || ""; 
@@ -494,14 +492,13 @@
               isDataLoaded = true; 
               window.generateGrid(false); 
           } else {
-              // Name သို့မဟုတ် ID လိုနေသေးပါက Settings Box ကို အလိုလို ပွင့်စေမည်
               document.getElementById('selectedMonth').value = defaultMonth; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; 
               window.generateGrid(true); 
               
               openSettings();
-              document.querySelector('#settingsModal .close-modal').style.display = 'none'; // (x) ခလုတ်ဖျောက်ထားမည်
+              document.querySelector('#settingsModal .close-modal').style.display = 'none';
           }
       }, { onlyOnce: true });
   }
@@ -565,28 +562,32 @@
   window.toggleMenu = (id) => { let el = document.getElementById(id); let isVisible = el && el.style.display === 'flex'; document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; if(id && !isVisible) el.style.display='flex'; };
   window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
   window.openSettings = () => { document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
-  window.closeSettings = () => { document.getElementById('settingsModal').style.display = 'none'; };
+
+  // ★ (x) ခလုတ်ဖြင့် ပိတ်သည့်အခါ Name/ID မပါပါက ပိတ်ခွင့်မပေးသည့် စနစ် ★
+  window.closeSettings = () => { 
+      let nameInput = document.getElementById('empName').value.trim();
+      let idInput = document.getElementById('empId').value.trim();
+      
+      if (nameInput === "" || idInput === "") {
+          alert(translations[currentLang].reqBoth);
+          return; // Name/ID မရှိလျှင် Settings Box ကို ပိတ်ခွင့်မပေးပါ
+      }
+      document.getElementById('settingsModal').style.display = 'none'; 
+  };
   
-  // ★ Name နှင့် ID မဖြစ်မနေ ဖြည့်ခိုင်းသည့် စနစ် ★
+  // ★ Save ခလုတ်နှိပ်သည့်အခါ Validation စစ်ဆေးသည့် စနစ် ★
   window.updateSettings = () => { 
       let nameInput = document.getElementById('empName').value.trim();
       let idInput = document.getElementById('empId').value.trim();
 
-      if(nameInput === "") {
-          alert(translations[currentLang].reqName);
-          return; 
-      }
-      if(idInput === "") {
-          alert(translations[currentLang].reqId);
-          return; 
-      }
+      if(nameInput === "") { alert(translations[currentLang].reqName); return; }
+      if(idInput === "") { alert(translations[currentLang].reqId); return; }
 
       saveToFirebase(); 
       calculateAll(); 
-      closeSettings(); 
       
-      // Save အောင်မြင်ပါက (x) ပိတ်ခလုတ်ကို ပြန်ဖော်ပေးမည်
-      document.querySelector('#settingsModal .close-modal').style.display = 'block';
+      document.getElementById('settingsModal').style.display = 'none'; // Save အောင်မြင်မှ ပိတ်မည်
+      document.querySelector('#settingsModal .close-modal').style.display = 'block'; // (x) ခလုတ် ပြန်ဖော်မည်
       document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
   };
   
@@ -608,7 +609,10 @@
       if(!isDataLoaded) return; 
 
       const mVal = document.getElementById('selectedMonth').value;
-      if (!mVal) return; closeSettings(); 
+      if (!mVal) return; 
+      
+      // ★ closeSettings() ကို ဤနေရာမှ ဖြုတ်လိုက်ပါပြီ။ လ(Month) ပြောင်းရုံဖြင့် Box အလိုလိုမပိတ်တော့ပါ။ ★
+      
       let [y, m] = mVal.split('-');
       let startD = new Date(y, parseInt(m) - 1, 21), endD = new Date(y, parseInt(m), 20);
       const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
