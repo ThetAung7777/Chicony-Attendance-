@@ -210,29 +210,65 @@
     </div>
 
     <div class="ui-summary-box hover-card" style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;"><span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;"><span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;"><span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b></div>
       
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;">
+          <span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b>
+      </div>
       
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;">
+          <span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b>
+      </div>
       
-      <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b></div>
-      <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightAllowance">စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;">
+          <span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;">
+          <span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b>
+      </div>
       
       <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px; color:#6610f2;">
           <span><span data-i18n="foodOt">OT ဆင်းသောရက် ထမင်းဖိုး</span> (<span id="foodOtDays">0</span>)</span> <b id="foodOtTotal">0</b>
       </div>
+      
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:#6610f2; border-bottom:1px solid #eee; padding-bottom: 4px;">
           <span><span data-i18n="foodNoOt">OT မဆင်းသောရက် ထမင်းဖိုး</span> (<span id="foodNoOtDays">0</span>)</span> <b id="foodNoOtTotal">0</b>
       </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#dc3545;">0</b></div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;">
+          <span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;">
+          <span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b>
+      </div>
+
+      <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;">
+          <span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b>
+      </div>
+      <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;">
+          <span data-i18n="nightAllowance">စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0</b>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;">
+          <span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;">
+          <span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;">
+          <span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;">
+          <span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;">
+          <b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#dc3545;">0</b>
+      </div>
     </div>
 
     <div class="developer-footer hover-card">
@@ -563,19 +599,17 @@
   window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
   window.openSettings = () => { document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
 
-  // ★ (x) ခလုတ်ဖြင့် ပိတ်သည့်အခါ Name/ID မပါပါက ပိတ်ခွင့်မပေးသည့် စနစ် ★
   window.closeSettings = () => { 
       let nameInput = document.getElementById('empName').value.trim();
       let idInput = document.getElementById('empId').value.trim();
       
       if (nameInput === "" || idInput === "") {
           alert(translations[currentLang].reqBoth);
-          return; // Name/ID မရှိလျှင် Settings Box ကို ပိတ်ခွင့်မပေးပါ
+          return; 
       }
       document.getElementById('settingsModal').style.display = 'none'; 
   };
   
-  // ★ Save ခလုတ်နှိပ်သည့်အခါ Validation စစ်ဆေးသည့် စနစ် ★
   window.updateSettings = () => { 
       let nameInput = document.getElementById('empName').value.trim();
       let idInput = document.getElementById('empId').value.trim();
@@ -586,8 +620,8 @@
       saveToFirebase(); 
       calculateAll(); 
       
-      document.getElementById('settingsModal').style.display = 'none'; // Save အောင်မြင်မှ ပိတ်မည်
-      document.querySelector('#settingsModal .close-modal').style.display = 'block'; // (x) ခလုတ် ပြန်ဖော်မည်
+      document.getElementById('settingsModal').style.display = 'none'; 
+      document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
       document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
   };
   
@@ -610,8 +644,6 @@
 
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return; 
-      
-      // ★ closeSettings() ကို ဤနေရာမှ ဖြုတ်လိုက်ပါပြီ။ လ(Month) ပြောင်းရုံဖြင့် Box အလိုလိုမပိတ်တော့ပါ။ ★
       
       let [y, m] = mVal.split('-');
       let startD = new Date(y, parseInt(m) - 1, 21), endD = new Date(y, parseInt(m), 20);
@@ -757,23 +789,26 @@
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days');
       let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
 
+      // ★ UI Update according to requested order ★
       document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; 
-      document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
-      document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; 
-      document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; 
-      document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; 
-      document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`;
-
       document.getElementById('otDaysCount').innerText = `${otDays} ${uDay} / ${otHrs} ${uHr}`; 
+      document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
       document.getElementById('otTotalCombine').innerText = `${otHrs} ${uHr}`; 
-      document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; 
-      document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; 
-      document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; 
       document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; 
       document.getElementById('foodOtTotal').innerText = `${foodOtTotal.toLocaleString()} ฿`; 
       document.getElementById('foodNoOtDays').innerText = `${nonOtDays} ${uDay}`; 
       document.getElementById('foodNoOtTotal').innerText = `${foodNoOtTotal.toLocaleString()} ฿`; 
       document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; 
+      document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; 
+      
+      document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; 
+      document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; 
+      document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; 
+      document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`;
+
+      document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; 
+      document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; 
+      
       document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ฿`;
       
       saveToFirebase(); 
