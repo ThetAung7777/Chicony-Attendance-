@@ -364,9 +364,8 @@
 </div>
 
 <script type="module">
-  // ★ iPhone အတွက် Persistence ကို ထပ်မံထည့်သွင်းထားပါသည် ★
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -384,9 +383,6 @@
   const db = getDatabase(app);
   const provider = new GoogleAuthProvider();
 
-  // ★ Browser ပိတ်လိုက်လည်း အကောင့်မထွက်သွားအောင် သတ်မှတ်ခြင်း ★
-  setPersistence(auth, browserLocalPersistence);
-
   let currentUser = null;
   const ADMIN_EMAIL = "ta.mmw.13.4.2018@gmail.com"; 
   let appData = { settings: {}, attendance: {} };
@@ -399,6 +395,7 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
+  // ★ No History စာသား ထပ်မံဖြည့်စွက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -409,7 +406,7 @@
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
           startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!",
           holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑",
-          historyMenu: "ယခင်လ စာရင်းများ", viewHistory: "ယခင်လ မှတ်တမ်းအား ကြည့်ရှုနေပါသည်", backToCurrent: "လက်ရှိလသို့ ပြန်သွားမည်"
+          historyMenu: "ယခင်လ စာရင်းများ", viewHistory: "ယခင်လ မှတ်တမ်းအား ကြည့်ရှုနေပါသည်", backToCurrent: "လက်ရှိလသို့ ပြန်သွားမည်", noHistory: "မှတ်တမ်းမရှိသေးပါ (No History)"
       },
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -420,7 +417,7 @@
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
           startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!",
           holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑",
-          historyMenu: "History Records", viewHistory: "Viewing History Record", backToCurrent: "Return to Current"
+          historyMenu: "History Records", viewHistory: "Viewing History Record", backToCurrent: "Return to Current", noHistory: "No History Records"
       },
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
@@ -431,7 +428,7 @@
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
           startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!",
           holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑",
-          historyMenu: "ประวัติย้อนหลัง", viewHistory: "กำลังดูประวัติย้อนหลัง", backToCurrent: "กลับไปเดือนปัจจุบัน"
+          historyMenu: "ประวัติย้อนหลัง", viewHistory: "กำลังดูประวัติย้อนหลัง", backToCurrent: "กลับไปเดือนปัจจุบัน", noHistory: "ไม่มีประวัติย้อนหลัง"
       }
   };
 
@@ -477,17 +474,8 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ iOS ပြဿနာဖြေရှင်းရန် signInWithPopup ကို ပြန်လည်အသုံးပြုထားပါသည် ★
-  window.signIn = () => { 
-      document.getElementById('loadingSpinner').style.display = 'flex'; 
-      signInWithPopup(auth, provider).then(() => {
-          document.getElementById('loadingSpinner').style.display = 'none';
-      }).catch((error) => {
-          document.getElementById('loadingSpinner').style.display = 'none';
-          alert("Login Error: " + error.message + "\n(iPhone တွင် 'Prevent Cross-Site Tracking' ပိတ်ပေးရန် လိုအပ်နိုင်ပါသည်။)");
-      });
-  };
-
+  window.signIn = () => { document.getElementById('loadingSpinner').style.display = 'flex'; signInWithRedirect(auth, provider); };
+  getRedirectResult(auth).then(() => { document.getElementById('loadingSpinner').style.display = 'none'; }).catch((error) => { document.getElementById('loadingSpinner').style.display = 'none'; alert("Login Error: " + error.message); });
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
 
   onAuthStateChanged(auth, (user) => {
@@ -640,25 +628,56 @@
       }
   }
   
+  // ★ Dynamic History စနစ်သစ် ★
   window.openHistoryModal = () => {
-      let html = '';
+      let historySet = new Set();
       let realCurrentStr = window.getRealCurrentMonth();
-      let [cY, cM] = realCurrentStr.split('-').map(Number);
-      let mArr = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
-      
-      for(let i=1; i<=12; i++) {
-          let pM = cM - i; let pY = cY;
-          while(pM <= 0) { pM += 12; pY--; }
-          let monthStr = `${pY}-${String(pM).padStart(2,'0')}`;
-          
-          let prevM = pM - 1; let prevY = pY;
-          if(prevM === 0) { prevM = 12; prevY--; }
-          
-          let label = `${mArr[prevM-1]} 21, ${prevY} - ${mArr[pM-1]} 20, ${pY}`;
-          if (prevY === pY) { label = `${mArr[prevM-1]} 21 - ${mArr[pM-1]} 20, ${pY}`; }
-          
-          html += `<button class="interactive-btn" style="width:100%; padding:12px; margin-bottom:8px; border-radius:8px; border:1px solid #ccc; background:#f8f9fa; font-weight:bold; font-size:14px; text-align:left; color:#333;" onclick="loadHistoryMonth('${monthStr}')">📅 ${label}</button>`;
+
+      // Database ထဲတွင် သိမ်းထားသော ရက်စွဲများမှ လစက်ဝန်း (Month Cycle) များကို ဆွဲထုတ်မည်
+      if (appData.attendance) {
+          Object.keys(appData.attendance).forEach(dateKey => {
+              let parts = dateKey.split('-');
+              let y = parseInt(parts[0]);
+              let m = parseInt(parts[1]);
+              let d = parseInt(parts[2]);
+
+              if (d >= 21) {
+                  m++;
+                  if (m > 12) { m = 1; y++; }
+              }
+              let cycleMonth = `${y}-${String(m).padStart(2, '0')}`;
+              
+              // လက်ရှိလကို မထည့်ဘဲ ယခင်လများကိုသာ Set ထဲသို့ထည့်မည်
+              if (cycleMonth !== realCurrentStr) {
+                  historySet.add(cycleMonth);
+              }
+          });
       }
+
+      // နောက်ဆုံးမှတ်ထားသော လများ အရင်ပေါ်ရန် Reverse စီမည်
+      let historyArray = Array.from(historySet).sort().reverse(); 
+      let html = '';
+      let mArr = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
+
+      if (historyArray.length === 0) {
+          // မှတ်တမ်း မရှိသေးပါက
+          let noHistText = translations[currentLang].noHistory;
+          html = `<div style="text-align:center; padding:20px; color:#666; font-size:14px; font-weight:bold;">${noHistText}</div>`;
+      } else {
+          // မှတ်တမ်း ရှိသော လများကိုသာ Button ထုတ်ပေးမည်
+          historyArray.forEach(monthStr => {
+              let [cY, cM] = monthStr.split('-').map(Number);
+              
+              let prevM = cM - 1; let prevY = cY;
+              if(prevM === 0) { prevM = 12; prevY--; }
+              
+              let label = `${mArr[prevM-1]} 21, ${prevY} - ${mArr[cM-1]} 20, ${cY}`;
+              if (prevY === cY) { label = `${mArr[prevM-1]} 21 - ${mArr[cM-1]} 20, ${cY}`; }
+              
+              html += `<button class="interactive-btn" style="width:100%; padding:12px; margin-bottom:8px; border-radius:8px; border:1px solid #ccc; background:#f8f9fa; font-weight:bold; font-size:14px; text-align:left; color:#333;" onclick="loadHistoryMonth('${monthStr}')">📅 ${label}</button>`;
+          });
+      }
+
       document.getElementById('historyList').innerHTML = html;
       document.getElementById('historyModal').style.display = 'flex';
       toggleMenu(null);
@@ -917,7 +936,10 @@
               let calData = globalCalendar[rDate]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
               let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
               
-              if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; } } 
+              if(statusVal === '-') { 
+                  displayShift = 'All'; displayStatus = 'Holiday'; 
+                  if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; }
+              } 
               else if (statusVal === '✓') { displayStatus = 'Present'; } 
               else if (statusVal === 'x') { displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent'; } 
               else { displayStatus = '-'; }
@@ -925,8 +947,12 @@
               let isWorking = (statusVal === '✓'); let displayOt = (ot === "0" || ot === 0 || ot === "" || !isWorking) ? "-" : ot; let displayTotal = (total === 0 || total === "0") ? "-" : total;
               html += `<tr><td>${date}</td><td>${displayShift}</td><td>${displayStatus}</td><td>${displayOt}</td><td>${displayTotal}</td></tr>`; 
               
-              if(statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot); if(isAdminHoliday || isAdminDouble) expDouble++; } 
-              else if(statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else { expAbsent++; } } 
+              if(statusVal === '✓') { 
+                  expWork++; expOtHrs += parseFloat(ot); 
+                  if(isAdminHoliday || isAdminDouble) expDouble++;
+              } else if(statusVal === 'x') { 
+                  if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else { expAbsent++; } 
+              } 
               expTotal += total; 
           } 
       }); 
@@ -1008,7 +1034,9 @@
                   else if(rec.status === 'x') statusStr = rec.leaveType === 'medical' ? '<span style="color:#fd7e14; font-weight:bold;">+ ဆေးခွင့်</span>' : '<span style="color:#dc3545; font-weight:bold;">x ပျက်</span>'; 
                   else if(rec.status === '-') { statusStr = 'ပိတ်ရက်'; shiftStr = '-'; } 
                   
-                  let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0"; let isWorking = (rec.status === '✓'); let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : (ot + " နာရီ");
+                  let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0";
+                  let isWorking = (rec.status === '✓');
+                  let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : (ot + " နာရီ");
                   html += `<tr><td>${displayDate}</td><td>${shiftStr}</td><td>${statusStr}</td><td>${displayOt}</td></tr>`; 
               } 
           }); 
@@ -1027,16 +1055,20 @@
       dates.forEach(d => { 
           let rec = uData.attendance[d]; 
           if(rec.status) { 
-              let shift = rec.shift === 'day' ? 'Day' : 'Night'; let stat = rec.status === '✓' ? 'Present' : (rec.status === 'x' ? (rec.leaveType === 'medical' ? 'Med Leave' : 'Absent') : 'Holiday'); 
+              let shift = rec.shift === 'day' ? 'Day' : 'Night'; 
+              let stat = rec.status === '✓' ? 'Present' : (rec.status === 'x' ? (rec.leaveType === 'medical' ? 'Med Leave' : 'Absent') : 'Holiday'); 
               if(rec.status === '-') shift = 'All'; 
-              let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0"; let isWorking = (rec.status === '✓'); let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : ot;
+              let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0";
+              let isWorking = (rec.status === '✓');
+              let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : ot;
               exportArr.push([d, shift, stat, displayOt]); 
           } 
       }); 
       if(type === 'excel') { 
           let excelData = [ ["Date", "Shift", "Status", "OT Hours"] ]; exportArr.forEach(r => excelData.push(r)); 
           excelData.push([]); excelData.push(["", "", "Total Salary", uData.calculatedTotal + " Baht"]); 
-          let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, "Details"); XLSX.writeFile(wb, `${name}_Details.xlsx`); 
+          let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); 
+          XLSX.utils.book_append_sheet(wb, ws, "Details"); XLSX.writeFile(wb, `${name}_Details.xlsx`); 
       } else { 
           let html = `<div class="print-header"><h2>Chicony Employee Detail</h2><p><b>Name:</b> ${name} | <b>ID:</b> ${empId}</p></div><table class="print-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT Hours</th></tr></thead><tbody>`; 
           exportArr.forEach(r => html += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`); 
