@@ -364,8 +364,9 @@
 </div>
 
 <script type="module">
+  // ★ iPhone အတွက် Persistence ကို ထပ်မံထည့်သွင်းထားပါသည် ★
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -382,6 +383,9 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
   const provider = new GoogleAuthProvider();
+
+  // ★ Browser ပိတ်လိုက်လည်း အကောင့်မထွက်သွားအောင် သတ်မှတ်ခြင်း ★
+  setPersistence(auth, browserLocalPersistence);
 
   let currentUser = null;
   const ADMIN_EMAIL = "ta.mmw.13.4.2018@gmail.com"; 
@@ -452,7 +456,6 @@
       document.getElementById('weekdaysHeader').innerHTML = `<div style="color:#dc3545;">${days[0]}</div><div>${days[1]}</div><div>${days[2]}</div><div>${days[3]}</div><div>${days[4]}</div><div>${days[5]}</div><div style="color:#007bff;">${days[6]}</div>`;
   }
 
-  // ★ လက်ရှိလ အတိအကျ တွက်ချက်မည့် စနစ် (၂၁ ရက်နေ့ကျော်ပါက Auto လပြောင်းမည်) ★
   window.getRealCurrentMonth = () => {
       let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1;
       if (d.getDate() >= 21) { realM++; if(realM > 12) { realM = 1; realY++; } }
@@ -474,8 +477,17 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  window.signIn = () => { document.getElementById('loadingSpinner').style.display = 'flex'; signInWithRedirect(auth, provider); };
-  getRedirectResult(auth).then(() => { document.getElementById('loadingSpinner').style.display = 'none'; }).catch((error) => { document.getElementById('loadingSpinner').style.display = 'none'; alert("Login Error: " + error.message); });
+  // ★ iOS ပြဿနာဖြေရှင်းရန် signInWithPopup ကို ပြန်လည်အသုံးပြုထားပါသည် ★
+  window.signIn = () => { 
+      document.getElementById('loadingSpinner').style.display = 'flex'; 
+      signInWithPopup(auth, provider).then(() => {
+          document.getElementById('loadingSpinner').style.display = 'none';
+      }).catch((error) => {
+          document.getElementById('loadingSpinner').style.display = 'none';
+          alert("Login Error: " + error.message + "\n(iPhone တွင် 'Prevent Cross-Site Tracking' ပိတ်ပေးရန် လိုအပ်နိုင်ပါသည်။)");
+      });
+  };
+
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
 
   onAuthStateChanged(auth, (user) => {
@@ -509,7 +521,6 @@
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
 
-  // ★ သတ်မှတ်ထားသော လအတွင်း ပျက်ရက်/ဆေးခွင့် ရှိမရှိ အတိအကျ စစ်ဆေးပေးမည့် စနစ် ★
   window.checkAbsencesForMonth = (yyyy_mm) => {
       if (!appData.attendance) return false;
       let parts = yyyy_mm.split('-'); let y = parseInt(parts[0]); let m = parseInt(parts[1]);
@@ -536,7 +547,6 @@
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
               
-              // ★ ရက်မှန်ကြေး (Bonus) အလိုအလျောက် ပြောင်းလဲပေးမည့် စနစ် ★
               let lastBonusMonth = appData.settings.lastBonusMonth || "";
               if (lastBonusMonth !== realCurrentMonthStr) {
                   let [cY, cM] = realCurrentMonthStr.split('-').map(Number);
@@ -548,13 +558,13 @@
                   let currentBonus = parseInt(appData.settings.attBonusSetting) || 500;
                   
                   if (hasAbsence) {
-                      appData.settings.attBonusSetting = "500"; // ပျက်ရက်ရှိပါက 500
+                      appData.settings.attBonusSetting = "500"; 
                   } else {
-                      if (currentBonus <= 500) appData.settings.attBonusSetting = "800"; // မပျက်ပါက 800
-                      else if (currentBonus >= 800) appData.settings.attBonusSetting = "1000"; // မပျက်ပါက 1000
+                      if (currentBonus <= 500) appData.settings.attBonusSetting = "800"; 
+                      else if (currentBonus >= 800) appData.settings.attBonusSetting = "1000"; 
                   }
                   appData.settings.lastBonusMonth = realCurrentMonthStr;
-                  set(ref(db, 'users/' + currentUser.uid + '/settings'), appData.settings); // Auto Save 
+                  set(ref(db, 'users/' + currentUser.uid + '/settings'), appData.settings); 
               }
               
               document.getElementById('empName').value = appData.settings.empName || ""; 
@@ -630,7 +640,6 @@
       }
   }
   
-  // ★ ယခင်လစာရင်းများ အတိအကျ ပြသပေးမည့် စနစ် ★
   window.openHistoryModal = () => {
       let html = '';
       let realCurrentStr = window.getRealCurrentMonth();
@@ -665,7 +674,6 @@
       generateGrid(false);
   };
 
-  // ★ လက်ရှိလသို့ ပြန်သွားမည် ★
   window.returnToCurrent = () => {
       document.getElementById('selectedMonth').value = window.getRealCurrentMonth();
       document.getElementById('historyBanner').style.display = 'none';
@@ -711,7 +719,6 @@
 
   window.generateGrid = (isNew = true) => {
       if(!isDataLoaded) return; 
-
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return; 
       
@@ -1001,9 +1008,7 @@
                   else if(rec.status === 'x') statusStr = rec.leaveType === 'medical' ? '<span style="color:#fd7e14; font-weight:bold;">+ ဆေးခွင့်</span>' : '<span style="color:#dc3545; font-weight:bold;">x ပျက်</span>'; 
                   else if(rec.status === '-') { statusStr = 'ပိတ်ရက်'; shiftStr = '-'; } 
                   
-                  let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0";
-                  let isWorking = (rec.status === '✓');
-                  let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : (ot + " နာရီ");
+                  let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0"; let isWorking = (rec.status === '✓'); let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : (ot + " နာရီ");
                   html += `<tr><td>${displayDate}</td><td>${shiftStr}</td><td>${statusStr}</td><td>${displayOt}</td></tr>`; 
               } 
           }); 
@@ -1022,20 +1027,16 @@
       dates.forEach(d => { 
           let rec = uData.attendance[d]; 
           if(rec.status) { 
-              let shift = rec.shift === 'day' ? 'Day' : 'Night'; 
-              let stat = rec.status === '✓' ? 'Present' : (rec.status === 'x' ? (rec.leaveType === 'medical' ? 'Med Leave' : 'Absent') : 'Holiday'); 
+              let shift = rec.shift === 'day' ? 'Day' : 'Night'; let stat = rec.status === '✓' ? 'Present' : (rec.status === 'x' ? (rec.leaveType === 'medical' ? 'Med Leave' : 'Absent') : 'Holiday'); 
               if(rec.status === '-') shift = 'All'; 
-              let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0";
-              let isWorking = (rec.status === '✓');
-              let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : ot;
+              let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0"; let isWorking = (rec.status === '✓'); let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : ot;
               exportArr.push([d, shift, stat, displayOt]); 
           } 
       }); 
       if(type === 'excel') { 
           let excelData = [ ["Date", "Shift", "Status", "OT Hours"] ]; exportArr.forEach(r => excelData.push(r)); 
           excelData.push([]); excelData.push(["", "", "Total Salary", uData.calculatedTotal + " Baht"]); 
-          let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); 
-          XLSX.utils.book_append_sheet(wb, ws, "Details"); XLSX.writeFile(wb, `${name}_Details.xlsx`); 
+          let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, "Details"); XLSX.writeFile(wb, `${name}_Details.xlsx`); 
       } else { 
           let html = `<div class="print-header"><h2>Chicony Employee Detail</h2><p><b>Name:</b> ${name} | <b>ID:</b> ${empId}</p></div><table class="print-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT Hours</th></tr></thead><tbody>`; 
           exportArr.forEach(r => html += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`); 
@@ -1044,15 +1045,7 @@
       } 
   };
   
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then(reg => {
-        console.log('Service worker registered.');
-      }).catch(err => {
-        console.log('Service worker registration failed:', err);
-      });
-    });
-  }
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => { console.log('Service worker registered.'); }).catch(err => { console.log('Service worker registration failed:', err); }); }); }
 </script>
 </body>
 </html>
