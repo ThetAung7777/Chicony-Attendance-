@@ -40,7 +40,12 @@
   .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
-  .container { padding: 15px; max-width: 800px; margin: auto; }
+  .container { padding: 15px; max-width: 800px; margin: auto; position: relative;}
+  
+  /* ★ History Banner CSS ★ */
+  .history-banner { background: #ffc107; color: #000; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #ffca2c;}
+  .btn-return { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: bold;}
+
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
   .setup-box input, .setup-box select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: border 0.3s;}
@@ -130,12 +135,13 @@
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
   .dark-mode #rightMenu select { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
+  .dark-mode .history-banner { background-color: #664d03; color: #ffda6a; border-color: #8f6c04; }
 
   /* Print Styles */
   #printArea { display: none; }
   @media print { 
       body { background: white !important; padding: 0; } 
-      #mainApp, #loginScreen, .modal-overlay, .navbar { display: none !important; } 
+      #mainApp, #loginScreen, .modal-overlay, .navbar, .history-banner { display: none !important; } 
       #printArea { display: block !important; width: 100%; color: black; } 
       .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
       .print-header h2 { margin: 0 0 5px 0; color: #000; }
@@ -170,6 +176,7 @@
     </div>
     
     <div id="leftMenu" class="dropdown left fade-in">
+      <a href="#" onclick="openHistoryModal()" class="interactive-btn" style="color: #d35400; font-weight:bold; border-bottom: 2px solid #eee;">📜 <span data-i18n="historyMenu">ယခင်လ စာရင်းများ</span></a>
       <a href="#" onclick="openExportModal()" class="interactive-btn">📥 <span data-i18n="exportBtn">Export (Excel / PDF)</span></a>
       <a href="#" onclick="openCalendarModal()" style="color: #17a2b8; font-weight:bold;" class="interactive-btn">📅 <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></a>
       <a href="#" id="adminPanelBtn" onclick="openAdminPanel()" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;" class="interactive-btn">🔐 <span data-i18n="adminPanel">Admin Panel</span></a>
@@ -202,6 +209,12 @@
   </div>
 
   <div class="container" onclick="closeMenusOnClickOutside(event)">
+    
+    <div id="historyBanner" class="history-banner" style="display:none;">
+        <span id="historyBannerText">Viewing History</span>
+        <button class="btn-return interactive-btn" onclick="returnToCurrent()" data-i18n="backToCurrent">ပြန်ထွက်မည်</button>
+    </div>
+
     <div class="calendar-wrapper" id="calendarSection">
       <div class="calendar-container">
         <div class="weekdays" id="weekdaysHeader"></div>
@@ -210,65 +223,29 @@
     </div>
 
     <div class="ui-summary-box hover-card" style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;">
-          <span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;">
-          <span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;">
-          <span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;">
-          <span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b>
-      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;"><span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;"><span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;"><span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b></div>
       
       <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px; color:#6610f2;">
           <span><span data-i18n="foodOt">OT ဆင်းသောရက် ထမင်းဖိုး</span> (<span id="foodOtDays">0</span>)</span> <b id="foodOtTotal">0</b>
       </div>
-      
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:#6610f2; border-bottom:1px solid #eee; padding-bottom: 4px;">
           <span><span data-i18n="foodNoOt">OT မဆင်းသောရက် ထမင်းဖိုး</span> (<span id="foodNoOtDays">0</span>)</span> <b id="foodNoOtTotal">0</b>
       </div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;">
-          <span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;">
-          <span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b>
-      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b></div>
 
-      <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;">
-          <span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b>
-      </div>
-      <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;">
-          <span data-i18n="nightAllowance">စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0</b>
-      </div>
+      <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b></div>
+      <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightAllowance">စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0</b></div>
       
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;">
-          <span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b>
-      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
       
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;">
-          <span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;">
-          <span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;">
-          <span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;">
-          <b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#dc3545;">0</b>
-      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#dc3545;">0</b></div>
     </div>
 
     <div class="developer-footer hover-card">
@@ -279,6 +256,14 @@
         <a href="https://t.me/ThetAung7777" target="_blank" class="interactive-btn">✈️ Telegram: @ThetAung7777</a>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="historyModal">
+  <div class="modal-content pop-in" style="max-width: 400px; max-height: 80vh; overflow-y: auto;">
+    <button class="close-modal interactive-btn" onclick="closeHistoryModal()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #d35400;" class="logo-main">📜 <span data-i18n="historyMenu">ယခင်လ စာရင်းများ</span></h3>
+    <div id="historyList" style="display:flex; flex-direction:column; gap:8px;"></div>
   </div>
 </div>
 
@@ -321,7 +306,9 @@
     <div class="setup-box">
       <div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div>
       <div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div>
-      <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth" onchange="generateGrid(false)"></div>
+      
+      <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန် (Current Cycle)</label><input type="month" id="selectedMonth" onchange="generateGrid(false)"></div>
+      
       <div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
       <div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
       <div class="full-width">
@@ -378,7 +365,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -408,6 +395,7 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
+  // ★ History Banner စာသားများ ထပ်မံဖြည့်စွက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -416,7 +404,9 @@
           transport: "စုစုပေါင်း ကားခ", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)",
           netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)",
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
-          startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!"
+          startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!",
+          holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑",
+          historyMenu: "ယခင်လ စာရင်းများ", viewHistory: "ယခင်လ မှတ်တမ်းအား ကြည့်ရှုနေပါသည်", backToCurrent: "လက်ရှိလသို့ ပြန်သွားမည်"
       },
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -425,7 +415,9 @@
           transport: "Transport Allowance", foodOt: "Food (OT Days)", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus",
           netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID",
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
-          startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!"
+          startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!",
+          holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑",
+          historyMenu: "History Records", viewHistory: "Viewing History Record", backToCurrent: "Return to Current"
       },
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
@@ -434,7 +426,9 @@
           transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร (ทำโอที)", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "เบี้ยขยัน",
           netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน",
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
-          startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!"
+          startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!",
+          holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑",
+          historyMenu: "ประวัติย้อนหลัง", viewHistory: "กำลังดูประวัติย้อนหลัง", backToCurrent: "กลับไปเดือนปัจจุบัน"
       }
   };
 
@@ -474,7 +468,9 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  window.signIn = () => { document.getElementById('loadingSpinner').style.display = 'flex'; signInWithPopup(auth, provider).then(() => { document.getElementById('loadingSpinner').style.display = 'none'; }).catch((error) => { document.getElementById('loadingSpinner').style.display = 'none'; alert("Login Error: " + error.message); }); };
+  window.signIn = () => { document.getElementById('loadingSpinner').style.display = 'flex'; signInWithRedirect(auth, provider); };
+  getRedirectResult(auth).then(() => { document.getElementById('loadingSpinner').style.display = 'none'; }).catch((error) => { document.getElementById('loadingSpinner').style.display = 'none'; alert("Login Error: " + error.message); });
+
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
 
   onAuthStateChanged(auth, (user) => {
@@ -490,18 +486,17 @@
       if (!currentUser || !isDataLoaded) return; 
       appData.settings = {
           empName: document.getElementById('empName').value, empId: document.getElementById('empId').value,
-          selectedMonth: document.getElementById('selectedMonth').value, dailyWage: document.getElementById('dailyWage').value,
-          otRate: document.getElementById('otRate').value, attBonusSetting: document.getElementById('attBonusSetting').value
+          dailyWage: document.getElementById('dailyWage').value, otRate: document.getElementById('otRate').value, 
+          attBonusSetting: document.getElementById('attBonusSetting').value,
+          lastBonusMonth: appData.settings?.lastBonusMonth || window.currentActiveMonth // မှတ်သားထားသောလကို ထိန်းသိမ်းမည်
       }; 
       if (!appData.attendance) appData.attendance = {};
       document.querySelectorAll('.day-card').forEach(card => {
           let dateKey = card.getAttribute('data-real-date');
           if (dateKey) {
               appData.attendance[dateKey] = {
-                  shift: card.querySelector('.shift-select').value, 
-                  status: card.querySelector('.status-select').value,
-                  leaveType: card.querySelector('.leave-select').value, 
-                  ot: card.querySelector('.ot-select').value, 
+                  shift: card.querySelector('.shift-select').value, status: card.querySelector('.status-select').value,
+                  leaveType: card.querySelector('.leave-select').value, ot: card.querySelector('.ot-select').value, 
                   otHours: card.querySelector('.ot-hours').value
               };
           }
@@ -509,17 +504,59 @@
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
 
+  // ★ ရှေ့လက ပျက်ရက်ရှိမရှိ စစ်ဆေးမည့် Function ★
+  window.checkAbsencesForMonth = (yyyy_mm) => {
+      if (!appData.attendance) return false;
+      let parts = yyyy_mm.split('-'); let y = parseInt(parts[0]); let m = parseInt(parts[1]);
+      let startD = new Date(y, m - 2, 21); let endD = new Date(y, m - 1, 20);
+      let cur = new Date(startD); let hasAbsence = false;
+      
+      while (cur <= endD) {
+          let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
+          if (appData.attendance[key] && appData.attendance[key].status === 'x') {
+              hasAbsence = true; break;
+          }
+          cur.setDate(cur.getDate() + 1);
+      }
+      return hasAbsence;
+  };
+
   function loadFromFirebase() {
       document.getElementById('loadingSpinner').style.display = 'flex';
       onValue(ref(db, 'users/' + currentUser.uid), (snapshot) => {
           document.getElementById('loadingSpinner').style.display = 'none'; const data = snapshot.val();
-          let d = new Date(); let defaultMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+          
+          // ★ Auto Month Advance စနစ် (၂၁ ရက်နေ့ကျော်ပါက နောက်လသို့ Auto ကူးမည်) ★
+          let d = new Date(); let currentY = d.getFullYear(); let currentM = d.getMonth() + 1;
+          if (d.getDate() >= 21) { currentM++; if(currentM > 12) { currentM = 1; currentY++; } }
+          window.currentActiveMonth = `${currentY}-${String(currentM).padStart(2,'0')}`;
           
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
+              
+              // ★ Auto Bonus စနစ် (လသစ်ကူးပါက ပျက်ရက်စစ်ဆေးပြီး Bonus တိုး/လျော့မည်) ★
+              let lastBonusMonth = appData.settings.lastBonusMonth || "";
+              if (lastBonusMonth !== window.currentActiveMonth) {
+                  let pM = currentM - 1; let pY = currentY;
+                  if(pM === 0) { pM = 12; pY--; }
+                  let prevMonthStr = `${pY}-${String(pM).padStart(2,'0')}`;
+                  
+                  let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
+                  let currentBonus = parseInt(appData.settings.attBonusSetting) || 500;
+                  
+                  if (hasAbsence) {
+                      appData.settings.attBonusSetting = "500"; // ပျက်ရက်ရှိပါက 500 သို့ ချမည်
+                  } else {
+                      if (currentBonus <= 500) appData.settings.attBonusSetting = "800";
+                      else if (currentBonus >= 800) appData.settings.attBonusSetting = "1000";
+                  }
+                  appData.settings.lastBonusMonth = window.currentActiveMonth;
+                  set(ref(db, 'users/' + currentUser.uid + '/settings'), appData.settings); // Auto Save
+              }
+              
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
-              document.getElementById('selectedMonth').value = appData.settings.selectedMonth || defaultMonth; 
+              document.getElementById('selectedMonth').value = window.currentActiveMonth; // အလိုလို Current Month သို့ ပြောင်းမည်
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
               document.getElementById('attBonusSetting').value = appData.settings.attBonusSetting || "0";
@@ -528,7 +565,7 @@
               isDataLoaded = true; 
               window.generateGrid(false); 
           } else {
-              document.getElementById('selectedMonth').value = defaultMonth; 
+              document.getElementById('selectedMonth').value = window.currentActiveMonth; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; 
               window.generateGrid(true); 
@@ -561,7 +598,7 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  window.showHolidayAlert = (desc) => { alert("📅 Holiday:\n\n" + desc); };
+  window.showHolidayAlert = (desc) => { let prefix = translations[currentLang].holAlertPrefix; alert(prefix + desc); };
 
   function renderYearCalendar() {
       document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR;
@@ -593,6 +630,47 @@
       }
   }
   
+  // ★ History (ယခင်လစာရင်းများ) ထုတ်ပေးမည့် Function ★
+  window.openHistoryModal = () => {
+      let html = '';
+      if(!window.currentActiveMonth) return;
+      let [cY, cM] = window.currentActiveMonth.split('-').map(Number);
+      
+      let mArr = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
+      
+      for(let i=1; i<=12; i++) {
+          let pM = cM - i; let pY = cY;
+          while(pM <= 0) { pM += 12; pY--; }
+          let monthStr = `${pY}-${String(pM).padStart(2,'0')}`;
+          
+          let prevM = pM - 1; let prevY = pY;
+          if(prevM === 0) { prevM = 12; prevY--; }
+          
+          let label = `${mArr[prevM-1]} 21 - ${mArr[pM-1]} 20, ${pY}`;
+          
+          html += `<button class="interactive-btn" style="width:100%; padding:12px; margin-bottom:8px; border-radius:8px; border:1px solid #ccc; background:#f8f9fa; font-weight:bold; font-size:14px; text-align:left; color:#333;" onclick="loadHistoryMonth('${monthStr}')">📅 ${label}</button>`;
+      }
+      document.getElementById('historyList').innerHTML = html;
+      document.getElementById('historyModal').style.display = 'flex';
+      toggleMenu(null);
+  };
+  
+  window.closeHistoryModal = () => document.getElementById('historyModal').style.display = 'none';
+
+  window.loadHistoryMonth = (mStr) => {
+      document.getElementById('selectedMonth').value = mStr;
+      document.getElementById('historyModal').style.display = 'none';
+      document.getElementById('historyBanner').style.display = 'flex';
+      document.getElementById('historyBannerText').innerText = translations[currentLang].viewHistory;
+      generateGrid(false);
+  };
+
+  window.returnToCurrent = () => {
+      document.getElementById('selectedMonth').value = window.currentActiveMonth;
+      document.getElementById('historyBanner').style.display = 'none';
+      generateGrid(false);
+  };
+  
   window.openCalendarModal = () => { document.getElementById('calendarModal').style.display = 'flex'; toggleMenu(null); };
   window.closeCalendarModal = () => document.getElementById('calendarModal').style.display = 'none';
   window.toggleMenu = (id) => { let el = document.getElementById(id); let isVisible = el && el.style.display === 'flex'; document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; if(id && !isVisible) el.style.display='flex'; };
@@ -600,26 +678,17 @@
   window.openSettings = () => { document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
 
   window.closeSettings = () => { 
-      let nameInput = document.getElementById('empName').value.trim();
-      let idInput = document.getElementById('empId').value.trim();
-      
-      if (nameInput === "" || idInput === "") {
-          alert(translations[currentLang].reqBoth);
-          return; 
-      }
+      let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
+      if (nameInput === "" || idInput === "") { alert(translations[currentLang].reqBoth); return; }
       document.getElementById('settingsModal').style.display = 'none'; 
   };
   
   window.updateSettings = () => { 
-      let nameInput = document.getElementById('empName').value.trim();
-      let idInput = document.getElementById('empId').value.trim();
-
+      let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
       if(nameInput === "") { alert(translations[currentLang].reqName); return; }
       if(idInput === "") { alert(translations[currentLang].reqId); return; }
 
-      saveToFirebase(); 
-      calculateAll(); 
-      
+      saveToFirebase(); calculateAll(); 
       document.getElementById('settingsModal').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
       document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
@@ -630,9 +699,9 @@
       if(el.value === 'yes') { 
           input.style.display = 'block'; 
           if(!card.hasAttribute('data-alerted')) { 
-              if(dateStr.includes(weekdaysText[currentLang][1])) alert(currentLang==='my'?"ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂":"First day of work! Let's go! 💪"); 
-              else if(dateStr.includes(weekdaysText[currentLang][6])) alert(currentLang==='my'?"စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸":"Saturday OT! More Money! 💸"); 
-              else if(dateStr.includes(weekdaysText[currentLang][0])) alert(currentLang==='my'?"တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑":"Sunday OT? You are a true hardworker! 👑"); 
+              if(dateStr.includes(weekdaysText[currentLang][1])) alert(translations[currentLang].otFirstDay); 
+              else if(dateStr.includes(weekdaysText[currentLang][6])) alert(translations[currentLang].otSaturday); 
+              else if(dateStr.includes(weekdaysText[currentLang][0])) alert(translations[currentLang].otSunday); 
               card.setAttribute('data-alerted', 'true'); 
           } 
       } else { input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); } 
@@ -641,7 +710,6 @@
 
   window.generateGrid = (isNew = true) => {
       if(!isDataLoaded) return; 
-
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return; 
       
@@ -745,7 +813,7 @@
           if (status === '-') {
               if (isAdminHoliday) {
                   pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay;
-                  doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':'Paid Hol';
+                  doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':(currentLang==='th'?'วันหยุด':'Paid Hol');
                   info.innerHTML = `${dPay}฿`; c.classList.add('bg-yellow');
               } else {
                   holiday++; info.innerHTML = "-"; c.classList.add(isSun ? 'bg-red' : 'bg-yellow'); doubleLbl.innerText = '';
@@ -768,7 +836,7 @@
           } else if (status === 'x') {
               if(leaveSelect.value === 'medical') {
                   medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay;
-                  doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':'Med Leave';
+                  doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave');
                   info.innerHTML = `${dPay}฿`;
               } else {
                   absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = '';
@@ -789,7 +857,6 @@
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days');
       let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
 
-      // ★ UI Update according to requested order ★
       document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; 
       document.getElementById('otDaysCount').innerText = `${otDays} ${uDay} / ${otHrs} ${uHr}`; 
       document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
@@ -811,7 +878,10 @@
       
       document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ฿`;
       
-      saveToFirebase(); 
+      // History ကြည့်နေစဉ် Save မလုပ်စေရန် ကာကွယ်ခြင်း
+      if (document.getElementById('selectedMonth').value === window.currentActiveMonth) {
+          saveToFirebase(); 
+      }
   };
 
   // --- Admin Panel Logic ---
