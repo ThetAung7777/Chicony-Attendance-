@@ -815,6 +815,7 @@
       
       document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ฿`;
       
+      // လက်ရှိလ ဖြစ်မှသာ Auto Save လုပ်မည်
       if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) {
           saveToFirebase(); 
       }
