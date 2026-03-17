@@ -101,22 +101,13 @@
   .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; cursor: pointer; border: 1px solid #ffca2c;}
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
 
-  /* ★ Salary Slip CSS ★ */
-  .slip-container { font-family: 'Segoe UI', Tahoma, sans-serif; background: white; padding: 15px; color: black; font-size: 11px; }
+  /* ★ Salary Slip CSS (Print အတွက် သေချာပြင်ဆင်ထားသည်) ★ */
+  .slip-container { font-family: 'Segoe UI', Tahoma, sans-serif; background: white; padding: 15px; color: black; font-size: 11px; width: 100%; box-sizing: border-box;}
   .slip-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 8px;}
   .slip-logo { font-size: 24px; font-weight: bold; color: #004488; font-family: 'Arial Black', Impact, sans-serif; margin: 0; line-height: 1;}
   .slip-company { font-size: 9px; text-align: right; color: #555; }
   .slip-title { text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 10px;}
-  .slip-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-  .slip-table th, .slip-table td { border: 1px solid #ccc; padding: 6px; text-align: center; font-size: 10px;}
-  .slip-table th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
-  .slip-grid { display: flex; border: 1px solid #ccc; }
-  .slip-col { flex: 1; }
-  .slip-col-right { border-left: 1px solid #ccc; }
-  .slip-row { display: flex; justify-content: space-between; padding: 4px 8px; font-size: 10px; border-bottom: 1px solid #eee;}
-  .slip-row:last-child { border-bottom: none; }
-  .slip-row.bold { font-weight: bold; background: #f9f9f9 !important; -webkit-print-color-adjust: exact; border-top: 1px solid #ccc;}
-
+  
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
@@ -137,13 +128,17 @@
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
 
-  /* Slip Print CSS */
+  /* ★ Print/PDF ထုတ်ရာတွင် Layout မပျက်စေရန် အသေအချာပြင်ဆင်ထားသော CSS ★ */
   @media print { 
       body * { display: none !important; } 
       #slipModal, #slipModal * { display: block !important; } 
-      #slipModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; }
-      .close-modal, button[onclick="printSlipArea()"] { display: none !important; }
-      .slip-container { padding: 0 !important; }
+      #slipModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; margin: 0; padding: 0;}
+      .close-modal, button[onclick="printSlipArea()"], .modal-content h3 { display: none !important; }
+      .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; }
+      .slip-container { padding: 10px !important; width: 100%; box-sizing: border-box; font-size: 10px;}
+      table { page-break-inside: avoid; width: 100%; border-collapse: collapse; }
+      td, th { display: table-cell !important; border: 1px solid #ccc; }
+      tr { display: table-row !important; }
       @page { margin: 0.5cm; }
   }
 </style>
@@ -375,7 +370,6 @@
   const db = getDatabase(app);
   const provider = new GoogleAuthProvider();
 
-  // ★ ဖုန်းများတွင် အကောင့်ထွက်မသွားစေရန် Persistence သတ်မှတ်ခြင်း ★
   setPersistence(auth, browserLocalPersistence);
 
   let currentUser = null;
@@ -384,50 +378,50 @@
   let globalCalendar = {}; 
   window.allUsersData = {}; 
   window.currentViewUid = null;
-  window.currentSlipData = {}; // Slip အတွက် Data သိမ်းရန်
+  window.currentSlipData = {}; 
   const CALENDAR_YEAR = 2026; 
   let isDataLoaded = false; 
 
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
-  // ★ Salary Slip အတွက် စာသားများ ထပ်မံဖြည့်စွက်ထားပါသည် ★
+  // ★ Translation များကို အသေအချာ ပြင်ဆင်ချိတ်ဆက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
           langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ",
-          otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "စုစုပေါင်း ညကြေး",
-          transport: "စုစုပေါင်း ကားခ", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)",
-          totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)",
+          otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)",
+          transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)",
+          totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", ot20: "OT 2.0 %",
           netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)",
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
           startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!",
           holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑",
-          salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", empNo: "ဝန်ထမ်းနံပါတ်", name: "အမည်", dept: "ဌာန", period: "လစာကာလ", netToPay: "အသားတင်လစာ", income: "ဝင်ငွေ", amount: "ပမာဏ", deduction: "ဖြတ်ငွေ", basic: "အခြေခံလစာ", food: "ထမင်းဖိုး", pubHol: "ရုံးပိတ်ရက်/ဆေးခွင့်", totalInc: "စုစုပေါင်း ဝင်ငွေ", sso: "ပကန်စံခွန်း (SSO)", totalDed: "စုစုပေါင်း ဖြတ်ငွေ", ytdInc: "နှစ်စဉ် စုစုပေါင်း ဝင်ငွေ", ytdTax: "နှစ်စဉ် အခွန်", ytdSso: "နှစ်စဉ် ပကန်စံခွန်း", ytdDays: "နှစ်စဉ် အလုပ်ဆင်းရက်"
+          salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", empNo: "ဝန်ထမ်းနံပါတ်", name: "အမည်", dept: "ဌာန", period: "လစာကာလ", netToPay: "အသားတင်လစာ", income: "ဝင်ငွေ", amount: "ပမာဏ", deduction: "ဖြတ်ငွေ", basic: "အခြေခံလစာ", food: "ထမင်းဖိုး", pubHol: "ရုံးပိတ်ရက်/ဆေးခွင့်", totalInc: "စုစုပေါင်း ဝင်ငွေ", sso: "ပကန်စံခွန်း (SSO)", totalDed: "စုစုပေါင်း ဖြတ်ငွေ"
       },
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
           langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs",
           otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance",
-          transport: "Transport Allowance", foodOt: "Food (OT Days)", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus",
-          totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)",
+          transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus",
+          totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", ot20: "OT 2.0 %",
           netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID",
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
           startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!",
           holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑",
-          salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", empNo: "Emp. No.", name: "Name-Surname", dept: "Dept.", period: "Period", netToPay: "Net to Pay", income: "Income", amount: "Amount", deduction: "Deduction", basic: "Basic Salary", food: "Food Allowance", pubHol: "Holiday/Med Pay", totalInc: "Total Income", sso: "Social Security (SSO)", totalDed: "Total Deduction", ytdInc: "YTD Income", ytdTax: "YTD TAX", ytdSso: "YTD SSO", ytdDays: "YTD Working Day"
+          salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", empNo: "Emp. No.", name: "Name-Surname", dept: "Dept.", period: "Period", netToPay: "Net to Pay", income: "Income", amount: "Amount", deduction: "Deduction", basic: "Basic Salary", food: "Food Allowance", pubHol: "Holiday/Med Pay", totalInc: "Total Income", sso: "Social Security (SSO)", totalDed: "Total Deduction"
       },
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
           langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.",
-          otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะดึก",
-          transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร (ทำโอที)", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "เบี้ยขยัน",
-          totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)",
+          otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน",
+          transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "ค่าเบี้ยขยัน",
+          totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", ot20: "OT 2.0 %",
           netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน",
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
           startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!",
           holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑",
-          salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", empNo: "เลขพนักงาน", name: "ชื่อ-นามสกุล", dept: "แผนก", period: "ประจำงวด", netToPay: "เงินได้สุทธิ", income: "รายได้", amount: "จำนวนเงิน", deduction: "รายการหัก", basic: "ฐานเงินเดือน", food: "ค่าอาหาร", pubHol: "ค่าจ้างวันหยุด/ลาป่วย", totalInc: "รายได้รวม", sso: "ประกันสังคม(SSO)", totalDed: "รายการหักรวม", ytdInc: "รายได้สะสมต่อปี", ytdTax: "ภาษีสะสมต่อปี", ytdSso: "ประกันสังคมต่อปี", ytdDays: "วันทำงานสะสมต่อปี"
+          salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", empNo: "เลขพนักงาน", name: "ชื่อ-นามสกุล", dept: "แผนก", period: "ประจำงวด", netToPay: "เงินได้สุทธิ", income: "รายได้", amount: "จำนวนเงิน", deduction: "รายการหัก", basic: "ฐานเงินเดือน", food: "ค่าอาหาร", pubHol: "ค่าจ้างวันหยุด/ลาป่วย", totalInc: "รายได้รวม", sso: "ประกันสังคม(SSO)", totalDed: "รายการหักรวม"
       }
   };
 
@@ -743,15 +737,21 @@
       calculateAll(); 
   };
 
-  // ★ SSO နှင့် Gross/Net လစာ တွက်ချက်မှု အပြည့်အစုံ ★
   window.calculateAll = () => {
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
       
-      let work=0, double=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otHrs=0, otDays=0, total=0, transport=0, nightPay=0; 
+      let work=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, total=0, transport=0, nightPay=0; 
       let lastFilledShift = 'day'; 
-      let basicSalaryForSso = 0; // SSO တွက်ရန် အခြေခံလစာ
+      let basicSalaryForSso = 0; 
+      
+      // ★ OT 1.5% နှင့် OT 2.0% ကို ခွဲထုတ်တွက်ချက်မည် ★
+      let ot15Hrs = 0, ot20Hrs = 0;
+      let ot15Pay = 0, ot20Pay = 0;
+      // OT Rate က 1.5 ဆ ဖြစ်သည်ဟုယူဆပြီး, OT 2.0x Rate ကို တွက်ထုတ်ခြင်း
+      let baseHourRate = rate / 1.5; 
+      let rate20 = baseHourRate * 2;
 
       document.querySelectorAll('.day-card').forEach(c => {
           let dateKey = c.getAttribute('data-real-date'); let calData = globalCalendar[dateKey]; 
@@ -781,7 +781,7 @@
           if (status === '-') {
               if (isAdminHoliday) {
                   pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay;
-                  basicSalaryForSso += wage; // ရုံးပိတ်ရက်လစာသည် အခြေခံလစာထဲပါဝင်သည်
+                  basicSalaryForSso += wage; 
                   doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':(currentLang==='th'?'วันหยุด':'Paid Hol');
                   info.innerHTML = `${dPay}฿`; c.classList.add('bg-yellow');
               } else {
@@ -792,7 +792,8 @@
               
               if (isAdminHoliday || isAdminDouble) {
                   bPay = wage * 2; double++;
-                  basicSalaryForSso += wage; // နှစ်ဆရက်ဖြစ်သော်လည်း အခြေခံ ၁ ဆ ကိုသာ SSO အတွက် ယူသည်
+                  basicSalaryForSso += wage; 
+                  doubleExtraPay += wage; // နှစ်ဆရက် (Double Day) ကြောင့် ပိုရသော တစ်ဆစာ
                   doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue');
                   if(isSat) c.classList.add('double-saturday'); 
               } else {
@@ -802,12 +803,29 @@
 
               dPay += bPay + 40; transport += 40; 
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
-              if (otStatus === 'yes') { fPay = 60; otHrs += otVal; if(otVal>0) otDays++; dPay += (otVal*rate); } else fPay = 30;
+              
+              if (otStatus === 'yes') { 
+                  fPay = 60; 
+                  if(otVal>0) {
+                      otDays++;
+                      // ★ တနင်္ဂနွေ သို့ ပိတ်ရက်ဆိုပါက OT 2.0 အဖြစ် တွက်မည် ★
+                      if (isSun || isDoubleDay) {
+                          ot20Hrs += otVal;
+                          let p = otVal * rate20;
+                          dPay += p; ot20Pay += p;
+                      } else {
+                          ot15Hrs += otVal;
+                          let p = otVal * rate;
+                          dPay += p; ot15Pay += p;
+                      }
+                  }
+              } else { fPay = 30; }
+              
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
           } else if (status === 'x') {
               if(leaveSelect.value === 'medical') {
                   medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay;
-                  basicSalaryForSso += wage; // ဆေးခွင့်လစာသည် အခြေခံလစာထဲပါဝင်သည်
+                  basicSalaryForSso += wage; 
                   doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave');
                   info.innerHTML = `${dPay}฿`;
               } else {
@@ -826,12 +844,13 @@
       let totalAbsent = absentUnpaid + medLeaveCount;
       let finalBonus = (totalAbsent > 0) ? 0 : bonusSetting; 
       total += finalBonus; 
-      let dOT = double * 8, grandOT = dOT + otHrs; 
+      
+      let otHrs = ot15Hrs + ot20Hrs;
 
       // ★ SSO Calculation: (Basic Salary + Regular Food Allowance) * 5% ★
-      let regularFoodAllowance = work * 30; // အလုပ်ဆင်းရက်အတွက် ပုံမှန်ထမင်းဖိုး 30 ဘတ်စီသာ ယူမည်
+      let regularFoodAllowance = work * 30; // ပုံမှန်ထမင်းဖိုး
       let ssoBaseAmount = basicSalaryForSso + regularFoodAllowance;
-      let ssoDeduction = Math.round(ssoBaseAmount * 0.05); // ၅% တွက်ချက်ခြင်း
+      let ssoDeduction = Math.round(ssoBaseAmount * 0.05); 
       
       let netSalary = total - ssoDeduction;
 
@@ -841,9 +860,12 @@
           food: regularFoodAllowance,
           transport: transport,
           bonus: finalBonus,
-          otFood: otDays * 30, // OT ကြောင့် ပိုရသော 30 ဘတ်များ
-          ot15Hrs: otHrs,
-          ot15Pay: otHrs * rate,
+          doubleDayExtraPay: doubleExtraPay,
+          otFood: otDays * 30, // OT ဆင်း၍ ပိုရသော ထမင်းဖိုး
+          ot15Hrs: ot15Hrs,
+          ot15Pay: ot15Pay,
+          ot20Hrs: ot20Hrs,
+          ot20Pay: ot20Pay,
           nightAll: nightPay,
           pubMedPay: pubHolPay + medLeavePay,
           gross: total,
@@ -873,143 +895,97 @@
       document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; 
       document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; 
       
-      // Update UI with Gross, SSO, Net
       document.getElementById('grossTotalDisplay').innerText = `${total.toLocaleString()} ฿`;
       document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`;
       document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
       
-      if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) {
-          saveToFirebase(); 
-      }
+      if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) { saveToFirebase(); }
   };
 
-  // ★ Salary Slip Generating & YTD Calculation ★
+  // ★ Salary Slip Generating (Table Layout ဖြင့် အသေအချာ ပြင်ဆင်ထားသည်) ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
-      let currYear = d.period.split('-')[0];
-      let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
-      let rate = parseFloat(document.getElementById('otRate').value) || 0;
-
-      // YTD Calculation (နှစ်စဉ် စုစုပေါင်း တွက်ချက်မှု)
-      let ytdIncome = 0; let ytdSso = 0; let ytdDays = 0;
-      
-      if (appData.attendance) {
-          Object.keys(appData.attendance).forEach(dateKey => {
-              if (dateKey.startsWith(currYear)) {
-                  let rec = appData.attendance[dateKey];
-                  let cal = globalCalendar[dateKey];
-                  let isDouble = cal && cal.type === 'double';
-                  let isHoliday = cal && cal.type === 'holiday';
-                  
-                  let dayTotal = 0; let daySsoBase = 0;
-                  let isWorking = rec.status === '✓';
-                  
-                  if (rec.status === '-') {
-                      if (isHoliday) { dayTotal += wage; daySsoBase += wage; }
-                  } else if (isWorking) {
-                      ytdDays++;
-                      dayTotal += wage + 40; // wage + transport
-                      daySsoBase += wage + 30; // base + regular food for SSO
-                      
-                      if (isDouble || isHoliday) dayTotal += wage; 
-                      if (rec.shift === 'night') dayTotal += 100;
-                      
-                      let otVal = parseFloat(rec.otHours) || 0;
-                      if (rec.ot === 'yes') { dayTotal += 60 + (otVal * rate); } else { dayTotal += 30; }
-                  } else if (rec.status === 'x' && rec.leaveType === 'medical') {
-                      dayTotal += wage; daySsoBase += wage;
-                  }
-                  
-                  ytdIncome += dayTotal;
-                  if (isWorking || (rec.status === '-' && isHoliday) || (rec.status === 'x' && rec.leaveType === 'medical')) {
-                      ytdSso += (daySsoBase * 0.05);
-                  }
-              }
-          });
-      }
-      
-      // Add current month bonus to YTD Income approx
-      ytdIncome += d.bonus; 
 
       let html = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; background: #fff;">
-            <div style="display:flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                <div><h1 style="color: #004488; font-family: 'Arial Black', Impact, sans-serif; margin: 0; font-size: 28px; letter-spacing: -1px;">Chicony<span style="font-size:12px; vertical-align:top;">®</span></h1></div>
-                <div style="text-align: right; font-size: 9px; line-height: 1.4; color: #555;">
-                    บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>
-                    82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br>
-                    Tax ID: 0105531002351 Tel: 038-533388
-                </div>
+            <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+                <table style="width: 100%; border: none;">
+                    <tr>
+                        <td style="border: none; text-align: left; vertical-align: bottom;">
+                            <h1 style="color: #004488; font-family: 'Arial Black', Impact, sans-serif; margin: 0; font-size: 28px; letter-spacing: -1px;">Chicony<span style="font-size:12px; vertical-align:top;">®</span></h1>
+                        </td>
+                        <td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">
+                            บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>
+                            82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br>
+                            Tax ID: 0105531002351 Tel: 038-533388
+                        </td>
+                    </tr>
+                </table>
             </div>
             <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">${l.slipTitle}</div>
             
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
                 <tr style="background: #f8f9fa;">
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.empNo}</th>
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.name}</th>
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.dept}</th>
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.period}</th>
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.netToPay}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.empNo}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.name}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.dept}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.period}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.netToPay}</th>
                 </tr>
                 <tr>
-                    <td style="border: 1px solid #ccc; padding: 6px;">${empId}</td>
-                    <td style="border: 1px solid #ccc; padding: 6px;">${name}</td>
-                    <td style="border: 1px solid #ccc; padding: 6px;">MKB MFG FA(LH)</td>
-                    <td style="border: 1px solid #ccc; padding: 6px;">${d.period.replace('-','/')}</td>
-                    <td style="border: 1px solid #ccc; padding: 6px; font-weight:bold;">${d.net.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${empId}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${name}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">MKB MFG FA(LH)</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${d.period.replace('-','/')}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center; font-weight:bold; font-size: 12px; color: #198754;">${d.net.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 </tr>
             </table>
             
-            <div style="display: flex; border: 1px solid #ccc; font-size: 10px;">
-                <div style="flex: 1; border-right: 1px solid #ccc;">
-                    <div style="display: flex; justify-content: space-between; padding: 6px; border-bottom: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">
-                        <span>${l.income}</span><span>${l.amount}</span>
-                    </div>
-                    <div style="padding: 6px; min-height: 150px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.basic}</span><span>${d.basicSalary.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.food}</span><span>${d.food.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.transport}</span><span>${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.bonus}</span><span>${d.bonus.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.nightAll}</span><span>${d.nightAll.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.otFood}</span><span>${d.otFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.pubHol}</span><span>${d.pubMedPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>OT 1.5 % &nbsp; (${d.ot15Hrs} hrs.)</span><span>${d.ot15Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 6px; border-top: 1px solid #ccc; font-weight: bold;">
-                        <span>${l.totalInc}</span><span>${d.gross.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-                    </div>
-                </div>
-                
-                <div style="flex: 1;">
-                    <div style="display: flex; justify-content: space-between; padding: 6px; border-bottom: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">
-                        <span>${l.deduction}</span><span>${l.amount}</span>
-                    </div>
-                    <div style="padding: 6px; min-height: 150px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.sso}</span><span>${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>ภาษี (TAX)</span><span>0.00</span></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 6px; border-top: 1px solid #ccc; font-weight: bold;">
-                        <span>${l.totalDed}</span><span>-${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10px;">
-                <tr style="background: #f8f9fa;">
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.ytdInc}</th>
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.ytdTax}</th>
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.ytdSso}</th>
-                    <th style="border: 1px solid #ccc; padding: 6px;">${l.ytdDays}</th>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #ccc; padding: 6px;">${ytdIncome.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                    <td style="border: 1px solid #ccc; padding: 6px;">0.00</td>
-                    <td style="border: 1px solid #ccc; padding: 6px;">${Math.round(ytdSso).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                    <td style="border: 1px solid #ccc; padding: 6px;">${ytdDays}</td>
-                </tr>
+            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+              <tr>
+                <td style="width: 50%; padding: 0; vertical-align: top; border: 1px solid #ccc;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:left;">${l.income}</th>
+                            <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:right;">${l.amount}</th>
+                        </tr>
+                        <tr><td style="padding: 4px 6px;">${l.basic}</td><td style="padding: 4px 6px; text-align:right;">${d.basicSalary.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.food}</td><td style="padding: 4px 6px; text-align:right;">${d.food.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.transport}</td><td style="padding: 4px 6px; text-align:right;">${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.attBonus}</td><td style="padding: 4px 6px; text-align:right;">${d.bonus.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.doubleDays}</td><td style="padding: 4px 6px; text-align:right;">${d.doubleDayExtraPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.nightAllowance}</td><td style="padding: 4px 6px; text-align:right;">${d.nightAll.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.foodOt}</td><td style="padding: 4px 6px; text-align:right;">${d.otFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.pubHol}</td><td style="padding: 4px 6px; text-align:right;">${d.pubMedPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">OT 1.5 % (${d.ot15Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot15Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.ot20} (${d.ot20Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot20Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr>
+                            <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold;">${l.totalInc}</td>
+                            <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold; text-align:right;">${d.gross.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="width: 50%; padding: 0; vertical-align: top; border: 1px solid #ccc; border-left: none;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:left;">${l.deduction}</th>
+                            <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:right;">${l.amount}</th>
+                        </tr>
+                        <tr><td style="padding: 4px 6px;">${l.sso}</td><td style="padding: 4px 6px; text-align:right;">${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">ภาษี (TAX)</td><td style="padding: 4px 6px; text-align:right;">0.00</td></tr>
+                        
+                        <tr><td colspan="2" style="height: 160px;"></td></tr>
+
+                        <tr>
+                            <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold; color: #dc3545;">${l.totalDed}</td>
+                            <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold; text-align:right; color: #dc3545;">-${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                    </table>
+                </td>
+              </tr>
             </table>
         </div>
       `;
@@ -1029,55 +1005,7 @@
 
   window.openExportModal = () => { let cards = document.querySelectorAll('.day-card'); if(cards.length > 0) { document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date'); let lastFilledDate = cards[0].getAttribute('data-real-date'); cards.forEach(c => { let status = c.querySelector('.status-select').value; if(status === '✓' || status === 'x') lastFilledDate = c.getAttribute('data-real-date'); }); let todayObj = new Date(); let tzOffset = 7 * 60 * 60000; let localISOTime = (new Date(todayObj - tzOffset)).toISOString().slice(0, -1); let todayStr = localISOTime.split('T')[0]; let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate; document.getElementById('exportEndDate').value = finalEndDate; } document.getElementById('exportModal').style.display = 'flex'; toggleMenu(null); };
   window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
-  const formatExportDate = (dStr) => { let d = new Date(dStr); const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; return `${d.getDate()}, ${months[d.getMonth()]}, ${d.getFullYear()}`; };
-
-  window.exportPDF = () => { 
-      let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; 
-      if(!sDate || !eDate) return alert("Select dates"); if(sDate > eDate) return; 
-      let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-'; let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
-      let dateTitle = `${formatExportDate(sDate)} - ${formatExportDate(eDate)}`; 
-      let html = `<div class="print-header"><h2>Chicony Salary Report</h2><p><b>Name:</b> ${name} &nbsp;|&nbsp; <b>ID:</b> ${empId}</p><p style="color:#000080; font-weight:bold; margin-top:5px;">Date: ${dateTitle}</p></div><table class="print-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT Hours</th><th>Daily Total (Baht)</th></tr></thead><tbody>`; 
-      let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
-      
-      document.querySelectorAll('.day-card').forEach(card => { 
-          let rDate = card.getAttribute('data-real-date'); 
-          if(rDate >= sDate && rDate <= eDate) { 
-              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let leaveVal = card.querySelector('.leave-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
-              let calData = globalCalendar[rDate]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
-              let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
-              
-              if(statusVal === '-') { 
-                  displayShift = 'All'; displayStatus = 'Holiday'; 
-                  if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; }
-              } 
-              else if (statusVal === '✓') { displayStatus = 'Present'; } 
-              else if (statusVal === 'x') { displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent'; } 
-              else { displayStatus = '-'; }
-              
-              let isWorking = (statusVal === '✓'); let displayOt = (ot === "0" || ot === 0 || ot === "" || !isWorking) ? "-" : ot; let displayTotal = (total === 0 || total === "0") ? "-" : total;
-              html += `<tr><td>${date}</td><td>${displayShift}</td><td>${displayStatus}</td><td>${displayOt}</td><td>${displayTotal}</td></tr>`; 
-              
-              if(statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot); if(isAdminHoliday || isAdminDouble) expDouble++; } 
-              else if(statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else { expAbsent++; } } 
-              expTotal += total; 
-          } 
-      }); 
-      
-      let totalAbs = expAbsent + expMedCount; let expBonus = (totalAbs > 0) ? 0 : bonusSetting; expTotal += expBonus; 
-      
-      html += `</tbody></table><table class="print-summary">
-      <tr><th>Attendance Bonus</th><td>${expBonus} Baht</td></tr>
-      <tr><th>Public Holiday Pay</th><td>${expPubHolCount} Days / ${expPubHolPay} Baht</td></tr>
-      <tr><th>Medical Leave Pay</th><td>${expMedCount} Days / ${expMedPay} Baht</td></tr>
-      <tr><th>Total Work (Days/Hrs)</th><td>${expWork} Days / ${expWork*8} Hrs</td></tr>
-      <tr><th>Total Normal OT Hours</th><td>${expOtHrs} Hrs</td></tr>`;
-      if(expDouble > 0) html += `<tr><th>2X Days Work Hours</th><td>${expDouble * 8} Hrs</td></tr>`;
-      html += `<tr><th>Absent (Unpaid)</th><td>${expAbsent} Days</td></tr>
-      <tr><th>Net Salary (For Selected Dates)</th><td><b>${expTotal} Baht</b></td></tr>
-      </table><div class="print-footer">Generated by Chicony Attendance System<br>Developed by <b>THET AUNG</b></div>`; 
-      
-      document.getElementById('printArea').innerHTML = html; closeExportModal(); setTimeout(() => { window.print(); }, 800); 
-  };
+  const formatExportDate = (dStr) => { let d = new Date(dStr); const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; return `${d.getDate()}, ${months[d.getMonth পশ্চ], ${d.getFullYear()}`; };
 
   window.exportExcel = () => { 
       let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; 
@@ -1128,7 +1056,7 @@
   window.viewUserDetail = (uid) => { 
       window.currentViewUid = uid; let uData = window.allUsersData[uid]; if(!uData) return; 
       let name = uData.settings?.empName || 'Unknown'; document.getElementById('detailModalName').innerText = name; 
-      let html = `<div style="display:flex; gap:10px; margin-bottom: 15px;"><button class="admin-action-btn btn-exp-excel interactive-btn" onclick="exportAdminIndividual('excel')">📊 Excel</button><button class="admin-action-btn btn-exp-pdf interactive-btn" onclick="exportAdminIndividual('pdf')">📄 PDF</button></div><table class="admin-detail-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT</th></tr></thead><tbody>`; 
+      let html = `<div style="display:flex; gap:10px; margin-bottom: 15px;"><button class="admin-action-btn btn-exp-excel interactive-btn" onclick="exportAdminIndividual('excel')">📊 Excel</button></div><table class="admin-detail-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT</th></tr></thead><tbody>`; 
       if(uData.attendance) { 
           let dates = Object.keys(uData.attendance).sort(); let hasRecords = false; 
           dates.forEach(d => { 
@@ -1170,11 +1098,6 @@
           let excelData = [ ["Date", "Shift", "Status", "OT Hours"] ]; exportArr.forEach(r => excelData.push(r)); 
           excelData.push([]); excelData.push(["", "", "Total Salary", uData.calculatedTotal + " Baht"]); 
           let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, "Details"); XLSX.writeFile(wb, `${name}_Details.xlsx`); 
-      } else { 
-          let html = `<div class="print-header"><h2>Chicony Employee Detail</h2><p><b>Name:</b> ${name} | <b>ID:</b> ${empId}</p></div><table class="print-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT Hours</th></tr></thead><tbody>`; 
-          exportArr.forEach(r => html += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`); 
-          html += `</tbody></table><table class="print-summary"><tr><th>Total Salary</th><td><b>${uData.calculatedTotal} Baht</b></td></tr></table>`; 
-          document.getElementById('printArea').innerHTML = html; setTimeout(() => { window.print(); }, 800); 
       } 
   };
   
