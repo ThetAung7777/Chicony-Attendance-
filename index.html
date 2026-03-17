@@ -75,6 +75,7 @@
   .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
   .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
 
+  /* Admin CSS */
   .admin-search-box { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: box-shadow 0.3s;}
   .admin-search-box:focus { box-shadow: 0 0 8px rgba(0,123,255,0.3); }
   .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; transition: transform 0.3s ease;}
@@ -91,16 +92,30 @@
   .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
   @media(min-width: 600px) { .year-calendar-grid { grid-template-columns: 1fr 1fr; } }
   .month-box { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.3s ease;}
-  .month-box:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
   .month-title { text-align: center; font-weight: bold; color: #000080; margin-bottom: 10px; font-size: 15px; }
   .month-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 5px; }
   .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
   .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box; transition: transform 0.1s ease;}
   .cal-day.empty { background: transparent; border: none; }
   .cal-sun { color: #dc3545; font-weight: bold; }
-  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; cursor: pointer; border: 1px solid #ffca2c; box-shadow: 0 2px 4px rgba(255,193,7,0.4); }
-  .cal-holiday:active { transform: scale(0.9); }
-  .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; box-shadow: 0 2px 4px rgba(13,110,253,0.4); }
+  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; cursor: pointer; border: 1px solid #ffca2c;}
+  .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
+
+  /* ★ Salary Slip CSS ★ */
+  .slip-container { font-family: 'Segoe UI', Tahoma, sans-serif; background: white; padding: 15px; color: black; font-size: 11px; }
+  .slip-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 8px;}
+  .slip-logo { font-size: 24px; font-weight: bold; color: #004488; font-family: 'Arial Black', Impact, sans-serif; margin: 0; line-height: 1;}
+  .slip-company { font-size: 9px; text-align: right; color: #555; }
+  .slip-title { text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 10px;}
+  .slip-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  .slip-table th, .slip-table td { border: 1px solid #ccc; padding: 6px; text-align: center; font-size: 10px;}
+  .slip-table th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
+  .slip-grid { display: flex; border: 1px solid #ccc; }
+  .slip-col { flex: 1; }
+  .slip-col-right { border-left: 1px solid #ccc; }
+  .slip-row { display: flex; justify-content: space-between; padding: 4px 8px; font-size: 10px; border-bottom: 1px solid #eee;}
+  .slip-row:last-child { border-bottom: none; }
+  .slip-row.bold { font-weight: bold; background: #f9f9f9 !important; -webkit-print-color-adjust: exact; border-top: 1px solid #ccc;}
 
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
@@ -111,42 +126,25 @@
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
   .dark-mode .ui-summary-box { background-color: #1e1e1e !important; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
   .dark-mode .ui-summary-box span { color: #ccc !important; } .dark-mode .ui-summary-box b { color: #fff !important; }
-  .dark-mode .ui-summary-box #grandTotal { color: #ff6b81 !important; }
+  .dark-mode .ui-summary-box #grandTotal { color: #198754 !important; }
   .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
   .dark-mode .day-card.bg-yellow .date-label { color: #ffda6a !important; }
   .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
   .dark-mode .double-saturday { border: 2px solid #ff6b81 !important; box-shadow: inset 0 0 5px rgba(255,107,129,0.5); } 
-  .dark-mode .month-box { background: #2c2c2c !important; border-color: #444 !important; }
-  .dark-mode .month-title { color: #82b1ff !important; }
-  .dark-mode .cal-day { background: #1e1e1e; border-color: #444; color: #e0e0e0; }
-  .dark-mode .cal-holiday { background-color: #664d03 !important; color: #ffda6a !important; border-color: #8f6c04; box-shadow: 0 2px 4px rgba(102,77,3,0.5); }
-  .dark-mode .cal-sun { color: #ff6b81; }
-  .dark-mode .admin-manage-section { background: #1e1e1e !important; border-color: #444 !important; }
-  .dark-mode .manage-list-item { background: #2c2c2c !important; border-color: #555 !important; }
   .dark-mode .login-box { background: #1e1e1e !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
   .dark-mode #loginScreen { background-color: #121212 !important; }
-  .dark-mode .admin-user-card { background: #2c2c2c !important; border-color: #444 !important; }
-  .dark-mode .admin-search-box { background: #333 !important; color: #fff !important; border-color: #555 !important; }
   .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
-  .dark-mode #rightMenu select { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
 
-  /* Print Styles */
-  #printArea { display: none; }
+  /* Slip Print CSS */
   @media print { 
-      body { background: white !important; padding: 0; } 
-      #mainApp, #loginScreen, .modal-overlay, .navbar { display: none !important; } 
-      #printArea { display: block !important; width: 100%; color: black; } 
-      .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-      .print-header h2 { margin: 0 0 5px 0; color: #000; }
-      .print-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;} 
-      .print-table th, .print-table td { border: 1px solid #000; padding: 8px; text-align: center; } 
-      .print-table th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
-      .print-summary { width: 50%; border-collapse: collapse; float: right; margin-top: 10px; } 
-      .print-summary th, .print-summary td { border: 1px solid #000; padding: 6px; text-align: left;} 
-      .print-summary th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
-      .print-footer { clear: both; text-align: center; margin-top: 40px; font-size: 11px; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
+      body * { display: none !important; } 
+      #slipModal, #slipModal * { display: block !important; } 
+      #slipModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; }
+      .close-modal, button[onclick="printSlipArea()"] { display: none !important; }
+      .slip-container { padding: 0 !important; }
+      @page { margin: 0.5cm; }
   }
 </style>
 </head>
@@ -161,7 +159,6 @@
 </div>
 
 <div class="loading-overlay" id="loadingSpinner" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:2000; display:none; justify-content:center; align-items:center; font-weight:bold; color:#000080;">Loading Data...</div>
-<div id="printArea"></div>
 
 <div id="mainApp" style="display: none;">
   <div class="navbar">
@@ -231,9 +228,13 @@
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:2px solid #ccc; color: #8e44ad; padding-bottom: 8px;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
       
-      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#dc3545;">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:bold; color: #333;"><span data-i18n="totalIncome">စုစုပေါင်း ဝင်ငွေ (Gross)</span> <b id="grossTotalDisplay">0 ฿</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:bold; color: #dc3545;"><span data-i18n="ssoDeduct">ပကန်စံခွန်း (SSO 5%)</span> <b id="ssoDisplay">- 0 ฿</b></div>
+      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #333; font-size:18px; color:#198754;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#198754;">0 ฿</b></div>
+
+      <button class="btn-generate interactive-btn" onclick="openSalarySlip()" style="background:#0d6efd; margin-top:15px; width: 100%;">🧾 <span data-i18n="salarySlipBtn">လစာစလစ် ကြည့်မည်</span></button>
     </div>
 
     <div class="developer-footer hover-card">
@@ -244,6 +245,21 @@
         <a href="https://t.me/ThetAung7777" target="_blank" class="interactive-btn">✈️ Telegram: @ThetAung7777</a>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="slipModal" style="z-index: 500;">
+  <div class="modal-content pop-in" style="max-width: 600px; padding:0; overflow:hidden; background: #fff;">
+    <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin:0; font-size: 15px;">🧾 <span data-i18n="slipTitle">ใบแจ้งเงินเดือน / Pay slip</span></h3>
+        <div>
+            <button class="interactive-btn" onclick="printSlipArea()" style="background: white; color: #004488; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; margin-right: 10px; font-size: 12px;">🖨️ Print</button>
+            <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="position:static; color:white; font-size:20px; background:none; border:none;">×</button>
+        </div>
+    </div>
+    
+    <div id="slipPrintArea" class="slip-container">
+        </div>
   </div>
 </div>
 
@@ -315,7 +331,6 @@
     </div>
     <div style="display:flex; gap:10px; margin-top: 20px;">
       <button class="btn-generate interactive-btn" onclick="exportExcel()" style="background:#198754; margin-top:0;">📊 Excel</button>
-      <button class="btn-generate interactive-btn" onclick="exportPDF()" style="background:#c2185b; margin-top:0;">📄 PDF</button>
     </div>
   </div>
 </div>
@@ -327,7 +342,6 @@
     <input type="text" id="adminSearchInput" class="admin-search-box" placeholder="🔍 Search ID / Name" onkeyup="filterAdminUsers()">
     <div style="display:flex; gap:10px; margin-bottom: 15px;">
       <button class="btn-generate interactive-btn" onclick="exportAdminAll('excel')" style="background:#198754; margin-top:0; padding:8px;">📊 Export All (Excel)</button>
-      <button class="btn-generate interactive-btn" onclick="exportAdminAll('pdf')" style="background:#c2185b; margin-top:0; padding:8px;">📄 Export All (PDF)</button>
     </div>
     <div id="adminUserList" style="margin-top: 10px;"></div>
   </div>
@@ -370,42 +384,50 @@
   let globalCalendar = {}; 
   window.allUsersData = {}; 
   window.currentViewUid = null;
+  window.currentSlipData = {}; // Slip အတွက် Data သိမ်းရန်
   const CALENDAR_YEAR = 2026; 
   let isDataLoaded = false; 
 
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
+  // ★ Salary Slip အတွက် စာသားများ ထပ်မံဖြည့်စွက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
           langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ",
           otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "စုစုပေါင်း ညကြေး",
           transport: "စုစုပေါင်း ကားခ", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)",
+          totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)",
           netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)",
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
           startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!",
-          holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑"
+          holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑",
+          salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", empNo: "ဝန်ထမ်းနံပါတ်", name: "အမည်", dept: "ဌာန", period: "လစာကာလ", netToPay: "အသားတင်လစာ", income: "ဝင်ငွေ", amount: "ပမာဏ", deduction: "ဖြတ်ငွေ", basic: "အခြေခံလစာ", food: "ထမင်းဖိုး", pubHol: "ရုံးပိတ်ရက်/ဆေးခွင့်", totalInc: "စုစုပေါင်း ဝင်ငွေ", sso: "ပကန်စံခွန်း (SSO)", totalDed: "စုစုပေါင်း ဖြတ်ငွေ", ytdInc: "နှစ်စဉ် စုစုပေါင်း ဝင်ငွေ", ytdTax: "နှစ်စဉ် အခွန်", ytdSso: "နှစ်စဉ် ပကန်စံခွန်း", ytdDays: "နှစ်စဉ် အလုပ်ဆင်းရက်"
       },
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
           langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs",
           otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance",
           transport: "Transport Allowance", foodOt: "Food (OT Days)", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus",
+          totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)",
           netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID",
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
           startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!",
-          holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑"
+          holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑",
+          salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", empNo: "Emp. No.", name: "Name-Surname", dept: "Dept.", period: "Period", netToPay: "Net to Pay", income: "Income", amount: "Amount", deduction: "Deduction", basic: "Basic Salary", food: "Food Allowance", pubHol: "Holiday/Med Pay", totalInc: "Total Income", sso: "Social Security (SSO)", totalDed: "Total Deduction", ytdInc: "YTD Income", ytdTax: "YTD TAX", ytdSso: "YTD SSO", ytdDays: "YTD Working Day"
       },
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
           langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.",
           otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะดึก",
           transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร (ทำโอที)", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "เบี้ยขยัน",
+          totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)",
           netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน",
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
           startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!",
-          holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑"
+          holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑",
+          salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", empNo: "เลขพนักงาน", name: "ชื่อ-นามสกุล", dept: "แผนก", period: "ประจำงวด", netToPay: "เงินได้สุทธิ", income: "รายได้", amount: "จำนวนเงิน", deduction: "รายการหัก", basic: "ฐานเงินเดือน", food: "ค่าอาหาร", pubHol: "ค่าจ้างวันหยุด/ลาป่วย", totalInc: "รายได้รวม", sso: "ประกันสังคม(SSO)", totalDed: "รายการหักรวม", ytdInc: "รายได้สะสมต่อปี", ytdTax: "ภาษีสะสมต่อปี", ytdSso: "ประกันสังคมต่อปี", ytdDays: "วันทำงานสะสมต่อปี"
       }
   };
 
@@ -430,7 +452,6 @@
       document.getElementById('weekdaysHeader').innerHTML = `<div style="color:#dc3545;">${days[0]}</div><div>${days[1]}</div><div>${days[2]}</div><div>${days[3]}</div><div>${days[4]}</div><div>${days[5]}</div><div style="color:#007bff;">${days[6]}</div>`;
   }
 
-  // ★ System ၏ လက်ရှိလကို တွက်ချက်ပေးမည့် Function ★
   window.getRealCurrentMonth = () => {
       let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1;
       if (d.getDate() >= 21) { realM++; if(realM > 12) { realM = 1; realY++; } }
@@ -452,7 +473,6 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ Popup ကို အသုံးပြုထားပါသည် ★
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
       signInWithPopup(auth, provider).then(() => {
@@ -522,7 +542,6 @@
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
               
-              // ★ Auto Bonus စနစ် (နောက်ကွယ်တွင် အလိုအလျောက် စစ်ဆေးမည်) ★
               let lastBonusMonth = appData.settings.lastBonusMonth || "";
               if (lastBonusMonth !== realCurrentMonthStr) {
                   let [cY, cM] = realCurrentMonthStr.split('-').map(Number);
@@ -533,9 +552,8 @@
                   let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
                   let currentBonus = parseInt(appData.settings.attBonusSetting) || 500;
                   
-                  if (hasAbsence) {
-                      appData.settings.attBonusSetting = "500"; 
-                  } else {
+                  if (hasAbsence) { appData.settings.attBonusSetting = "500"; } 
+                  else {
                       if (currentBonus <= 500) appData.settings.attBonusSetting = "800"; 
                       else if (currentBonus >= 800) appData.settings.attBonusSetting = "1000"; 
                   }
@@ -543,7 +561,6 @@
                   set(ref(db, 'users/' + currentUser.uid + '/settings'), appData.settings); 
               }
               
-              // ★ အရေးကြီး: User ရွေးခဲ့သော နောက်ဆုံးလကိုသာ ပြန်ခေါ်ပေးမည် ★
               let savedMonth = appData.settings.selectedMonth || realCurrentMonthStr;
 
               document.getElementById('empName').value = appData.settings.empName || ""; 
@@ -628,8 +645,7 @@
   window.closeSettings = () => { 
       let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
       if (nameInput === "" || idInput === "") { alert(translations[currentLang].reqBoth); return; }
-      
-      saveToFirebase(); // Settings ကို ပိတ်လိုက်တိုင်း Save မည်
+      saveToFirebase(); 
       document.getElementById('settingsModal').style.display = 'none'; 
   };
   
@@ -637,7 +653,6 @@
       let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
       if(nameInput === "") { alert(translations[currentLang].reqName); return; }
       if(idInput === "") { alert(translations[currentLang].reqId); return; }
-
       saveToFirebase(); calculateAll(); 
       document.getElementById('settingsModal').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
@@ -728,9 +743,15 @@
       calculateAll(); 
   };
 
+  // ★ SSO နှင့် Gross/Net လစာ တွက်ချက်မှု အပြည့်အစုံ ★
   window.calculateAll = () => {
-      const wage = parseFloat(document.getElementById('dailyWage').value) || 0; const rate = parseFloat(document.getElementById('otRate').value) || 0; const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
-      let work=0, double=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otHrs=0, otDays=0, total=0, transport=0, nightPay=0; let lastFilledShift = 'day'; 
+      const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
+      const rate = parseFloat(document.getElementById('otRate').value) || 0; 
+      const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
+      
+      let work=0, double=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otHrs=0, otDays=0, total=0, transport=0, nightPay=0; 
+      let lastFilledShift = 'day'; 
+      let basicSalaryForSso = 0; // SSO တွက်ရန် အခြေခံလစာ
 
       document.querySelectorAll('.day-card').forEach(c => {
           let dateKey = c.getAttribute('data-real-date'); let calData = globalCalendar[dateKey]; 
@@ -750,19 +771,17 @@
           let dPay=0, fPay=0;
 
           if(status === 'x') { leaveSelect.style.display = 'block'; } else { leaveSelect.style.display = 'none'; }
-
           if (status === '✓') {
               otSelect.style.display = 'block';
               if(otStatus === 'yes') otInput.style.display = 'block'; else otInput.style.display = 'none';
           } else {
-              otSelect.style.display = 'none';
-              otInput.style.display = 'none';
-              otStatus = 'no'; otVal = 0;
+              otSelect.style.display = 'none'; otInput.style.display = 'none'; otStatus = 'no'; otVal = 0;
           }
 
           if (status === '-') {
               if (isAdminHoliday) {
                   pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay;
+                  basicSalaryForSso += wage; // ရုံးပိတ်ရက်လစာသည် အခြေခံလစာထဲပါဝင်သည်
                   doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':(currentLang==='th'?'วันหยุด':'Paid Hol');
                   info.innerHTML = `${dPay}฿`; c.classList.add('bg-yellow');
               } else {
@@ -773,9 +792,11 @@
               
               if (isAdminHoliday || isAdminDouble) {
                   bPay = wage * 2; double++;
+                  basicSalaryForSso += wage; // နှစ်ဆရက်ဖြစ်သော်လည်း အခြေခံ ၁ ဆ ကိုသာ SSO အတွက် ယူသည်
                   doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue');
                   if(isSat) c.classList.add('double-saturday'); 
               } else {
+                  basicSalaryForSso += wage;
                   doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green');
               }
 
@@ -786,6 +807,7 @@
           } else if (status === 'x') {
               if(leaveSelect.value === 'medical') {
                   medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay;
+                  basicSalaryForSso += wage; // ဆေးခွင့်လစာသည် အခြေခံလစာထဲပါဝင်သည်
                   doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave');
                   info.innerHTML = `${dPay}฿`;
               } else {
@@ -802,7 +824,34 @@
       
       let nonOtDays = work - otDays; let foodOtTotal = otDays * 60; let foodNoOtTotal = nonOtDays * 30;
       let totalAbsent = absentUnpaid + medLeaveCount;
-      let finalBonus = (totalAbsent > 0) ? 0 : bonusSetting; total += finalBonus; let dOT = double * 8, grandOT = dOT + otHrs; 
+      let finalBonus = (totalAbsent > 0) ? 0 : bonusSetting; 
+      total += finalBonus; 
+      let dOT = double * 8, grandOT = dOT + otHrs; 
+
+      // ★ SSO Calculation: (Basic Salary + Regular Food Allowance) * 5% ★
+      let regularFoodAllowance = work * 30; // အလုပ်ဆင်းရက်အတွက် ပုံမှန်ထမင်းဖိုး 30 ဘတ်စီသာ ယူမည်
+      let ssoBaseAmount = basicSalaryForSso + regularFoodAllowance;
+      let ssoDeduction = Math.round(ssoBaseAmount * 0.05); // ၅% တွက်ချက်ခြင်း
+      
+      let netSalary = total - ssoDeduction;
+
+      // ★ သိမ်းဆည်းထားရန် Slip Data ★
+      window.currentSlipData = {
+          basicSalary: basicSalaryForSso,
+          food: regularFoodAllowance,
+          transport: transport,
+          bonus: finalBonus,
+          otFood: otDays * 30, // OT ကြောင့် ပိုရသော 30 ဘတ်များ
+          ot15Hrs: otHrs,
+          ot15Pay: otHrs * rate,
+          nightAll: nightPay,
+          pubMedPay: pubHolPay + medLeavePay,
+          gross: total,
+          sso: ssoDeduction,
+          net: netSalary,
+          workDays: work,
+          period: document.getElementById('selectedMonth').value
+      };
 
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days');
       let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
@@ -817,20 +866,160 @@
       document.getElementById('foodNoOtTotal').innerText = `${foodNoOtTotal.toLocaleString()} ฿`; 
       document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; 
       document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; 
-      
       document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; 
       document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; 
       document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; 
       document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`;
-
       document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; 
       document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; 
       
-      document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ฿`;
+      // Update UI with Gross, SSO, Net
+      document.getElementById('grossTotalDisplay').innerText = `${total.toLocaleString()} ฿`;
+      document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`;
+      document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
       
-      // ★ ဘယ်လကိုပဲ ရွေးထားရွေးထား၊ မှတ်လိုက်တိုင်း Auto Save လုပ်ပါမည် ★
-      saveToFirebase(); 
+      if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) {
+          saveToFirebase(); 
+      }
   };
+
+  // ★ Salary Slip Generating & YTD Calculation ★
+  window.openSalarySlip = () => {
+      let l = translations[currentLang];
+      let d = window.currentSlipData;
+      let name = document.getElementById('empName').value || '-';
+      let empId = document.getElementById('empId').value || '-';
+      let currYear = d.period.split('-')[0];
+      let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
+      let rate = parseFloat(document.getElementById('otRate').value) || 0;
+
+      // YTD Calculation (နှစ်စဉ် စုစုပေါင်း တွက်ချက်မှု)
+      let ytdIncome = 0; let ytdSso = 0; let ytdDays = 0;
+      
+      if (appData.attendance) {
+          Object.keys(appData.attendance).forEach(dateKey => {
+              if (dateKey.startsWith(currYear)) {
+                  let rec = appData.attendance[dateKey];
+                  let cal = globalCalendar[dateKey];
+                  let isDouble = cal && cal.type === 'double';
+                  let isHoliday = cal && cal.type === 'holiday';
+                  
+                  let dayTotal = 0; let daySsoBase = 0;
+                  let isWorking = rec.status === '✓';
+                  
+                  if (rec.status === '-') {
+                      if (isHoliday) { dayTotal += wage; daySsoBase += wage; }
+                  } else if (isWorking) {
+                      ytdDays++;
+                      dayTotal += wage + 40; // wage + transport
+                      daySsoBase += wage + 30; // base + regular food for SSO
+                      
+                      if (isDouble || isHoliday) dayTotal += wage; 
+                      if (rec.shift === 'night') dayTotal += 100;
+                      
+                      let otVal = parseFloat(rec.otHours) || 0;
+                      if (rec.ot === 'yes') { dayTotal += 60 + (otVal * rate); } else { dayTotal += 30; }
+                  } else if (rec.status === 'x' && rec.leaveType === 'medical') {
+                      dayTotal += wage; daySsoBase += wage;
+                  }
+                  
+                  ytdIncome += dayTotal;
+                  if (isWorking || (rec.status === '-' && isHoliday) || (rec.status === 'x' && rec.leaveType === 'medical')) {
+                      ytdSso += (daySsoBase * 0.05);
+                  }
+              }
+          });
+      }
+      
+      // Add current month bonus to YTD Income approx
+      ytdIncome += d.bonus; 
+
+      let html = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; background: #fff;">
+            <div style="display:flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+                <div><h1 style="color: #004488; font-family: 'Arial Black', Impact, sans-serif; margin: 0; font-size: 28px; letter-spacing: -1px;">Chicony<span style="font-size:12px; vertical-align:top;">®</span></h1></div>
+                <div style="text-align: right; font-size: 9px; line-height: 1.4; color: #555;">
+                    บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>
+                    82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br>
+                    Tax ID: 0105531002351 Tel: 038-533388
+                </div>
+            </div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">${l.slipTitle}</div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
+                <tr style="background: #f8f9fa;">
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.empNo}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.name}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.dept}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.period}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.netToPay}</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ccc; padding: 6px;">${empId}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px;">${name}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px;">MKB MFG FA(LH)</td>
+                    <td style="border: 1px solid #ccc; padding: 6px;">${d.period.replace('-','/')}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; font-weight:bold;">${d.net.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                </tr>
+            </table>
+            
+            <div style="display: flex; border: 1px solid #ccc; font-size: 10px;">
+                <div style="flex: 1; border-right: 1px solid #ccc;">
+                    <div style="display: flex; justify-content: space-between; padding: 6px; border-bottom: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">
+                        <span>${l.income}</span><span>${l.amount}</span>
+                    </div>
+                    <div style="padding: 6px; min-height: 150px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.basic}</span><span>${d.basicSalary.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.food}</span><span>${d.food.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.transport}</span><span>${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.bonus}</span><span>${d.bonus.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.nightAll}</span><span>${d.nightAll.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.otFood}</span><span>${d.otFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.pubHol}</span><span>${d.pubMedPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>OT 1.5 % &nbsp; (${d.ot15Hrs} hrs.)</span><span>${d.ot15Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 6px; border-top: 1px solid #ccc; font-weight: bold;">
+                        <span>${l.totalInc}</span><span>${d.gross.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                    </div>
+                </div>
+                
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; padding: 6px; border-bottom: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">
+                        <span>${l.deduction}</span><span>${l.amount}</span>
+                    </div>
+                    <div style="padding: 6px; min-height: 150px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${l.sso}</span><span>${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>ภาษี (TAX)</span><span>0.00</span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 6px; border-top: 1px solid #ccc; font-weight: bold;">
+                        <span>${l.totalDed}</span><span>-${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10px;">
+                <tr style="background: #f8f9fa;">
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.ytdInc}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.ytdTax}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.ytdSso}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">${l.ytdDays}</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ccc; padding: 6px;">${ytdIncome.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px;">0.00</td>
+                    <td style="border: 1px solid #ccc; padding: 6px;">${Math.round(ytdSso).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px;">${ytdDays}</td>
+                </tr>
+            </table>
+        </div>
+      `;
+      
+      document.getElementById('slipPrintArea').innerHTML = html;
+      document.getElementById('slipModal').style.display = 'flex';
+  };
+
+  window.closeSlipModal = () => { document.getElementById('slipModal').style.display = 'none'; };
+  window.printSlipArea = () => { window.print(); };
 
   window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uMedCount=0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let status = record.status; let shift = record.shift; let leaveType = record.leaveType; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓'); if (status === '-') { if (isAdminHoliday) { uTotalPay += wage; } } else if (status === '✓') { uWork++; let bPay = wage; if (isAdminHoliday || isAdminDouble) { bPay = wage * 2; uDouble++; } dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') { if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; } else { uAbsent++; } } } } let totalAbs = uAbsent + uMedCount; let uBonus = (totalAbs > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#dc3545; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Est. Salary: ${uTotalPay.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">Total Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
   window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
