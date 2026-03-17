@@ -1,3 +1,345 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chicony Attendance & Salary</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#000080">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style id="app-styles">
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: skyblue; margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .fade-in { animation: fadeIn 0.2s ease-in-out; }
+  .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
+  .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
+  .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+
+  .navbar { background-color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease; }
+  .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
+  .app-title { text-align: center; margin: 0; line-height: 1.2; }
+  .logo-main { font-family: 'Arial Black', Impact, sans-serif; font-size: 24px; color: #000080; letter-spacing: -0.5px; }
+  .logo-tag { font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
+
+  .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 200; transform-origin: top right;}
+  .dropdown.left { left: 10px; transform-origin: top left; }
+  .dropdown.right { right: 10px; }
+  .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
+  .dropdown a:hover { background-color: #f4f7f6; }
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(3px); }
+  .modal-content { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;}
+  .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; z-index: 10;}
+
+  #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: skyblue; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
+  .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
+  
+  .container { padding: 15px; max-width: 800px; margin: auto; position: relative;}
+  
+  .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
+  .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
+  .setup-box input, .setup-box select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: border 0.3s;}
+  .setup-box input:focus, .setup-box select:focus { border-color: #007bff; outline: none; }
+  .full-width { grid-column: span 2; }
+  .btn-generate { color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; margin-top: 15px; width: 100%;}
+  .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
+  .calendar-container { min-width: 700px; } 
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 14px; background: white; padding: 12px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; box-sizing: border-box;}
+  .blank-card { background: transparent; border: none; } 
+
+  .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
+  .bg-red { background-color: #dc3545 !important; border-color: #b02a37 !important; }
+  .bg-blue { background-color: #0d6efd !important; border-color: #0a58ca !important; } 
+  .bg-yellow { background-color: #ffc107 !important; border-color: #ffca2c !important; } 
+  .bg-gray { background-color: #858c93 !important; border-color: #6c757d !important; } 
+  .bg-dark-gray { background-color: #495057 !important; border-color: #343a40 !important; }
+  .double-saturday { border: 2px solid #dc3545 !important; box-shadow: inset 0 0 5px rgba(220,53,69,0.5); } 
+  .bg-green .date-label, .bg-red .date-label, .bg-blue .date-label, .bg-gray .date-label, .bg-dark-gray .date-label { color: white !important; }
+  .bg-yellow .date-label { color: #000 !important; } 
+  .bg-blue .double-label { color: #ffeb3b !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); } 
+  .date-label { display: block; font-size: 13px; font-weight: bold; color: #007bff;}
+  
+  .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none;}
+  .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
+  
+  .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
+  .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
+  .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
+  .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
+
+  .admin-search-box { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: box-shadow 0.3s;}
+  .admin-search-box:focus { box-shadow: 0 0 8px rgba(0,123,255,0.3); }
+  .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; transition: transform 0.3s ease;}
+  .admin-user-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+  .admin-user-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px;}
+  .admin-btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .admin-action-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; border: none; color: white; text-align: center;}
+  .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
+  .manage-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; font-size: 13px; background: white; margin-bottom: 6px; border-radius: 6px;}
+  .manage-btn-group button { border: none; padding: 6px 10px; border-radius: 5px; font-size: 11px; margin-left: 5px; font-weight: bold; color: white;}
+  .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
+  .btn-exp-pdf { background: #c2185b; } .btn-exp-excel { background: #198754; }
+
+  .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
+  @media(min-width: 600px) { .year-calendar-grid { grid-template-columns: 1fr 1fr; } }
+  .month-box { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.3s ease;}
+  .month-box:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+  .month-title { text-align: center; font-weight: bold; color: #000080; margin-bottom: 10px; font-size: 15px; }
+  .month-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 5px; }
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box; transition: transform 0.1s ease;}
+  .cal-day.empty { background: transparent; border: none; }
+  .cal-sun { color: #dc3545; font-weight: bold; }
+  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; cursor: pointer; border: 1px solid #ffca2c; box-shadow: 0 2px 4px rgba(255,193,7,0.4); }
+  .cal-holiday:active { transform: scale(0.9); }
+  .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; box-shadow: 0 2px 4px rgba(13,110,253,0.4); }
+
+  body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
+  .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+  .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
+  .dark-mode .dropdown a:hover { background-color: #333 !important; }
+  .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
+  .dark-mode .day-card { background: #2c2c2c !important; border-color: #444 !important; }
+  .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
+  .dark-mode .ui-summary-box { background-color: #1e1e1e !important; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
+  .dark-mode .ui-summary-box span { color: #ccc !important; } .dark-mode .ui-summary-box b { color: #fff !important; }
+  .dark-mode .ui-summary-box #grandTotal { color: #ff6b81 !important; }
+  .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
+  .dark-mode .day-card.bg-yellow .date-label { color: #ffda6a !important; }
+  .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
+  .dark-mode .double-saturday { border: 2px solid #ff6b81 !important; box-shadow: inset 0 0 5px rgba(255,107,129,0.5); } 
+  .dark-mode .month-box { background: #2c2c2c !important; border-color: #444 !important; }
+  .dark-mode .month-title { color: #82b1ff !important; }
+  .dark-mode .cal-day { background: #1e1e1e; border-color: #444; color: #e0e0e0; }
+  .dark-mode .cal-holiday { background-color: #664d03 !important; color: #ffda6a !important; border-color: #8f6c04; box-shadow: 0 2px 4px rgba(102,77,3,0.5); }
+  .dark-mode .cal-sun { color: #ff6b81; }
+  .dark-mode .admin-manage-section { background: #1e1e1e !important; border-color: #444 !important; }
+  .dark-mode .manage-list-item { background: #2c2c2c !important; border-color: #555 !important; }
+  .dark-mode .login-box { background: #1e1e1e !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+  .dark-mode #loginScreen { background-color: #121212 !important; }
+  .dark-mode .admin-user-card { background: #2c2c2c !important; border-color: #444 !important; }
+  .dark-mode .admin-search-box { background: #333 !important; color: #fff !important; border-color: #555 !important; }
+  .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
+  .profile-email-text { color: #666; font-size: 11px; }
+  .dark-mode .profile-name-text { color: #82b1ff !important; }
+  .dark-mode #rightMenu select { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
+
+  /* Print Styles */
+  #printArea { display: none; }
+  @media print { 
+      body { background: white !important; padding: 0; } 
+      #mainApp, #loginScreen, .modal-overlay, .navbar { display: none !important; } 
+      #printArea { display: block !important; width: 100%; color: black; } 
+      .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+      .print-header h2 { margin: 0 0 5px 0; color: #000; }
+      .print-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;} 
+      .print-table th, .print-table td { border: 1px solid #000; padding: 8px; text-align: center; } 
+      .print-table th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
+      .print-summary { width: 50%; border-collapse: collapse; float: right; margin-top: 10px; } 
+      .print-summary th, .print-summary td { border: 1px solid #000; padding: 6px; text-align: left;} 
+      .print-summary th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
+      .print-footer { clear: both; text-align: center; margin-top: 40px; font-size: 11px; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <h2 style="color: #000080; margin-bottom: 5px;" class="logo-main">CHICONY</h2>
+    <p style="font-size: 12px; color: #666; margin-top: 0;" class="logo-tag">ATTENDANCE SYSTEM</p>
+    <button class="google-btn interactive-btn" onclick="signIn()">Login with Google</button>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingSpinner" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:2000; display:none; justify-content:center; align-items:center; font-weight:bold; color:#000080;">Loading Data...</div>
+<div id="printArea"></div>
+
+<div id="mainApp" style="display: none;">
+  <div class="navbar">
+    <div style="display:flex; gap: 10px; align-items: center;">
+      <button class="menu-btn interactive-btn" onclick="toggleMenu('leftMenu')">☰</button>
+      <button class="dark-mode-btn interactive-btn" onclick="toggleDarkMode()" id="darkModeIcon">🌓</button>
+    </div>
+    
+    <div id="leftMenu" class="dropdown left fade-in">
+      <a href="#" onclick="openExportModal()" class="interactive-btn">📥 <span data-i18n="exportBtn">Export (Excel / PDF)</span></a>
+      <a href="#" onclick="openCalendarModal()" style="color: #17a2b8; font-weight:bold;" class="interactive-btn">📅 <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></a>
+      <a href="#" id="adminPanelBtn" onclick="openAdminPanel()" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;" class="interactive-btn">🔐 <span data-i18n="adminPanel">Admin Panel</span></a>
+    </div>
+    
+    <h2 class="app-title">
+      <span class="logo-main">Chicony <span id="titleShiftIcon" style="font-size: 20px;">☀️</span></span><br>
+      <span class="logo-tag" data-i18n="appSubtitle">Attendance & Salary</span>
+    </h2>
+    
+    <div style="display:flex; align-items: center; gap:5px;">
+      <button class="profile-btn interactive-btn" onclick="toggleMenu('rightMenu')">👤</button>
+    </div>
+    
+    <div id="rightMenu" class="dropdown right fade-in">
+      <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay"></div>
+      
+      <div style="padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 14px; color: #333;">🌍 <b data-i18n="langMenu">Language</b></span>
+          <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:4px; padding:4px; font-size:13px; outline:none; cursor:pointer; background: white;" class="interactive-btn">
+              <option value="my">🇲🇲 မြန်မာ</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="th">🇹🇭 ไทย (Thai)</option>
+          </select>
+      </div>
+
+      <a href="#" onclick="openSettings()" class="interactive-btn">⚙️ <span data-i18n="settings">Settings</span></a>
+      <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;" class="interactive-btn">🚪 <span data-i18n="logout">Logout</span></a>
+    </div>
+  </div>
+
+  <div class="container" onclick="closeMenusOnClickOutside(event)">
+    <div class="calendar-wrapper" id="calendarSection">
+      <div class="calendar-container">
+        <div class="weekdays" id="weekdaysHeader"></div>
+        <div class="calendar-grid" id="daysGrid"></div>
+      </div>
+    </div>
+
+    <div class="ui-summary-box hover-card" style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;"><span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;"><span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;"><span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b></div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px; color:#6610f2;">
+          <span><span data-i18n="foodOt">OT ဆင်းသောရက် ထမင်းဖိုး</span> (<span id="foodOtDays">0</span>)</span> <b id="foodOtTotal">0</b>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:#6610f2; border-bottom:1px solid #eee; padding-bottom: 4px;">
+          <span><span data-i18n="foodNoOt">OT မဆင်းသောရက် ထမင်းဖိုး</span> (<span id="foodNoOtDays">0</span>)</span> <b id="foodNoOtTotal">0</b>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b></div>
+
+      <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b></div>
+      <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightAllowance">စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0</b></div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
+      
+      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #ccc; font-size:18px; color:#dc3545;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#dc3545;">0</b></div>
+    </div>
+
+    <div class="developer-footer hover-card">
+      <div class="dev-name">👨‍💻 Developed by THET AUNG</div>
+      <div style="font-size: 12px; margin-bottom: 5px;" class="dev-contact">Contact for Support & Updates</div>
+      <div class="dev-contact">
+        <a href="http://line.me/ti/p/~678777705" target="_blank" class="interactive-btn">💬 LINE: 678777705</a>
+        <a href="https://t.me/ThetAung7777" target="_blank" class="interactive-btn">✈️ Telegram: @ThetAung7777</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="calendarModal">
+  <div class="modal-content pop-in" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
+    <button class="close-modal interactive-btn" onclick="closeCalendarModal()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #17a2b8;" class="logo-main">📅 <span id="calYearDisplay">2026</span> <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></h3>
+    <div style="text-align:center; font-size:11px; margin-bottom: 15px;">
+        <span style="display:inline-block; margin-right:10px;"><span style="background:#ffc107; padding:2px 8px; border-radius:3px; color:black;" data-i18n="holidayLbl">အဝါ (ပိတ်ရက်)</span></span>
+        <span style="display:inline-block;"><span style="background:#0d6efd; padding:2px 8px; border-radius:3px; color:white; border:1px solid #dc3545;" data-i18n="doubleLbl">အပြာ (နှစ်ဆရက်)</span></span>
+    </div>
+
+    <div id="adminCalendarControls" style="display:none;">
+        <div class="admin-manage-section">
+            <h4 style="margin:0 0 10px 0; font-size:14px; color:#dc3545;">🔧 Admin Controls</h4>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <select id="adminDateType" style="padding:6px; border-radius:4px; font-weight:bold;">
+                    <option value="holiday">🟨 Holiday</option>
+                    <option value="double">🟦 Double Day</option>
+                </select>
+                <input type="date" id="adminNewDate" style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc;">
+            </div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="adminNewDesc" placeholder="..." style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc;">
+                <button class="interactive-btn" onclick="addAdminDate()" style="background:#17a2b8; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">Save</button>
+            </div>
+        </div>
+        <div class="admin-manage-section" style="max-height: 200px; overflow-y:auto;">
+            <div id="adminManageList"></div>
+        </div>
+    </div>
+    <div id="yearCalendarContainer" class="year-calendar-grid"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-content pop-in">
+    <button class="close-modal interactive-btn" onclick="closeSettings()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #333;" class="logo-main" data-i18n="settings">⚙️ Settings</h3>
+    <div class="setup-box">
+      <div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div>
+      <div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div>
+      <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth" onchange="generateGrid(false)"></div>
+      <div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
+      <div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
+      <div class="full-width">
+        <label data-i18n="bonusLbl">ရက်မှန်ကြေး (Bonus)</label>
+        <select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;">
+          <option value="0">0</option>
+          <option value="500">500</option>
+          <option value="800">800</option>
+          <option value="1000">1000</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top: 20px;">
+      <button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px;" data-i18n="saveBtn">💾 သိမ်းမည်</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="exportModal">
+  <div class="modal-content pop-in">
+    <button class="close-modal interactive-btn" onclick="closeExportModal()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main" data-i18n="exportBtn">📤 Export</h3>
+    <div class="setup-box">
+      <div class="full-width"><label data-i18n="startDate">စတင်မည့်ရက်</label><input type="date" id="exportStartDate"></div>
+      <div class="full-width"><label data-i18n="endDate">အဆုံးသတ်ရက်</label><input type="date" id="exportEndDate"></div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top: 20px;">
+      <button class="btn-generate interactive-btn" onclick="exportExcel()" style="background:#198754; margin-top:0;">📊 Excel</button>
+      <button class="btn-generate interactive-btn" onclick="exportPDF()" style="background:#c2185b; margin-top:0;">📄 PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-content pop-in" style="max-width: 550px; max-height: 85vh; overflow-y: auto;">
+    <button class="close-modal interactive-btn" onclick="closeAdminPanel()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main">👨‍💼 Admin Panel</h3>
+    <input type="text" id="adminSearchInput" class="admin-search-box" placeholder="🔍 Search ID / Name" onkeyup="filterAdminUsers()">
+    <div style="display:flex; gap:10px; margin-bottom: 15px;">
+      <button class="btn-generate interactive-btn" onclick="exportAdminAll('excel')" style="background:#198754; margin-top:0; padding:8px;">📊 Export All (Excel)</button>
+      <button class="btn-generate interactive-btn" onclick="exportAdminAll('pdf')" style="background:#c2185b; margin-top:0; padding:8px;">📄 Export All (PDF)</button>
+    </div>
+    <div id="adminUserList" style="margin-top: 10px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminUserDetailModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
+    <button class="close-modal interactive-btn" onclick="closeAdminUserDetail()">×</button>
+    <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main" id="detailModalName">Detail</h3>
+    <div id="adminDetailContent"></div>
+  </div>
+</div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -473,7 +815,9 @@
       
       document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ฿`;
       
-      saveToFirebase(); 
+      if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) {
+          saveToFirebase(); 
+      }
   };
 
   window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uMedCount=0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let status = record.status; let shift = record.shift; let leaveType = record.leaveType; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓'); if (status === '-') { if (isAdminHoliday) { uTotalPay += wage; } } else if (status === '✓') { uWork++; let bPay = wage; if (isAdminHoliday || isAdminDouble) { bPay = wage * 2; uDouble++; } dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') { if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; } else { uAbsent++; } } } } let totalAbs = uAbsent + uMedCount; let uBonus = (totalAbs > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#dc3545; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Est. Salary: ${uTotalPay.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">Total Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
