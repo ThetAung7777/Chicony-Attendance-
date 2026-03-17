@@ -430,7 +430,7 @@
       document.getElementById('weekdaysHeader').innerHTML = `<div style="color:#dc3545;">${days[0]}</div><div>${days[1]}</div><div>${days[2]}</div><div>${days[3]}</div><div>${days[4]}</div><div>${days[5]}</div><div style="color:#007bff;">${days[6]}</div>`;
   }
 
-  // ★ ၂၁ ရက်နေ့ရောက်ပါက အလိုအလျောက် လအသစ်သို့ ပြောင်းပေးမည့် စနစ် ★
+  // ★ System ၏ လက်ရှိလကို တွက်ချက်ပေးမည့် Function ★
   window.getRealCurrentMonth = () => {
       let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1;
       if (d.getDate() >= 21) { realM++; if(realM > 12) { realM = 1; realY++; } }
@@ -452,14 +452,14 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ Login Loop ဖြစ်ခြင်းကို ဖြေရှင်းရန် Popup စနစ်သို့ ပြန်လည်ပြောင်းလဲထားပါသည် ★
+  // ★ Popup ကို အသုံးပြုထားပါသည် ★
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
       signInWithPopup(auth, provider).then(() => {
           document.getElementById('loadingSpinner').style.display = 'none';
       }).catch((error) => {
           document.getElementById('loadingSpinner').style.display = 'none';
-          alert("Login Error: " + error.message + "\n\n(Browser History မှ Cached files များကို ရှင်းလင်းပြီး ပြန်လည်ဝင်ရောက်ကြည့်ပါဗျ)");
+          alert("Login Error: " + error.message);
       });
   };
 
@@ -496,7 +496,6 @@
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
 
-  // ★ ရှေ့လတွင် ပျက်ရက်ရှိမရှိ စစ်ဆေးမည့် Function ★
   window.checkAbsencesForMonth = (yyyy_mm) => {
       if (!appData.attendance) return false;
       let parts = yyyy_mm.split('-'); let y = parseInt(parts[0]); let m = parseInt(parts[1]);
@@ -523,7 +522,7 @@
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
               
-              // ★ Auto Bonus စနစ် ★
+              // ★ Auto Bonus စနစ် (နောက်ကွယ်တွင် အလိုအလျောက် စစ်ဆေးမည်) ★
               let lastBonusMonth = appData.settings.lastBonusMonth || "";
               if (lastBonusMonth !== realCurrentMonthStr) {
                   let [cY, cM] = realCurrentMonthStr.split('-').map(Number);
@@ -544,9 +543,12 @@
                   set(ref(db, 'users/' + currentUser.uid + '/settings'), appData.settings); 
               }
               
+              // ★ အရေးကြီး: User ရွေးခဲ့သော နောက်ဆုံးလကိုသာ ပြန်ခေါ်ပေးမည် ★
+              let savedMonth = appData.settings.selectedMonth || realCurrentMonthStr;
+
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
-              document.getElementById('selectedMonth').value = realCurrentMonthStr; 
+              document.getElementById('selectedMonth').value = savedMonth; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
               document.getElementById('attBonusSetting').value = appData.settings.attBonusSetting || "0";
@@ -623,10 +625,11 @@
   window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
   window.openSettings = () => { document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
 
-  // ★ Name နှင့် ID မဖြည့်ပါက Settings Box ကို ပိတ်ခွင့်မပေးသည့် စနစ် ★
   window.closeSettings = () => { 
       let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
       if (nameInput === "" || idInput === "") { alert(translations[currentLang].reqBoth); return; }
+      
+      saveToFirebase(); // Settings ကို ပိတ်လိုက်တိုင်း Save မည်
       document.getElementById('settingsModal').style.display = 'none'; 
   };
   
@@ -825,10 +828,8 @@
       
       document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ฿`;
       
-      // လက်ရှိလ ဖြစ်မှသာ Auto Save လုပ်မည်
-      if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) {
-          saveToFirebase(); 
-      }
+      // ★ ဘယ်လကိုပဲ ရွေးထားရွေးထား၊ မှတ်လိုက်တိုင်း Auto Save လုပ်ပါမည် ★
+      saveToFirebase(); 
   };
 
   window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uMedCount=0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let status = record.status; let shift = record.shift; let leaveType = record.leaveType; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓'); if (status === '-') { if (isAdminHoliday) { uTotalPay += wage; } } else if (status === '✓') { uWork++; let bPay = wage; if (isAdminHoliday || isAdminDouble) { bPay = wage * 2; uDouble++; } dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') { if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; } else { uAbsent++; } } } } let totalAbs = uAbsent + uMedCount; let uBonus = (totalAbs > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#dc3545; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Est. Salary: ${uTotalPay.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">Total Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
