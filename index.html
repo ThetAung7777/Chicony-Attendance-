@@ -340,9 +340,10 @@
     <div id="adminDetailContent"></div>
   </div>
 </div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -359,6 +360,9 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
   const provider = new GoogleAuthProvider();
+
+  // ★ ဖုန်းများတွင် အကောင့်ထွက်မသွားစေရန် Persistence သတ်မှတ်ခြင်း ★
+  setPersistence(auth, browserLocalPersistence);
 
   let currentUser = null;
   const ADMIN_EMAIL = "ta.mmw.13.4.2018@gmail.com"; 
@@ -426,6 +430,7 @@
       document.getElementById('weekdaysHeader').innerHTML = `<div style="color:#dc3545;">${days[0]}</div><div>${days[1]}</div><div>${days[2]}</div><div>${days[3]}</div><div>${days[4]}</div><div>${days[5]}</div><div style="color:#007bff;">${days[6]}</div>`;
   }
 
+  // ★ ၂၁ ရက်နေ့ရောက်ပါက အလိုအလျောက် လအသစ်သို့ ပြောင်းပေးမည့် စနစ် ★
   window.getRealCurrentMonth = () => {
       let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1;
       if (d.getDate() >= 21) { realM++; if(realM > 12) { realM = 1; realY++; } }
@@ -447,33 +452,26 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ အကောင့်ဝင်သည့်စနစ်ကို အသေအချာ ပြင်ဆင်ရေးသားထားပါသည် ★
-  document.getElementById('loadingSpinner').style.display = 'flex'; // အစဖွင့်ဖွင့်ချင်း Loading ပြမည်
-  
-  setPersistence(auth, browserLocalPersistence).then(() => {
-      return getRedirectResult(auth);
-  }).catch((error) => {
-      document.getElementById('loadingSpinner').style.display = 'none';
-      alert("Authentication Error: " + error.message);
-  });
-
+  // ★ Login Loop ဖြစ်ခြင်းကို ဖြေရှင်းရန် Popup စနစ်သို့ ပြန်လည်ပြောင်းလဲထားပါသည် ★
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
-      signInWithRedirect(auth, provider); // PWA အတွက် အကောင်းဆုံး Redirect ကိုသာ အသုံးပြုမည်
+      signInWithPopup(auth, provider).then(() => {
+          document.getElementById('loadingSpinner').style.display = 'none';
+      }).catch((error) => {
+          document.getElementById('loadingSpinner').style.display = 'none';
+          alert("Login Error: " + error.message + "\n\n(Browser History မှ Cached files များကို ရှင်းလင်းပြီး ပြန်လည်ဝင်ရောက်ကြည့်ပါဗျ)");
+      });
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
 
   onAuthStateChanged(auth, (user) => {
-      document.getElementById('loadingSpinner').style.display = 'none'; // အကောင့်အခြေအနေ သိသည်နှင့် Loading ပိတ်မည်
       if (user) {
           currentUser = user; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block';
           document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
           if(user.email === ADMIN_EMAIL) { document.getElementById('adminPanelBtn').style.display = 'flex'; document.getElementById('adminCalendarControls').style.display = 'block'; }
           loadGlobalCalendar(); loadFromFirebase();
-      } else { 
-          document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; 
-      }
+      } else { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
   });
 
   window.saveToFirebase = () => {
@@ -498,6 +496,7 @@
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
 
+  // ★ ရှေ့လတွင် ပျက်ရက်ရှိမရှိ စစ်ဆေးမည့် Function ★
   window.checkAbsencesForMonth = (yyyy_mm) => {
       if (!appData.attendance) return false;
       let parts = yyyy_mm.split('-'); let y = parseInt(parts[0]); let m = parseInt(parts[1]);
@@ -524,6 +523,7 @@
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
               
+              // ★ Auto Bonus စနစ် ★
               let lastBonusMonth = appData.settings.lastBonusMonth || "";
               if (lastBonusMonth !== realCurrentMonthStr) {
                   let [cY, cM] = realCurrentMonthStr.split('-').map(Number);
@@ -630,7 +630,6 @@
       document.getElementById('settingsModal').style.display = 'none'; 
   };
   
-  // ★ Save လုပ်မည့်အချိန် Validation စစ်ဆေးခြင်း ★
   window.updateSettings = () => { 
       let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
       if(nameInput === "") { alert(translations[currentLang].reqName); return; }
@@ -826,6 +825,7 @@
       
       document.getElementById('grandTotal').innerText = `${total.toLocaleString()} ฿`;
       
+      // လက်ရှိလ ဖြစ်မှသာ Auto Save လုပ်မည်
       if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) {
           saveToFirebase(); 
       }
