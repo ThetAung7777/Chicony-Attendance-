@@ -75,6 +75,7 @@
   .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
   .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
 
+  /* Admin CSS */
   .admin-search-box { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: box-shadow 0.3s;}
   .admin-search-box:focus { box-shadow: 0 0 8px rgba(0,123,255,0.3); }
   .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; transition: transform 0.3s ease;}
@@ -120,6 +121,7 @@
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
 
+  /* ★ Print Layout အသေအချာပြင်ဆင်ခြင်း ★ */
   #printArea { display: none; }
   @media print { 
       body { background: white !important; padding: 0; margin: 0; } 
@@ -288,9 +290,6 @@
     <div class="setup-box">
       <div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div>
       <div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div>
-      
-      <div class="full-width"><label data-i18n="deptLbl">ဌာန (Department)</label><input type="text" id="empDept" placeholder="Department" value="MKB MFG FA(LH)" oninput="saveToFirebase()"></div>
-      
       <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth" onchange="generateGrid(false)"></div>
       <div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
       <div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
@@ -343,9 +342,10 @@
     <div id="adminDetailContent"></div>
   </div>
 </div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -385,11 +385,11 @@
           otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)",
           transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)",
           totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", ot20: "OT 2.0 %",
-          netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)",
+          netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)",
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
           startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!",
           holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑",
-          salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", empNo: "ဝန်ထမ်းနံပါတ်", name: "အမည်", dept: "ဌာန", netToPay: "အသားတင်လစာ", income: "ဝင်ငွေ", amount: "ပမာဏ", deduction: "ဖြတ်ငွေ", basic: "အခြေခံလစာ", food: "ထမင်းဖိုး", pubHol: "အစိုးရရုံးပိတ်ရက်", medLeave: "ဆေးခွင့်", totalInc: "စုစုပေါင်း ဝင်ငွေ", sso: "ပကန်စံခွန်း (SSO)", totalDed: "စုစုပေါင်း ဖြတ်ငွေ"
+          salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", empNo: "ဝန်ထမ်းနံပါတ်", name: "အမည်", dept: "ဌာန", period: "လစာကာလ", netToPay: "အသားတင်လစာ", income: "ဝင်ငွေ", amount: "ပမာဏ", deduction: "ဖြတ်ငွေ", basic: "အခြေခံလစာ", food: "ထမင်းဖိုး", pubHol: "အစိုးရရုံးပိတ်ရက်", medLeave: "ဆေးခွင့်", totalInc: "စုစုပေါင်း ဝင်ငွေ", sso: "ပကန်စံခွန်း (SSO)", totalDed: "စုစုပေါင်း ဖြတ်ငွေ"
       },
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -397,11 +397,11 @@
           otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance",
           transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus",
           totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", ot20: "OT 2.0 %",
-          netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department",
+          netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID",
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
           startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!",
           holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑",
-          salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", empNo: "Emp. No.", name: "Name-Surname", dept: "Dept.", netToPay: "Net to Pay", income: "Income", amount: "Amount", deduction: "Deduction", basic: "Basic Salary", food: "Food Allowance", pubHol: "Public Holiday", medLeave: "Medical Leave", totalInc: "Total Income", sso: "Social Security (SSO)", totalDed: "Total Deduction"
+          salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", empNo: "Emp. No.", name: "Name-Surname", dept: "Dept.", period: "Period", netToPay: "Net to Pay", income: "Income", amount: "Amount", deduction: "Deduction", basic: "Basic Salary", food: "Food Allowance", pubHol: "Public Holiday", medLeave: "Medical Leave", totalInc: "Total Income", sso: "Social Security (SSO)", totalDed: "Total Deduction"
       },
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
@@ -409,11 +409,11 @@
           otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน",
           transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "ค่าเบี้ยขยัน",
           totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", ot20: "OT 2.0 %",
-          netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก",
+          netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน",
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
           startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!",
           holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑",
-          salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", empNo: "เลขพนักงาน", name: "ชื่อ-นามสกุล", dept: "แผนก", netToPay: "เงินได้สุทธิ", income: "รายได้", amount: "จำนวนเงิน", deduction: "รายการหัก", basic: "ฐานเงินเดือน", food: "ค่าอาหาร", pubHol: "ค่าจ้างวันหยุดนักขัตฤกษ์", medLeave: "ค่าจ้างลาป่วย", totalInc: "รายได้รวม", sso: "ประกันสังคม(SSO)", totalDed: "รายการหักรวม"
+          salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", empNo: "เลขพนักงาน", name: "ชื่อ-นามสกุล", dept: "แผนก", period: "ประจำงวด", netToPay: "เงินได้สุทธิ", income: "รายได้", amount: "จำนวนเงิน", deduction: "รายการหัก", basic: "ฐานเงินเดือน", food: "ค่าอาหาร", pubHol: "ค่าจ้างวันหยุดนักขัตฤกษ์", medLeave: "ค่าจ้างลาป่วย", totalInc: "รายได้รวม", sso: "ประกันสังคม(SSO)", totalDed: "รายการหักรวม"
       }
   };
 
@@ -459,17 +459,14 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ PWA Login ကို အဆင်ပြေစေရန် Redirect စနစ်ကို အသုံးပြုထားပါသည် ★
-  getRedirectResult(auth).then((result) => {
-      if(result) { document.getElementById('loadingSpinner').style.display = 'none'; }
-  }).catch((error) => {
-      document.getElementById('loadingSpinner').style.display = 'none';
-      alert("Login Error: " + error.message);
-  });
-
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
-      signInWithRedirect(auth, provider); 
+      signInWithPopup(auth, provider).then(() => {
+          document.getElementById('loadingSpinner').style.display = 'none';
+      }).catch((error) => {
+          document.getElementById('loadingSpinner').style.display = 'none';
+          alert("Login Error: " + error.message);
+      });
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
@@ -486,13 +483,9 @@
   window.saveToFirebase = () => {
       if (!currentUser || !isDataLoaded) return; 
       appData.settings = {
-          empName: document.getElementById('empName').value, 
-          empId: document.getElementById('empId').value,
-          empDept: document.getElementById('empDept').value, // ဌာန
-          selectedMonth: document.getElementById('selectedMonth').value, 
-          dailyWage: document.getElementById('dailyWage').value,
-          otRate: document.getElementById('otRate').value, 
-          attBonusSetting: document.getElementById('attBonusSetting').value,
+          empName: document.getElementById('empName').value, empId: document.getElementById('empId').value,
+          selectedMonth: document.getElementById('selectedMonth').value, dailyWage: document.getElementById('dailyWage').value,
+          otRate: document.getElementById('otRate').value, attBonusSetting: document.getElementById('attBonusSetting').value,
           lastBonusMonth: appData.settings?.lastBonusMonth || window.getRealCurrentMonth()
       }; 
       if (!appData.attendance) appData.attendance = {};
@@ -558,7 +551,6 @@
 
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
-              document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; 
               document.getElementById('selectedMonth').value = savedMonth; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
@@ -567,16 +559,11 @@
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(false); 
           } else {
-              // ★ အကောင့်သစ် (သို့) Data မရှိပါက Settings Box ကို Timeout ဖြင့် ပေါ်စေမည် (Timing Issue ဖြေရှင်းရန်) ★
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
-              document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(true); 
               
-              setTimeout(() => {
-                  document.getElementById('settingsModal').style.display = 'flex';
-                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; // မဖြည့်မနေရ
-              }, 500); // 0.5 စက္ကန့် စောင့်ပြီးမှ ပေါ်စေမည်
+              openSettings(); document.querySelector('#settingsModal .close-modal').style.display = 'none';
           }
       }, { onlyOnce: true });
   }
@@ -639,12 +626,7 @@
   window.closeCalendarModal = () => document.getElementById('calendarModal').style.display = 'none';
   window.toggleMenu = (id) => { let el = document.getElementById(id); let isVisible = el && el.style.display === 'flex'; document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; if(id && !isVisible) el.style.display='flex'; };
   window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
-  
-  window.openSettings = () => { 
-      document.getElementById('settingsModal').style.display = 'flex'; 
-      document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
-      toggleMenu(null); 
-  };
+  window.openSettings = () => { document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
 
   window.closeSettings = () => { 
       let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
@@ -657,7 +639,6 @@
       let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
       if(nameInput === "") { alert(translations[currentLang].reqName); return; }
       if(idInput === "") { alert(translations[currentLang].reqId); return; }
-      
       saveToFirebase(); calculateAll(); 
       document.getElementById('settingsModal').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
@@ -921,9 +902,8 @@
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
-      let rawDept = document.getElementById('empDept').value;
-      let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
+      // ★ Period Calculation Fix ★
       let [pY, pM] = d.period.split('-');
       let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       let startMIdx = parseInt(pM) - 1; 
@@ -960,12 +940,14 @@
                     <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.empNo}</th>
                     <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.name}</th>
                     <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.dept}</th>
+                    <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.period}</th>
                     <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.netToPay}</th>
                 </tr>
                 <tr>
                     <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${empId}</td>
                     <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${name}</td>
-                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${displayDept}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">MKB MFG FA(LH)</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${d.period.replace('-','/')}</td>
                     <td style="border: 1px solid #ccc; padding: 6px; text-align: center; font-weight:bold; font-size: 12px; color: #198754;">${d.net.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 </tr>
             </table>
