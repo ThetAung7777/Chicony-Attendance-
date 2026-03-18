@@ -343,7 +343,6 @@
     <div id="adminDetailContent"></div>
   </div>
 </div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -460,6 +459,7 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
+  // ★ PWA Login ကို အဆင်ပြေစေရန် Redirect စနစ်ကို အသုံးပြုထားပါသည် ★
   getRedirectResult(auth).then((result) => {
       if(result) { document.getElementById('loadingSpinner').style.display = 'none'; }
   }).catch((error) => {
@@ -488,7 +488,7 @@
       appData.settings = {
           empName: document.getElementById('empName').value, 
           empId: document.getElementById('empId').value,
-          empDept: document.getElementById('empDept').value, // ဌာန သိမ်းမည်
+          empDept: document.getElementById('empDept').value, // ဌာန
           selectedMonth: document.getElementById('selectedMonth').value, 
           dailyWage: document.getElementById('dailyWage').value,
           otRate: document.getElementById('otRate').value, 
@@ -558,7 +558,7 @@
 
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
-              document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; // Default ဌာန
+              document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; 
               document.getElementById('selectedMonth').value = savedMonth; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
@@ -567,15 +567,16 @@
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(false); 
           } else {
-              // ★ အကောင့်သစ် (သို့) Data မရှိပါက Settings Box အလိုလို ကျလာမည် ★
+              // ★ အကောင့်သစ် (သို့) Data မရှိပါက Settings Box ကို Timeout ဖြင့် ပေါ်စေမည် (Timing Issue ဖြေရှင်းရန်) ★
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
-              document.getElementById('empDept').value = "MKB MFG FA(LH)"; // Default ပေးထားမည်
+              document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(true); 
               
-              openSettings(); 
-              // မဖြစ်မနေဖြည့်ရန် Close ခလုတ်ကို ဖျောက်ထားမည်
-              document.querySelector('#settingsModal .close-modal').style.display = 'none';
+              setTimeout(() => {
+                  document.getElementById('settingsModal').style.display = 'flex';
+                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; // မဖြည့်မနေရ
+              }, 500); // 0.5 စက္ကန့် စောင့်ပြီးမှ ပေါ်စေမည်
           }
       }, { onlyOnce: true });
   }
@@ -641,7 +642,6 @@
   
   window.openSettings = () => { 
       document.getElementById('settingsModal').style.display = 'flex'; 
-      // ပြန်ဖွင့်တဲ့အခါ Close button ပြန်ဖော်ပေးမယ် (အကောင့်ဟောင်းဆိုရင်)
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
       toggleMenu(null); 
   };
@@ -916,14 +916,11 @@
       saveToFirebase();
   };
 
-  // ★ Salary Slip Generating (၄ ကွက်တည်းပါသော ဇယား နှင့် ဌာနစနစ်) ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
-      
-      // ဌာန (Department) ကို ယူမည်။ မရှိပါက "-" ပြမည်။
       let rawDept = document.getElementById('empDept').value;
       let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
