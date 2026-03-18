@@ -842,11 +842,8 @@
       
       let otHrs = ot15Hrs + ot20Hrs;
 
-      // ★ SSO Calculation: Basic Salary + Public Holiday Pay + Med Leave Pay + Fixed Food Allowance ★
       let regularFoodAllowance = work * 30; 
       let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
-      
-      // SSO Deduction capped at max 750 THB per Thai Labor Law
       let rawSso = Math.round(ssoBaseAmount * 0.05);
       let ssoDeduction = Math.min(rawSso, 750); 
       
@@ -900,19 +897,25 @@
       saveToFirebase();
   };
 
-  // ★ Salary Slip Generating ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
       
-      // ★ Period ကို လအမည်ပြောင်းပေးသည့် စနစ် ★
+      // ★ Period Calculation Fix ★
       let [pY, pM] = d.period.split('-');
       let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      let cMIdx = parseInt(pM) - 1;
-      let pMIdx = cMIdx === 0 ? 11 : cMIdx - 1;
-      let periodHeaderStr = `${engMonths[pMIdx]} 21 - ${engMonths[cMIdx]} 20, ${pY}`;
+      let startMIdx = parseInt(pM) - 1; 
+      let endMIdx = startMIdx + 1; 
+      let endY = parseInt(pY);
+      
+      if(endMIdx > 11) {
+          endMIdx = 0;
+          endY++;
+      }
+      
+      let periodHeaderStr = `${engMonths[startMIdx]} 21 - ${engMonths[endMIdx]} 20, ${endY}`;
 
       let html = `
         <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
