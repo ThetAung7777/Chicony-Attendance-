@@ -101,13 +101,6 @@
   .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; cursor: pointer; border: 1px solid #ffca2c;}
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
 
-  /* ★ Salary Slip CSS (Print အတွက် သေချာပြင်ဆင်ထားသည်) ★ */
-  .slip-container { font-family: 'Segoe UI', Tahoma, sans-serif; background: white; padding: 15px; color: black; font-size: 11px; width: 100%; box-sizing: border-box;}
-  .slip-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 8px;}
-  .slip-logo { font-size: 24px; font-weight: bold; color: #004488; font-family: 'Arial Black', Impact, sans-serif; margin: 0; line-height: 1;}
-  .slip-company { font-size: 9px; text-align: right; color: #555; }
-  .slip-title { text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 10px;}
-  
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
@@ -128,17 +121,15 @@
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
 
-  /* ★ Print/PDF ထုတ်ရာတွင် Layout မပျက်စေရန် အသေအချာပြင်ဆင်ထားသော CSS ★ */
+  /* ★ Print Layout အသေအချာပြင်ဆင်ခြင်း ★ */
+  #printArea { display: none; }
   @media print { 
-      body * { display: none !important; } 
-      #slipModal, #slipModal * { display: block !important; } 
-      #slipModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; margin: 0; padding: 0;}
-      .close-modal, button[onclick="printSlipArea()"], .modal-content h3 { display: none !important; }
-      .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; }
-      .slip-container { padding: 10px !important; width: 100%; box-sizing: border-box; font-size: 10px;}
-      table { page-break-inside: avoid; width: 100%; border-collapse: collapse; }
-      td, th { display: table-cell !important; border: 1px solid #ccc; }
-      tr { display: table-row !important; }
+      body { background: white !important; padding: 0; margin: 0; } 
+      #mainApp, #loginScreen, #slipModal, .modal-overlay { display: none !important; } 
+      #printArea { display: block !important; width: 100%; color: black; font-size: 12px; }
+      table { border-collapse: collapse; width: 100%; page-break-inside: avoid; }
+      th, td { border: 1px solid #ccc; padding: 6px; }
+      th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       @page { margin: 0.5cm; }
   }
 </style>
@@ -154,6 +145,8 @@
 </div>
 
 <div class="loading-overlay" id="loadingSpinner" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:2000; display:none; justify-content:center; align-items:center; font-weight:bold; color:#000080;">Loading Data...</div>
+
+<div id="printArea"></div>
 
 <div id="mainApp" style="display: none;">
   <div class="navbar">
@@ -244,8 +237,8 @@
 </div>
 
 <div class="modal-overlay" id="slipModal" style="z-index: 500;">
-  <div class="modal-content pop-in" style="max-width: 600px; padding:0; overflow:hidden; background: #fff;">
-    <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center;">
+  <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff; overflow-y: auto; overflow-x: hidden; max-height: 90vh;">
+    <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
         <h3 style="margin:0; font-size: 15px;">🧾 <span data-i18n="slipTitle">ใบแจ้งเงินเดือน / Pay slip</span></h3>
         <div>
             <button class="interactive-btn" onclick="printSlipArea()" style="background: white; color: #004488; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; margin-right: 10px; font-size: 12px;">🖨️ Print</button>
@@ -253,7 +246,7 @@
         </div>
     </div>
     
-    <div id="slipPrintArea" class="slip-container">
+    <div id="slipPrintArea" style="width: 100%; box-sizing: border-box; padding: 15px;">
         </div>
   </div>
 </div>
@@ -352,7 +345,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -370,6 +363,8 @@
   const db = getDatabase(app);
   const provider = new GoogleAuthProvider();
 
+  setPersistence(auth, browserLocalPersistence);
+
   let currentUser = null;
   const ADMIN_EMAIL = "ta.mmw.13.4.2018@gmail.com"; 
   let appData = { settings: {}, attendance: {} };
@@ -383,6 +378,7 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
+  // ★ Translation များကို အသေအချာ ပြင်ဆင်ချိတ်ဆက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -464,17 +460,14 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ လုံခြုံရေးအရ PWA တွင် ပိတ်ခံရသောကြောင့် Redirect စနစ်ကို အသေအချာ ပြန်လည်အသုံးပြုထားပါသည် ★
-  getRedirectResult(auth).then((result) => {
-      if(result) { document.getElementById('loadingSpinner').style.display = 'none'; }
-  }).catch((error) => {
-      document.getElementById('loadingSpinner').style.display = 'none';
-      alert("Login Error: " + error.message);
-  });
-
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
-      signInWithRedirect(auth, provider); 
+      signInWithPopup(auth, provider).then(() => {
+          document.getElementById('loadingSpinner').style.display = 'none';
+      }).catch((error) => {
+          document.getElementById('loadingSpinner').style.display = 'none';
+          alert("Login Error: " + error.message);
+      });
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
@@ -897,6 +890,7 @@
       if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) { saveToFirebase(); }
   };
 
+  // ★ Salary Slip Generating (Print Layout ကို အသေအချာပြင်ဆင်ထားသည်) ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
@@ -904,7 +898,7 @@
       let empId = document.getElementById('empId').value || '-';
 
       let html = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; background: #fff;">
+        <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
             <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
                 <table style="width: 100%; border: none;">
                     <tr>
@@ -985,10 +979,16 @@
       `;
       
       document.getElementById('slipPrintArea').innerHTML = html;
+      
+      // Print နှိပ်သည့်အခါ ပြသရန်အတွက်လည်း သီးသန့် Area ထဲ ထည့်ပေးမည်
+      document.getElementById('printArea').innerHTML = html; 
+
       document.getElementById('slipModal').style.display = 'flex';
   };
 
   window.closeSlipModal = () => { document.getElementById('slipModal').style.display = 'none'; };
+  
+  // ★ Print နှိပ်လျှင် Layout မပျက်အောင် Print Area သီးသန့်ထုတ်ပေးမည် ★
   window.printSlipArea = () => { window.print(); };
 
   window.openAdminPanel = () => { document.getElementById('adminModal').style.display = 'flex'; document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; document.getElementById('adminSearchInput').value = ''; toggleMenu(null); get(ref(db, 'users')).then((snapshot) => { if (snapshot.exists()) { let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; for (let uid in allUsers) { let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue; totalEmployees++; let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; let uWork = 0, uAbsent = 0, uMedCount=0, uOtHrs = 0, uDouble = 0, uTotalPay = 0; if (uData.attendance) { for (let dateKey in uData.attendance) { let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let status = record.status; let shift = record.shift; let leaveType = record.leaveType; let otStatus = record.ot; let otVal = parseFloat(record.otHours) || 0; let dPay = 0, fPay = 0; let isDoubleDay = isAdminDouble || (isAdminHoliday && status === '✓'); if (status === '-') { if (isAdminHoliday) { uTotalPay += wage; } } else if (status === '✓') { uWork++; let bPay = wage; if (isAdminHoliday || isAdminDouble) { bPay = wage * 2; uDouble++; } dPay += bPay + 40; if (shift === 'night') dPay += 100; if (otStatus === 'yes') { fPay = 60; uOtHrs += otVal; dPay += (otVal * otRate); } else { fPay = 30; } dPay += fPay; uTotalPay += dPay; } else if (status === 'x') { if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; } else { uAbsent++; } } } } let totalAbs = uAbsent + uMedCount; let uBonus = (totalAbs > 0) ? 0 : bonusSetting; uTotalPay += uBonus; grandTotalSalary += uTotalPay; uData.calculatedTotal = uTotalPay; userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#dc3545; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Est. Salary: ${uTotalPay.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; } let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#dc3545; font-size:16px; margin-top:8px;">Total Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); };
