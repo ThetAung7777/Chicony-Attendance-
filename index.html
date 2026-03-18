@@ -378,7 +378,6 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
-  // ★ Translation များကို အသေအချာ ပြင်ဆင်ချိတ်ဆက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -827,7 +826,6 @@
               }
               c.classList.add('bg-gray');
           } else {
-              // ★ "ရွေးရန်..." ကို ပြန်နှိပ်လိုက်လျှင် Reset ဖြစ်အောင် လုပ်ပေးခြင်း ★
               info.innerHTML = "-"; doubleLbl.innerText = '';
           }
           c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
@@ -844,13 +842,16 @@
       
       let otHrs = ot15Hrs + ot20Hrs;
 
+      // ★ SSO Calculation: Basic Salary + Public Holiday Pay + Med Leave Pay + Fixed Food Allowance ★
       let regularFoodAllowance = work * 30; 
-      let ssoBaseAmount = slipBasicSalary + regularFoodAllowance;
-      let ssoDeduction = Math.round(ssoBaseAmount * 0.05); 
+      let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
+      
+      // SSO Deduction capped at max 750 THB per Thai Labor Law
+      let rawSso = Math.round(ssoBaseAmount * 0.05);
+      let ssoDeduction = Math.min(rawSso, 750); 
       
       let netSalary = total - ssoDeduction;
 
-      // ★ Slip Data မှတ်သားခြင်း (Holiday နှင့် Medical Leave ကို သီးသန့်ခွဲထားသည်) ★
       window.currentSlipData = {
           basicSalary: slipBasicSalary,
           food: regularFoodAllowance,
@@ -896,15 +897,22 @@
       document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`;
       document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
       
-      // ★ အမြဲတမ်း Auto Save လုပ်မည် ★
       saveToFirebase();
   };
 
+  // ★ Salary Slip Generating ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
+      
+      // ★ Period ကို လအမည်ပြောင်းပေးသည့် စနစ် ★
+      let [pY, pM] = d.period.split('-');
+      let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      let cMIdx = parseInt(pM) - 1;
+      let pMIdx = cMIdx === 0 ? 11 : cMIdx - 1;
+      let periodHeaderStr = `${engMonths[pMIdx]} 21 - ${engMonths[cMIdx]} 20, ${pY}`;
 
       let html = `
         <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
@@ -917,7 +925,7 @@
                         <td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">
                             บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>
                             82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br>
-                            Tax ID: 0105531002351 Tel: 038-533388
+                            <b>Salary Period: ${periodHeaderStr}</b>
                         </td>
                     </tr>
                 </table>
