@@ -461,11 +461,10 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ Popup ကို သုံးထားသောကြောင့် Timing Error မဖြစ်အောင် ထိန်းချုပ်ထားပါသည် ★
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
       signInWithPopup(auth, provider).then(() => {
-          // Success
+          // Login Success
       }).catch((error) => {
           document.getElementById('loadingSpinner').style.display = 'none';
           alert("Login Error: " + error.message);
@@ -488,7 +487,7 @@
       appData.settings = {
           empName: document.getElementById('empName').value, 
           empId: document.getElementById('empId').value,
-          empDept: document.getElementById('empDept').value, // ဌာန သိမ်းမည်
+          empDept: document.getElementById('empDept').value,
           selectedMonth: document.getElementById('selectedMonth').value, 
           dailyWage: document.getElementById('dailyWage').value,
           otRate: document.getElementById('otRate').value, 
@@ -558,7 +557,7 @@
 
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
-              document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; // Default ဌာန
+              document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; 
               document.getElementById('selectedMonth').value = savedMonth; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
@@ -567,17 +566,15 @@
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(false); 
           } else {
-              // ★ အကောင့်သစ် (သို့) Data မရှိပါက Settings Box အလိုလို ကျလာမည် ★
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
-              document.getElementById('empDept').value = "MKB MFG FA(LH)"; // Default ပေးထားမည်
+              document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(true); 
               
               setTimeout(() => {
                   document.getElementById('settingsModal').style.display = 'flex';
-                  // Close ခလုတ်ဖျောက်ထားမည် (မဖြစ်မနေ ဖြည့်ရန် သို့မဟုတ် Logout ထွက်ရန်)
-                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; 
-              }, 500);
+                  document.querySelector('#settingsModal .close-modal').style.display = 'none';
+              }, 500); 
           }
       }, { onlyOnce: true });
   }
@@ -864,8 +861,12 @@
 
       let regularFoodAllowance = work * 30; 
       let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
-      let rawSso = Math.round(ssoBaseAmount * 0.05);
-      let ssoDeduction = Math.min(rawSso, 750); 
+      
+      // ★ SSO .5 Round Up Calculation ★
+      // JS တွင် Math.round သည် .5 ကို အပေါ်သို့ အလိုလို ပေါင်းတင်ပေးပါသည် (ဥပမာ: 537.5 -> 538)
+      let rawSso = +(ssoBaseAmount * 0.05).toFixed(2);
+      let ssoDeduction = Math.round(rawSso); 
+      ssoDeduction = Math.min(ssoDeduction, 750); 
       
       let netSalary = total - ssoDeduction;
 
@@ -917,7 +918,6 @@
       saveToFirebase();
   };
 
-  // ★ Salary Slip Generating (၄ ကွက်တည်းပါသော ဇယား နှင့် ဌာနစနစ်) ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
