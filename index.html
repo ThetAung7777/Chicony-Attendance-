@@ -306,7 +306,8 @@
     
     <div style="display:flex; gap:10px; margin-top: 20px;">
       <button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px; flex: 2;" data-i18n="saveBtn">💾 သိမ်းမည်</button>
-      <button class="btn-generate interactive-btn" onclick="closeSettings()" style="background:#6c757d; margin-top:0; padding:10px; flex: 1;">❌ <span data-i18n="cancelBtn">ပိတ်မည်</span></button>
+      <button id="settingsCancelBtn" class="btn-generate interactive-btn" onclick="closeSettings()" style="background:#6c757d; margin-top:0; padding:10px; flex: 1;">❌ <span data-i18n="cancelBtn">ပိတ်မည်</span></button>
+      <button id="settingsLogoutBtn" class="btn-generate interactive-btn" onclick="logout()" style="background:#dc3545; margin-top:0; padding:10px; flex: 1; display:none;">🚪 <span data-i18n="logout">Logout</span></button>
     </div>
   </div>
 </div>
@@ -428,11 +429,10 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ Popup ကို သုံးထားပြီး Timing Error မဖြစ်အောင် သေချာ ထိန်းချုပ်ထားပါသည် ★
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
       signInWithPopup(auth, provider).then(() => {
-          // Success
+          // Success handled in onAuthStateChanged
       }).catch((error) => {
           document.getElementById('loadingSpinner').style.display = 'none';
           alert("Login Error: " + error.message);
@@ -534,7 +534,7 @@
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(false); 
           } else {
-              // ★ အကောင့်သစ်ဆိုလျှင် Loading ပြီးမှသာ Settings Box ကို ပေါ်စေမည် (ညပ်မသွားစေရန်) ★
+              // ★ အကောင့်သစ်ဆိုလျှင် Settings Box ကို အလိုလိုပေါ်စေပြီး Cancel အစား Logout ကိုသာ ပြမည် ★
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
@@ -542,8 +542,9 @@
               
               setTimeout(() => {
                   document.getElementById('settingsModal').style.display = 'flex';
-                  // အကောင့်သစ်တွင် Close (X) ခလုတ်ကို ဖျောက်ထားမည်။ အကောင့်မှားဝင်မိပါက Logout ခလုတ်ကိုသာ အသုံးပြုရမည်။
-                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; 
+                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; // X ခလုတ်ဖျောက်
+                  document.getElementById('settingsCancelBtn').style.display = 'none'; // Cancel ခလုတ်ဖျောက်
+                  document.getElementById('settingsLogoutBtn').style.display = 'block'; // Logout ခလုတ်ပြ
               }, 600);
           }
       }, { onlyOnce: true });
@@ -609,16 +610,16 @@
   window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
   
   window.openSettings = () => { 
-      document.getElementById('settingsModal').style.display = 'flex'; 
+      // ★ ပုံမှန် Profile ကနေဝင်လာလျှင် Cancel ခလုတ်ကိုသာ ပြမည် ★
+      document.getElementById('settingsCancelBtn').style.display = 'block'; 
+      document.getElementById('settingsLogoutBtn').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
+      
+      document.getElementById('settingsModal').style.display = 'flex'; 
       toggleMenu(null); 
   };
 
   window.closeSettings = () => { 
-      let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
-      // Settings ကို ပိတ်မည် ဆိုပါက မဖြစ်မနေ ဖြည့်ထားရန်လိုသည်
-      if (nameInput === "" || idInput === "") { alert(translations[currentLang].reqBoth); return; }
-      saveToFirebase(); 
       document.getElementById('settingsModal').style.display = 'none'; 
   };
   
@@ -815,7 +816,6 @@
               }
               c.classList.add('bg-gray');
           } else {
-              // ★ ရွေးရန်ကို ပြန်နှိပ်ပါက Reset (သုည) အတိအကျ ပြန်ဖြစ်စေမည် ★
               dPay = 0; otVal = 0; info.innerHTML = "-"; doubleLbl.innerText = '';
           }
           c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
@@ -832,14 +832,11 @@
       
       let otHrs = ot15Hrs + ot20Hrs;
 
-      // ★ SSO Calculation (အစိုးရရုံးပိတ်ရက် + ဆေးခွင့် + အခြေခံလစာ + ထမင်းဖိုး) ၏ ၅% ★
       let regularFoodAllowance = work * 30; 
       let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
-      
-      // Math.round() သည် .5 ဖြစ်ပါက အထက်သို့ အလိုလို ပေါင်းတင်ပေးပါသည်
       let rawSso = ssoBaseAmount * 0.05;
       let ssoDeduction = Math.round(rawSso); 
-      ssoDeduction = Math.min(ssoDeduction, 750); // အများဆုံး 750 သာ ဖြတ်မည်
+      ssoDeduction = Math.min(ssoDeduction, 750); 
       
       let netSalary = total - ssoDeduction;
 
@@ -888,12 +885,12 @@
       document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`;
       document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
       
-      // Auto Save
       saveToFirebase();
   };
 
-  // ★ Salary Slip Generating (၂ ဘာသာတွဲလျက်၊ Chicony Logo အသစ်ဖြင့်) ★
+  // ★ Salary Slip Generating (Bilingual Header နှင့် Google Font Logo အသစ်) ★
   window.openSalarySlip = () => {
+      let l = translations[currentLang];
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
@@ -906,21 +903,22 @@
       let endMIdx = startMIdx + 1; 
       let endY = parseInt(pY);
       
-      if(endMIdx > 11) {
-          endMIdx = 0;
-          endY++;
-      }
+      if(endMIdx > 11) { endMIdx = 0; endY++; }
       
       let periodHeaderStr = `${engMonths[startMIdx]} 21 - ${engMonths[endMIdx]} 20, ${endY}`;
 
-      // ★ ဇယားထိပ်စီးများ နှင့် စာသားများကို မြန်မာ/အင်္ဂလိပ် သေချာတွဲပေးထားပါသည် ★
+      // Google Font ကို Slip ထဲတွင် ထည့်သွင်းပေးထားပါသည် (Chicony Logo အတွက်)
       let html = `
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+          .custom-logo-font { font-family: 'Orbitron', 'Arial Black', sans-serif; letter-spacing: 1px; color: #21409A; }
+        </style>
         <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
             <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="border: none; text-align: left; vertical-align: bottom;">
-                            <h1 style="color: #21409A; font-family: 'Arial Black', Impact, sans-serif; margin: 0; font-size: 32px; letter-spacing: 1px;">Chicony<span style="font-size:12px; vertical-align:top;">®</span></h1>
+                            <h1 class="custom-logo-font" style="margin: 0; font-size: 34px;">Chicony<span style="font-size:12px; vertical-align:top;">®</span></h1>
                         </td>
                         <td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">
                             บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>
@@ -930,7 +928,7 @@
                     </tr>
                 </table>
             </div>
-            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">လစာစလစ် (Pay Slip)</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 14px;">လစာစလစ် (Pay Slip)</div>
             
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
                 <tr style="background: #f8f9fa;">
@@ -955,18 +953,18 @@
                             <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:left;">ဝင်ငွေ<br><span style="font-size:8px; color:#555;">Income</span></th>
                             <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:right;">ပမာဏ<br><span style="font-size:8px; color:#555;">Amount</span></th>
                         </tr>
-                        <tr><td style="padding: 4px 6px;">အခြေခံလစာ (Basic Salary)</td><td style="padding: 4px 6px; text-align:right;">${d.basicSalary.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">အစိုးရရုံးပိတ်ရက် (Public Holiday)</td><td style="padding: 4px 6px; text-align:right;">${d.pubHolPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">ဆေးခွင့် (Medical Leave)</td><td style="padding: 4px 6px; text-align:right;">${d.medLeavePay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">ထမင်းဖိုး (Food Allowance)</td><td style="padding: 4px 6px; text-align:right;">${d.food.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">ကားခ (Transport Allowance)</td><td style="padding: 4px 6px; text-align:right;">${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">ရက်မှန်ကြေး (Attendance Bonus)</td><td style="padding: 4px 6px; text-align:right;">${d.bonus.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">ညကြေး (Night Allowance)</td><td style="padding: 4px 6px; text-align:right;">${d.nightAll.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">OT ထမင်းဖိုး (OT Food Allowance)</td><td style="padding: 4px 6px; text-align:right;">${d.otFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">အခြေခံလစာ<br><span style="font-size:8px; color:#777;">Basic Salary</span></td><td style="padding: 4px 6px; text-align:right;">${d.basicSalary.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">အစိုးရရုံးပိတ်ရက်<br><span style="font-size:8px; color:#777;">Public Holiday</span></td><td style="padding: 4px 6px; text-align:right;">${d.pubHolPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">ဆေးခွင့်<br><span style="font-size:8px; color:#777;">Medical Leave</span></td><td style="padding: 4px 6px; text-align:right;">${d.medLeavePay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">ထမင်းဖိုး<br><span style="font-size:8px; color:#777;">Food Allowance</span></td><td style="padding: 4px 6px; text-align:right;">${d.food.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">ကားခ<br><span style="font-size:8px; color:#777;">Transport Allowance</span></td><td style="padding: 4px 6px; text-align:right;">${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">ရက်မှန်ကြေး<br><span style="font-size:8px; color:#777;">Attendance Bonus</span></td><td style="padding: 4px 6px; text-align:right;">${d.bonus.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">ညကြေး<br><span style="font-size:8px; color:#777;">Night Allowance</span></td><td style="padding: 4px 6px; text-align:right;">${d.nightAll.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">OT ထမင်းဖိုး<br><span style="font-size:8px; color:#777;">OT Food Allowance</span></td><td style="padding: 4px 6px; text-align:right;">${d.otFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">OT 1.5 % (${d.ot15Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot15Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">OT 2.0 % (${d.ot20Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot20Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr>
-                            <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold;">စုစုပေါင်း ဝင်ငွေ (Total Income)</td>
+                            <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold;">စုစုပေါင်း ဝင်ငွေ<br><span style="font-size:8px; color:#555;">Total Income</span></td>
                             <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold; text-align:right;">${d.gross.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                         </tr>
                     </table>
@@ -977,13 +975,13 @@
                             <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:left;">ဖြတ်ငွေ<br><span style="font-size:8px; color:#555;">Deduction</span></th>
                             <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:right;">ပမာဏ<br><span style="font-size:8px; color:#555;">Amount</span></th>
                         </tr>
-                        <tr><td style="padding: 4px 6px;">ပကန်စံခွန်း (SSO)</td><td style="padding: 4px 6px; text-align:right;">${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">အခွန် (TAX)</td><td style="padding: 4px 6px; text-align:right;">0.00</td></tr>
+                        <tr><td style="padding: 4px 6px;">ပကန်စံခွန်း<br><span style="font-size:8px; color:#777;">SSO</span></td><td style="padding: 4px 6px; text-align:right;">${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">အခွန်<br><span style="font-size:8px; color:#777;">TAX</span></td><td style="padding: 4px 6px; text-align:right;">0.00</td></tr>
                         
-                        <tr><td colspan="2" style="height: 160px;"></td></tr>
+                        <tr><td colspan="2" style="height: 180px;"></td></tr>
 
                         <tr>
-                            <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold; color: #dc3545;">စုစုပေါင်း ဖြတ်ငွေ (Total Deduction)</td>
+                            <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold; color: #dc3545;">စုစုပေါင်း ဖြတ်ငွေ<br><span style="font-size:8px; color:#555;">Total Deduction</span></td>
                             <td style="padding: 6px; border-top: 1px solid #ccc; font-weight:bold; text-align:right; color: #dc3545;">-${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                         </tr>
                     </table>
