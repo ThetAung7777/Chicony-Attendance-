@@ -378,6 +378,7 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
+  // ★ Translation များကို အသေအချာ ပြင်ဆင်ချိတ်ဆက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -389,7 +390,7 @@
           monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်",
           startDate: "စတင်မည့်ရက်", endDate: "အဆုံးသတ်ရက်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!",
           holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑",
-          salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", empNo: "ဝန်ထမ်းနံပါတ်", name: "အမည်", dept: "ဌာန", period: "လစာကာလ", netToPay: "အသားတင်လစာ", income: "ဝင်ငွေ", amount: "ပမာဏ", deduction: "ဖြတ်ငွေ", basic: "အခြေခံလစာ", food: "ထမင်းဖိုး", pubHol: "ရုံးပိတ်ရက်/ဆေးခွင့်", totalInc: "စုစုပေါင်း ဝင်ငွေ", sso: "ပကန်စံခွန်း (SSO)", totalDed: "စုစုပေါင်း ဖြတ်ငွေ"
+          salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", empNo: "ဝန်ထမ်းနံပါတ်", name: "အမည်", dept: "ဌာန", period: "လစာကာလ", netToPay: "အသားတင်လစာ", income: "ဝင်ငွေ", amount: "ပမာဏ", deduction: "ဖြတ်ငွေ", basic: "အခြေခံလစာ", food: "ထမင်းဖိုး", pubHol: "အစိုးရရုံးပိတ်ရက်", medLeave: "ဆေးခွင့်", totalInc: "စုစုပေါင်း ဝင်ငွေ", sso: "ပကန်စံခွန်း (SSO)", totalDed: "စုစုပေါင်း ဖြတ်ငွေ"
       },
       en: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -401,7 +402,7 @@
           monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes",
           startDate: "Start Date", endDate: "End Date", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!",
           holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑",
-          salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", empNo: "Emp. No.", name: "Name-Surname", dept: "Dept.", period: "Period", netToPay: "Net to Pay", income: "Income", amount: "Amount", deduction: "Deduction", basic: "Basic Salary", food: "Food Allowance", pubHol: "Holiday/Med Pay", totalInc: "Total Income", sso: "Social Security (SSO)", totalDed: "Total Deduction"
+          salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", empNo: "Emp. No.", name: "Name-Surname", dept: "Dept.", period: "Period", netToPay: "Net to Pay", income: "Income", amount: "Amount", deduction: "Deduction", basic: "Basic Salary", food: "Food Allowance", pubHol: "Public Holiday", medLeave: "Medical Leave", totalInc: "Total Income", sso: "Social Security (SSO)", totalDed: "Total Deduction"
       },
       th: {
           exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน",
@@ -413,7 +414,7 @@
           monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก",
           startDate: "วันที่เริ่มต้น", endDate: "วันที่สิ้นสุด", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!",
           holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑",
-          salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", empNo: "เลขพนักงาน", name: "ชื่อ-นามสกุล", dept: "แผนก", period: "ประจำงวด", netToPay: "เงินได้สุทธิ", income: "รายได้", amount: "จำนวนเงิน", deduction: "รายการหัก", basic: "ฐานเงินเดือน", food: "ค่าอาหาร", pubHol: "ค่าจ้างวันหยุด/ลาป่วย", totalInc: "รายได้รวม", sso: "ประกันสังคม(SSO)", totalDed: "รายการหักรวม"
+          salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", empNo: "เลขพนักงาน", name: "ชื่อ-นามสกุล", dept: "แผนก", period: "ประจำงวด", netToPay: "เงินได้สุทธิ", income: "รายได้", amount: "จำนวนเงิน", deduction: "รายการหัก", basic: "ฐานเงินเดือน", food: "ค่าอาหาร", pubHol: "ค่าจ้างวันหยุดนักขัตฤกษ์", medLeave: "ค่าจ้างลาป่วย", totalInc: "รายได้รวม", sso: "ประกันสังคม(SSO)", totalDed: "รายการหักรวม"
       }
   };
 
@@ -734,11 +735,10 @@
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
       
-      let work=0, double=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, total=0, transport=0, nightPay=0; 
+      let work=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, total=0, transport=0, nightPay=0; 
       let lastFilledShift = 'day'; 
-      let slipBasicSalary = 0; // အခြေခံလစာ (Slip အတွက်)
+      let slipBasicSalary = 0; 
       
-      // ★ OT 1.5% နှင့် OT 2.0% ကို ခွဲထုတ်တွက်ချက်ခြင်း ★
       let ot15Hrs = 0, ot20Hrs = 0;
       let ot15Pay = 0, ot20Pay = 0;
       let baseHourRate = rate / 1.5; 
@@ -757,7 +757,7 @@
           let isSun = c.getAttribute('data-is-sun') === 'true'; let isSat = c.getAttribute('data-is-sat') === 'true'; 
           let info = c.querySelector('.daily-info'); let doubleLbl = c.querySelector('.double-label');
           
-          let isSpecialDay = isSun || isAdminDouble || isAdminHoliday; // နှစ်ဆရက်၊ တနင်္ဂနွေ၊ ပိတ်ရက် အားလုံးကို OT 2.0 အဖြစ်တွက်မည်
+          let isSpecialDay = isSun || isAdminDouble || isAdminHoliday; 
           c.className = 'day-card'; 
           let dPay=0, fPay=0;
 
@@ -772,6 +772,7 @@
           if (status === '-') {
               if (isAdminHoliday) {
                   pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay;
+                  slipBasicSalary += wage; 
                   doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':(currentLang==='th'?'วันหยุด':'Paid Hol');
                   info.innerHTML = `${dPay}฿`; c.classList.add('bg-yellow');
               } else {
@@ -781,17 +782,16 @@
               work++; lastFilledShift = shift; 
               
               if (isSpecialDay) {
-                  double++; // နှစ်ဆရက် (Double Day) အဖြစ် ရေတွက်မည်
+                  double++; 
                   doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue');
                   if(isSat) c.classList.add('double-saturday'); 
                   
-                  // ★ နှစ်ဆရက်တွင် အခြေခံလစာထဲ မပေါင်းဘဲ၊ 8 နာရီစာ OT 2.0 (800 ဘတ်) အဖြစ် သတ်မှတ်မည် ★
                   ot20Hrs += 8;
                   let base20Pay = 8 * rate20;
                   dPay += base20Pay;
                   ot20Pay += base20Pay;
               } else {
-                  slipBasicSalary += wage; // ပုံမှန်ရက်ကိုသာ အခြေခံလစာထဲ ပေါင်းမည်
+                  slipBasicSalary += wage; 
                   dPay += wage;
                   doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green');
               }
@@ -804,7 +804,7 @@
                   if(otVal>0) {
                       otDays++;
                       if (isSpecialDay) {
-                          ot20Hrs += otVal; // ပိတ်ရက် OT သည် 2.0 ဖြင့်သာတွက်မည်
+                          ot20Hrs += otVal; 
                           let p = otVal * rate20;
                           dPay += p; ot20Pay += p;
                       } else {
@@ -819,12 +819,16 @@
           } else if (status === 'x') {
               if(leaveSelect.value === 'medical') {
                   medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay;
+                  slipBasicSalary += wage; 
                   doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave');
                   info.innerHTML = `${dPay}฿`;
               } else {
                   absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = '';
               }
               c.classList.add('bg-gray');
+          } else {
+              // ★ "ရွေးရန်..." ကို ပြန်နှိပ်လိုက်လျှင် Reset ဖြစ်အောင် လုပ်ပေးခြင်း ★
+              info.innerHTML = "-"; doubleLbl.innerText = '';
           }
           c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
       });
@@ -841,24 +845,26 @@
       let otHrs = ot15Hrs + ot20Hrs;
 
       let regularFoodAllowance = work * 30; 
-      // SSO သည် ပုံမှန်အခြေခံလစာ၊ ပိတ်ရက်/ဆေးခွင့်လစာ နှင့် ပုံမှန်ထမင်းဖိုး ပေါင်းလဒ်ပေါ်တွင်တွက်သည်
-      let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
+      let ssoBaseAmount = slipBasicSalary + regularFoodAllowance;
       let ssoDeduction = Math.round(ssoBaseAmount * 0.05); 
       
       let netSalary = total - ssoDeduction;
 
+      // ★ Slip Data မှတ်သားခြင်း (Holiday နှင့် Medical Leave ကို သီးသန့်ခွဲထားသည်) ★
       window.currentSlipData = {
           basicSalary: slipBasicSalary,
           food: regularFoodAllowance,
           transport: transport,
           bonus: finalBonus,
+          doubleDayExtraPay: doubleExtraPay,
           otFood: otDays * 30, 
           ot15Hrs: ot15Hrs,
           ot15Pay: ot15Pay,
           ot20Hrs: ot20Hrs,
           ot20Pay: ot20Pay,
           nightAll: nightPay,
-          pubMedPay: pubHolPay + medLeavePay,
+          pubHolPay: pubHolPay,
+          medLeavePay: medLeavePay,
           gross: total,
           sso: ssoDeduction,
           net: netSalary,
@@ -894,7 +900,6 @@
       saveToFirebase();
   };
 
-  // ★ Salary Slip Generating (YTD ဖြုတ်ထားပြီး၊ Layout အသေအချာပြင်ဆင်ထားသည်) ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
@@ -945,12 +950,13 @@
                             <th style="padding: 6px; background: #f8f9fa; border-bottom: 1px solid #ccc; text-align:right;">${l.amount}</th>
                         </tr>
                         <tr><td style="padding: 4px 6px;">${l.basic}</td><td style="padding: 4px 6px; text-align:right;">${d.basicSalary.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.pubHol}</td><td style="padding: 4px 6px; text-align:right;">${d.pubHolPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.medLeave}</td><td style="padding: 4px 6px; text-align:right;">${d.medLeavePay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">${l.food}</td><td style="padding: 4px 6px; text-align:right;">${d.food.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">${l.transport}</td><td style="padding: 4px 6px; text-align:right;">${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">${l.attBonus}</td><td style="padding: 4px 6px; text-align:right;">${d.bonus.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">${l.nightAllowance}</td><td style="padding: 4px 6px; text-align:right;">${d.nightAll.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">${l.foodOt}</td><td style="padding: 4px 6px; text-align:right;">${d.otFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">${l.pubHol}</td><td style="padding: 4px 6px; text-align:right;">${d.pubMedPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">OT 1.5 % (${d.ot15Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot15Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr><td style="padding: 4px 6px;">${l.ot20} (${d.ot20Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot20Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
                         <tr>
@@ -982,7 +988,7 @@
       `;
       
       document.getElementById('slipPrintArea').innerHTML = html;
-      document.getElementById('printArea').innerHTML = html; // Print နှိပ်သည့်အခါ ပြသရန်
+      document.getElementById('printArea').innerHTML = html; 
 
       document.getElementById('slipModal').style.display = 'flex';
   };
