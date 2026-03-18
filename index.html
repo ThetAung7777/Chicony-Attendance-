@@ -288,7 +288,6 @@
     <div class="setup-box">
       <div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div>
       <div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div>
-      
       <div class="full-width"><label data-i18n="deptLbl">ဌာန (Department)</label><input type="text" id="empDept" placeholder="Department" value="MKB MFG FA(LH)" oninput="saveToFirebase()"></div>
       
       <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth" onchange="generateGrid(false)"></div>
@@ -304,8 +303,10 @@
         </select>
       </div>
     </div>
+    
     <div style="display:flex; gap:10px; margin-top: 20px;">
-      <button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px;" data-i18n="saveBtn">💾 သိမ်းမည်</button>
+      <button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px; flex: 2;" data-i18n="saveBtn">💾 သိမ်းမည်</button>
+      <button class="btn-generate interactive-btn" onclick="logout()" style="background:#dc3545; margin-top:0; padding:10px; flex: 1;">🚪 <span data-i18n="logout">Logout</span></button>
     </div>
   </div>
 </div>
@@ -460,11 +461,11 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ PWA များအတွက် အဆင်ပြေစေရန် Popup ကို အသုံးပြုပြီး Loading ကို ထိန်းချုပ်ထားပါသည် ★
+  // ★ Popup ကို သုံးထားသောကြောင့် Timing Error မဖြစ်အောင် ထိန်းချုပ်ထားပါသည် ★
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
       signInWithPopup(auth, provider).then(() => {
-          // အကောင့်ဝင်အောင်မြင်သွားပါပြီ (UI Update ကို onAuthStateChanged က ဆက်လုပ်ပေးပါမည်)
+          // Success
       }).catch((error) => {
           document.getElementById('loadingSpinner').style.display = 'none';
           alert("Login Error: " + error.message);
@@ -487,7 +488,7 @@
       appData.settings = {
           empName: document.getElementById('empName').value, 
           empId: document.getElementById('empId').value,
-          empDept: document.getElementById('empDept').value, // ဌာန
+          empDept: document.getElementById('empDept').value, // ဌာန သိမ်းမည်
           selectedMonth: document.getElementById('selectedMonth').value, 
           dailyWage: document.getElementById('dailyWage').value,
           otRate: document.getElementById('otRate').value, 
@@ -557,7 +558,7 @@
 
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
-              document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; 
+              document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; // Default ဌာန
               document.getElementById('selectedMonth').value = savedMonth; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
@@ -566,17 +567,17 @@
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(false); 
           } else {
-              // ★ အကောင့်သစ် (သို့) Data မရှိပါက Settings Box ကို အမှားကင်းကင်းဖြင့် ပေါ်စေမည် ★
+              // ★ အကောင့်သစ် (သို့) Data မရှိပါက Settings Box အလိုလို ကျလာမည် ★
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
-              document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
+              document.getElementById('empDept').value = "MKB MFG FA(LH)"; // Default ပေးထားမည်
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(true); 
               
-              // Loading ပြီးသွားမှသာ Box ကို ပြစေမည်
               setTimeout(() => {
                   document.getElementById('settingsModal').style.display = 'flex';
-                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; // မဖြည့်မနေရ ဖျောက်ထားမည်
-              }, 500); 
+                  // Close ခလုတ်ဖျောက်ထားမည် (မဖြစ်မနေ ဖြည့်ရန် သို့မဟုတ် Logout ထွက်ရန်)
+                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; 
+              }, 500);
           }
       }, { onlyOnce: true });
   }
@@ -916,14 +917,15 @@
       saveToFirebase();
   };
 
-  // ★ Salary Slip Generating ★
+  // ★ Salary Slip Generating (၄ ကွက်တည်းပါသော ဇယား နှင့် ဌာနစနစ်) ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
+      
       let rawDept = document.getElementById('empDept').value;
-      let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-"; // ဌာန မဖြည့်ထားလျှင် "-" ပြမည်
+      let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
       let [pY, pM] = d.period.split('-');
       let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
