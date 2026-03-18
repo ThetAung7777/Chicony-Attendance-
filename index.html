@@ -352,7 +352,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -370,8 +370,6 @@
   const db = getDatabase(app);
   const provider = new GoogleAuthProvider();
 
-  setPersistence(auth, browserLocalPersistence);
-
   let currentUser = null;
   const ADMIN_EMAIL = "ta.mmw.13.4.2018@gmail.com"; 
   let appData = { settings: {}, attendance: {} };
@@ -385,7 +383,6 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
-  // ★ Translation များကို အသေအချာ ပြင်ဆင်ချိတ်ဆက်ထားပါသည် ★
   const translations = {
       my: {
           exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary",
@@ -467,14 +464,17 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
+  // ★ လုံခြုံရေးအရ PWA တွင် ပိတ်ခံရသောကြောင့် Redirect စနစ်ကို အသေအချာ ပြန်လည်အသုံးပြုထားပါသည် ★
+  getRedirectResult(auth).then((result) => {
+      if(result) { document.getElementById('loadingSpinner').style.display = 'none'; }
+  }).catch((error) => {
+      document.getElementById('loadingSpinner').style.display = 'none';
+      alert("Login Error: " + error.message);
+  });
+
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
-      signInWithPopup(auth, provider).then(() => {
-          document.getElementById('loadingSpinner').style.display = 'none';
-      }).catch((error) => {
-          document.getElementById('loadingSpinner').style.display = 'none';
-          alert("Login Error: " + error.message);
-      });
+      signInWithRedirect(auth, provider); 
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
@@ -746,10 +746,8 @@
       let lastFilledShift = 'day'; 
       let basicSalaryForSso = 0; 
       
-      // ★ OT 1.5% နှင့် OT 2.0% ကို ခွဲထုတ်တွက်ချက်မည် ★
       let ot15Hrs = 0, ot20Hrs = 0;
       let ot15Pay = 0, ot20Pay = 0;
-      // OT Rate က 1.5 ဆ ဖြစ်သည်ဟုယူဆပြီး, OT 2.0x Rate ကို တွက်ထုတ်ခြင်း
       let baseHourRate = rate / 1.5; 
       let rate20 = baseHourRate * 2;
 
@@ -793,7 +791,7 @@
               if (isAdminHoliday || isAdminDouble) {
                   bPay = wage * 2; double++;
                   basicSalaryForSso += wage; 
-                  doubleExtraPay += wage; // နှစ်ဆရက် (Double Day) ကြောင့် ပိုရသော တစ်ဆစာ
+                  doubleExtraPay += wage; 
                   doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue');
                   if(isSat) c.classList.add('double-saturday'); 
               } else {
@@ -808,7 +806,6 @@
                   fPay = 60; 
                   if(otVal>0) {
                       otDays++;
-                      // ★ တနင်္ဂနွေ သို့ ပိတ်ရက်ဆိုပါက OT 2.0 အဖြစ် တွက်မည် ★
                       if (isSun || isDoubleDay) {
                           ot20Hrs += otVal;
                           let p = otVal * rate20;
@@ -847,21 +844,19 @@
       
       let otHrs = ot15Hrs + ot20Hrs;
 
-      // ★ SSO Calculation: (Basic Salary + Regular Food Allowance) * 5% ★
-      let regularFoodAllowance = work * 30; // ပုံမှန်ထမင်းဖိုး
+      let regularFoodAllowance = work * 30; 
       let ssoBaseAmount = basicSalaryForSso + regularFoodAllowance;
       let ssoDeduction = Math.round(ssoBaseAmount * 0.05); 
       
       let netSalary = total - ssoDeduction;
 
-      // ★ သိမ်းဆည်းထားရန် Slip Data ★
       window.currentSlipData = {
           basicSalary: basicSalaryForSso,
           food: regularFoodAllowance,
           transport: transport,
           bonus: finalBonus,
           doubleDayExtraPay: doubleExtraPay,
-          otFood: otDays * 30, // OT ဆင်း၍ ပိုရသော ထမင်းဖိုး
+          otFood: otDays * 30, 
           ot15Hrs: ot15Hrs,
           ot15Pay: ot15Pay,
           ot20Hrs: ot20Hrs,
@@ -902,7 +897,6 @@
       if (document.getElementById('selectedMonth').value === window.getRealCurrentMonth()) { saveToFirebase(); }
   };
 
-  // ★ Salary Slip Generating (Table Layout ဖြင့် အသေအချာ ပြင်ဆင်ထားသည်) ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
@@ -1005,7 +999,7 @@
 
   window.openExportModal = () => { let cards = document.querySelectorAll('.day-card'); if(cards.length > 0) { document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date'); let lastFilledDate = cards[0].getAttribute('data-real-date'); cards.forEach(c => { let status = c.querySelector('.status-select').value; if(status === '✓' || status === 'x') lastFilledDate = c.getAttribute('data-real-date'); }); let todayObj = new Date(); let tzOffset = 7 * 60 * 60000; let localISOTime = (new Date(todayObj - tzOffset)).toISOString().slice(0, -1); let todayStr = localISOTime.split('T')[0]; let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate; document.getElementById('exportEndDate').value = finalEndDate; } document.getElementById('exportModal').style.display = 'flex'; toggleMenu(null); };
   window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
-  const formatExportDate = (dStr) => { let d = new Date(dStr); const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; return `${d.getDate()}, ${months[d.getMonth পশ্চ], ${d.getFullYear()}`; };
+  const formatExportDate = (dStr) => { let d = new Date(dStr); const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; return `${d.getDate()}, ${months[d.getMonth()]}, ${d.getFullYear()}`; };
 
   window.exportExcel = () => { 
       let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; 
