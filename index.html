@@ -12,6 +12,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style id="app-styles">
+  /* ★ Google Fonts အသစ်များ ချိတ်ဆက်ခြင်း ★ */
+  @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap');
+
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: skyblue; margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -24,9 +27,11 @@
 
   .navbar { background-color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
+  
+  /* ★ Logo Font အသစ် ပြောင်းလဲထားသည် ★ */
   .app-title { text-align: center; margin: 0; line-height: 1.2; }
-  .logo-main { font-family: 'Arial Black', Impact, sans-serif; font-size: 24px; color: #000080; letter-spacing: -0.5px; }
-  .logo-tag { font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
+  .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 24px; color: #000080; letter-spacing: 1px; }
+  .logo-tag { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
 
   .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 200; transform-origin: top right;}
   .dropdown.left { left: 10px; transform-origin: top left; }
@@ -137,8 +142,8 @@
 
 <div id="loginScreen">
   <div class="login-box">
-    <h2 style="color: #000080; margin-bottom: 5px;" class="logo-main">CHICONY</h2>
-    <p style="font-size: 12px; color: #666; margin-top: 0;" class="logo-tag">ATTENDANCE SYSTEM</p>
+    <h2 style="margin-bottom: 5px;" class="logo-main">CHICONY</h2>
+    <p style="margin-top: 0;" class="logo-tag">ATTENDANCE SYSTEM</p>
     <button class="google-btn interactive-btn" onclick="signIn()">Login with Google</button>
   </div>
 </div>
@@ -161,7 +166,7 @@
     </div>
     
     <h2 class="app-title">
-      <span class="logo-main">Chicony <span id="titleShiftIcon" style="font-size: 20px;">☀️</span></span><br>
+      <span class="logo-main">Chicony <span id="titleShiftIcon" style="font-size: 20px; font-family: 'Segoe UI', sans-serif;">☀️</span></span><br>
       <span class="logo-tag" data-i18n="appSubtitle">Attendance & Salary</span>
     </h2>
     
@@ -239,14 +244,14 @@
   <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff; overflow-y: auto; overflow-x: hidden; max-height: 90vh;">
     <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
         <h3 style="margin:0; font-size: 15px;">🧾 <span data-i18n="slipTitle">ใบแจ้งเงินเดือน / Pay slip</span></h3>
-        <div style="display: flex; gap: 5px; align-items: center;">
-            <button class="interactive-btn" onclick="downloadSlipImage()" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">⬇️ Photo</button>
-            <button class="interactive-btn" onclick="printSlipArea()" style="background: white; color: #004488; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">🖨️ Print</button>
-            <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="position:static; color:white; font-size:22px; background:none; border:none; padding:0 5px;">×</button>
+        <div style="display:flex; align-items:center; gap: 8px;">
+            <button class="interactive-btn" onclick="downloadSlipImage()" style="background: #28a745; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">🖼️ Photo</button>
+            <button class="interactive-btn" onclick="printSlipArea()" style="background: white; color: #004488; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">🖨️ Print</button>
+            <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="position:static; color:white; font-size:20px; background:none; border:none; padding:0;">×</button>
         </div>
     </div>
     
-    <div id="slipPrintArea" style="width: 100%; box-sizing: border-box; padding: 15px;">
+    <div id="slipPrintArea" style="width: 100%; box-sizing: border-box; padding: 15px; background: white;">
         </div>
   </div>
 </div>
@@ -347,6 +352,7 @@
     <div id="adminDetailContent"></div>
   </div>
 </div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -433,7 +439,7 @@
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
       signInWithPopup(auth, provider).then(() => {
-          // Success is handled by onAuthStateChanged
+          // Success
       }).catch((error) => {
           document.getElementById('loadingSpinner').style.display = 'none';
           alert("Login Error: " + error.message);
@@ -535,7 +541,6 @@
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(false); 
           } else {
-              // ★ အကောင့်သစ်ဆိုလျှင် Settings Box ကို အလိုလိုပေါ်စေပြီး Cancel အစား Logout ကိုသာ ပြမည် ★
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
@@ -543,7 +548,7 @@
               
               setTimeout(() => {
                   document.getElementById('settingsModal').style.display = 'flex';
-                  // Close ခလုတ် နှင့် Cancel ကို ဖျောက်ထားမည်။ Logout ခလုတ်ကိုသာ ပြမည်။
+                  // အကောင့်သစ်တွင် Close နှင့် Cancel ကို ဖျောက်ပြီး Logout သာ ပြမည်
                   document.querySelector('#settingsModal .close-modal').style.display = 'none'; 
                   document.getElementById('settingsCancelBtn').style.display = 'none'; 
                   document.getElementById('settingsLogoutBtn').style.display = 'block'; 
@@ -612,7 +617,6 @@
   window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
   
   window.openSettings = () => { 
-      // ★ ပုံမှန် Profile ကနေဝင်လာလျှင် Cancel ခလုတ်ကိုသာ ပြမည်။ Logout ကိုဖျောက်ထားမည် ★
       document.getElementById('settingsCancelBtn').style.display = 'block'; 
       document.getElementById('settingsLogoutBtn').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
@@ -836,8 +840,6 @@
 
       let regularFoodAllowance = work * 30; 
       let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
-      
-      // ★ SSO .5 Round Up Calculation (ဥပမာ 537.5 -> 538) ★
       let rawSso = ssoBaseAmount * 0.05;
       let ssoDeduction = Math.round(rawSso); 
       ssoDeduction = Math.min(ssoDeduction, 750); 
@@ -892,13 +894,35 @@
       saveToFirebase();
   };
 
-  // ★ Salary Slip Generating (Google Font Bungee Inline နှင့် Bilingual Headers) ★
+  // ★ Photo (Save as Image) Download ပြုလုပ်ရန် Function အသစ် ★
+  window.downloadSlipImage = () => {
+      let printArea = document.getElementById('slipPrintArea');
+      let originalBackground = printArea.style.background;
+      printArea.style.background = 'white'; // ဖုန်း Gallery တွင် အဖြူခံပေါ်စေရန်
+      
+      // html2canvas ဖြင့် Image ပြောင်းပြီး Auto Download ဆွဲပေးခြင်း
+      html2canvas(printArea, { scale: 2, useCORS: true }).then(canvas => {
+          let imgData = canvas.toDataURL('image/jpeg', 1.0);
+          let link = document.createElement('a');
+          link.href = imgData;
+          let d = window.currentSlipData;
+          let p = d && d.period ? d.period : 'slip';
+          link.download = `Chicony_Slip_${p}.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          printArea.style.background = originalBackground;
+      }).catch(err => {
+          console.error("Error generating image: ", err);
+          alert("Failed to save image.");
+      });
+  };
+
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
-      
       let rawDept = document.getElementById('empDept').value;
       let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
