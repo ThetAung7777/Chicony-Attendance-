@@ -9,6 +9,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style id="app-styles">
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: skyblue; margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
@@ -238,9 +239,10 @@
   <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff; overflow-y: auto; overflow-x: hidden; max-height: 90vh;">
     <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
         <h3 style="margin:0; font-size: 15px;">🧾 <span data-i18n="slipTitle">ใบแจ้งเงินเดือน / Pay slip</span></h3>
-        <div>
-            <button class="interactive-btn" onclick="printSlipArea()" style="background: white; color: #004488; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; margin-right: 10px; font-size: 12px;">🖨️ Print</button>
-            <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="position:static; color:white; font-size:20px; background:none; border:none;">×</button>
+        <div style="display: flex; gap: 5px; align-items: center;">
+            <button class="interactive-btn" onclick="downloadSlipImage()" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">⬇️ Photo</button>
+            <button class="interactive-btn" onclick="printSlipArea()" style="background: white; color: #004488; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">🖨️ Print</button>
+            <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="position:static; color:white; font-size:22px; background:none; border:none; padding:0 5px;">×</button>
         </div>
     </div>
     
@@ -345,7 +347,6 @@
     <div id="adminDetailContent"></div>
   </div>
 </div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -382,9 +383,9 @@
   document.getElementById('langSelector').value = currentLang;
 
   const translations = {
-      my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)" },
-      en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip" },
-      th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip" }
+      my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)" },
+      en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip" },
+      th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหาร (ไม่ทำโอที)", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip" }
   };
 
   const weekdaysText = {
@@ -432,7 +433,7 @@
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
       signInWithPopup(auth, provider).then(() => {
-          // Success handled in onAuthStateChanged
+          // Success is handled by onAuthStateChanged
       }).catch((error) => {
           document.getElementById('loadingSpinner').style.display = 'none';
           alert("Login Error: " + error.message);
@@ -542,9 +543,10 @@
               
               setTimeout(() => {
                   document.getElementById('settingsModal').style.display = 'flex';
-                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; // X ခလုတ်ဖျောက်
-                  document.getElementById('settingsCancelBtn').style.display = 'none'; // Cancel ခလုတ်ဖျောက်
-                  document.getElementById('settingsLogoutBtn').style.display = 'block'; // Logout ခလုတ်ပြ
+                  // Close ခလုတ် နှင့် Cancel ကို ဖျောက်ထားမည်။ Logout ခလုတ်ကိုသာ ပြမည်။
+                  document.querySelector('#settingsModal .close-modal').style.display = 'none'; 
+                  document.getElementById('settingsCancelBtn').style.display = 'none'; 
+                  document.getElementById('settingsLogoutBtn').style.display = 'block'; 
               }, 600);
           }
       }, { onlyOnce: true });
@@ -610,7 +612,7 @@
   window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
   
   window.openSettings = () => { 
-      // ★ ပုံမှန် Profile ကနေဝင်လာလျှင် Cancel ခလုတ်ကိုသာ ပြမည် ★
+      // ★ ပုံမှန် Profile ကနေဝင်လာလျှင် Cancel ခလုတ်ကိုသာ ပြမည်။ Logout ကိုဖျောက်ထားမည် ★
       document.getElementById('settingsCancelBtn').style.display = 'block'; 
       document.getElementById('settingsLogoutBtn').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
@@ -834,6 +836,8 @@
 
       let regularFoodAllowance = work * 30; 
       let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
+      
+      // ★ SSO .5 Round Up Calculation (ဥပမာ 537.5 -> 538) ★
       let rawSso = ssoBaseAmount * 0.05;
       let ssoDeduction = Math.round(rawSso); 
       ssoDeduction = Math.min(ssoDeduction, 750); 
@@ -888,12 +892,13 @@
       saveToFirebase();
   };
 
-  // ★ Salary Slip Generating (Bilingual Header နှင့် Google Font Logo အသစ်) ★
+  // ★ Salary Slip Generating (Google Font Bungee Inline နှင့် Bilingual Headers) ★
   window.openSalarySlip = () => {
       let l = translations[currentLang];
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
+      
       let rawDept = document.getElementById('empDept').value;
       let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
@@ -907,18 +912,17 @@
       
       let periodHeaderStr = `${engMonths[startMIdx]} 21 - ${engMonths[endMIdx]} 20, ${endY}`;
 
-      // Google Font ကို Slip ထဲတွင် ထည့်သွင်းပေးထားပါသည် (Chicony Logo အတွက်)
       let html = `
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
-          .custom-logo-font { font-family: 'Orbitron', 'Arial Black', sans-serif; letter-spacing: 1px; color: #21409A; }
+          @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap');
+          .custom-logo-font { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; color: #21409A; letter-spacing: 1px;}
         </style>
         <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
             <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="border: none; text-align: left; vertical-align: bottom;">
-                            <h1 class="custom-logo-font" style="margin: 0; font-size: 34px;">Chicony<span style="font-size:12px; vertical-align:top;">®</span></h1>
+                            <h1 class="custom-logo-font" style="margin: 0; font-size: 34px;">Chicony<span style="font-size:12px; vertical-align:top; font-family: Arial, sans-serif; font-weight: bold;">®</span></h1>
                         </td>
                         <td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">
                             บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>
