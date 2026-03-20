@@ -528,12 +528,12 @@
                   set(ref(db, 'users/' + currentUser.uid + '/settings'), appData.settings); 
               }
               
-              let savedMonth = appData.settings.selectedMonth || realCurrentMonthStr;
-
+              // ★ ပြဿနာ ဖြေရှင်းချက် - App ဖွင့်လိုက်သည်နှင့် Firebase မှ အဟောင်းကို မဆွဲဘဲ လက်ရှိကာလ (လအသစ်) ကို အမြဲတမ်း Default ပြပေးမည် ★
+              document.getElementById('selectedMonth').value = realCurrentMonthStr; 
+              
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
               document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; 
-              document.getElementById('selectedMonth').value = savedMonth; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
               document.getElementById('attBonusSetting').value = appData.settings.attBonusSetting || "0";
@@ -541,6 +541,7 @@
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(false); 
           } else {
+              // အကောင့်သစ် (Data မရှိ) သော အခြေအနေ
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
@@ -548,7 +549,6 @@
               
               setTimeout(() => {
                   document.getElementById('settingsModal').style.display = 'flex';
-                  // အကောင့်သစ်တွင် Close နှင့် Cancel ကို ဖျောက်ပြီး Logout သာ ပြမည်
                   document.querySelector('#settingsModal .close-modal').style.display = 'none'; 
                   document.getElementById('settingsCancelBtn').style.display = 'none'; 
                   document.getElementById('settingsLogoutBtn').style.display = 'block'; 
@@ -840,6 +840,7 @@
 
       let regularFoodAllowance = work * 30; 
       let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
+      
       let rawSso = ssoBaseAmount * 0.05;
       let ssoDeduction = Math.round(rawSso); 
       ssoDeduction = Math.min(ssoDeduction, 750); 
@@ -894,13 +895,11 @@
       saveToFirebase();
   };
 
-  // ★ Photo (Save as Image) Download ပြုလုပ်ရန် Function အသစ် ★
   window.downloadSlipImage = () => {
       let printArea = document.getElementById('slipPrintArea');
       let originalBackground = printArea.style.background;
-      printArea.style.background = 'white'; // ဖုန်း Gallery တွင် အဖြူခံပေါ်စေရန်
+      printArea.style.background = 'white'; 
       
-      // html2canvas ဖြင့် Image ပြောင်းပြီး Auto Download ဆွဲပေးခြင်း
       html2canvas(printArea, { scale: 2, useCORS: true }).then(canvas => {
           let imgData = canvas.toDataURL('image/jpeg', 1.0);
           let link = document.createElement('a');
@@ -923,6 +922,7 @@
       let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-';
       let empId = document.getElementById('empId').value || '-';
+      
       let rawDept = document.getElementById('empDept').value;
       let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
