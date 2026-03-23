@@ -516,7 +516,6 @@
       return hasAbsence;
   };
 
-  // ★ ဇယားပျောက်သည့် ပြဿနာကို ဖြေရှင်းထားသော Function ★
   window.handleMonthChange = () => {
       let newMonthStr = document.getElementById('selectedMonth').value;
       if (!newMonthStr) return;
@@ -539,11 +538,9 @@
       }
 
       document.getElementById('attBonusSetting').value = newBonus;
-      // Bonus တွက်ပြီးသည်နှင့် ဇယားကို ပြန်လည် Generate လုပ်မည်
       window.generateGrid(false); 
   };
 
-  // onchange ကို HTML မဟုတ်ဘဲ JS ကနေသာ ချိတ်ဆက်မည်
   document.getElementById('selectedMonth').addEventListener('change', window.handleMonthChange);
 
   function loadFromFirebase() {
@@ -569,7 +566,6 @@
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; 
               
-              // Data လာစဉ်ကတည်းက လက်ရှိလအတွက် Bonus ကို Auto စစ်ဆေးပေးမည်
               window.handleMonthChange(); 
               
           } else {
@@ -830,10 +826,10 @@
       document.getElementById('otTotalCombine').innerText = `${otHrs} ${uHr}`; 
       document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; document.getElementById('foodOtTotal').innerText = `${foodOtTotal.toLocaleString()} ฿`; document.getElementById('foodNoOtDays').innerText = `${nonOtDays} ${uDay}`; document.getElementById('foodNoOtTotal').innerText = `${foodNoOtTotal.toLocaleString()} ฿`; document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`; document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; document.getElementById('grossTotalDisplay').innerText = `${total.toLocaleString()} ฿`; document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`; document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
       
-      // Data အားလုံး တွက်ချက်ပြီးမှသာ Firebase သို့ သိမ်းမည်
       saveToFirebase();
   };
 
+  // ★ Photo ခလုတ်တစ်ခုတည်း သီးသန့်ဖြစ်ပြီး၊ Close နှိပ်မရသည့် ပြဿနာကို ရှင်းလင်းထားသည် ★
   window.downloadSlipImage = () => {
       let printArea = document.getElementById('slipPrintArea');
       let originalBackground = printArea.style.background;
@@ -905,8 +901,22 @@
             </table>
         </div>
       `;
-      document.getElementById('slipPrintArea').innerHTML = html; document.getElementById('printArea').innerHTML = html; document.getElementById('slipModal').style.display = 'flex';
+      // Print ခလုတ်နေရာတွင် Photo ခလုတ်တစ်ခုတည်းကိုသာ ပြင်ဆင်ထားသည်
+      let slipHeader = `
+        <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
+            <h3 style="margin:0; font-size: 15px;">🧾 <span data-i18n="slipTitle">ใบแจ้งเงินเดือน / Pay slip</span></h3>
+            <div style="display:flex; align-items:center; gap: 15px;">
+                <button class="interactive-btn" onclick="downloadSlipImage()" style="background: #28a745; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; font-size: 13px;">🖼️ Save Photo</button>
+                <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="position:static; color:white; font-size:24px; background:none; border:none; padding:0;">×</button>
+            </div>
+        </div>
+      `;
+      
+      document.querySelector('#slipModal .modal-content').innerHTML = slipHeader + `<div id="slipPrintArea" style="width: 100%; box-sizing: border-box; padding: 15px; background: white;">${html}</div>`;
+      document.getElementById('slipModal').style.display = 'flex';
   };
+
+  window.closeSlipModal = () => { document.getElementById('slipModal').style.display = 'none'; };
 
   window.openAdminPanel = (isInit = true) => { 
       document.getElementById('adminModal').style.display = 'flex'; 
