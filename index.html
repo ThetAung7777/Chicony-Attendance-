@@ -486,6 +486,7 @@
           dailyWage: document.getElementById('dailyWage').value,
           otRate: document.getElementById('otRate').value, 
           attBonusSetting: document.getElementById('attBonusSetting').value,
+          lastBonusMonth: appData.settings?.lastBonusMonth || window.getRealCurrentMonth()
       }; 
       if (!appData.attendance) appData.attendance = {};
       document.querySelectorAll('.day-card').forEach(card => {
@@ -516,40 +517,6 @@
       return hasAbsence;
   };
 
-  // ★ ရက်မှန်ကြေး လအလိုက် အလိုအလျောက် ပြောင်းလဲတွက်ချက်ပေးသည့် Function သစ် ★
-  window.handleMonthChange = () => {
-      let newMonthStr = document.getElementById('selectedMonth').value;
-      if (!newMonthStr) return;
-
-      // ရွေးချယ်လိုက်သောလ၏ အရှေ့လ (Previous Month) ကို ရှာဖွေခြင်း
-      let [y, m] = newMonthStr.split('-').map(Number);
-      let prevM = m - 1; let prevY = y;
-      if (prevM < 1) { prevM = 12; prevY--; }
-      let prevMonthStr = `${prevY}-${String(prevM).padStart(2, '0')}`;
-
-      // အရှေ့လတွင် ပျက်ရက်ရှိမရှိ စစ်ဆေးခြင်း
-      let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
-      let currentBonus = parseInt(document.getElementById('attBonusSetting').value) || 500;
-
-      let newBonus = 500; 
-      if (hasAbsence) {
-          // ပျက်ရက်ရှိပါက နောက်လအတွက် 500 သို့ Auto ပြန်ချမည်
-          newBonus = 500;
-      } else {
-          // ပျက်ရက်မရှိပါက (ရက်မှန်လျှင်)
-          if (currentBonus <= 500) newBonus = 800;       // 500 မှ 800 သို့
-          else if (currentBonus === 800) newBonus = 1000; // 800 မှ 1000 သို့
-          else newBonus = 1000;                          // 1000 မှ 1000 သို့
-      }
-
-      // တွက်ချက်ရရှိသော Bonus အသစ်ကို Dropdown တွင် Auto ရွေးပေးမည်
-      document.getElementById('attBonusSetting').value = newBonus;
-      window.generateGrid(false); 
-  };
-
-  // HTML မှ inline onchange အား ဖယ်ရှား၍ JS မှတဆင့် Event ချိတ်ဆက်မည်
-  document.getElementById('selectedMonth').onchange = window.handleMonthChange;
-
   function loadFromFirebase() {
       document.getElementById('loadingSpinner').style.display = 'flex';
       onValue(ref(db, 'users/' + currentUser.uid), (snapshot) => {
@@ -560,27 +527,37 @@
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
               
-              let lastSavedMonth = appData.settings.selectedMonth || "";
-              let savedBonus = parseInt(appData.settings.attBonusSetting) || 500;
+              let lastBonusMonth = appData.settings.lastBonusMonth || "";
+              if (lastBonusMonth !== realCurrentMonthStr) {
+                  let [cY, cM] = realCurrentMonthStr.split('-').map(Number);
+                  let pM = cM - 1; let pY = cY;
+                  if(pM === 0) { pM = 12; pY--; }
+                  let prevMonthStr = `${pY}-${String(pM).padStart(2,'0')}`;
+                  
+                  let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
+                  let currentBonus = parseInt(appData.settings.attBonusSetting) || 500;
+                  
+                  if (hasAbsence) { appData.settings.attBonusSetting = "500"; } 
+                  else {
+                      if (currentBonus <= 500) appData.settings.attBonusSetting = "800"; 
+                      else if (currentBonus >= 800) appData.settings.attBonusSetting = "1000"; 
+                  }
+                  appData.settings.lastBonusMonth = realCurrentMonthStr;
+                  set(ref(db, 'users/' + currentUser.uid + '/settings'), appData.settings); 
+              }
+              
+              document.getElementById('selectedMonth').value = realCurrentMonthStr; 
+              appData.settings.selectedMonth = realCurrentMonthStr;
               
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
               document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
-              document.getElementById('attBonusSetting').value = savedBonus;
-
-              // App စဖွင့်ချိန်တွင် လသစ်ရောက်သွားပါက Bonus ကို Auto တွက်ချက်ပြီး တိုး/လျှော့ ပြုလုပ်မည်
-              if (lastSavedMonth && lastSavedMonth !== realCurrentMonthStr) {
-                  document.getElementById('selectedMonth').value = realCurrentMonthStr;
-                  window.handleMonthChange(); // Month အသစ်ပြောင်းလဲမှု စနစ်ကို ခေါ်သုံးမည်
-              } else {
-                  document.getElementById('selectedMonth').value = realCurrentMonthStr; 
-                  appData.settings.selectedMonth = realCurrentMonthStr;
-                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
-                  isDataLoaded = true; window.generateGrid(false); 
-              }
+              document.getElementById('attBonusSetting').value = appData.settings.attBonusSetting || "0";
               
+              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
+              isDataLoaded = true; window.generateGrid(false); 
           } else {
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
@@ -765,6 +742,7 @@
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
       
+      // ★ ပြဿနာ ဖြေရှင်းချက် - သာမန် OT ရက်သီးသန့်ကို မှတ်သားရန် normalOtDays ကို သီးသန့်ခွဲထုတ်ထားပါသည် ★
       let work=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, normalOtDays=0, total=0, transport=0, nightPay=0; 
       let lastFilledShift = 'day'; let slipBasicSalary = 0; 
       let ot15Hrs = 0, ot20Hrs = 0; let ot15Pay = 0, ot20Pay = 0;
@@ -795,11 +773,11 @@
               if (otStatus === 'yes') { 
                   fPay = 60; 
                   if(otVal>0) { 
-                      otDays++; 
+                      otDays++; // Food အတွက် အသုံးပြုရန် စုစုပေါင်း OT ရက် 
                       if (isSpecialDay) { 
                           ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
                       } else { 
-                          normalOtDays++; 
+                          normalOtDays++; // သာမန် OT ရက်များကိုသာ UI တွင် သီးသန့်ပြရန် မှတ်သားမည်
                           ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
                       } 
                   } 
@@ -835,6 +813,7 @@
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days'); let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
       document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; 
       
+      // ★ OT ရက်/နာရီ နေရာတွင် သာမန်ရက်များ (normalOtDays/ot15Hrs) ကိုသာ ပြသစေမည် ★
       document.getElementById('otDaysCount').innerText = `${normalOtDays} ${uDay} / ${ot15Hrs} ${uHr}`; 
       
       document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
@@ -992,7 +971,7 @@
                       } 
                   } 
                   
-                  let uOtHrs = uOt15Hrs + uOt20Hrs; 
+                  let uOtHrs = uOt15Hrs + uOt20Hrs; // Admin တွင်လည်း အတိအကျပြရန် ပေါင်းထားသည်
                   totalEmployees++;
                   let totalAbs = uAbsent + uMedCount; let uBonus = (totalAbs > 0) ? 0 : bonusSetting; uTotalPay += uBonus; 
                   
