@@ -742,7 +742,8 @@
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
       
-      let work=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, total=0, transport=0, nightPay=0; 
+      // ★ ပြဿနာ ဖြေရှင်းချက် - သာမန် OT ရက်သီးသန့်ကို မှတ်သားရန် normalOtDays ကို သီးသန့်ခွဲထုတ်ထားပါသည် ★
+      let work=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, normalOtDays=0, total=0, transport=0, nightPay=0; 
       let lastFilledShift = 'day'; let slipBasicSalary = 0; 
       let ot15Hrs = 0, ot20Hrs = 0; let ot15Pay = 0, ot20Pay = 0;
       let baseHourRate = rate / 1.5; let rate20 = baseHourRate * 2;
@@ -768,21 +769,27 @@
               if (isSpecialDay) { double++; doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue'); if(isSat) c.classList.add('double-saturday'); ot20Hrs += 8; let base20Pay = 8 * rate20; dPay += base20Pay; ot20Pay += base20Pay; } else { slipBasicSalary += wage; dPay += wage; doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green'); }
               dPay += 40; transport += 40; 
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
-              if (otStatus === 'yes') { fPay = 60; if(otVal>0) { otDays++; if (isSpecialDay) { ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; } else { ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; } } } else { fPay = 30; }
+              
+              if (otStatus === 'yes') { 
+                  fPay = 60; 
+                  if(otVal>0) { 
+                      otDays++; // Food အတွက် အသုံးပြုရန် စုစုပေါင်း OT ရက် 
+                      if (isSpecialDay) { 
+                          ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
+                      } else { 
+                          normalOtDays++; // သာမန် OT ရက်များကိုသာ UI တွင် သီးသန့်ပြရန် မှတ်သားမည်
+                          ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
+                      } 
+                  } 
+              } else { fPay = 30; }
+              
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
           } else if (status === 'x') {
               if(leaveSelect.value === 'medical') { medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay; slipBasicSalary += wage; doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave'); info.innerHTML = `${dPay}฿`; } else { absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = ''; }
               c.classList.add('bg-gray');
           } else { 
-              // ★ အလွတ်ဖြစ်နေချိန် (Status မရွေးရသေးချိန်) တွင် နှစ်ဆရက်ဖြစ်ပါက အပြာရောင် ကြိုပေါ်နေစေရန် ★
               dPay = 0; otVal = 0; info.innerHTML = "-"; 
-              if (isAdminDouble) {
-                  c.classList.add('bg-blue');
-                  doubleLbl.innerText = '★ 2X';
-                  if (isSat) c.classList.add('double-saturday');
-              } else {
-                  doubleLbl.innerText = '';
-              }
+              if (isAdminDouble) { c.classList.add('bg-blue'); doubleLbl.innerText = '★ 2X'; if (isSat) c.classList.add('double-saturday'); } else { doubleLbl.innerText = ''; }
           }
           c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
       });
@@ -793,7 +800,9 @@
       
       let nonOtDays = work - otDays; let foodOtTotal = otDays * 60; let foodNoOtTotal = nonOtDays * 30;
       let totalAbsent = absentUnpaid + medLeaveCount; let finalBonus = (totalAbsent > 0) ? 0 : bonusSetting; total += finalBonus; 
+      
       let otHrs = ot15Hrs + ot20Hrs;
+
       let regularFoodAllowance = work * 30; 
       let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
       let rawSso = ssoBaseAmount * 0.05; let ssoDeduction = Math.round(rawSso); ssoDeduction = Math.min(ssoDeduction, 750); 
@@ -802,7 +811,15 @@
       window.currentSlipData = { basicSalary: slipBasicSalary, food: regularFoodAllowance, transport: transport, bonus: finalBonus, doubleDayExtraPay: doubleExtraPay, otFood: otDays * 30, ot15Hrs: ot15Hrs, ot15Pay: ot15Pay, ot20Hrs: ot20Hrs, ot20Pay: ot20Pay, nightAll: nightPay, pubHolPay: pubHolPay, medLeavePay: medLeavePay, gross: total, sso: ssoDeduction, net: netSalary, workDays: work, period: document.getElementById('selectedMonth').value };
 
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days'); let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
-      document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; document.getElementById('otDaysCount').innerText = `${otDays} ${uDay} / ${otHrs} ${uHr}`; document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; document.getElementById('otTotalCombine').innerText = `${otHrs} ${uHr}`; document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; document.getElementById('foodOtTotal').innerText = `${foodOtTotal.toLocaleString()} ฿`; document.getElementById('foodNoOtDays').innerText = `${nonOtDays} ${uDay}`; document.getElementById('foodNoOtTotal').innerText = `${foodNoOtTotal.toLocaleString()} ฿`; document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`; document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; document.getElementById('grossTotalDisplay').innerText = `${total.toLocaleString()} ฿`; document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`; document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
+      document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; 
+      
+      // ★ OT ရက်/နာရီ နေရာတွင် သာမန်ရက်များ (normalOtDays/ot15Hrs) ကိုသာ ပြသစေမည် ★
+      document.getElementById('otDaysCount').innerText = `${normalOtDays} ${uDay} / ${ot15Hrs} ${uHr}`; 
+      
+      document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
+      document.getElementById('otTotalCombine').innerText = `${otHrs} ${uHr}`; 
+      
+      document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; document.getElementById('foodOtTotal').innerText = `${foodOtTotal.toLocaleString()} ฿`; document.getElementById('foodNoOtDays').innerText = `${nonOtDays} ${uDay}`; document.getElementById('foodNoOtTotal').innerText = `${foodNoOtTotal.toLocaleString()} ฿`; document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`; document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; document.getElementById('grossTotalDisplay').innerText = `${total.toLocaleString()} ฿`; document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`; document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
       saveToFirebase();
   };
 
@@ -880,9 +897,6 @@
       document.getElementById('slipPrintArea').innerHTML = html; document.getElementById('printArea').innerHTML = html; document.getElementById('slipModal').style.display = 'flex';
   };
 
-  window.closeSlipModal = () => { document.getElementById('slipModal').style.display = 'none'; };
-  window.printSlipArea = () => { window.print(); };
-
   window.openAdminPanel = (isInit = true) => { 
       document.getElementById('adminModal').style.display = 'flex'; 
       if (isInit) {
@@ -899,8 +913,7 @@
 
       get(ref(db, 'users')).then((snapshot) => { 
           if (snapshot.exists()) { 
-              let allUsers = snapshot.val(); 
-              window.allUsersData = allUsers; 
+              let allUsers = snapshot.val(); window.allUsersData = allUsers; 
               let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; 
               window.adminCalculated = {}; 
               
@@ -912,40 +925,43 @@
                   let otRate = parseFloat(uData.settings.otRate) || 0; 
                   let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; 
                   
-                  let uWork = 0, uAbsent = 0, uMedCount=0, uOtHrs = 0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0; 
-                  let hasRecordInMonth = false;
-
+                  let baseHourRate = otRate / 1.5; let rate20 = baseHourRate * 2;
+                  let uWork = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0; 
+                  let uOt15Hrs = 0, uOt20Hrs = 0;
+                  
                   if (uData.attendance) { 
                       let cur = new Date(startD);
                       while(cur <= endD) {
                           let dateKey = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
-                          let record = uData.attendance[dateKey]; 
-                          let calData = globalCalendar[dateKey]; 
-                          let isAdminDouble = calData?.type === 'double'; 
-                          let isAdminHoliday = calData?.type === 'holiday'; 
+                          let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; 
+                          let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; 
                           let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6;
                           let isSpecialDay = isSun || isAdminDouble || isAdminHoliday;
 
-                          let status = record ? record.status : '';
-                          if(status === '' && isAdminHoliday) status = '-';
+                          let status = record ? record.status : ''; if(status === '' && isAdminHoliday) status = '-';
                           let shift = record ? (record.shift || 'day') : 'day';
                           let leaveType = record ? (record.leaveType || 'unpaid') : 'unpaid';
                           let otStatus = record ? (record.ot || 'no') : 'no';
                           let otVal = record ? (parseFloat(record.otHours) || 0) : 0;
 
                           let dPay = 0, fPay = 0;
-                          if(status !== '') hasRecordInMonth = true;
 
                           if (status === '-') { 
                               if (isAdminHoliday) { uTotalPay += wage; pubHolPay += wage; slipBasicSalary += wage; } 
                           } else if (status === '✓') { 
                               uWork++; 
-                              if (isSpecialDay) { uDouble++; dPay += (8 * (otRate/1.5 * 2)); } 
+                              if (isSpecialDay) { uDouble++; dPay += (8 * rate20); uOt20Hrs += 8; } 
                               else { dPay += wage; slipBasicSalary += wage; } 
-                              dPay += 40; 
-                              if (shift === 'night') dPay += 100; 
-                              if (otStatus === 'yes') { fPay = 60; if(otVal>0) { uOtHrs += otVal; if(isSpecialDay) dPay += otVal * (otRate/1.5 * 2); else dPay += otVal * otRate; } } 
-                              else { fPay = 30; } 
+                              
+                              dPay += 40; if (shift === 'night') dPay += 100; 
+                              
+                              if (otStatus === 'yes') { 
+                                  fPay = 60; 
+                                  if(otVal>0) { 
+                                      if (isSpecialDay) { dPay += (otVal * rate20); uOt20Hrs += otVal; } 
+                                      else { dPay += (otVal * otRate); uOt15Hrs += otVal; } 
+                                  } 
+                              } else { fPay = 30; } 
                               dPay += fPay; uTotalPay += dPay; 
                           } else if (status === 'x') { 
                               if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; medLeavePay += wage; slipBasicSalary += wage; } 
@@ -955,20 +971,20 @@
                       } 
                   } 
                   
+                  let uOtHrs = uOt15Hrs + uOt20Hrs; // Admin တွင်လည်း အတိအကျပြရန် ပေါင်းထားသည်
                   totalEmployees++;
                   let totalAbs = uAbsent + uMedCount; let uBonus = (totalAbs > 0) ? 0 : bonusSetting; uTotalPay += uBonus; 
                   
                   let regularFoodAllowance = uWork * 30;
                   let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
-                  let netSalary = uTotalPay - ssoDeduction;
-                  if(netSalary < 0) netSalary = 0;
+                  let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
 
                   window.adminCalculated[uid] = { work: uWork, absent: uAbsent, med: uMedCount, ot: uOtHrs, double: uDouble, total: netSalary, gross: uTotalPay, sso: ssoDeduction };
                   grandTotalSalary += netSalary; 
                   
                   let name = uData.settings.empName; let empId = uData.settings.empId || '-'; 
-                  userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#198754; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Net Salary: ${netSalary.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; 
+                  userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>Total OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#198754; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Net Salary: ${netSalary.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; 
               } 
               
               let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#198754; font-size:16px; margin-top:8px;">Total Net Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; 
@@ -1007,7 +1023,8 @@
               let isWorking = (statusVal === '✓'); let displayOt = (ot === "0" || ot === 0 || ot === "" || !isWorking) ? "-" : ot; let displayTotal = (total === 0 || total === "0") ? "-" : total;
               excelData.push([date, displayShift, displayStatus, displayOt, displayTotal]); 
               
-              if(statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot); if(isAdminHoliday || isAdminDouble) expDouble++; } 
+              let rDateObj = new Date(rDate); let isSun = rDateObj.getDay() === 0;
+              if(statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot); if(isAdminHoliday || isAdminDouble || isSun) expDouble++; } 
               else if(statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else { expAbsent++; } } 
               expTotal += total; 
           } 
@@ -1036,7 +1053,7 @@
       if (!selectedMonthVal) return;
       if (!window.allUsersData) return alert("No data loaded");
 
-      let excelData = [ ["Emp ID", "Name", "Department", "Work Days", "OT Hours", "Absent", "Medical Leave", "Double Days", "Gross Salary", "SSO Deduction", "Net Salary"] ];
+      let excelData = [ ["Emp ID", "Name", "Department", "Work Days", "Total OT Hrs", "Absent", "Medical Leave", "Double Days", "Gross Salary", "SSO Deduction", "Net Salary"] ];
       
       for (let uid in window.allUsersData) {
           let u = window.allUsersData[uid];
