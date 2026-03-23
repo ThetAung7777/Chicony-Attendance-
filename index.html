@@ -355,6 +355,7 @@
     <div id="adminDetailContent"></div>
   </div>
 </div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -384,7 +385,7 @@
   window.allUsersData = {}; 
   window.currentViewUid = null;
   window.currentSlipData = {}; 
-  window.adminCalculated = {}; // Admin တွက်ချက်မှုများ ယာယီသိမ်းရန်
+  window.adminCalculated = {}; 
   const CALENDAR_YEAR = 2026; 
   let isDataLoaded = false; 
 
@@ -418,7 +419,6 @@
       document.getElementById('weekdaysHeader').innerHTML = `<div style="color:#dc3545;">${days[0]}</div><div>${days[1]}</div><div>${days[2]}</div><div>${days[3]}</div><div>${days[4]}</div><div>${days[5]}</div><div style="color:#007bff;">${days[6]}</div>`;
   }
 
-  // ရက်စွဲ ကာလ တွက်ချက်သည့် Function (Admin နှင့် User နှစ်ခုလုံးအတွက်)
   function getPeriodDates(yyyy_mm) {
       let [y, m] = yyyy_mm.split('-').map(Number);
       let startD = new Date(y, m - 2, 21);
@@ -426,11 +426,18 @@
       return { startD, endD };
   }
 
+  // ★ အမှားပြင်ဆင်ချက် - ၂၁ ရက်နေ့ရောက်သည်နှင့် ရှေ့လ (လသစ်) ကို Auto ကူးသွားစေရန် (+) ပြုလုပ်ထားပါသည် ★
   window.getRealCurrentMonth = () => {
-      let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1;
-      if (d.getDate() <= 20) {
-          realM--;
-          if (realM < 1) { realM = 12; realY--; }
+      let d = new Date(); 
+      let realY = d.getFullYear(); 
+      let realM = d.getMonth() + 1; // 1 မှ 12 အထိ
+      
+      if (d.getDate() >= 21) {
+          realM++; // ၂၁ ရက်နေ့ ကျော်ပါက နောက်လစာကာလသို့ ကူးမည် (ဥပမာ Mar 21 ဆိုလျှင် Apr သို့ပြောင်းမည်)
+          if (realM > 12) { 
+              realM = 1; 
+              realY++; 
+          }
       }
       return `${realY}-${String(realM).padStart(2,'0')}`;
   };
@@ -540,6 +547,7 @@
                   set(ref(db, 'users/' + currentUser.uid + '/settings'), appData.settings); 
               }
               
+              // App ဖွင့်လိုက်သည်နှင့် အရင်လစာရင်းကို မပြဘဲ လက်ရှိလစာရင်းကိုသာ အမြဲ Auto ပေါ်စေမည်
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               appData.settings.selectedMonth = realCurrentMonthStr;
               
@@ -867,7 +875,6 @@
   window.closeSlipModal = () => { document.getElementById('slipModal').style.display = 'none'; };
   window.printSlipArea = () => { window.print(); };
 
-  // ★ Admin Panel ကို ဖွင့်ရာတွင် လရွေးချယ်စနစ် (Month Picker) ပါဝင်အောင် ပြုပြင်ထားပါသည် ★
   window.openAdminPanel = (isInit = true) => { 
       document.getElementById('adminModal').style.display = 'flex'; 
       if (isInit) {
@@ -1016,7 +1023,6 @@
       XLSX.writeFile(wb, `${name}_Salary_${sDate}_to_${eDate}.xlsx`); closeExportModal(); 
   };
 
-  // ★ Admin Export All (ရွေးချယ်ထားသောလ သီးသန့်) ★
   window.exportAdminAll = () => {
       let selectedMonthVal = document.getElementById('adminMonthSelect').value;
       if (!selectedMonthVal) return;
@@ -1040,7 +1046,6 @@
       XLSX.writeFile(wb, `All_Employees_Salary_${selectedMonthVal}.xlsx`);
   };
 
-  // ★ Admin Detail View (ရွေးချယ်ထားသောလ သီးသန့် ပြသခြင်း) ★
   window.viewUserDetail = (uid) => { 
       window.currentViewUid = uid; let uData = window.allUsersData[uid]; if(!uData) return; 
       let selectedMonthVal = document.getElementById('adminMonthSelect').value;
