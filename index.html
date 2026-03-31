@@ -164,7 +164,10 @@
     <div id="leftMenu" class="dropdown left fade-in">
       <a href="#" onclick="openExportModal()" class="interactive-btn">📥 <span data-i18n="exportBtn">Export (Excel / PDF)</span></a>
       <a href="#" onclick="openCalendarModal()" style="color: #17a2b8; font-weight:bold;" class="interactive-btn">📅 <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></a>
+      
       <a href="#" id="adminPanelBtn" onclick="openAdminPanel(true)" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;" class="interactive-btn">🔐 <span data-i18n="adminPanel">Admin Panel</span></a>
+      <a href="#" id="themeBtn" onclick="openThemeModal()" style="display:none; color: #198754; font-weight: bold;" class="interactive-btn">🎨 Theme Settings</a>
+      <a href="#" id="annBtn" onclick="openAnnManageModal()" style="display:none; color: #d35400; font-weight: bold;" class="interactive-btn">📢 Announcement</a>
     </div>
     
     <h2 class="app-title">
@@ -208,10 +211,10 @@
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b></div>
       
       <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px; color:#6610f2;">
-          <span><span data-i18n="foodOt">OT ဆင်းသောရက် ထမင်းဖိုး</span> (<span id="foodOtDays">0</span>)</span> <b id="foodOtTotal">0</b>
+          <span><span data-i18n="foodOt">OT ထမင်းဖိုး</span> (<span id="foodOtDays">0</span>)</span> <b id="foodOtTotal">0</b>
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:#6610f2; border-bottom:1px solid #eee; padding-bottom: 4px;">
-          <span><span data-i18n="foodNoOt">OT မဆင်းသောရက် ထမင်းဖိုး</span> (<span id="foodNoOtDays">0</span>)</span> <b id="foodNoOtTotal">0</b>
+          <span><span data-i18n="foodNoOt">နေ့လည်စာ ထမင်းဖိုး</span> (<span id="foodNoOtDays">0</span>)</span> <b id="foodNoOtTotal">0</b>
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b></div>
@@ -306,6 +309,65 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="themeModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 400px;">
+    <button class="close-modal interactive-btn" onclick="closeThemeModal()">×</button>
+    <h3 style="margin-top: 0; color: #198754;" class="logo-main">🎨 Theme Settings</h3>
+    <div class="setup-box" style="margin-top: 15px;">
+      <div>
+        <label>Header Color</label>
+        <input type="color" id="adminHeaderColor" style="height: 40px; padding: 2px; cursor: pointer;">
+      </div>
+      <div>
+        <label>Background Color</label>
+        <input type="color" id="adminBodyColor" style="height: 40px; padding: 2px; cursor: pointer;">
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top: 20px;">
+      <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAppTheme()">Save Colors</button>
+      <button class="btn-generate interactive-btn" style="background:#6c757d; margin-top:0; flex: 1; font-size: 13px;" onclick="resetAppTheme()">Restore Default</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="annManageModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 400px;">
+    <button class="close-modal interactive-btn" onclick="closeAnnManageModal()">×</button>
+    <h3 style="margin-top: 0; color: #d35400;" class="logo-main">📢 Announcement</h3>
+    <div class="setup-box" style="margin-top: 10px;">
+      <div class="full-width">
+        <label>Date (Show on this date)</label>
+        <input type="date" id="adminAnnDate">
+      </div>
+      <div class="full-width">
+        <label>Upload Photo (Optional)</label>
+        <input type="file" id="adminAnnImgFile" accept="image/*" style="font-size: 12px; padding: 5px;" onchange="handleAdminAnnImage(event)">
+        <small id="adminAnnImgStatus" style="color: #198754; display: none; font-weight: bold; margin-top: 5px;">✓ Image loaded.</small>
+      </div>
+      <div class="full-width">
+        <label>Message (Optional)</label>
+        <textarea id="adminAnnText" rows="3" placeholder="Enter alert message..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top: 20px;">
+      <button class="btn-generate interactive-btn" style="background:#d35400; margin-top:0; flex: 2;" onclick="saveAppAnnouncement()">Save Alert</button>
+      <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="deleteAppAnnouncement()">Delete Alert</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="announcementModal" style="z-index: 9999;">
+  <div class="modal-content pop-in" style="text-align: center; max-width: 450px;">
+    <button class="close-modal interactive-btn" onclick="closeAnnouncement()">×</button>
+    <h3 style="margin-top: 0; color: #d35400; font-family: 'Bungee Inline', cursive;">📢 Announcement</h3>
+    <div style="margin: 15px 0;">
+       <img id="annDisplayImg" src="" style="max-width: 100%; border-radius: 10px; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    </div>
+    <p id="annDisplayText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.5; margin: 0;"></p>
+    <button class="btn-generate interactive-btn" onclick="closeAnnouncement()" style="background: #0d6efd; margin-top: 15px;">OK</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="exportModal">
   <div class="modal-content pop-in">
     <button class="close-modal interactive-btn" onclick="closeExportModal()">×</button>
@@ -320,64 +382,11 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="announcementModal" style="z-index: 9999;">
-  <div class="modal-content pop-in" style="text-align: center; max-width: 450px;">
-    <button class="close-modal interactive-btn" onclick="closeAnnouncement()">×</button>
-    <h3 style="margin-top: 0; color: #d35400; font-family: 'Bungee Inline', cursive;">📢 Announcement</h3>
-    <div style="margin: 15px 0;">
-       <img id="annDisplayImg" src="" style="max-width: 100%; border-radius: 10px; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-    </div>
-    <p id="annDisplayText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.5;"></p>
-    <button class="btn-generate interactive-btn" onclick="closeAnnouncement()" style="background: #0d6efd; margin-top: 10px;">OK</button>
-  </div>
-</div>
-
 <div class="modal-overlay" id="adminModal">
   <div class="modal-content pop-in" style="max-width: 600px; max-height: 85vh; overflow-y: auto;">
     <button class="close-modal interactive-btn" onclick="closeAdminPanel()">×</button>
     <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main">👨‍💼 Admin Panel</h3>
     
-    <div class="admin-manage-section">
-      <h4 style="margin:0 0 10px 0; font-size:14px; color:#198754;">🎨 Theme Settings</h4>
-      <div class="setup-box" style="margin-top: 0;">
-        <div>
-          <label>Header Color</label>
-          <input type="color" id="adminHeaderColor" style="height: 40px; padding: 2px;">
-        </div>
-        <div>
-          <label>Background Color</label>
-          <input type="color" id="adminBodyColor" style="height: 40px; padding: 2px;">
-        </div>
-        <div class="full-width">
-          <button class="interactive-btn btn-generate" style="background:#198754; margin-top: 5px; padding: 10px;" onclick="saveAppTheme()">Save Theme Colors</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="admin-manage-section">
-      <h4 style="margin:0 0 10px 0; font-size:14px; color:#d35400;">📢 Announcement (Pop-up alert)</h4>
-      <div class="setup-box" style="margin-top: 0;">
-        <div class="full-width">
-          <label>Date (Show on this date)</label>
-          <input type="date" id="adminAnnDate">
-        </div>
-        <div class="full-width">
-          <label>Upload Photo (Optional)</label>
-          <input type="file" id="adminAnnImgFile" accept="image/*" style="font-size: 12px; padding: 5px;" onchange="handleAdminAnnImage(event)">
-          <small id="adminAnnImgStatus" style="color: #198754; display: none;">✓ Image loaded ready to save.</small>
-        </div>
-        <div class="full-width">
-          <label>Message (Optional)</label>
-          <textarea id="adminAnnText" rows="3" placeholder="Enter alert message..."></textarea>
-        </div>
-        <div class="full-width">
-          <button class="interactive-btn btn-generate" style="background:#d35400; margin-top: 5px; padding: 10px;" onclick="saveAppAnnouncement()">Set Announcement</button>
-        </div>
-      </div>
-    </div>
-    
-    <div style="border-top: 2px dashed #ccc; margin: 15px 0;"></div>
-
     <div style="display:flex; gap:10px; margin-bottom: 10px;">
       <input type="month" id="adminMonthSelect" class="admin-search-box" style="margin-bottom: 0; flex:1;" onchange="openAdminPanel(false)">
       <input type="text" id="adminSearchInput" class="admin-search-box" style="margin-bottom: 0; flex:1;" placeholder="🔍 Search ID / Name" onkeyup="filterAdminUsers()">
@@ -521,12 +530,11 @@
           document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
           if(user.email === ADMIN_EMAIL) { 
               document.getElementById('adminPanelBtn').style.display = 'flex'; 
-              document.getElementById('adminCalendarControls').style.display = 'block'; 
+              document.getElementById('themeBtn').style.display = 'flex'; 
+              document.getElementById('annBtn').style.display = 'flex'; 
           }
           
-          // Theme နှင့် Announcement Data များကို Firebase မှ ခေါ်ယူမည်
           loadAppConfig(); 
-          
           loadGlobalCalendar(); 
           loadFromFirebase();
       } else { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
@@ -655,12 +663,10 @@
       });
   }
 
-  // ★ Theme နှင့် Announcement Config ကို Load လုပ်မည် ★
   function loadAppConfig() {
       onValue(ref(db, 'appConfig'), (snapshot) => {
           let config = snapshot.val() || {};
           
-          // Apply Theme Colors
           let headerColor = config.headerColor || 'white';
           let bodyColor = config.bodyColor || 'skyblue';
           document.documentElement.style.setProperty('--app-header-color', headerColor);
@@ -669,43 +675,61 @@
           if(currentUser && currentUser.email === ADMIN_EMAIL) {
               document.getElementById('adminHeaderColor').value = headerColor === 'white' ? '#ffffff' : headerColor;
               document.getElementById('adminBodyColor').value = bodyColor === 'skyblue' ? '#87ceeb' : bodyColor;
+              
+              if(config.annDate) document.getElementById('adminAnnDate').value = config.annDate;
+              else document.getElementById('adminAnnDate').value = '';
+              
+              if(config.annText) document.getElementById('adminAnnText').value = config.annText;
+              else document.getElementById('adminAnnText').value = '';
+              
+              if(config.annImg) {
+                  window.tempAnnImageBase64 = config.annImg;
+                  document.getElementById('adminAnnImgStatus').style.display = 'block';
+              } else {
+                  window.tempAnnImageBase64 = null;
+                  document.getElementById('adminAnnImgStatus').style.display = 'none';
+              }
           }
 
-          // Show Announcement Alert if matches today and not shown today yet
           let annDate = config.annDate;
           if (annDate) {
               let today = new Date();
-              // timezone offset ချိန်ညှိပြီး Local ISO string ထုတ်ယူခြင်း
               let tzOffset = today.getTimezoneOffset() * 60000; 
               let localISOTime = (new Date(today.getTime() - tzOffset)).toISOString().slice(0, -1);
               let todayStr = localISOTime.split('T')[0];
 
               if (annDate === todayStr) {
                   let lastShown = localStorage.getItem('lastAnnShownDate');
-                  // ဒီနေ့အတွက် မပြရသေးဘူးဆိုရင် ပြမယ်
                   if (lastShown !== todayStr) {
                       showAnnouncement(config.annImg, config.annText);
-                      localStorage.setItem('lastAnnShownDate', todayStr); // ပြပြီးကြောင်း မှတ်ထားမည်
+                      localStorage.setItem('lastAnnShownDate', todayStr); 
                   }
               }
-          }
-          
-          if(currentUser && currentUser.email === ADMIN_EMAIL) {
-              if(config.annDate) document.getElementById('adminAnnDate').value = config.annDate;
-              if(config.annText) document.getElementById('adminAnnText').value = config.annText;
           }
       });
   }
 
-  // ★ Admin: Theme Color သိမ်းဆည်းရန် ★
+  window.openThemeModal = () => { document.getElementById('themeModal').style.display = 'flex'; toggleMenu(null); };
+  window.closeThemeModal = () => document.getElementById('themeModal').style.display = 'none';
+
   window.saveAppTheme = () => {
       let hColor = document.getElementById('adminHeaderColor').value;
       let bColor = document.getElementById('adminBodyColor').value;
       update(ref(db, 'appConfig'), { headerColor: hColor, bodyColor: bColor })
-      .then(() => alert('✅ Theme Colors Saved! All users will see the update.'));
+      .then(() => { alert('✅ Theme Colors Saved!'); closeThemeModal(); });
   };
 
-  // ★ Admin: Base64 နည်းဖြင့် ဓာတ်ပုံကို ပြောင်းလဲပေးရန် ★
+  // ★ Restore Default Theme ★
+  window.resetAppTheme = () => {
+      if(confirm('Reset to Default Colors (White & Skyblue)?')) {
+          update(ref(db, 'appConfig'), { headerColor: 'white', bodyColor: 'skyblue' })
+          .then(() => { alert('✅ Theme Reset to Default!'); closeThemeModal(); });
+      }
+  };
+
+  window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
+  window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
+
   window.handleAdminAnnImage = (e) => {
       let file = e.target.files[0];
       if (!file) return;
@@ -717,11 +741,10 @@
       reader.readAsDataURL(file);
   };
 
-  // ★ Admin: ကြေညာချက် (Announcement) သိမ်းဆည်းရန် ★
   window.saveAppAnnouncement = () => {
       let aDate = document.getElementById('adminAnnDate').value;
       let aText = document.getElementById('adminAnnText').value;
-      let aImg = window.tempAnnImageBase64 || null; // အရင်ပုံဟောင်းမပျက်အောင် null ကို မသိမ်းခင် ထပ်စစ်လို့ရပေမယ့် အခုက အသစ်အတိုင်းသိမ်းပါမည်
+      let aImg = window.tempAnnImageBase64 || null; 
       
       if(!aDate) return alert('⚠️ Please select a Date for the announcement!');
       
@@ -729,10 +752,25 @@
       if(aImg) updateData.annImg = aImg;
 
       update(ref(db, 'appConfig'), updateData)
-      .then(() => alert('📢 Announcement Set successfully! It will show on the selected date.'));
+      .then(() => { alert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
   };
 
-  // ★ User: Announcement Pop-up ပြသရန် ★
+  // ★ Delete Announcement ★
+  window.deleteAppAnnouncement = () => {
+      if(confirm('Are you sure you want to delete the current announcement?')) {
+          update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null })
+          .then(() => { 
+              alert('🗑️ Announcement Deleted!'); 
+              document.getElementById('adminAnnDate').value = '';
+              document.getElementById('adminAnnText').value = '';
+              document.getElementById('adminAnnImgFile').value = '';
+              window.tempAnnImageBase64 = null;
+              document.getElementById('adminAnnImgStatus').style.display = 'none';
+              closeAnnManageModal(); 
+          });
+      }
+  };
+
   window.showAnnouncement = (imgBase64, textMsg) => {
       let imgEl = document.getElementById('annDisplayImg');
       let textEl = document.getElementById('annDisplayText');
