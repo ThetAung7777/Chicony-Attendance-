@@ -392,7 +392,7 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
-  // ရက်မှန်ကြေး Dropdown တွင် 200 ကို Auto ထည့်သွင်းပေးခြင်း
+  // ရက်မှန်ကြေး Dropdown ပြင်ဆင်ခြင်း
   let bSelect = document.getElementById('attBonusSetting');
   if(bSelect && !bSelect.innerHTML.includes('200')) {
       bSelect.innerHTML = `<option value="0">0</option><option value="200">200</option><option value="500">500</option><option value="800">800</option><option value="1000">1000</option>`;
@@ -536,7 +536,7 @@
 
       let newBonus = 500; 
       if (hasAbsence) {
-          newBonus = 500;
+          newBonus = 500; // ပျက်ရက်ရှိလျှင် နောက်လကို 500 မှပြန်စမည်
       } else {
           if (currentBonus <= 500) newBonus = 800;       
           else if (currentBonus === 800) newBonus = 1000; 
@@ -567,12 +567,18 @@
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
               document.getElementById('attBonusSetting').value = savedBonus;
 
-              document.getElementById('selectedMonth').value = realCurrentMonthStr; 
-              appData.settings.selectedMonth = realCurrentMonthStr;
-              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
-              isDataLoaded = true; 
-              
-              window.handleMonthChange(); 
+              let lastSavedMonth = appData.settings.selectedMonth || "";
+
+              if (lastSavedMonth && lastSavedMonth !== realCurrentMonthStr) {
+                  document.getElementById('selectedMonth').value = realCurrentMonthStr;
+                  isDataLoaded = true;
+                  window.handleMonthChange(); // လသစ်ရောက်လျှင် Bonus Auto ချိန်းမည်
+              } else {
+                  document.getElementById('selectedMonth').value = realCurrentMonthStr; 
+                  appData.settings.selectedMonth = realCurrentMonthStr;
+                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
+                  isDataLoaded = true; window.generateGrid(false); 
+              }
               
           } else {
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
@@ -758,7 +764,7 @@
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
       
-      let work=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, normalOtDays=0, total=0, transport=0, nightPay=0; 
+      let work=0, normalWorkDays=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, normalOtDays=0, total=0, transport=0, nightPay=0; 
       let lastFilledShift = 'day'; let slipBasicSalary = 0; 
       let ot15Hrs = 0, ot20Hrs = 0; let ot15Pay = 0, ot20Pay = 0;
       let baseHourRate = rate / 1.5; let rate20 = baseHourRate * 2;
@@ -778,10 +784,18 @@
           if (status === '✓') { otSelect.style.display = 'block'; if(otStatus === 'yes') otInput.style.display = 'block'; else otInput.style.display = 'none'; } else { otSelect.style.display = 'none'; otInput.style.display = 'none'; otStatus = 'no'; otVal = 0; }
 
           if (status === '-') {
-              if (isAdminHoliday) { pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay; slipBasicSalary += wage; doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':(currentLang==='th'?'วันหยุด':'Paid Hol'); info.innerHTML = `${dPay}฿`; c.classList.add('bg-yellow'); } else { holiday++; info.innerHTML = "-"; c.classList.add(isSun ? 'bg-red' : 'bg-yellow'); doubleLbl.innerText = ''; }
+              // ပိတ်ရက်ဖြစ်ပါက Basic Salary ထဲ မထည့်ဘဲ ပိတ်ရက်ခေါင်းစဉ်အောက် သီးသန့်ထားမည်
+              if (isAdminHoliday) { pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay; doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':(currentLang==='th'?'วันหยุด':'Paid Hol'); info.innerHTML = `${dPay}฿`; c.classList.add('bg-yellow'); } 
+              else { holiday++; info.innerHTML = "-"; c.classList.add(isSun ? 'bg-red' : 'bg-yellow'); doubleLbl.innerText = ''; }
           } else if (status === '✓') {
               work++; lastFilledShift = shift; 
-              if (isSpecialDay) { double++; doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue'); if(isSat) c.classList.add('double-saturday'); ot20Hrs += 8; let base20Pay = 8 * rate20; dPay += base20Pay; ot20Pay += base20Pay; } else { slipBasicSalary += wage; dPay += wage; doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green'); }
+              if (isSpecialDay) { 
+                  double++; doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue'); if(isSat) c.classList.add('double-saturday'); 
+                  ot20Hrs += 8; let base20Pay = 8 * rate20; dPay += base20Pay; ot20Pay += base20Pay; 
+              } else { 
+                  normalWorkDays++; slipBasicSalary += wage; dPay += wage; doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green'); 
+              }
+              
               dPay += 40; transport += 40; 
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
               
@@ -800,7 +814,9 @@
               
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
           } else if (status === 'x') {
-              if(leaveSelect.value === 'medical') { medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay; slipBasicSalary += wage; doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave'); info.innerHTML = `${dPay}฿`; } else { absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = ''; }
+              // ဆေးခွင့်ဖြစ်ပါက Basic Salary ထဲ မထည့်ဘဲ သီးသန့်ထားမည်
+              if(leaveSelect.value === 'medical') { medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay; doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave'); info.innerHTML = `${dPay}฿`; } 
+              else { absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = ''; }
               c.classList.add('bg-gray');
           } else { 
               dPay = 0; otVal = 0; info.innerHTML = "-"; 
@@ -815,16 +831,19 @@
       
       let nonOtDays = work - otDays; let foodOtTotal = otDays * 60; let foodNoOtTotal = nonOtDays * 30;
       
-      // ★ အမှားပြင်ဆင်ချက် - User ရွေးချယ်ထားသော Bonus ဂဏန်းကိုသာ အတိအကျ အသုံးပြုမည် (0 သို့ Auto ပြောင်းခြင်း ဖယ်ရှားလိုက်ပါပြီ) ★
-      let finalBonus = bonusSetting; 
+      // ★ အမှားပြင်ဆင်ချက် - ရက်ပျက်ရှိပါက လက်ရှိလအတွက် ရက်မှန်ကြေးကို 200 အဖြစ် Auto ပြောင်းပေးမည် ★
+      let totalAbsent = absentUnpaid + medLeaveCount; 
+      let finalBonus = bonusSetting;
+      if (totalAbsent > 0) {
+          finalBonus = 200; 
+      }
       total += finalBonus; 
       
       let otHrs = ot15Hrs + ot20Hrs;
 
+      // ★ အမှားပြင်ဆင်ချက် - SSO ကို အခြေခံလစာ နှင့် ထမင်းဖိုး ပေါ်တွင်သာ အတိအကျ တွက်ချက်မည် ★
       let regularFoodAllowance = work * 30; 
-      
-      // ★ အမှားပြင်ဆင်ချက် - SSO တွက်ချက်မှုတွင် Food Allowance ကို ဖယ်ထုတ်၍ ဥပဒေအတိုင်း အတိအကျ တွက်ချက်ထားသည် ★
-      let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay;
+      let ssoBaseAmount = slipBasicSalary + regularFoodAllowance; 
       let rawSso = ssoBaseAmount * 0.05; let ssoDeduction = Math.round(rawSso); ssoDeduction = Math.min(ssoDeduction, 750); 
       let netSalary = total - ssoDeduction;
 
@@ -956,7 +975,7 @@
                   let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; 
                   
                   let baseHourRate = otRate / 1.5; let rate20 = baseHourRate * 2;
-                  let uWork = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0; 
+                  let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0; 
                   let uOt15Hrs = 0, uOt20Hrs = 0;
                   
                   if (uData.attendance) { 
@@ -977,11 +996,11 @@
                           let dPay = 0, fPay = 0;
 
                           if (status === '-') { 
-                              if (isAdminHoliday) { uTotalPay += wage; pubHolPay += wage; slipBasicSalary += wage; } 
+                              if (isAdminHoliday) { uTotalPay += wage; pubHolPay += wage; } 
                           } else if (status === '✓') { 
                               uWork++; 
                               if (isSpecialDay) { uDouble++; dPay += (8 * rate20); uOt20Hrs += 8; } 
-                              else { dPay += wage; slipBasicSalary += wage; } 
+                              else { normalWorkDays++; dPay += wage; slipBasicSalary += wage; } 
                               
                               dPay += 40; if (shift === 'night') dPay += 100; 
                               
@@ -994,7 +1013,7 @@
                               } else { fPay = 30; } 
                               dPay += fPay; uTotalPay += dPay; 
                           } else if (status === 'x') { 
-                              if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; medLeavePay += wage; slipBasicSalary += wage; } 
+                              if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; medLeavePay += wage; } 
                               else { uAbsent++; } 
                           } 
                           cur.setDate(cur.getDate()+1);
@@ -1003,10 +1022,13 @@
                   
                   let uOtHrs = uOt15Hrs + uOt20Hrs; 
                   totalEmployees++;
-                  let totalAbs = uAbsent + uMedCount; let uBonus = bonusSetting; uTotalPay += uBonus; 
+                  
+                  let totalAbs = uAbsent + uMedCount; let uBonus = bonusSetting; 
+                  if (totalAbs > 0) uBonus = 200;
+                  uTotalPay += uBonus; 
                   
                   let regularFoodAllowance = uWork * 30;
-                  let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay;
+                  let ssoBaseAmount = slipBasicSalary + regularFoodAllowance;
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
 
@@ -1060,7 +1082,7 @@
           } 
       }); 
       
-      let totalAbs = expAbsent + expMedCount; let expBonus = bonusSetting; expTotal += expBonus; 
+      let totalAbs = expAbsent + expMedCount; let expBonus = bonusSetting; if(totalAbs > 0) expBonus = 200; expTotal += expBonus; 
       
       excelData.push([]); 
       excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]); 
