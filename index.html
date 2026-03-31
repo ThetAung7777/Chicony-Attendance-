@@ -837,11 +837,10 @@
       
       let otHrs = ot15Hrs + ot20Hrs;
 
-      // ★ Basic Salary ကို ရက်မှန် + ဆေးခွင့် (Work + Medical Leave) နှင့် တွက်ချက်သည် ★
       let combinedBasicSalary = (work + medLeaveCount) * wage;
       
-      // ★ SSO ကို အခြေခံလစာ + နေ့လည်စာ ထမင်းဖိုး ပေါ်တွင်သာ အတိအကျ တွက်ချက်သည် ★
-      let ssoBaseAmount = combinedBasicSalary + lunchAllowance; 
+      // ★ အမှားပြင်ဆင်ချက် - SSO တွက်ချက်မှုတွင် အခြေခံလစာ၊ နေ့လည်စာ နှင့် ညကြေး (Night Pay) တို့ကိုပါ ပေါင်းထည့်ထားသည် ★
+      let ssoBaseAmount = combinedBasicSalary + lunchAllowance + nightPay; 
       let rawSso = ssoBaseAmount * 0.05; 
       let ssoDeduction = Math.round(rawSso); 
       ssoDeduction = Math.min(ssoDeduction, 750); 
@@ -881,7 +880,6 @@
       if(endMIdx > 11) { endMIdx = 0; endY++; }
       let periodHeaderStr = `${engMonths[startMIdx]} 21 - ${engMonths[endMIdx]} 20, ${endY}`;
 
-      // ★ လစာစလစ်တွင် ဆေးခွင့်စာကြောင်းကို ဖယ်ရှားပြီး Basic Salary ထဲတွင် ပေါင်းထည့်ထားပါသည် ★
       let html = `
         <style> @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap'); .custom-logo-font { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; color: #21409A; letter-spacing: 1px;} </style>
         <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
@@ -977,6 +975,7 @@
                   let baseHourRate = otRate / 1.5; let rate20 = baseHourRate * 2;
                   let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0; 
                   let uOt15Hrs = 0, uOt20Hrs = 0;
+                  let uNightPay = 0; // Admin တွင် ညကြေးကို ထည့်တွက်ရန်
                   
                   if (uData.attendance) { 
                       let cur = new Date(startD);
@@ -1002,7 +1001,8 @@
                               if (isSpecialDay) { uDouble++; dPay += (8 * rate20); uOt20Hrs += 8; } 
                               else { normalWorkDays++; dPay += wage; slipBasicSalary += wage; } 
                               
-                              dPay += 40; if (shift === 'night') dPay += 100; 
+                              dPay += 40; 
+                              if (shift === 'night') { dPay += 100; uNightPay += 100; } 
                               
                               if (otStatus === 'yes') { 
                                   fPay = 60; 
@@ -1029,7 +1029,9 @@
                   
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
                   let regularFoodAllowance = uWork * 30;
-                  let ssoBaseAmount = combinedBasicSalary + regularFoodAllowance;
+                  
+                  // Admin SSO တွက်ချက်မှုတွင်လည်း ညကြေး (uNightPay) ကို ပေါင်းထည့်ထားပါသည်
+                  let ssoBaseAmount = combinedBasicSalary + regularFoodAllowance + uNightPay;
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
 
