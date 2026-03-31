@@ -14,7 +14,13 @@
 <style id="app-styles">
   @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap');
 
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: skyblue; margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
+  /* Body နှင့် Navbar အရောင်များကို JS မှ လှမ်းပြောင်းနိုင်ရန် CSS Variable များ သုံးထားပါသည် */
+  :root {
+    --app-bg-color: skyblue;
+    --app-header-color: white;
+  }
+
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   .fade-in { animation: fadeIn 0.2s ease-in-out; }
@@ -24,7 +30,7 @@
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  .navbar { background-color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease; }
+  .navbar { background-color: var(--app-header-color); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
   .app-title { text-align: center; margin: 0; line-height: 1.2; }
@@ -40,7 +46,7 @@
   .modal-content { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;}
   .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; z-index: 10;}
 
-  #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: skyblue; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
+  #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
   .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
@@ -48,8 +54,8 @@
   
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
-  .setup-box input, .setup-box select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: border 0.3s;}
-  .setup-box input:focus, .setup-box select:focus { border-color: #007bff; outline: none; }
+  .setup-box input, .setup-box select, .setup-box textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: border 0.3s;}
+  .setup-box input:focus, .setup-box select:focus, .setup-box textarea:focus { border-color: #007bff; outline: none; }
   .full-width { grid-column: span 2; }
   .btn-generate { color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; margin-top: 15px; width: 100%;}
   .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
@@ -108,18 +114,16 @@
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
   .dark-mode .dropdown a:hover { background-color: #333 !important; }
-  .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
+  .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .setup-box textarea, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
   .dark-mode .day-card { background: #2c2c2c !important; border-color: #444 !important; }
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
   .dark-mode .ui-summary-box { background-color: #1e1e1e !important; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
   .dark-mode .ui-summary-box span { color: #ccc !important; } .dark-mode .ui-summary-box b { color: #fff !important; }
   .dark-mode .ui-summary-box #grandTotal { color: #198754 !important; }
   .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
-  .dark-mode .day-card.bg-yellow .date-label { color: #ffda6a !important; }
   .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
   .dark-mode .double-saturday { border: 2px solid #ff6b81 !important; box-shadow: inset 0 0 5px rgba(255,107,129,0.5); } 
   .dark-mode .login-box { background: #1e1e1e !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-  .dark-mode #loginScreen { background-color: #121212 !important; }
   .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
@@ -240,17 +244,7 @@
 
 <div class="modal-overlay" id="slipModal" style="z-index: 500;">
   <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff; overflow-y: auto; overflow-x: hidden; max-height: 90vh;">
-    <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
-        <h3 style="margin:0; font-size: 15px;">🧾 <span data-i18n="slipTitle">ใบแจ้งเงินเดือน / Pay slip</span></h3>
-        <div style="display:flex; align-items:center; gap: 8px;">
-            <button class="interactive-btn" onclick="downloadSlipImage()" style="background: #28a745; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">🖼️ Photo</button>
-            <button class="interactive-btn" onclick="printSlipArea()" style="background: white; color: #004488; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">🖨️ Print</button>
-            <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="position:static; color:white; font-size:20px; background:none; border:none; padding:0;">×</button>
-        </div>
     </div>
-    <div id="slipPrintArea" style="width: 100%; box-sizing: border-box; padding: 15px; background: white;">
-        </div>
-  </div>
 </div>
 
 <div class="modal-overlay" id="calendarModal">
@@ -264,7 +258,7 @@
 
     <div id="adminCalendarControls" style="display:none;">
         <div class="admin-manage-section">
-            <h4 style="margin:0 0 10px 0; font-size:14px; color:#dc3545;">🔧 Admin Controls</h4>
+            <h4 style="margin:0 0 10px 0; font-size:14px; color:#dc3545;">🔧 Calendar Controls</h4>
             <div style="display:flex; gap:5px; margin-bottom:5px;">
                 <select id="adminDateType" style="padding:6px; border-radius:4px; font-weight:bold;">
                     <option value="holiday">🟨 Holiday</option>
@@ -294,17 +288,13 @@
       <div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div>
       <div class="full-width"><label data-i18n="deptLbl">ဌာန (Department)</label><input type="text" id="empDept" placeholder="Department" value="MKB MFG FA(LH)" oninput="saveToFirebase()"></div>
       
-      <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth" onchange="generateGrid(false)"></div>
+      <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth"></div>
       <div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
       <div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
       <div class="full-width">
         <label data-i18n="bonusLbl">ရက်မှန်ကြေး (Bonus)</label>
         <select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;">
-          <option value="0">0</option>
-          <option value="500">500</option>
-          <option value="800">800</option>
-          <option value="1000">1000</option>
-        </select>
+          </select>
       </div>
     </div>
     
@@ -330,11 +320,64 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="announcementModal" style="z-index: 9999;">
+  <div class="modal-content pop-in" style="text-align: center; max-width: 450px;">
+    <button class="close-modal interactive-btn" onclick="closeAnnouncement()">×</button>
+    <h3 style="margin-top: 0; color: #d35400; font-family: 'Bungee Inline', cursive;">📢 Announcement</h3>
+    <div style="margin: 15px 0;">
+       <img id="annDisplayImg" src="" style="max-width: 100%; border-radius: 10px; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    </div>
+    <p id="annDisplayText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.5;"></p>
+    <button class="btn-generate interactive-btn" onclick="closeAnnouncement()" style="background: #0d6efd; margin-top: 10px;">OK</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="adminModal">
-  <div class="modal-content pop-in" style="max-width: 550px; max-height: 85vh; overflow-y: auto;">
+  <div class="modal-content pop-in" style="max-width: 600px; max-height: 85vh; overflow-y: auto;">
     <button class="close-modal interactive-btn" onclick="closeAdminPanel()">×</button>
     <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main">👨‍💼 Admin Panel</h3>
     
+    <div class="admin-manage-section">
+      <h4 style="margin:0 0 10px 0; font-size:14px; color:#198754;">🎨 Theme Settings</h4>
+      <div class="setup-box" style="margin-top: 0;">
+        <div>
+          <label>Header Color</label>
+          <input type="color" id="adminHeaderColor" style="height: 40px; padding: 2px;">
+        </div>
+        <div>
+          <label>Background Color</label>
+          <input type="color" id="adminBodyColor" style="height: 40px; padding: 2px;">
+        </div>
+        <div class="full-width">
+          <button class="interactive-btn btn-generate" style="background:#198754; margin-top: 5px; padding: 10px;" onclick="saveAppTheme()">Save Theme Colors</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-manage-section">
+      <h4 style="margin:0 0 10px 0; font-size:14px; color:#d35400;">📢 Announcement (Pop-up alert)</h4>
+      <div class="setup-box" style="margin-top: 0;">
+        <div class="full-width">
+          <label>Date (Show on this date)</label>
+          <input type="date" id="adminAnnDate">
+        </div>
+        <div class="full-width">
+          <label>Upload Photo (Optional)</label>
+          <input type="file" id="adminAnnImgFile" accept="image/*" style="font-size: 12px; padding: 5px;" onchange="handleAdminAnnImage(event)">
+          <small id="adminAnnImgStatus" style="color: #198754; display: none;">✓ Image loaded ready to save.</small>
+        </div>
+        <div class="full-width">
+          <label>Message (Optional)</label>
+          <textarea id="adminAnnText" rows="3" placeholder="Enter alert message..."></textarea>
+        </div>
+        <div class="full-width">
+          <button class="interactive-btn btn-generate" style="background:#d35400; margin-top: 5px; padding: 10px;" onclick="saveAppAnnouncement()">Set Announcement</button>
+        </div>
+      </div>
+    </div>
+    
+    <div style="border-top: 2px dashed #ccc; margin: 15px 0;"></div>
+
     <div style="display:flex; gap:10px; margin-bottom: 10px;">
       <input type="month" id="adminMonthSelect" class="admin-search-box" style="margin-bottom: 0; flex:1;" onchange="openAdminPanel(false)">
       <input type="text" id="adminSearchInput" class="admin-search-box" style="margin-bottom: 0; flex:1;" placeholder="🔍 Search ID / Name" onkeyup="filterAdminUsers()">
@@ -476,8 +519,16 @@
       if (user) {
           currentUser = user; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block';
           document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
-          if(user.email === ADMIN_EMAIL) { document.getElementById('adminPanelBtn').style.display = 'flex'; document.getElementById('adminCalendarControls').style.display = 'block'; }
-          loadGlobalCalendar(); loadFromFirebase();
+          if(user.email === ADMIN_EMAIL) { 
+              document.getElementById('adminPanelBtn').style.display = 'flex'; 
+              document.getElementById('adminCalendarControls').style.display = 'block'; 
+          }
+          
+          // Theme နှင့် Announcement Data များကို Firebase မှ ခေါ်ယူမည်
+          loadAppConfig(); 
+          
+          loadGlobalCalendar(); 
+          loadFromFirebase();
       } else { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
   });
 
@@ -603,6 +654,103 @@
           if(isDataLoaded && document.getElementById('selectedMonth').value) window.generateGrid(false);
       });
   }
+
+  // ★ Theme နှင့် Announcement Config ကို Load လုပ်မည် ★
+  function loadAppConfig() {
+      onValue(ref(db, 'appConfig'), (snapshot) => {
+          let config = snapshot.val() || {};
+          
+          // Apply Theme Colors
+          let headerColor = config.headerColor || 'white';
+          let bodyColor = config.bodyColor || 'skyblue';
+          document.documentElement.style.setProperty('--app-header-color', headerColor);
+          document.documentElement.style.setProperty('--app-bg-color', bodyColor);
+          
+          if(currentUser && currentUser.email === ADMIN_EMAIL) {
+              document.getElementById('adminHeaderColor').value = headerColor === 'white' ? '#ffffff' : headerColor;
+              document.getElementById('adminBodyColor').value = bodyColor === 'skyblue' ? '#87ceeb' : bodyColor;
+          }
+
+          // Show Announcement Alert if matches today and not shown today yet
+          let annDate = config.annDate;
+          if (annDate) {
+              let today = new Date();
+              // timezone offset ချိန်ညှိပြီး Local ISO string ထုတ်ယူခြင်း
+              let tzOffset = today.getTimezoneOffset() * 60000; 
+              let localISOTime = (new Date(today.getTime() - tzOffset)).toISOString().slice(0, -1);
+              let todayStr = localISOTime.split('T')[0];
+
+              if (annDate === todayStr) {
+                  let lastShown = localStorage.getItem('lastAnnShownDate');
+                  // ဒီနေ့အတွက် မပြရသေးဘူးဆိုရင် ပြမယ်
+                  if (lastShown !== todayStr) {
+                      showAnnouncement(config.annImg, config.annText);
+                      localStorage.setItem('lastAnnShownDate', todayStr); // ပြပြီးကြောင်း မှတ်ထားမည်
+                  }
+              }
+          }
+          
+          if(currentUser && currentUser.email === ADMIN_EMAIL) {
+              if(config.annDate) document.getElementById('adminAnnDate').value = config.annDate;
+              if(config.annText) document.getElementById('adminAnnText').value = config.annText;
+          }
+      });
+  }
+
+  // ★ Admin: Theme Color သိမ်းဆည်းရန် ★
+  window.saveAppTheme = () => {
+      let hColor = document.getElementById('adminHeaderColor').value;
+      let bColor = document.getElementById('adminBodyColor').value;
+      update(ref(db, 'appConfig'), { headerColor: hColor, bodyColor: bColor })
+      .then(() => alert('✅ Theme Colors Saved! All users will see the update.'));
+  };
+
+  // ★ Admin: Base64 နည်းဖြင့် ဓာတ်ပုံကို ပြောင်းလဲပေးရန် ★
+  window.handleAdminAnnImage = (e) => {
+      let file = e.target.files[0];
+      if (!file) return;
+      let reader = new FileReader();
+      reader.onload = function(event) {
+          window.tempAnnImageBase64 = event.target.result;
+          document.getElementById('adminAnnImgStatus').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+  };
+
+  // ★ Admin: ကြေညာချက် (Announcement) သိမ်းဆည်းရန် ★
+  window.saveAppAnnouncement = () => {
+      let aDate = document.getElementById('adminAnnDate').value;
+      let aText = document.getElementById('adminAnnText').value;
+      let aImg = window.tempAnnImageBase64 || null; // အရင်ပုံဟောင်းမပျက်အောင် null ကို မသိမ်းခင် ထပ်စစ်လို့ရပေမယ့် အခုက အသစ်အတိုင်းသိမ်းပါမည်
+      
+      if(!aDate) return alert('⚠️ Please select a Date for the announcement!');
+      
+      let updateData = { annDate: aDate, annText: aText };
+      if(aImg) updateData.annImg = aImg;
+
+      update(ref(db, 'appConfig'), updateData)
+      .then(() => alert('📢 Announcement Set successfully! It will show on the selected date.'));
+  };
+
+  // ★ User: Announcement Pop-up ပြသရန် ★
+  window.showAnnouncement = (imgBase64, textMsg) => {
+      let imgEl = document.getElementById('annDisplayImg');
+      let textEl = document.getElementById('annDisplayText');
+      
+      if (imgBase64 && imgBase64.startsWith('data:image')) {
+          imgEl.src = imgBase64;
+          imgEl.style.display = 'block';
+      } else {
+          imgEl.style.display = 'none';
+      }
+      
+      textEl.innerText = textMsg || '';
+      document.getElementById('announcementModal').style.display = 'flex';
+  };
+
+  window.closeAnnouncement = () => {
+      document.getElementById('announcementModal').style.display = 'none';
+  };
 
   window.addAdminDate = () => { let date = document.getElementById('adminNewDate').value; let type = document.getElementById('adminDateType').value; let desc = document.getElementById('adminNewDesc').value; if(!date) return alert("Select Date!"); if(type === 'holiday' && !desc) return alert("Enter holiday description!"); let dataToSave = type === 'holiday' ? { type: 'holiday', desc: desc } : { type: 'double', desc: desc || 'Double' }; set(ref(db, 'globalCalendar/' + date), dataToSave).then(() => { document.getElementById('adminNewDate').value = ''; document.getElementById('adminNewDesc').value = ''; }); };
   window.deleteAdminDate = (dateKey) => { if(confirm("Are you sure?")) remove(ref(db, 'globalCalendar/' + dateKey)); };
@@ -839,7 +987,6 @@
 
       let combinedBasicSalary = (work + medLeaveCount) * wage;
       
-      // ★ အမှားပြင်ဆင်ချက် - SSO တွက်ချက်မှုတွင် အခြေခံလစာ၊ နေ့လည်စာ နှင့် ညကြေး (Night Pay) တို့ကိုပါ ပေါင်းထည့်ထားသည် ★
       let ssoBaseAmount = combinedBasicSalary + lunchAllowance + nightPay; 
       let rawSso = ssoBaseAmount * 0.05; 
       let ssoDeduction = Math.round(rawSso); 
@@ -975,7 +1122,7 @@
                   let baseHourRate = otRate / 1.5; let rate20 = baseHourRate * 2;
                   let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0; 
                   let uOt15Hrs = 0, uOt20Hrs = 0;
-                  let uNightPay = 0; // Admin တွင် ညကြေးကို ထည့်တွက်ရန်
+                  let uNightPay = 0;
                   
                   if (uData.attendance) { 
                       let cur = new Date(startD);
@@ -1030,7 +1177,6 @@
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
                   let regularFoodAllowance = uWork * 30;
                   
-                  // Admin SSO တွက်ချက်မှုတွင်လည်း ညကြေး (uNightPay) ကို ပေါင်းထည့်ထားပါသည်
                   let ssoBaseAmount = combinedBasicSalary + regularFoodAllowance + uNightPay;
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
