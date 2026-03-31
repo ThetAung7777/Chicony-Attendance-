@@ -168,6 +168,7 @@
       <a href="#" id="adminPanelBtn" onclick="openAdminPanel(true)" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;" class="interactive-btn">🔐 <span data-i18n="adminPanel">Admin Panel</span></a>
       <a href="#" id="themeBtn" onclick="openThemeModal()" style="display:none; color: #198754; font-weight: bold;" class="interactive-btn">🎨 Theme Settings</a>
       <a href="#" id="annBtn" onclick="openAnnManageModal()" style="display:none; color: #d35400; font-weight: bold;" class="interactive-btn">📢 Announcement</a>
+      <a href="#" id="alertMenuBtn" onclick="openAlertSettingsModal()" style="display:none; color: #6f42c1; font-weight: bold;" class="interactive-btn">🔔 Alert Settings</a>
     </div>
     
     <h2 class="app-title">
@@ -241,6 +242,48 @@
         <a href="http://line.me/ti/p/~678777705" target="_blank" class="interactive-btn">💬 LINE: 678777705</a>
         <a href="https://t.me/ThetAung7777" target="_blank" class="interactive-btn">✈️ Telegram: @ThetAung7777</a>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="customAlertModal" style="z-index: 10000;">
+  <div class="modal-content pop-in" style="text-align: center; max-width: 350px; padding: 25px;">
+    <h3 style="margin-top: 0; color: #007bff; font-family: 'Bungee Inline', cursive; letter-spacing: 1px;">💬 Chicony</h3>
+    <p id="customAlertText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.6; margin: 15px 0; font-weight: 500;"></p>
+    <button class="btn-generate interactive-btn" onclick="closeCustomAlert()" style="background: #0d6efd; margin-top: 10px; width: 120px; padding: 10px; font-size: 14px;">OK</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="alertSettingsModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
+    <button class="close-modal interactive-btn" onclick="closeAlertSettingsModal()">×</button>
+    <h3 style="margin-top: 0; color: #6f42c1;" class="logo-main">🔔 Alert Settings</h3>
+
+    <div class="admin-manage-section">
+      <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📅 OT ဆင်းလျှင် နေ့အလိုက် ပေါ်မည့်စာ</h4>
+      <div class="setup-box" style="margin-top:0;">
+        <div class="full-width"><label>တနင်္ဂနွေ (Sunday)</label><input type="text" id="alertOtSun" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>တနင်္လာ (Monday)</label><input type="text" id="alertOtMon" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>အင်္ဂါ (Tuesday)</label><input type="text" id="alertOtTue" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>ဗုဒ္ဓဟူး (Wednesday)</label><input type="text" id="alertOtWed" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>ကြာသပတေး (Thursday)</label><input type="text" id="alertOtThu" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>သောကြာ (Friday)</label><input type="text" id="alertOtFri" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>စနေ (Saturday)</label><input type="text" id="alertOtSat" placeholder="Leave empty for no alert"></div>
+      </div>
+    </div>
+
+    <div class="admin-manage-section">
+      <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်မှုအလိုက် ပေါ်မည့်စာ</h4>
+      <div class="setup-box" style="margin-top:0;">
+        <div class="full-width"><label>✓ ဆင်းသည် (Present)</label><input type="text" id="alertStatWork" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>x ပျက်ရက် / ခွင့် (Absent / Leave)</label><input type="text" id="alertStatAbsent" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>- ပိတ်ရက် (Holiday)</label><input type="text" id="alertStatHoliday" placeholder="Leave empty for no alert"></div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top: 20px;">
+      <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAlertSettings()">Save Alerts</button>
+      <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="clearAlertSettings()">Clear All</button>
     </div>
   </div>
 </div>
@@ -450,9 +493,9 @@
   }
 
   const translations = {
-      my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)" },
-      en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Lunch Allowance", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip" },
-      th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", otFirstDay: "วันแรกของการทำงาน สู้ๆ! 😂", otSaturday: "โอทีวันเสาร์ ได้เงินเพิ่ม! 💸", otSunday: "โอทีวันอาทิตย์ สุดยอดขยัน! 👑", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip" }
+      my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)" },
+      en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Lunch Allowance", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip" },
+      th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip" }
   };
 
   const weekdaysText = {
@@ -469,6 +512,23 @@
       my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ ဆင်းသည်', statusAbsent: 'x ပျက်ရက်', statusHoliday: '- ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
       en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
       th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
+  };
+
+  // ★ Alert Settings များကို သိမ်းဆည်းရန် Global Variable ★
+  window.customAlertMsgs = {
+      otSun: '', otMon: '', otTue: '', otWed: '', otThu: '', otFri: '', otSat: '',
+      statWork: '', statAbsent: '', statHoliday: ''
+  };
+
+  // ★ Custom Alert Function ★
+  window.showCustomAlert = (textMsg) => {
+      if(!textMsg || textMsg.trim() === '') return;
+      document.getElementById('customAlertText').innerText = textMsg;
+      document.getElementById('customAlertModal').style.display = 'flex';
+  };
+
+  window.closeCustomAlert = () => {
+      document.getElementById('customAlertModal').style.display = 'none';
   };
 
   function updateWeekdaysHeader() {
@@ -518,7 +578,7 @@
       signInWithPopup(auth, provider).then(() => {
       }).catch((error) => {
           document.getElementById('loadingSpinner').style.display = 'none';
-          alert("Login Error: " + error.message);
+          showCustomAlert("Login Error: " + error.message);
       });
   };
 
@@ -532,6 +592,7 @@
               document.getElementById('adminPanelBtn').style.display = 'flex'; 
               document.getElementById('themeBtn').style.display = 'flex'; 
               document.getElementById('annBtn').style.display = 'flex'; 
+              document.getElementById('alertMenuBtn').style.display = 'flex'; 
           }
           
           loadAppConfig(); 
@@ -672,6 +733,13 @@
           document.documentElement.style.setProperty('--app-header-color', headerColor);
           document.documentElement.style.setProperty('--app-bg-color', bodyColor);
           
+          // ★ Load Custom Alert Settings ★
+          if (config.alerts) {
+              window.customAlertMsgs = config.alerts;
+          } else {
+              window.customAlertMsgs = { otSun: '', otMon: '', otTue: '', otWed: '', otThu: '', otFri: '', otSat: '', statWork: '', statAbsent: '', statHoliday: '' };
+          }
+          
           if(currentUser && currentUser.email === ADMIN_EMAIL) {
               document.getElementById('adminHeaderColor').value = headerColor === 'white' ? '#ffffff' : headerColor;
               document.getElementById('adminBodyColor').value = bodyColor === 'skyblue' ? '#87ceeb' : bodyColor;
@@ -689,6 +757,18 @@
                   window.tempAnnImageBase64 = null;
                   document.getElementById('adminAnnImgStatus').style.display = 'none';
               }
+              
+              document.getElementById('alertOtSun').value = window.customAlertMsgs.otSun || '';
+              document.getElementById('alertOtMon').value = window.customAlertMsgs.otMon || '';
+              document.getElementById('alertOtTue').value = window.customAlertMsgs.otTue || '';
+              document.getElementById('alertOtWed').value = window.customAlertMsgs.otWed || '';
+              document.getElementById('alertOtThu').value = window.customAlertMsgs.otThu || '';
+              document.getElementById('alertOtFri').value = window.customAlertMsgs.otFri || '';
+              document.getElementById('alertOtSat').value = window.customAlertMsgs.otSat || '';
+              
+              document.getElementById('alertStatWork').value = window.customAlertMsgs.statWork || '';
+              document.getElementById('alertStatAbsent').value = window.customAlertMsgs.statAbsent || '';
+              document.getElementById('alertStatHoliday').value = window.customAlertMsgs.statHoliday || '';
           }
 
           let annDate = config.annDate;
@@ -709,6 +789,36 @@
       });
   }
 
+  // ★ Admin: Alert Settings Methods ★
+  window.openAlertSettingsModal = () => { document.getElementById('alertSettingsModal').style.display = 'flex'; toggleMenu(null); };
+  window.closeAlertSettingsModal = () => document.getElementById('alertSettingsModal').style.display = 'none';
+  
+  window.saveAlertSettings = () => {
+      let alertsObj = {
+          otSun: document.getElementById('alertOtSun').value.trim(),
+          otMon: document.getElementById('alertOtMon').value.trim(),
+          otTue: document.getElementById('alertOtTue').value.trim(),
+          otWed: document.getElementById('alertOtWed').value.trim(),
+          otThu: document.getElementById('alertOtThu').value.trim(),
+          otFri: document.getElementById('alertOtFri').value.trim(),
+          otSat: document.getElementById('alertOtSat').value.trim(),
+          statWork: document.getElementById('alertStatWork').value.trim(),
+          statAbsent: document.getElementById('alertStatAbsent').value.trim(),
+          statHoliday: document.getElementById('alertStatHoliday').value.trim(),
+      };
+      
+      update(ref(db, 'appConfig'), { alerts: alertsObj })
+      .then(() => { showCustomAlert('✅ Alert Settings Saved!'); closeAlertSettingsModal(); });
+  };
+  
+  window.clearAlertSettings = () => {
+      if(confirm('Are you sure you want to clear all alerts?')) {
+          let emptyAlerts = { otSun: '', otMon: '', otTue: '', otWed: '', otThu: '', otFri: '', otSat: '', statWork: '', statAbsent: '', statHoliday: '' };
+          update(ref(db, 'appConfig'), { alerts: emptyAlerts })
+          .then(() => { showCustomAlert('🗑️ All alerts cleared!'); closeAlertSettingsModal(); });
+      }
+  };
+
   window.openThemeModal = () => { document.getElementById('themeModal').style.display = 'flex'; toggleMenu(null); };
   window.closeThemeModal = () => document.getElementById('themeModal').style.display = 'none';
 
@@ -716,14 +826,13 @@
       let hColor = document.getElementById('adminHeaderColor').value;
       let bColor = document.getElementById('adminBodyColor').value;
       update(ref(db, 'appConfig'), { headerColor: hColor, bodyColor: bColor })
-      .then(() => { alert('✅ Theme Colors Saved!'); closeThemeModal(); });
+      .then(() => { showCustomAlert('✅ Theme Colors Saved!'); closeThemeModal(); });
   };
 
-  // ★ Restore Default Theme ★
   window.resetAppTheme = () => {
       if(confirm('Reset to Default Colors (White & Skyblue)?')) {
           update(ref(db, 'appConfig'), { headerColor: 'white', bodyColor: 'skyblue' })
-          .then(() => { alert('✅ Theme Reset to Default!'); closeThemeModal(); });
+          .then(() => { showCustomAlert('✅ Theme Reset to Default!'); closeThemeModal(); });
       }
   };
 
@@ -746,21 +855,20 @@
       let aText = document.getElementById('adminAnnText').value;
       let aImg = window.tempAnnImageBase64 || null; 
       
-      if(!aDate) return alert('⚠️ Please select a Date for the announcement!');
+      if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!');
       
       let updateData = { annDate: aDate, annText: aText };
       if(aImg) updateData.annImg = aImg;
 
       update(ref(db, 'appConfig'), updateData)
-      .then(() => { alert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
+      .then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
   };
 
-  // ★ Delete Announcement ★
   window.deleteAppAnnouncement = () => {
       if(confirm('Are you sure you want to delete the current announcement?')) {
           update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null })
           .then(() => { 
-              alert('🗑️ Announcement Deleted!'); 
+              showCustomAlert('🗑️ Announcement Deleted!'); 
               document.getElementById('adminAnnDate').value = '';
               document.getElementById('adminAnnText').value = '';
               document.getElementById('adminAnnImgFile').value = '';
@@ -790,7 +898,7 @@
       document.getElementById('announcementModal').style.display = 'none';
   };
 
-  window.addAdminDate = () => { let date = document.getElementById('adminNewDate').value; let type = document.getElementById('adminDateType').value; let desc = document.getElementById('adminNewDesc').value; if(!date) return alert("Select Date!"); if(type === 'holiday' && !desc) return alert("Enter holiday description!"); let dataToSave = type === 'holiday' ? { type: 'holiday', desc: desc } : { type: 'double', desc: desc || 'Double' }; set(ref(db, 'globalCalendar/' + date), dataToSave).then(() => { document.getElementById('adminNewDate').value = ''; document.getElementById('adminNewDesc').value = ''; }); };
+  window.addAdminDate = () => { let date = document.getElementById('adminNewDate').value; let type = document.getElementById('adminDateType').value; let desc = document.getElementById('adminNewDesc').value; if(!date) return showCustomAlert("Select Date!"); if(type === 'holiday' && !desc) return showCustomAlert("Enter holiday description!"); let dataToSave = type === 'holiday' ? { type: 'holiday', desc: desc } : { type: 'double', desc: desc || 'Double' }; set(ref(db, 'globalCalendar/' + date), dataToSave).then(() => { document.getElementById('adminNewDate').value = ''; document.getElementById('adminNewDesc').value = ''; }); };
   window.deleteAdminDate = (dateKey) => { if(confirm("Are you sure?")) remove(ref(db, 'globalCalendar/' + dateKey)); };
   window.editAdminDate = (dateKey) => { let currentData = globalCalendar[dateKey]; let newDesc = prompt("Edit Description:", currentData.desc || ""); if(newDesc !== null && newDesc.trim() !== "") set(ref(db, 'globalCalendar/' + dateKey), { type: currentData.type, desc: newDesc }); };
 
@@ -803,7 +911,37 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  window.showHolidayAlert = (desc) => { let prefix = translations[currentLang].holAlertPrefix; alert(prefix + desc); };
+  // ★ Status Event Listener ★
+  window.handleStatusChange = (el) => {
+      let val = el.value;
+      if (val === '✓' && window.customAlertMsgs.statWork) showCustomAlert(window.customAlertMsgs.statWork);
+      else if (val === 'x' && window.customAlertMsgs.statAbsent) showCustomAlert(window.customAlertMsgs.statAbsent);
+      else if (val === '-' && window.customAlertMsgs.statHoliday) showCustomAlert(window.customAlertMsgs.statHoliday);
+      
+      calculateAll();
+  };
+
+  // ★ OT Event Listener ★
+  window.toggleOTInput = (el) => { 
+      let input = el.parentElement.querySelector('.ot-hours'); let card = el.closest('.day-card'); let dateStr = card.getAttribute('data-date'); 
+      
+      if(el.value === 'yes') { 
+          input.style.display = 'block'; 
+          if(!card.hasAttribute('data-alerted')) { 
+              let alerted = false;
+              if(dateStr.includes(weekdaysText[currentLang][0]) && window.customAlertMsgs.otSun) { showCustomAlert(window.customAlertMsgs.otSun); alerted = true; }
+              else if(dateStr.includes(weekdaysText[currentLang][1]) && window.customAlertMsgs.otMon) { showCustomAlert(window.customAlertMsgs.otMon); alerted = true; }
+              else if(dateStr.includes(weekdaysText[currentLang][2]) && window.customAlertMsgs.otTue) { showCustomAlert(window.customAlertMsgs.otTue); alerted = true; }
+              else if(dateStr.includes(weekdaysText[currentLang][3]) && window.customAlertMsgs.otWed) { showCustomAlert(window.customAlertMsgs.otWed); alerted = true; }
+              else if(dateStr.includes(weekdaysText[currentLang][4]) && window.customAlertMsgs.otThu) { showCustomAlert(window.customAlertMsgs.otThu); alerted = true; }
+              else if(dateStr.includes(weekdaysText[currentLang][5]) && window.customAlertMsgs.otFri) { showCustomAlert(window.customAlertMsgs.otFri); alerted = true; }
+              else if(dateStr.includes(weekdaysText[currentLang][6]) && window.customAlertMsgs.otSat) { showCustomAlert(window.customAlertMsgs.otSat); alerted = true; }
+              
+              if(alerted) card.setAttribute('data-alerted', 'true'); 
+          } 
+      } else { input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); } 
+      calculateAll(); 
+  };
 
   function renderYearCalendar() {
       document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR;
@@ -826,7 +964,7 @@
               let calData = globalCalendar[dateKey]; let classes = 'cal-day'; let onClick = '';
               
               if(calData) {
-                  if(calData.type === 'holiday') { classes += ' cal-holiday'; let safeDesc = calData.desc ? calData.desc.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ''; onClick = `onclick="showHolidayAlert('${safeDesc}')"`; }
+                  if(calData.type === 'holiday') { classes += ' cal-holiday'; let safeDesc = calData.desc ? calData.desc.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ''; onClick = `onclick="showCustomAlert('${safeDesc}')"`; }
                   else if(calData.type === 'double') { classes += ' cal-double'; if(isSat) classes += ' double-saturday'; }
               } else if(isSun) { classes += ' cal-sun'; }
               gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`;
@@ -853,26 +991,12 @@
   
   window.updateSettings = () => { 
       let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
-      if(nameInput === "") { alert(translations[currentLang].reqName); return; }
-      if(idInput === "") { alert(translations[currentLang].reqId); return; }
+      if(nameInput === "") { showCustomAlert(translations[currentLang].reqName); return; }
+      if(idInput === "") { showCustomAlert(translations[currentLang].reqId); return; }
       saveToFirebase(); calculateAll(); 
       document.getElementById('settingsModal').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
       document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
-  };
-  
-  window.toggleOTInput = (el) => { 
-      let input = el.parentElement.querySelector('.ot-hours'); let card = el.closest('.day-card'); let dateStr = card.getAttribute('data-date'); 
-      if(el.value === 'yes') { 
-          input.style.display = 'block'; 
-          if(!card.hasAttribute('data-alerted')) { 
-              if(dateStr.includes(weekdaysText[currentLang][1])) alert(translations[currentLang].otFirstDay); 
-              else if(dateStr.includes(weekdaysText[currentLang][6])) alert(translations[currentLang].otSaturday); 
-              else if(dateStr.includes(weekdaysText[currentLang][0])) alert(translations[currentLang].otSunday); 
-              card.setAttribute('data-alerted', 'true'); 
-          } 
-      } else { input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); } 
-      calculateAll(); 
   };
 
   window.generateGrid = (isNew = true) => {
@@ -906,7 +1030,7 @@
             <label class="date-label">${displayDate}</label>
             <div class="double-label" style="font-size: 10px; color: #0d6efd; font-weight: bold; margin-bottom: 2px; height: 12px;"></div>
             <select class="shift-select" onchange="calculateAll()" style="background:#e9ecef;"><option value="day">${dd.shiftDay}</option><option value="night">${dd.shiftNight}</option></select>
-            <select class="status-select" onchange="calculateAll()">
+            <select class="status-select" onchange="handleStatusChange(this)">
               <option value="" ${!isHolidayOrSun ? 'selected' : ''}>${dd.select}</option>
               <option value="✓">${dd.statusWork}</option>
               <option value="x">${dd.statusAbsent}</option>
@@ -1053,7 +1177,7 @@
           let d = window.currentSlipData; let p = d && d.period ? d.period : 'slip';
           link.download = `Chicony_Slip_${p}.jpg`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
           printArea.style.background = originalBackground;
-      }).catch(err => { console.error("Error generating image: ", err); alert("Failed to save image."); });
+      }).catch(err => { console.error("Error generating image: ", err); showCustomAlert("Failed to save image."); });
   };
 
   window.openSalarySlip = () => {
