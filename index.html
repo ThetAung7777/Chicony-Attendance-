@@ -260,24 +260,23 @@
     <h3 style="margin-top: 0; color: #6f42c1;" class="logo-main">🔔 Alert Settings</h3>
 
     <div class="admin-manage-section">
-      <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📅 OT ဆင်းလျှင် နေ့အလိုက် ပေါ်မည့်စာ</h4>
-      <div class="setup-box" style="margin-top:0;">
-        <div class="full-width"><label>တနင်္ဂနွေ (Sunday)</label><input type="text" id="alertOtSun" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>တနင်္လာ (Monday)</label><input type="text" id="alertOtMon" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>အင်္ဂါ (Tuesday)</label><input type="text" id="alertOtTue" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>ဗုဒ္ဓဟူး (Wednesday)</label><input type="text" id="alertOtWed" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>ကြာသပတေး (Thursday)</label><input type="text" id="alertOtThu" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>သောကြာ (Friday)</label><input type="text" id="alertOtFri" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>စနေ (Saturday)</label><input type="text" id="alertOtSat" placeholder="Leave empty for no alert"></div>
-      </div>
-    </div>
+      <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
+      <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
+        <option value="work">✓ ဆင်းသည် (Present)</option>
+        <option value="absent">x ပျက်ရက် / ခွင့် (Absent / Leave)</option>
+        <option value="holiday">- ပိတ်ရက် (Holiday)</option>
+        <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
+      </select>
 
-    <div class="admin-manage-section">
-      <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်မှုအလိုက် ပေါ်မည့်စာ</h4>
+      <h4 style="margin:0 0 10px 0; font-size:13px; color:#666;">📅 ရက်အလိုက် ပေါ်မည့်စာများ ထည့်သွင်းရန်</h4>
       <div class="setup-box" style="margin-top:0;">
-        <div class="full-width"><label>✓ ဆင်းသည် (Present)</label><input type="text" id="alertStatWork" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>x ပျက်ရက် / ခွင့် (Absent / Leave)</label><input type="text" id="alertStatAbsent" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>- ပိတ်ရက် (Holiday)</label><input type="text" id="alertStatHoliday" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>တနင်္ဂနွေ (Sunday)</label><input type="text" id="alertInputSun" oninput="updateTempAlert('Sun', this.value)" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>တနင်္လာ (Monday)</label><input type="text" id="alertInputMon" oninput="updateTempAlert('Mon', this.value)" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>အင်္ဂါ (Tuesday)</label><input type="text" id="alertInputTue" oninput="updateTempAlert('Tue', this.value)" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>ဗုဒ္ဓဟူး (Wednesday)</label><input type="text" id="alertInputWed" oninput="updateTempAlert('Wed', this.value)" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>ကြာသပတေး (Thursday)</label><input type="text" id="alertInputThu" oninput="updateTempAlert('Thu', this.value)" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>သောကြာ (Friday)</label><input type="text" id="alertInputFri" oninput="updateTempAlert('Fri', this.value)" placeholder="Leave empty for no alert"></div>
+        <div class="full-width"><label>စနေ (Saturday)</label><input type="text" id="alertInputSat" oninput="updateTempAlert('Sat', this.value)" placeholder="Leave empty for no alert"></div>
       </div>
     </div>
 
@@ -514,13 +513,15 @@
       th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
 
-  // ★ Alert Settings များကို သိမ်းဆည်းရန် Global Variable ★
+  // ★ ၇ ရက်စာ အခြေအနေအလိုက် Alert များကို သိမ်းဆည်းမည့် အပိုင်း ★
   window.customAlertMsgs = {
-      otSun: '', otMon: '', otTue: '', otWed: '', otThu: '', otFri: '', otSat: '',
-      statWork: '', statAbsent: '', statHoliday: ''
+      work: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+      absent: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+      holiday: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+      ot: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }
   };
+  window.currentAlertType = 'work'; // ပုံသေ ဆင်းသည် အခြေအနေ
 
-  // ★ Custom Alert Function ★
   window.showCustomAlert = (textMsg) => {
       if(!textMsg || textMsg.trim() === '') return;
       document.getElementById('customAlertText').innerText = textMsg;
@@ -733,11 +734,9 @@
           document.documentElement.style.setProperty('--app-header-color', headerColor);
           document.documentElement.style.setProperty('--app-bg-color', bodyColor);
           
-          // ★ Load Custom Alert Settings ★
+          // ★ Load Custom Alert Settings (၇ ရက်စာ ခွဲခြားပြီး သိမ်းထားသည်များ) ★
           if (config.alerts) {
-              window.customAlertMsgs = config.alerts;
-          } else {
-              window.customAlertMsgs = { otSun: '', otMon: '', otTue: '', otWed: '', otThu: '', otFri: '', otSat: '', statWork: '', statAbsent: '', statHoliday: '' };
+              window.customAlertMsgs = Object.assign(window.customAlertMsgs, config.alerts);
           }
           
           if(currentUser && currentUser.email === ADMIN_EMAIL) {
@@ -758,17 +757,8 @@
                   document.getElementById('adminAnnImgStatus').style.display = 'none';
               }
               
-              document.getElementById('alertOtSun').value = window.customAlertMsgs.otSun || '';
-              document.getElementById('alertOtMon').value = window.customAlertMsgs.otMon || '';
-              document.getElementById('alertOtTue').value = window.customAlertMsgs.otTue || '';
-              document.getElementById('alertOtWed').value = window.customAlertMsgs.otWed || '';
-              document.getElementById('alertOtThu').value = window.customAlertMsgs.otThu || '';
-              document.getElementById('alertOtFri').value = window.customAlertMsgs.otFri || '';
-              document.getElementById('alertOtSat').value = window.customAlertMsgs.otSat || '';
-              
-              document.getElementById('alertStatWork').value = window.customAlertMsgs.statWork || '';
-              document.getElementById('alertStatAbsent').value = window.customAlertMsgs.statAbsent || '';
-              document.getElementById('alertStatHoliday').value = window.customAlertMsgs.statHoliday || '';
+              // Load defaults to the inputs based on current selected Type
+              changeAlertType();
           }
 
           let annDate = config.annDate;
@@ -789,33 +779,48 @@
       });
   }
 
-  // ★ Admin: Alert Settings Methods ★
-  window.openAlertSettingsModal = () => { document.getElementById('alertSettingsModal').style.display = 'flex'; toggleMenu(null); };
+  // ★ Admin: Alert Type ပြောင်းလျှင် Input ထဲရှိစာများ အလိုအလျောက် ပြောင်းပေးမည် ★
+  window.changeAlertType = () => {
+      window.currentAlertType = document.getElementById('alertTypeSelector').value;
+      let data = window.customAlertMsgs[window.currentAlertType] || {};
+      
+      document.getElementById('alertInputSun').value = data.Sun || '';
+      document.getElementById('alertInputMon').value = data.Mon || '';
+      document.getElementById('alertInputTue').value = data.Tue || '';
+      document.getElementById('alertInputWed').value = data.Wed || '';
+      document.getElementById('alertInputThu').value = data.Thu || '';
+      document.getElementById('alertInputFri').value = data.Fri || '';
+      document.getElementById('alertInputSat').value = data.Sat || '';
+  };
+
+  // ★ Admin: စာရိုက်နေစဉ် Memory တွင် ချက်ချင်း မှတ်ထားပေးမည် ★
+  window.updateTempAlert = (dayKey, value) => {
+      if(!window.customAlertMsgs[window.currentAlertType]) {
+          window.customAlertMsgs[window.currentAlertType] = {};
+      }
+      window.customAlertMsgs[window.currentAlertType][dayKey] = value;
+  };
+
+  window.openAlertSettingsModal = () => { document.getElementById('alertSettingsModal').style.display = 'flex'; toggleMenu(null); changeAlertType(); };
   window.closeAlertSettingsModal = () => document.getElementById('alertSettingsModal').style.display = 'none';
   
+  // ★ Admin: Database သို့ Save မည် ★
   window.saveAlertSettings = () => {
-      let alertsObj = {
-          otSun: document.getElementById('alertOtSun').value.trim(),
-          otMon: document.getElementById('alertOtMon').value.trim(),
-          otTue: document.getElementById('alertOtTue').value.trim(),
-          otWed: document.getElementById('alertOtWed').value.trim(),
-          otThu: document.getElementById('alertOtThu').value.trim(),
-          otFri: document.getElementById('alertOtFri').value.trim(),
-          otSat: document.getElementById('alertOtSat').value.trim(),
-          statWork: document.getElementById('alertStatWork').value.trim(),
-          statAbsent: document.getElementById('alertStatAbsent').value.trim(),
-          statHoliday: document.getElementById('alertStatHoliday').value.trim(),
-      };
-      
-      update(ref(db, 'appConfig'), { alerts: alertsObj })
+      update(ref(db, 'appConfig/alerts'), window.customAlertMsgs)
       .then(() => { showCustomAlert('✅ Alert Settings Saved!'); closeAlertSettingsModal(); });
   };
   
   window.clearAlertSettings = () => {
       if(confirm('Are you sure you want to clear all alerts?')) {
-          let emptyAlerts = { otSun: '', otMon: '', otTue: '', otWed: '', otThu: '', otFri: '', otSat: '', statWork: '', statAbsent: '', statHoliday: '' };
-          update(ref(db, 'appConfig'), { alerts: emptyAlerts })
-          .then(() => { showCustomAlert('🗑️ All alerts cleared!'); closeAlertSettingsModal(); });
+          let emptyAlerts = {
+              work: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+              absent: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+              holiday: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+              ot: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }
+          };
+          window.customAlertMsgs = emptyAlerts;
+          update(ref(db, 'appConfig/alerts'), emptyAlerts)
+          .then(() => { showCustomAlert('🗑️ All alerts cleared!'); closeAlertSettingsModal(); changeAlertType(); });
       }
   };
 
@@ -911,35 +916,50 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  // ★ Status Event Listener ★
+  // ★ Status Event (ဆင်းသည်/ပျက်သည်/ပိတ်ရက်) ရွေးချယ်မှုအပေါ် Alert ပြသခြင်း ★
   window.handleStatusChange = (el) => {
       let val = el.value;
-      if (val === '✓' && window.customAlertMsgs.statWork) showCustomAlert(window.customAlertMsgs.statWork);
-      else if (val === 'x' && window.customAlertMsgs.statAbsent) showCustomAlert(window.customAlertMsgs.statAbsent);
-      else if (val === '-' && window.customAlertMsgs.statHoliday) showCustomAlert(window.customAlertMsgs.statHoliday);
+      let card = el.closest('.day-card');
+      let dateStr = card.getAttribute('data-real-date');
+      let dayIndex = new Date(dateStr).getDay();
+      let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let dayKey = daysMap[dayIndex];
+      
+      let type = '';
+      if (val === '✓') type = 'work';
+      else if (val === 'x') type = 'absent';
+      else if (val === '-') type = 'holiday';
+
+      // မှတ်ထားသော Custom Alert ရှိလျှင် ပြပေးမည်
+      if (type && window.customAlertMsgs && window.customAlertMsgs[type] && window.customAlertMsgs[type][dayKey]) {
+          showCustomAlert(window.customAlertMsgs[type][dayKey]);
+      }
       
       calculateAll();
   };
 
-  // ★ OT Event Listener ★
+  // ★ OT Event (OT ဆင်းသည်) ရွေးချယ်မှုအပေါ် နေ့အလိုက် Alert ပြသခြင်း ★
   window.toggleOTInput = (el) => { 
-      let input = el.parentElement.querySelector('.ot-hours'); let card = el.closest('.day-card'); let dateStr = card.getAttribute('data-date'); 
+      let input = el.parentElement.querySelector('.ot-hours'); 
+      let card = el.closest('.day-card'); 
+      let dateStr = card.getAttribute('data-real-date'); 
+      let dayIndex = new Date(dateStr).getDay();
+      let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let dayKey = daysMap[dayIndex];
       
       if(el.value === 'yes') { 
           input.style.display = 'block'; 
           if(!card.hasAttribute('data-alerted')) { 
-              let alerted = false;
-              if(dateStr.includes(weekdaysText[currentLang][0]) && window.customAlertMsgs.otSun) { showCustomAlert(window.customAlertMsgs.otSun); alerted = true; }
-              else if(dateStr.includes(weekdaysText[currentLang][1]) && window.customAlertMsgs.otMon) { showCustomAlert(window.customAlertMsgs.otMon); alerted = true; }
-              else if(dateStr.includes(weekdaysText[currentLang][2]) && window.customAlertMsgs.otTue) { showCustomAlert(window.customAlertMsgs.otTue); alerted = true; }
-              else if(dateStr.includes(weekdaysText[currentLang][3]) && window.customAlertMsgs.otWed) { showCustomAlert(window.customAlertMsgs.otWed); alerted = true; }
-              else if(dateStr.includes(weekdaysText[currentLang][4]) && window.customAlertMsgs.otThu) { showCustomAlert(window.customAlertMsgs.otThu); alerted = true; }
-              else if(dateStr.includes(weekdaysText[currentLang][5]) && window.customAlertMsgs.otFri) { showCustomAlert(window.customAlertMsgs.otFri); alerted = true; }
-              else if(dateStr.includes(weekdaysText[currentLang][6]) && window.customAlertMsgs.otSat) { showCustomAlert(window.customAlertMsgs.otSat); alerted = true; }
-              
-              if(alerted) card.setAttribute('data-alerted', 'true'); 
+              if (window.customAlertMsgs && window.customAlertMsgs.ot && window.customAlertMsgs.ot[dayKey]) {
+                  showCustomAlert(window.customAlertMsgs.ot[dayKey]);
+                  card.setAttribute('data-alerted', 'true'); 
+              }
           } 
-      } else { input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); } 
+      } else { 
+          input.style.display = 'none'; 
+          input.value = ''; 
+          card.removeAttribute('data-alerted'); 
+      } 
       calculateAll(); 
   };
 
