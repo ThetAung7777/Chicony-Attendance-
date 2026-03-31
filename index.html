@@ -392,6 +392,12 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
+  // ရက်မှန်ကြေး Dropdown တွင် 200 ကို Auto ထည့်သွင်းပေးခြင်း
+  let bSelect = document.getElementById('attBonusSetting');
+  if(bSelect && !bSelect.innerHTML.includes('200')) {
+      bSelect.innerHTML = `<option value="0">0</option><option value="200">200</option><option value="500">500</option><option value="800">800</option><option value="1000">1000</option>`;
+  }
+
   const translations = {
       my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ဆင်းသောရက် ထမင်းဖိုး", foodNoOt: "OT မဆင်းသောရက် ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", otFirstDay: "ဒီနေ့က အလုပ်စရက်ဆိုတော့ မပျင်းရဘူးနော် 😂", otSaturday: "စနေနေ့ကြီး OT ဆင်းရတာကတော့ ရှယ်ပဲ! 💸", otSunday: "တနင်္ဂနွေနေ့ကြီးကို OT ဆင်းတယ်? သူဌေးလောင်းလေးပဲ! 👑", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)" },
       en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Food (No OT Days)", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", otFirstDay: "First day of work! Let's go! 💪", otSaturday: "Saturday OT! More Money! 💸", otSunday: "Sunday OT? You are a true hardworker! 👑", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip" },
@@ -808,12 +814,17 @@
       if (night > 0) { rowNS.style.display = 'flex'; rowNA.style.display = 'flex'; } else { rowNS.style.display = 'none'; rowNA.style.display = 'none'; }
       
       let nonOtDays = work - otDays; let foodOtTotal = otDays * 60; let foodNoOtTotal = nonOtDays * 30;
-      let totalAbsent = absentUnpaid + medLeaveCount; let finalBonus = (totalAbsent > 0) ? 0 : bonusSetting; total += finalBonus; 
+      
+      // ★ အမှားပြင်ဆင်ချက် - User ရွေးချယ်ထားသော Bonus ဂဏန်းကိုသာ အတိအကျ အသုံးပြုမည် (0 သို့ Auto ပြောင်းခြင်း ဖယ်ရှားလိုက်ပါပြီ) ★
+      let finalBonus = bonusSetting; 
+      total += finalBonus; 
       
       let otHrs = ot15Hrs + ot20Hrs;
 
       let regularFoodAllowance = work * 30; 
-      let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
+      
+      // ★ အမှားပြင်ဆင်ချက် - SSO တွက်ချက်မှုတွင် Food Allowance ကို ဖယ်ထုတ်၍ ဥပဒေအတိုင်း အတိအကျ တွက်ချက်ထားသည် ★
+      let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay;
       let rawSso = ssoBaseAmount * 0.05; let ssoDeduction = Math.round(rawSso); ssoDeduction = Math.min(ssoDeduction, 750); 
       let netSalary = total - ssoDeduction;
 
@@ -829,7 +840,6 @@
       saveToFirebase();
   };
 
-  // ★ Photo ခလုတ်တစ်ခုတည်း သီးသန့်ဖြစ်ပြီး၊ Close နှိပ်မရသည့် ပြဿနာကို ရှင်းလင်းထားသည် ★
   window.downloadSlipImage = () => {
       let printArea = document.getElementById('slipPrintArea');
       let originalBackground = printArea.style.background;
@@ -901,7 +911,6 @@
             </table>
         </div>
       `;
-      // Print ခလုတ်နေရာတွင် Photo ခလုတ်တစ်ခုတည်းကိုသာ ပြင်ဆင်ထားသည်
       let slipHeader = `
         <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
             <h3 style="margin:0; font-size: 15px;">🧾 <span data-i18n="slipTitle">ใบแจ้งเงินเดือน / Pay slip</span></h3>
@@ -994,10 +1003,10 @@
                   
                   let uOtHrs = uOt15Hrs + uOt20Hrs; 
                   totalEmployees++;
-                  let totalAbs = uAbsent + uMedCount; let uBonus = (totalAbs > 0) ? 0 : bonusSetting; uTotalPay += uBonus; 
+                  let totalAbs = uAbsent + uMedCount; let uBonus = bonusSetting; uTotalPay += uBonus; 
                   
                   let regularFoodAllowance = uWork * 30;
-                  let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay + regularFoodAllowance;
+                  let ssoBaseAmount = slipBasicSalary + pubHolPay + medLeavePay;
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
 
@@ -1051,7 +1060,7 @@
           } 
       }); 
       
-      let totalAbs = expAbsent + expMedCount; let expBonus = (totalAbs > 0) ? 0 : bonusSetting; expTotal += expBonus; 
+      let totalAbs = expAbsent + expMedCount; let expBonus = bonusSetting; expTotal += expBonus; 
       
       excelData.push([]); 
       excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]); 
@@ -1175,5 +1184,6 @@
   
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => { console.log('Service worker registered.'); }).catch(err => { console.log('Service worker registration failed:', err); }); }); }
 </script>
+
 </body>
 </html>
