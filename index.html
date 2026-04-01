@@ -653,10 +653,8 @@
       let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
       let currentBonus = parseInt(document.getElementById('attBonusSetting').value);
       
-      // ★ အမှားပြင်ဆင်ချက်: 0 သို့မဟုတ် 200 ကဲ့သို့သော တန်ဖိုးများကို Auto 500 သို့မပြောင်းအောင် ပြင်ဆင်ထားပါသည် ★
       let newBonus = currentBonus; 
       
-      // Bonus တွက်ချက်မှုသည် လသစ်ကူးသည့်အချိန်၌သာ (hasAbsence စစ်ဆေး၍) အလုပ်လုပ်မည်
       if (hasAbsence) {
           newBonus = 500; 
       } else {
@@ -679,7 +677,6 @@
           
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
-              // ★ ကိုယ်တိုင်ရွေးထားသော Bonus ကိုသာ ဦးစားပေးယူမည် (0 ထားလျှင် 0 ပဲဖြစ်ရမည်) ★
               let savedBonus = appData.settings.attBonusSetting !== undefined ? parseInt(appData.settings.attBonusSetting) : 500;
               
               document.getElementById('empName').value = appData.settings.empName || ""; 
@@ -694,7 +691,6 @@
               if (lastSavedMonth && lastSavedMonth !== realCurrentMonthStr) {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr;
                   isDataLoaded = true;
-                  // လသစ်ရောက်မှသာ Bonus အသစ်ကို တွက်မည်
                   window.handleMonthChange(); 
               } else {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr; 
@@ -846,13 +842,43 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
 
+  // ★ ဓာတ်ပုံရွေးချယ်ပြီးပါက ဆိုဒ်အလိုအလျောက်ချုံ့မည့် စနစ် (Image Compression) ★
   window.handleAdminAnnImage = (e) => {
       let file = e.target.files[0];
       if (!file) return;
+      
       let reader = new FileReader();
       reader.onload = function(event) {
-          window.tempAnnImageBase64 = event.target.result;
-          document.getElementById('adminAnnImgStatus').style.display = 'block';
+          let img = new Image();
+          img.onload = function() {
+              let canvas = document.createElement('canvas');
+              let MAX_WIDTH = 600; 
+              let MAX_HEIGHT = 600; 
+              let width = img.width;
+              let height = img.height;
+
+              // ပုံဆိုဒ် ချိန်ညှိခြင်း (Resize)
+              if (width > height) {
+                  if (width > MAX_WIDTH) {
+                      height *= MAX_WIDTH / width;
+                      width = MAX_WIDTH;
+                  }
+              } else {
+                  if (height > MAX_HEIGHT) {
+                      width *= MAX_HEIGHT / height;
+                      height = MAX_HEIGHT;
+                  }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              let ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              // 60% အရည်အသွေးဖြင့် JPEG အဖြစ်ပြောင်းကာ ဆိုဒ်ချုံ့ခြင်း (Compress)
+              window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+              document.getElementById('adminAnnImgStatus').style.display = 'block';
+          };
+          img.src = event.target.result;
       };
       reader.readAsDataURL(file);
   };
