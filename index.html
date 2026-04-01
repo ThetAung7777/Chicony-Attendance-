@@ -651,15 +651,17 @@
       let prevMonthStr = `${prevY}-${String(prevM).padStart(2, '0')}`;
 
       let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
-      let currentBonus = parseInt(document.getElementById('attBonusSetting').value) || 500;
-
-      let newBonus = 500; 
+      let currentBonus = parseInt(document.getElementById('attBonusSetting').value);
+      
+      // ★ အမှားပြင်ဆင်ချက်: 0 သို့မဟုတ် 200 ကဲ့သို့သော တန်ဖိုးများကို Auto 500 သို့မပြောင်းအောင် ပြင်ဆင်ထားပါသည် ★
+      let newBonus = currentBonus; 
+      
+      // Bonus တွက်ချက်မှုသည် လသစ်ကူးသည့်အချိန်၌သာ (hasAbsence စစ်ဆေး၍) အလုပ်လုပ်မည်
       if (hasAbsence) {
           newBonus = 500; 
       } else {
-          if (currentBonus <= 500) newBonus = 800;       
+          if (currentBonus === 500) newBonus = 800;       
           else if (currentBonus === 800) newBonus = 1000; 
-          else newBonus = 1000;                          
       }
 
       document.getElementById('attBonusSetting').value = newBonus;
@@ -677,7 +679,8 @@
           
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
-              let savedBonus = parseInt(appData.settings.attBonusSetting) || 500;
+              // ★ ကိုယ်တိုင်ရွေးထားသော Bonus ကိုသာ ဦးစားပေးယူမည် (0 ထားလျှင် 0 ပဲဖြစ်ရမည်) ★
+              let savedBonus = appData.settings.attBonusSetting !== undefined ? parseInt(appData.settings.attBonusSetting) : 500;
               
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
@@ -691,6 +694,7 @@
               if (lastSavedMonth && lastSavedMonth !== realCurrentMonthStr) {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr;
                   isDataLoaded = true;
+                  // လသစ်ရောက်မှသာ Bonus အသစ်ကို တွက်မည်
                   window.handleMonthChange(); 
               } else {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr; 
@@ -758,7 +762,6 @@
               changeAlertType();
           }
 
-          // ★ ပြင်ဆင်ချက်: စာသား သို့မဟုတ် ပုံ ပြောင်းလဲတာနဲ့ ချက်ချင်း Pop-up အသစ်အဖြစ် ပြပေးမည် ★
           let annDate = config.annDate;
           if (annDate) {
               let today = new Date();
@@ -767,7 +770,6 @@
               let todayStr = localISOTime.split('T')[0];
 
               if (annDate === todayStr) {
-                  // Unique ID ဖန်တီးမည် (ရက်စွဲ + စာသား + ပုံရဲ့အရှည်) - တစ်ခုခုပြောင်းတာနဲ့ ID မတူတော့ဘူး
                   let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (config.annImg ? config.annImg.length : 0);
                   let lastShownId = localStorage.getItem('lastAnnShownId');
                   
