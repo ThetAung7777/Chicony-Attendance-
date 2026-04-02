@@ -465,7 +465,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-  // သတိပြုရန်: Firebase Storage ကို ဖြုတ်လိုက်ပါပြီ။
 
   const firebaseConfig = {
     apiKey: "AIzaSyBtE7JKTk0HhlLSYuj-8MiEkUPw4EnsmpU",
@@ -496,7 +495,6 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
-  // ★ Auto Login (Splash Screen ဖျောက်မည့်စနစ်) ★
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
           let splash = document.getElementById('splashScreen');
@@ -867,39 +865,52 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
 
-  // ★ Firebase Storage ကိုမသုံးတော့ဘဲ ImgBB Free API ကိုသုံး၍ ပုံတင်မည့် စနစ် ★
-  window.handleAdminAnnImage = async (e) => {
+  // ★ အမှားပြင်ဆင်ချက်: Base64 ပြောင်းပြီးမှ ImgBB သို့ Upload တင်မည် ★
+  window.handleAdminAnnImage = (e) => {
       let file = e.target.files[0];
       if (!file) return;
       
       let statusEl = document.getElementById('adminAnnImgStatus');
-      statusEl.innerText = "⏳ Uploading image to Server, please wait...";
+      statusEl.innerText = "⏳ Reading image, please wait...";
       statusEl.style.color = "#0d6efd";
       statusEl.style.display = 'block';
 
-      let formData = new FormData();
-      formData.append('image', file);
+      // အဆင့် (၁): File ကို Base64 သို့ ပြောင်းမည်
+      let reader = new FileReader();
+      reader.onload = async function(event) {
+          let base64Data = event.target.result;
+          // Base64 string ရဲ့ ရှေ့က "data:image/jpeg;base64," ဆိုတဲ့ အပိုင်းကို ဖြတ်ထုတ်မည် (ImgBB က သန့်စင်သော Base64 ကိုသာ လက်ခံပါသည်)
+          let pureBase64 = base64Data.split(',')[1]; 
 
-      try {
-          // ImgBB ၏ အခမဲ့ Public API Key အသုံးပြုထားပါသည် (Firebase Storage လုံးဝ မလိုပါ)
-          let response = await fetch('https://api.imgbb.com/1/upload?key=64319dd6c28f096d2e61be1745778c18', {
-              method: 'POST',
-              body: formData
-          });
-          let data = await response.json();
-          
-          if(data.success) {
-              window.tempAnnImageUrl = data.data.url; // အောင်မြင်ပါက Image Link ကို မှတ်ထားမည်
-              statusEl.innerText = "✓ Image uploaded and ready to save.";
-              statusEl.style.color = "#198754";
-          } else {
-              throw new Error("Upload Failed");
+          statusEl.innerText = "⏳ Uploading image to Server...";
+
+          let formData = new FormData();
+          formData.append('image', pureBase64); // သန့်စင်သော Base64 ကိုသာ ပို့မည်
+
+          try {
+              // ImgBB သို့ လှမ်းတင်ခြင်း
+              let response = await fetch('https://api.imgbb.com/1/upload?key=64319dd6c28f096d2e61be1745778c18', {
+                  method: 'POST',
+                  body: formData
+              });
+              let data = await response.json();
+              
+              if(data.success) {
+                  window.tempAnnImageUrl = data.data.url; // URL ပြန်ရလာပြီ
+                  statusEl.innerText = "✓ Image uploaded successfully!";
+                  statusEl.style.color = "#198754";
+              } else {
+                  throw new Error("Upload Failed: " + (data.error ? data.error.message : "Unknown error"));
+              }
+          } catch (error) {
+              console.error("Error uploading image:", error);
+              showCustomAlert("Image Upload Failed. Please try again.");
+              statusEl.style.display = 'none';
           }
-      } catch (error) {
-          console.error("Error uploading image:", error);
-          showCustomAlert("Image Upload Failed. Please try again.");
-          statusEl.style.display = 'none';
-      }
+      };
+      
+      // ပုံကို Data URL အဖြစ် ဖတ်မည်
+      reader.readAsDataURL(file);
   };
 
   window.saveAppAnnouncement = () => {
@@ -910,7 +921,7 @@
       if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!');
       
       let updateData = { annDate: aDate, annText: aText };
-      if(aImgUrl) updateData.annImgUrl = aImgUrl; // ဤနေရာတွင် Link လေးသာ သိမ်းသွားမည်ဖြစ်၍ Loading အလွန်မြန်ပါမည်။
+      if(aImgUrl) updateData.annImgUrl = aImgUrl; 
 
       update(ref(db, 'appConfig'), updateData)
       .then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
@@ -936,7 +947,7 @@
       let textEl = document.getElementById('annDisplayText');
       
       if (imgUrl && imgUrl.startsWith('http')) {
-          imgEl.src = imgUrl; // Database ထဲက Link အတိုင်း ပြပေးမည်
+          imgEl.src = imgUrl; 
           imgEl.style.display = 'block';
       } else {
           imgEl.style.display = 'none';
