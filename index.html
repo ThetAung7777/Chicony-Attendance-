@@ -865,52 +865,42 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
 
-  // ★ အမှားပြင်ဆင်ချက်: Base64 ပြောင်းပြီးမှ ImgBB သို့ Upload တင်မည် ★
-  window.handleAdminAnnImage = (e) => {
+  // ★ အမှားကင်းစင်သော Cloudinary (Free Image Hosting) API သို့ ပုံတင်မည့်စနစ် ★
+  window.handleAdminAnnImage = async (e) => {
       let file = e.target.files[0];
       if (!file) return;
       
       let statusEl = document.getElementById('adminAnnImgStatus');
-      statusEl.innerText = "⏳ Reading image, please wait...";
+      statusEl.innerText = "⏳ Uploading image securely, please wait...";
       statusEl.style.color = "#0d6efd";
       statusEl.style.display = 'block';
 
-      // အဆင့် (၁): File ကို Base64 သို့ ပြောင်းမည်
-      let reader = new FileReader();
-      reader.onload = async function(event) {
-          let base64Data = event.target.result;
-          // Base64 string ရဲ့ ရှေ့က "data:image/jpeg;base64," ဆိုတဲ့ အပိုင်းကို ဖြတ်ထုတ်မည် (ImgBB က သန့်စင်သော Base64 ကိုသာ လက်ခံပါသည်)
-          let pureBase64 = base64Data.split(',')[1]; 
-
-          statusEl.innerText = "⏳ Uploading image to Server...";
-
-          let formData = new FormData();
-          formData.append('image', pureBase64); // သန့်စင်သော Base64 ကိုသာ ပို့မည်
-
-          try {
-              // ImgBB သို့ လှမ်းတင်ခြင်း
-              let response = await fetch('https://api.imgbb.com/1/upload?key=64319dd6c28f096d2e61be1745778c18', {
-                  method: 'POST',
-                  body: formData
-              });
-              let data = await response.json();
-              
-              if(data.success) {
-                  window.tempAnnImageUrl = data.data.url; // URL ပြန်ရလာပြီ
-                  statusEl.innerText = "✓ Image uploaded successfully!";
-                  statusEl.style.color = "#198754";
-              } else {
-                  throw new Error("Upload Failed: " + (data.error ? data.error.message : "Unknown error"));
-              }
-          } catch (error) {
-              console.error("Error uploading image:", error);
-              showCustomAlert("Image Upload Failed. Please try again.");
-              statusEl.style.display = 'none';
-          }
-      };
+      // Cloudinary အတွက် Data အစီအစဉ်ချခြင်း
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ml_default'); // ဤနေရာသည် Cloudinary မှ ပုံမှန်ဖွင့်ပေးထားသော preset ဖြစ်သည်
       
-      // ပုံကို Data URL အဖြစ် ဖတ်မည်
-      reader.readAsDataURL(file);
+      try {
+          // Cloudinary API သို့ POST ဖြင့် ပုံတင်ခြင်း (Cloud name: dyjoz7tng ကို ဥပမာအဖြစ် သုံးထားသည်)
+          const response = await fetch('https://api.cloudinary.com/v1_1/dyjoz7tng/image/upload', {
+              method: 'POST',
+              body: formData
+          });
+          
+          const data = await response.json();
+          
+          if(data.secure_url) {
+              window.tempAnnImageUrl = data.secure_url; // တင်ပြီးပါက HTTPS Link ကို ရရှိမည်
+              statusEl.innerText = "✓ Image uploaded successfully!";
+              statusEl.style.color = "#198754";
+          } else {
+              throw new Error("Cloudinary upload failed");
+          }
+      } catch (error) {
+          console.error("Error uploading image:", error);
+          showCustomAlert("Image Upload Failed. Please try again.");
+          statusEl.style.display = 'none';
+      }
   };
 
   window.saveAppAnnouncement = () => {
