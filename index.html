@@ -23,6 +23,8 @@
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+  
   .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
@@ -46,7 +48,10 @@
   .modal-content { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;}
   .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; z-index: 10;}
 
-  #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
+  /* ★ App ဖွင့်ဖွင့်ချင်း ပေါ်မည့် Splash (Loading) Screen ★ */
+  #splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease; }
+  
+  #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
   .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
@@ -127,11 +132,12 @@
   .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
+  .dark-mode #splashScreen { background-color: #121212 !important; }
 
   #printArea { display: none; }
   @media print { 
       body { background: white !important; padding: 0; margin: 0; } 
-      #mainApp, #loginScreen, #slipModal, .modal-overlay { display: none !important; } 
+      #mainApp, #loginScreen, #splashScreen, #slipModal, .modal-overlay { display: none !important; } 
       #printArea { display: block !important; width: 100%; color: black; font-size: 12px; }
       table { border-collapse: collapse; width: 100%; page-break-inside: avoid; }
       th, td { border: 1px solid #ccc; padding: 6px; }
@@ -141,6 +147,11 @@
 </style>
 </head>
 <body>
+
+<div id="splashScreen">
+    <h1 style="font-family: 'Bungee Inline', 'Orbitron', cursive; color: #000080; font-size: 40px; margin: 0; animation: pulse 1.5s infinite;">CHICONY</h1>
+    <p style="color: #666; font-weight: bold; margin-top: 5px; font-family: 'Segoe UI', sans-serif;">Loading...</p>
+</div>
 
 <div id="loginScreen">
   <div class="login-box">
@@ -454,8 +465,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-  // ★ ပုံတင်ရန်အတွက် Firebase Storage ကို ထည့်သွင်းထားပါသည် ★
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+  // သတိပြုရန်: Firebase Storage ကို ဖြုတ်လိုက်ပါပြီ။
 
   const firebaseConfig = {
     apiKey: "AIzaSyBtE7JKTk0HhlLSYuj-8MiEkUPw4EnsmpU",
@@ -470,38 +480,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
-  const storage = getStorage(app); // Storage ကို စတင်ပါသည်
   const provider = new GoogleAuthProvider();
-
-  // ★ Login မှတ်ထားရန် Persistence ကို သေချာစွာ သတ်မှတ်ထားပါသည် ★
-  setPersistence(auth, browserLocalPersistence)
-    .then(() => {
-        // Persistence သတ်မှတ်ပြီးမှသာ Login အခြေအနေကို စစ်ဆေးမည်
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user; 
-                document.getElementById('loginScreen').style.display = 'none'; 
-                document.getElementById('mainApp').style.display = 'block';
-                document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
-                if(user.email === ADMIN_EMAIL) { 
-                    document.getElementById('adminPanelBtn').style.display = 'flex'; 
-                    document.getElementById('themeBtn').style.display = 'flex'; 
-                    document.getElementById('annBtn').style.display = 'flex'; 
-                    document.getElementById('alertMenuBtn').style.display = 'flex'; 
-                }
-                
-                loadAppConfig(); 
-                loadGlobalCalendar(); 
-                loadFromFirebase();
-            } else { 
-                document.getElementById('loginScreen').style.display = 'flex'; 
-                document.getElementById('mainApp').style.display = 'none'; 
-            }
-        });
-    })
-    .catch((error) => {
-        console.error("Auth Persistence Error:", error);
-    });
 
   let currentUser = null;
   const ADMIN_EMAIL = "thetaung1998@gmail.com"; 
@@ -516,6 +495,36 @@
 
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
+
+  // ★ Auto Login (Splash Screen ဖျောက်မည့်စနစ်) ★
+  setPersistence(auth, browserLocalPersistence).then(() => {
+      onAuthStateChanged(auth, (user) => {
+          let splash = document.getElementById('splashScreen');
+          if (splash) splash.style.display = 'none';
+
+          if (user) {
+              currentUser = user; 
+              document.getElementById('loginScreen').style.display = 'none'; 
+              document.getElementById('mainApp').style.display = 'block';
+              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
+              if(user.email === ADMIN_EMAIL) { 
+                  document.getElementById('adminPanelBtn').style.display = 'flex'; 
+                  document.getElementById('themeBtn').style.display = 'flex'; 
+                  document.getElementById('annBtn').style.display = 'flex'; 
+                  document.getElementById('alertMenuBtn').style.display = 'flex'; 
+              }
+              
+              loadAppConfig(); 
+              loadGlobalCalendar(); 
+              loadFromFirebase();
+          } else { 
+              document.getElementById('loginScreen').style.display = 'flex'; 
+              document.getElementById('mainApp').style.display = 'none'; 
+          }
+      });
+  }).catch((error) => {
+      console.error("Persistence error:", error);
+  });
 
   let bSelect = document.getElementById('attBonusSetting');
   if(bSelect && !bSelect.innerHTML.includes('200')) {
@@ -607,6 +616,7 @@
   window.signIn = () => { 
       document.getElementById('loadingSpinner').style.display = 'flex'; 
       signInWithPopup(auth, provider).then(() => {
+          document.getElementById('loadingSpinner').style.display = 'none';
       }).catch((error) => {
           document.getElementById('loadingSpinner').style.display = 'none';
           showCustomAlert("Login Error: " + error.message);
@@ -762,6 +772,8 @@
               else document.getElementById('adminAnnText').value = '';
               
               if(config.annImgUrl) {
+                  document.getElementById('adminAnnImgStatus').innerText = "✓ Image loaded.";
+                  document.getElementById('adminAnnImgStatus').style.color = "#198754";
                   document.getElementById('adminAnnImgStatus').style.display = 'block';
               } else {
                   document.getElementById('adminAnnImgStatus').style.display = 'none';
@@ -855,33 +867,38 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
 
-  // ★ ဓာတ်ပုံကို Firebase Storage သို့ လှမ်းတင်မည့် စနစ်သစ် ★
+  // ★ Firebase Storage ကိုမသုံးတော့ဘဲ ImgBB Free API ကိုသုံး၍ ပုံတင်မည့် စနစ် ★
   window.handleAdminAnnImage = async (e) => {
       let file = e.target.files[0];
       if (!file) return;
       
-      document.getElementById('adminAnnImgStatus').innerText = "⏳ Uploading image to Storage, please wait...";
-      document.getElementById('adminAnnImgStatus').style.color = "#0d6efd";
-      document.getElementById('adminAnnImgStatus').style.display = 'block';
+      let statusEl = document.getElementById('adminAnnImgStatus');
+      statusEl.innerText = "⏳ Uploading image to Server, please wait...";
+      statusEl.style.color = "#0d6efd";
+      statusEl.style.display = 'block';
+
+      let formData = new FormData();
+      formData.append('image', file);
 
       try {
-          // ပုံနာမည်ကို အသစ်ဖြစ်အောင် timestamp နဲ့ ပေးမည်
-          let fileName = "announcements/" + Date.now() + "_" + file.name;
-          let imgRef = storageRef(storage, fileName);
+          // ImgBB ၏ အခမဲ့ Public API Key အသုံးပြုထားပါသည် (Firebase Storage လုံးဝ မလိုပါ)
+          let response = await fetch('https://api.imgbb.com/1/upload?key=64319dd6c28f096d2e61be1745778c18', {
+              method: 'POST',
+              body: formData
+          });
+          let data = await response.json();
           
-          // Storage သို့ Upload တင်ခြင်း
-          await uploadBytes(imgRef, file);
-          
-          // Upload တင်ပြီးပါက URL ကို ပြန်ယူခြင်း
-          let downloadUrl = await getDownloadURL(imgRef);
-          
-          window.tempAnnImageUrl = downloadUrl; // ယူလာတဲ့ URL ကို ခဏမှတ်ထားမည်
-          document.getElementById('adminAnnImgStatus').innerText = "✓ Image uploaded and ready to save.";
-          document.getElementById('adminAnnImgStatus').style.color = "#198754";
+          if(data.success) {
+              window.tempAnnImageUrl = data.data.url; // အောင်မြင်ပါက Image Link ကို မှတ်ထားမည်
+              statusEl.innerText = "✓ Image uploaded and ready to save.";
+              statusEl.style.color = "#198754";
+          } else {
+              throw new Error("Upload Failed");
+          }
       } catch (error) {
           console.error("Error uploading image:", error);
-          showCustomAlert("Image Upload Failed: " + error.message);
-          document.getElementById('adminAnnImgStatus').style.display = 'none';
+          showCustomAlert("Image Upload Failed. Please try again.");
+          statusEl.style.display = 'none';
       }
   };
 
@@ -893,7 +910,7 @@
       if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!');
       
       let updateData = { annDate: aDate, annText: aText };
-      if(aImgUrl) updateData.annImgUrl = aImgUrl; // URL ကိုသာ DB တွင် သိမ်းမည်
+      if(aImgUrl) updateData.annImgUrl = aImgUrl; // ဤနေရာတွင် Link လေးသာ သိမ်းသွားမည်ဖြစ်၍ Loading အလွန်မြန်ပါမည်။
 
       update(ref(db, 'appConfig'), updateData)
       .then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
@@ -901,8 +918,6 @@
 
   window.deleteAppAnnouncement = () => {
       if(confirm('Are you sure you want to delete the current announcement?')) {
-          // တကယ်လို့ Storage ထဲမှာ ပုံအဟောင်းရှိနေရင် သွားဖျက်လို့ရအောင် (Optional)
-          // ဤနေရာတွင် ရိုးရှင်းစေရန် DB ထဲမှ Link သာ ဖျက်ပါမည်။
           update(ref(db, 'appConfig'), { annDate: null, annText: null, annImgUrl: null })
           .then(() => { 
               showCustomAlert('🗑️ Announcement Deleted!'); 
@@ -921,7 +936,7 @@
       let textEl = document.getElementById('annDisplayText');
       
       if (imgUrl && imgUrl.startsWith('http')) {
-          imgEl.src = imgUrl; // URL အတိုင်း ပြပေးမည်
+          imgEl.src = imgUrl; // Database ထဲက Link အတိုင်း ပြပေးမည်
           imgEl.style.display = 'block';
       } else {
           imgEl.style.display = 'none';
