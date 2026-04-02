@@ -454,6 +454,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+  // ★ ပုံတင်ရန်အတွက် Firebase Storage ကို ထည့်သွင်းထားပါသည် ★
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBtE7JKTk0HhlLSYuj-8MiEkUPw4EnsmpU",
@@ -468,9 +470,38 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
+  const storage = getStorage(app); // Storage ကို စတင်ပါသည်
   const provider = new GoogleAuthProvider();
 
-  setPersistence(auth, browserLocalPersistence);
+  // ★ Login မှတ်ထားရန် Persistence ကို သေချာစွာ သတ်မှတ်ထားပါသည် ★
+  setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+        // Persistence သတ်မှတ်ပြီးမှသာ Login အခြေအနေကို စစ်ဆေးမည်
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user; 
+                document.getElementById('loginScreen').style.display = 'none'; 
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
+                if(user.email === ADMIN_EMAIL) { 
+                    document.getElementById('adminPanelBtn').style.display = 'flex'; 
+                    document.getElementById('themeBtn').style.display = 'flex'; 
+                    document.getElementById('annBtn').style.display = 'flex'; 
+                    document.getElementById('alertMenuBtn').style.display = 'flex'; 
+                }
+                
+                loadAppConfig(); 
+                loadGlobalCalendar(); 
+                loadFromFirebase();
+            } else { 
+                document.getElementById('loginScreen').style.display = 'flex'; 
+                document.getElementById('mainApp').style.display = 'none'; 
+            }
+        });
+    })
+    .catch((error) => {
+        console.error("Auth Persistence Error:", error);
+    });
 
   let currentUser = null;
   const ADMIN_EMAIL = "thetaung1998@gmail.com"; 
@@ -583,23 +614,6 @@
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
-
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          currentUser = user; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block';
-          document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
-          if(user.email === ADMIN_EMAIL) { 
-              document.getElementById('adminPanelBtn').style.display = 'flex'; 
-              document.getElementById('themeBtn').style.display = 'flex'; 
-              document.getElementById('annBtn').style.display = 'flex'; 
-              document.getElementById('alertMenuBtn').style.display = 'flex'; 
-          }
-          
-          loadAppConfig(); 
-          loadGlobalCalendar(); 
-          loadFromFirebase();
-      } else { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
-  });
 
   window.saveToFirebase = () => {
       if (!currentUser || !isDataLoaded) return; 
@@ -747,13 +761,12 @@
               if(config.annText) document.getElementById('adminAnnText').value = config.annText;
               else document.getElementById('adminAnnText').value = '';
               
-              if(config.annImg) {
-                  window.tempAnnImageBase64 = config.annImg;
+              if(config.annImgUrl) {
                   document.getElementById('adminAnnImgStatus').style.display = 'block';
               } else {
-                  window.tempAnnImageBase64 = null;
                   document.getElementById('adminAnnImgStatus').style.display = 'none';
               }
+              window.tempAnnImageUrl = config.annImgUrl || null;
               
               changeAlertType();
           }
@@ -766,12 +779,12 @@
               let todayStr = localISOTime.split('T')[0];
 
               if (annDate === todayStr) {
-                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (config.annImg ? config.annImg.length : 0);
+                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (config.annImgUrl || "noimg");
                   let lastShownId = localStorage.getItem('lastAnnShownId');
                   
                   if (lastShownId !== currentAnnId) {
                       setTimeout(() => {
-                          showAnnouncement(config.annImg, config.annText);
+                          showAnnouncement(config.annImgUrl, config.annText);
                       }, 500);
                       localStorage.setItem('lastAnnShownId', currentAnnId); 
                   }
@@ -842,56 +855,45 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
 
-  // ★ ဓာတ်ပုံရွေးချယ်ပြီးပါက ဆိုဒ်အလိုအလျောက်ချုံ့မည့် စနစ် (Image Compression) ★
-  window.handleAdminAnnImage = (e) => {
+  // ★ ဓာတ်ပုံကို Firebase Storage သို့ လှမ်းတင်မည့် စနစ်သစ် ★
+  window.handleAdminAnnImage = async (e) => {
       let file = e.target.files[0];
       if (!file) return;
       
-      let reader = new FileReader();
-      reader.onload = function(event) {
-          let img = new Image();
-          img.onload = function() {
-              let canvas = document.createElement('canvas');
-              let MAX_WIDTH = 600; 
-              let MAX_HEIGHT = 600; 
-              let width = img.width;
-              let height = img.height;
+      document.getElementById('adminAnnImgStatus').innerText = "⏳ Uploading image to Storage, please wait...";
+      document.getElementById('adminAnnImgStatus').style.color = "#0d6efd";
+      document.getElementById('adminAnnImgStatus').style.display = 'block';
 
-              // ပုံဆိုဒ် ချိန်ညှိခြင်း (Resize)
-              if (width > height) {
-                  if (width > MAX_WIDTH) {
-                      height *= MAX_WIDTH / width;
-                      width = MAX_WIDTH;
-                  }
-              } else {
-                  if (height > MAX_HEIGHT) {
-                      width *= MAX_HEIGHT / height;
-                      height = MAX_HEIGHT;
-                  }
-              }
-              canvas.width = width;
-              canvas.height = height;
-              let ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              // 60% အရည်အသွေးဖြင့် JPEG အဖြစ်ပြောင်းကာ ဆိုဒ်ချုံ့ခြင်း (Compress)
-              window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
-              document.getElementById('adminAnnImgStatus').style.display = 'block';
-          };
-          img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+      try {
+          // ပုံနာမည်ကို အသစ်ဖြစ်အောင် timestamp နဲ့ ပေးမည်
+          let fileName = "announcements/" + Date.now() + "_" + file.name;
+          let imgRef = storageRef(storage, fileName);
+          
+          // Storage သို့ Upload တင်ခြင်း
+          await uploadBytes(imgRef, file);
+          
+          // Upload တင်ပြီးပါက URL ကို ပြန်ယူခြင်း
+          let downloadUrl = await getDownloadURL(imgRef);
+          
+          window.tempAnnImageUrl = downloadUrl; // ယူလာတဲ့ URL ကို ခဏမှတ်ထားမည်
+          document.getElementById('adminAnnImgStatus').innerText = "✓ Image uploaded and ready to save.";
+          document.getElementById('adminAnnImgStatus').style.color = "#198754";
+      } catch (error) {
+          console.error("Error uploading image:", error);
+          showCustomAlert("Image Upload Failed: " + error.message);
+          document.getElementById('adminAnnImgStatus').style.display = 'none';
+      }
   };
 
   window.saveAppAnnouncement = () => {
       let aDate = document.getElementById('adminAnnDate').value;
       let aText = document.getElementById('adminAnnText').value;
-      let aImg = window.tempAnnImageBase64 || null; 
+      let aImgUrl = window.tempAnnImageUrl || null; 
       
       if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!');
       
       let updateData = { annDate: aDate, annText: aText };
-      if(aImg) updateData.annImg = aImg;
+      if(aImgUrl) updateData.annImgUrl = aImgUrl; // URL ကိုသာ DB တွင် သိမ်းမည်
 
       update(ref(db, 'appConfig'), updateData)
       .then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
@@ -899,25 +901,27 @@
 
   window.deleteAppAnnouncement = () => {
       if(confirm('Are you sure you want to delete the current announcement?')) {
-          update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null })
+          // တကယ်လို့ Storage ထဲမှာ ပုံအဟောင်းရှိနေရင် သွားဖျက်လို့ရအောင် (Optional)
+          // ဤနေရာတွင် ရိုးရှင်းစေရန် DB ထဲမှ Link သာ ဖျက်ပါမည်။
+          update(ref(db, 'appConfig'), { annDate: null, annText: null, annImgUrl: null })
           .then(() => { 
               showCustomAlert('🗑️ Announcement Deleted!'); 
               document.getElementById('adminAnnDate').value = '';
               document.getElementById('adminAnnText').value = '';
               document.getElementById('adminAnnImgFile').value = '';
-              window.tempAnnImageBase64 = null;
+              window.tempAnnImageUrl = null;
               document.getElementById('adminAnnImgStatus').style.display = 'none';
               closeAnnManageModal(); 
           });
       }
   };
 
-  window.showAnnouncement = (imgBase64, textMsg) => {
+  window.showAnnouncement = (imgUrl, textMsg) => {
       let imgEl = document.getElementById('annDisplayImg');
       let textEl = document.getElementById('annDisplayText');
       
-      if (imgBase64 && imgBase64.startsWith('data:image')) {
-          imgEl.src = imgBase64;
+      if (imgUrl && imgUrl.startsWith('http')) {
+          imgEl.src = imgUrl; // URL အတိုင်း ပြပေးမည်
           imgEl.style.display = 'block';
       } else {
           imgEl.style.display = 'none';
