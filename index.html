@@ -554,11 +554,14 @@
               document.getElementById('loginScreen').style.display = 'none'; 
               document.getElementById('mainApp').style.display = 'block';
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
+              
               if(user.email === ADMIN_EMAIL) { 
                   document.getElementById('adminPanelBtn').style.display = 'flex'; 
                   document.getElementById('themeBtn').style.display = 'flex'; 
                   document.getElementById('annBtn').style.display = 'flex'; 
                   document.getElementById('alertMenuBtn').style.display = 'flex'; 
+                  // ★ Calendar ပြင်သည့် နေရာကို ပြန်ဖော်ပေးခြင်း ★
+                  document.getElementById('adminCalendarControls').style.display = 'block'; 
               }
               
               loadAppConfig(); 
@@ -611,7 +614,6 @@
   };
   window.currentAlertType = 'work'; 
 
-  // ★ လိုအပ်ပါက စာကို Auto Translate လုပ်ပေးမည့် စနစ် ★
   window.showCustomAlert = async (textMsg) => {
       if(!textMsg || textMsg.trim() === '') return;
       
@@ -825,6 +827,8 @@
               window.customAlertMsgs = Object.assign(window.customAlertMsgs, config.alerts);
           }
           
+          let annImgData = config.annImg || config.annImgUrl;
+
           if(currentUser && currentUser.email === ADMIN_EMAIL) {
               document.getElementById('adminHeaderColor').value = headerColor === 'white' ? '#ffffff' : headerColor;
               document.getElementById('adminBodyColor').value = bodyColor === 'skyblue' ? '#87ceeb' : bodyColor;
@@ -835,8 +839,8 @@
               if(config.annText) document.getElementById('adminAnnText').value = config.annText;
               else document.getElementById('adminAnnText').value = '';
               
-              if(config.annImg) {
-                  window.tempAnnImageBase64 = config.annImg;
+              if(annImgData) {
+                  window.tempAnnImageBase64 = annImgData;
                   document.getElementById('adminAnnImgStatus').innerText = "✓ Image loaded.";
                   document.getElementById('adminAnnImgStatus').style.color = "#198754";
                   document.getElementById('adminAnnImgStatus').style.display = 'block';
@@ -856,12 +860,12 @@
               let todayStr = localISOTime.split('T')[0];
 
               if (annDate === todayStr) {
-                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (config.annImg ? config.annImg.length : 0);
+                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0);
                   let lastShownId = localStorage.getItem('lastAnnShownId');
                   
                   if (lastShownId !== currentAnnId) {
                       setTimeout(() => {
-                          showAnnouncement(config.annImg, config.annText);
+                          showAnnouncement(annImgData, config.annText);
                       }, 500);
                       localStorage.setItem('lastAnnShownId', currentAnnId); 
                   }
@@ -1333,14 +1337,10 @@
       }).catch(err => { console.error("Error generating image: ", err); showCustomAlert("Failed to save image."); });
   };
 
-  // ★ Pay Slip တွင် ဘာသာစကား အလိုအလျောက် ပြောင်းလဲပေးမည် ★
   window.openSalarySlip = () => {
-      let l = translations[currentLang]; 
-      let d = window.currentSlipData;
-      let name = document.getElementById('empName').value || '-'; 
-      let empId = document.getElementById('empId').value || '-';
-      let rawDept = document.getElementById('empDept').value; 
-      let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
+      let l = translations[currentLang]; let d = window.currentSlipData;
+      let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
+      let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       let [pY, pM] = d.period.split('-'); let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       let startMIdx = parseInt(pM) - 1; let endMIdx = startMIdx + 1; let endY = parseInt(pY);
       if(endMIdx > 11) { endMIdx = 0; endY++; }
@@ -1410,45 +1410,46 @@
 
   window.closeSlipModal = () => { document.getElementById('slipModal').style.display = 'none'; };
 
-  window.openAdminPanel = (isInit = true) => { 
-      document.getElementById('adminModal').style.display = 'flex'; 
+  window.openAdminPanel = (isInit = true) => {
+      document.getElementById('adminModal').style.display = 'flex';
       if (isInit) {
-          document.getElementById('adminSearchInput').value = ''; 
+          document.getElementById('adminSearchInput').value = '';
           document.getElementById('adminMonthSelect').value = window.getRealCurrentMonth();
       }
-      document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; 
-      toggleMenu(null); 
-      
+      document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>';
+      toggleMenu(null);
+
       let selectedMonthVal = document.getElementById('adminMonthSelect').value;
       if (!selectedMonthVal) return;
 
       let { startD, endD } = getPeriodDates(selectedMonthVal);
 
-      get(ref(db, 'users')).then((snapshot) => { 
-          if (snapshot.exists()) { 
-              let allUsers = snapshot.val(); window.allUsersData = allUsers; 
-              let totalEmployees = 0; let grandTotalSalary = 0; let userCardsHTML = ''; 
-              window.adminCalculated = {}; 
-              
-              for (let uid in allUsers) { 
-                  let uData = allUsers[uid]; 
-                  if (!uData.settings || !uData.settings.empName) continue; 
-                  
-                  let wage = parseFloat(uData.settings.dailyWage) || 0; 
-                  let otRate = parseFloat(uData.settings.otRate) || 0; 
-                  let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0; 
-                  
+      get(ref(db, 'users')).then((snapshot) => {
+          if (snapshot.exists()) {
+              let allUsers = snapshot.val(); window.allUsersData = allUsers;
+              let totalEmployees = 0; let grandTotalSalary = 0;
+              window.adminCalculated = {};
+              let tempUsersArray = [];
+
+              for (let uid in allUsers) {
+                  let uData = allUsers[uid];
+                  if (!uData.settings || !uData.settings.empName) continue;
+
+                  let wage = parseFloat(uData.settings.dailyWage) || 0;
+                  let otRate = parseFloat(uData.settings.otRate) || 0;
+                  let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0;
+
                   let baseHourRate = otRate / 1.5; let rate20 = baseHourRate * 2;
-                  let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0; 
+                  let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0;
                   let uOt15Hrs = 0, uOt20Hrs = 0;
                   let uNightPay = 0;
-                  
-                  if (uData.attendance) { 
+
+                  if (uData.attendance) {
                       let cur = new Date(startD);
                       while(cur <= endD) {
                           let dateKey = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
-                          let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey]; 
-                          let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; 
+                          let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey];
+                          let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
                           let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6;
                           let isSpecialDay = isSun || isAdminDouble || isAdminHoliday;
 
@@ -1460,66 +1461,82 @@
 
                           let dPay = 0, fPay = 0;
 
-                          if (status === '-') { 
-                              if (isAdminHoliday) { uTotalPay += wage; pubHolPay += wage; } 
-                          } else if (status === '✓') { 
-                              uWork++; 
-                              if (isSpecialDay) { uDouble++; dPay += (8 * rate20); uOt20Hrs += 8; } 
-                              else { normalWorkDays++; dPay += wage; slipBasicSalary += wage; } 
-                              
-                              dPay += 40; 
-                              if (shift === 'night') { dPay += 100; uNightPay += 100; } 
-                              
-                              if (otStatus === 'yes') { 
-                                  fPay = 60; 
-                                  if(otVal>0) { 
-                                      if (isSpecialDay) { dPay += (otVal * rate20); uOt20Hrs += otVal; } 
-                                      else { dPay += (otVal * otRate); uOt15Hrs += otVal; } 
-                                  } 
-                              } else { fPay = 30; } 
-                              dPay += fPay; uTotalPay += dPay; 
-                          } else if (status === 'x') { 
-                              if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; medLeavePay += wage; } 
-                              else { uAbsent++; } 
-                          } 
+                          if (status === '-') {
+                              if (isAdminHoliday) { uTotalPay += wage; pubHolPay += wage; }
+                          } else if (status === '✓') {
+                              uWork++;
+                              if (isSpecialDay) { uDouble++; dPay += (8 * rate20); uOt20Hrs += 8; }
+                              else { normalWorkDays++; dPay += wage; slipBasicSalary += wage; }
+
+                              dPay += 40;
+                              if (shift === 'night') { dPay += 100; uNightPay += 100; }
+
+                              if (otStatus === 'yes') {
+                                  fPay = 60;
+                                  if(otVal>0) {
+                                      if (isSpecialDay) { dPay += (otVal * rate20); uOt20Hrs += otVal; }
+                                      else { dPay += (otVal * otRate); uOt15Hrs += otVal; }
+                                  }
+                              } else { fPay = 30; }
+                              dPay += fPay; uTotalPay += dPay;
+                          } else if (status === 'x') {
+                              if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; medLeavePay += wage; }
+                              else { uAbsent++; }
+                          }
                           cur.setDate(cur.getDate()+1);
-                      } 
-                  } 
-                  
-                  let uOtHrs = uOt15Hrs + uOt20Hrs; 
+                      }
+                  }
+
+                  let uOtHrs = uOt15Hrs + uOt20Hrs;
                   totalEmployees++;
-                  
-                  let totalAbs = uAbsent + uMedCount; let uBonus = bonusSetting; 
+
+                  let totalAbs = uAbsent + uMedCount; let uBonus = bonusSetting;
                   if (totalAbs > 0) uBonus = 200;
-                  uTotalPay += uBonus; 
-                  
+                  uTotalPay += uBonus;
+
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
                   let regularFoodAllowance = uWork * 30;
-                  
+
                   let ssoBaseAmount = combinedBasicSalary + regularFoodAllowance + uNightPay;
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
 
                   window.adminCalculated[uid] = { work: uWork, absent: uAbsent, med: uMedCount, ot: uOtHrs, double: uDouble, total: netSalary, gross: uTotalPay, sso: ssoDeduction };
-                  grandTotalSalary += netSalary; 
-                  
-                  let name = uData.settings.empName; let empId = uData.settings.empId || '-'; 
-                  
+                  grandTotalSalary += netSalary;
+
+                  let name = uData.settings.empName; let empId = uData.settings.empId || '-';
+
                   let isInactive = (uWork === 0 && uAbsent === 0 && uMedCount === 0);
                   let inactiveBadge = isInactive ? `<span class="inactive-badge">⚠️ In-Active</span>` : '';
 
-                  userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}">
+                  let cardHtml = `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}">
                       <div class="admin-user-name"><span>👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></span> ${inactiveBadge}</div>
                       <div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>Total OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div>
                       <div class="admin-user-salary" style="color:#198754; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Net Salary: ${netSalary.toLocaleString()} ฿</div>
                       <div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div>
-                  </div>`; 
-              } 
-              
-              let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#198754; font-size:16px; margin-top:8px;">Total Net Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; 
-              document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>'); 
-          } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; } 
-      }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; }); 
+                  </div>`;
+
+                  tempUsersArray.push({ empId: empId, html: cardHtml });
+              }
+
+              tempUsersArray.sort((a, b) => {
+                  let idA = String(a.empId).trim();
+                  let idB = String(b.empId).trim();
+                  let numA = parseInt(idA, 10);
+                  let numB = parseInt(idB, 10);
+                  if (!isNaN(numA) && !isNaN(numB) && numA !== numB) {
+                      return numA - numB;
+                  }
+                  return idA.localeCompare(idB);
+              });
+
+              let userCardsHTML = '';
+              tempUsersArray.forEach(item => { userCardsHTML += item.html; });
+
+              let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#198754; font-size:16px; margin-top:8px;">Total Net Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`;
+              document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>');
+          } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; }
+      }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; });
   };
   
   window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
