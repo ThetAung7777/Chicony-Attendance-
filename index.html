@@ -45,10 +45,16 @@
   .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
   .dropdown a:hover { background-color: #f4f7f6; }
   .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(3px); }
-  .modal-content { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;}
-  .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; z-index: 10;}
+  
+  /* ★ Modal Content ကို Padding 0 ထားပြီး အတွင်းပိုင်းတွင် ပြန်ခွဲမည် ★ */
+  .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+  
+  .modal-header { padding: 15px 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; z-index: 10; }
+  .modal-header h3 { margin: 0; }
+  .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
 
-  /* ★ App ဖွင့်ဖွင့်ချင်း ပေါ်မည့် Splash (Loading) Screen ★ */
+  .close-modal { font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; padding: 0; }
+
   #splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease; }
   
   #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
@@ -94,7 +100,7 @@
   .admin-search-box:focus { box-shadow: 0 0 8px rgba(0,123,255,0.3); }
   .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; transition: transform 0.3s ease;}
   .admin-user-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-  .admin-user-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px;}
+  .admin-user-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
   .admin-btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
   .admin-action-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; border: none; color: white; text-align: center;}
   .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
@@ -102,6 +108,9 @@
   .manage-btn-group button { border: none; padding: 6px 10px; border-radius: 5px; font-size: 11px; margin-left: 5px; font-weight: bold; color: white;}
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
   .btn-exp-pdf { background: #c2185b; } .btn-exp-excel { background: #198754; }
+  
+  /* ★ In-Active Badge Style ★ */
+  .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
   .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
   @media(min-width: 600px) { .year-calendar-grid { grid-template-columns: 1fr 1fr; } }
@@ -116,7 +125,7 @@
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
 
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
-  .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+  .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
   .dark-mode .dropdown a:hover { background-color: #333 !important; }
   .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .setup-box textarea, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
@@ -258,206 +267,246 @@
 </div>
 
 <div class="modal-overlay" id="customAlertModal" style="z-index: 10000;">
-  <div class="modal-content pop-in" style="text-align: center; max-width: 350px; padding: 25px;">
-    <h3 style="margin-top: 0; color: #007bff; font-family: 'Bungee Inline', cursive; letter-spacing: 1px;">💬 Chicony</h3>
-    <p id="customAlertText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.6; margin: 15px 0; font-weight: 500;"></p>
-    <button class="btn-generate interactive-btn" onclick="closeCustomAlert()" style="background: #0d6efd; margin-top: 10px; width: 120px; padding: 10px; font-size: 14px;">OK</button>
+  <div class="modal-content pop-in" style="text-align: center; max-width: 350px; padding: 0;">
+    <div class="modal-header">
+       <h3 style="color: #007bff; font-family: 'Bungee Inline', cursive; letter-spacing: 1px;">💬 Chicony</h3>
+       <button class="close-modal interactive-btn" onclick="closeCustomAlert()">×</button>
+    </div>
+    <div class="modal-body" style="padding: 25px;">
+        <p id="customAlertText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.6; margin: 0; font-weight: 500;"></p>
+        <button class="btn-generate interactive-btn" onclick="closeCustomAlert()" style="background: #0d6efd; margin-top: 20px; width: 120px; padding: 10px; font-size: 14px;">OK</button>
+    </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="alertSettingsModal" style="z-index: 400;">
-  <div class="modal-content pop-in" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
-    <button class="close-modal interactive-btn" onclick="closeAlertSettingsModal()">×</button>
-    <h3 style="margin-top: 0; color: #6f42c1;" class="logo-main">🔔 Alert Settings</h3>
-
-    <div class="admin-manage-section">
-      <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
-      <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
-        <option value="work">✓ ဆင်းသည် (Present)</option>
-        <option value="absent">x ပျက်ရက် / ခွင့် (Absent / Leave)</option>
-        <option value="holiday">- ပိတ်ရက် (Holiday)</option>
-        <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
-      </select>
-
-      <h4 style="margin:0 0 10px 0; font-size:13px; color:#666;">📅 ရက်အလိုက် ပေါ်မည့်စာများ ထည့်သွင်းရန်</h4>
-      <div class="setup-box" style="margin-top:0;">
-        <div class="full-width"><label>တနင်္ဂနွေ (Sunday)</label><input type="text" id="alertInputSun" oninput="updateTempAlert('Sun', this.value)" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>တနင်္လာ (Monday)</label><input type="text" id="alertInputMon" oninput="updateTempAlert('Mon', this.value)" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>အင်္ဂါ (Tuesday)</label><input type="text" id="alertInputTue" oninput="updateTempAlert('Tue', this.value)" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>ဗုဒ္ဓဟူး (Wednesday)</label><input type="text" id="alertInputWed" oninput="updateTempAlert('Wed', this.value)" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>ကြာသပတေး (Thursday)</label><input type="text" id="alertInputThu" oninput="updateTempAlert('Thu', this.value)" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>သောကြာ (Friday)</label><input type="text" id="alertInputFri" oninput="updateTempAlert('Fri', this.value)" placeholder="Leave empty for no alert"></div>
-        <div class="full-width"><label>စနေ (Saturday)</label><input type="text" id="alertInputSat" oninput="updateTempAlert('Sat', this.value)" placeholder="Leave empty for no alert"></div>
-      </div>
+  <div class="modal-content pop-in" style="max-width: 500px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #6f42c1;" class="logo-main">🔔 Alert Settings</h3>
+        <button class="close-modal interactive-btn" onclick="closeAlertSettingsModal()">×</button>
     </div>
+    <div class="modal-body">
+        <div class="admin-manage-section">
+          <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
+          <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
+            <option value="work">✓ ဆင်းသည် (Present)</option>
+            <option value="absent">x ပျက်ရက် / ခွင့် (Absent / Leave)</option>
+            <option value="holiday">- ပိတ်ရက် (Holiday)</option>
+            <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
+          </select>
 
-    <div style="display:flex; gap:10px; margin-top: 20px;">
-      <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAlertSettings()">Save Alerts</button>
-      <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="clearAlertSettings()">Clear All</button>
+          <h4 style="margin:0 0 10px 0; font-size:13px; color:#666;">📅 ရက်အလိုက် ပေါ်မည့်စာများ ထည့်သွင်းရန်</h4>
+          <div class="setup-box" style="margin-top:0;">
+            <div class="full-width"><label>တနင်္ဂနွေ (Sunday)</label><input type="text" id="alertInputSun" oninput="updateTempAlert('Sun', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>တနင်္လာ (Monday)</label><input type="text" id="alertInputMon" oninput="updateTempAlert('Mon', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>အင်္ဂါ (Tuesday)</label><input type="text" id="alertInputTue" oninput="updateTempAlert('Tue', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>ဗုဒ္ဓဟူး (Wednesday)</label><input type="text" id="alertInputWed" oninput="updateTempAlert('Wed', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>ကြာသပတေး (Thursday)</label><input type="text" id="alertInputThu" oninput="updateTempAlert('Thu', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>သောကြာ (Friday)</label><input type="text" id="alertInputFri" oninput="updateTempAlert('Fri', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>စနေ (Saturday)</label><input type="text" id="alertInputSat" oninput="updateTempAlert('Sat', this.value)" placeholder="Leave empty for no alert"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAlertSettings()">Save Alerts</button>
+          <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="clearAlertSettings()">Clear All</button>
+        </div>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="slipModal" style="z-index: 500;">
-  <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff; overflow-y: auto; overflow-x: hidden; max-height: 90vh;">
+  <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff;">
     </div>
 </div>
 
 <div class="modal-overlay" id="calendarModal">
-  <div class="modal-content pop-in" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
-    <button class="close-modal interactive-btn" onclick="closeCalendarModal()">×</button>
-    <h3 style="margin-top: 0; text-align: center; color: #17a2b8;" class="logo-main">📅 <span id="calYearDisplay">2026</span> <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></h3>
-    <div style="text-align:center; font-size:11px; margin-bottom: 15px;">
-        <span style="display:inline-block; margin-right:10px;"><span style="background:#ffc107; padding:2px 8px; border-radius:3px; color:black;" data-i18n="holidayLbl">အဝါ (ပိတ်ရက်)</span></span>
-        <span style="display:inline-block;"><span style="background:#0d6efd; padding:2px 8px; border-radius:3px; color:white; border:1px solid #dc3545;" data-i18n="doubleLbl">အပြာ (နှစ်ဆရက်)</span></span>
+  <div class="modal-content pop-in" style="max-width: 650px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #17a2b8;" class="logo-main">📅 <span id="calYearDisplay">2026</span> <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></h3>
+        <button class="close-modal interactive-btn" onclick="closeCalendarModal()">×</button>
     </div>
+    <div class="modal-body">
+        <div style="text-align:center; font-size:11px; margin-bottom: 15px;">
+            <span style="display:inline-block; margin-right:10px;"><span style="background:#ffc107; padding:2px 8px; border-radius:3px; color:black;" data-i18n="holidayLbl">အဝါ (ပိတ်ရက်)</span></span>
+            <span style="display:inline-block;"><span style="background:#0d6efd; padding:2px 8px; border-radius:3px; color:white; border:1px solid #dc3545;" data-i18n="doubleLbl">အပြာ (နှစ်ဆရက်)</span></span>
+        </div>
 
-    <div id="adminCalendarControls" style="display:none;">
-        <div class="admin-manage-section">
-            <h4 style="margin:0 0 10px 0; font-size:14px; color:#dc3545;">🔧 Calendar Controls</h4>
-            <div style="display:flex; gap:5px; margin-bottom:5px;">
-                <select id="adminDateType" style="padding:6px; border-radius:4px; font-weight:bold;">
-                    <option value="holiday">🟨 Holiday</option>
-                    <option value="double">🟦 Double Day</option>
-                </select>
-                <input type="date" id="adminNewDate" style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc;">
+        <div id="adminCalendarControls" style="display:none;">
+            <div class="admin-manage-section">
+                <h4 style="margin:0 0 10px 0; font-size:14px; color:#dc3545;">🔧 Calendar Controls</h4>
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <select id="adminDateType" style="padding:6px; border-radius:4px; font-weight:bold;">
+                        <option value="holiday">🟨 Holiday</option>
+                        <option value="double">🟦 Double Day</option>
+                    </select>
+                    <input type="date" id="adminNewDate" style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc;">
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="adminNewDesc" placeholder="..." style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc;">
+                    <button class="interactive-btn" onclick="addAdminDate()" style="background:#17a2b8; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">Save</button>
+                </div>
             </div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="adminNewDesc" placeholder="..." style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc;">
-                <button class="interactive-btn" onclick="addAdminDate()" style="background:#17a2b8; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">Save</button>
+            <div class="admin-manage-section" style="max-height: 200px; overflow-y:auto;">
+                <div id="adminManageList"></div>
             </div>
         </div>
-        <div class="admin-manage-section" style="max-height: 200px; overflow-y:auto;">
-            <div id="adminManageList"></div>
-        </div>
+        <div id="yearCalendarContainer" class="year-calendar-grid"></div>
     </div>
-    <div id="yearCalendarContainer" class="year-calendar-grid"></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="settingsModal">
-  <div class="modal-content pop-in">
-    <button class="close-modal interactive-btn" onclick="closeSettings()">×</button>
-    <h3 style="margin-top: 0; text-align: center; color: #333;" class="logo-main" data-i18n="settings">⚙️ Settings</h3>
-    <div class="setup-box">
-      <div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div>
-      <div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div>
-      <div class="full-width"><label data-i18n="deptLbl">ဌာန (Department)</label><input type="text" id="empDept" placeholder="Department" value="MKB MFG FA(LH)" oninput="saveToFirebase()"></div>
-      
-      <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth"></div>
-      <div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
-      <div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
-      <div class="full-width">
-        <label data-i18n="bonusLbl">ရက်မှန်ကြေး (Bonus)</label>
-        <select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;">
-          </select>
-      </div>
+  <div class="modal-content pop-in" style="padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #333;" class="logo-main" data-i18n="settings">⚙️ Settings</h3>
+        <button class="close-modal interactive-btn" onclick="closeSettings()">×</button>
     </div>
-    
-    <div style="display:flex; gap:10px; margin-top: 20px;">
-      <button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px; flex: 2;" data-i18n="saveBtn">💾 သိမ်းမည်</button>
-      <button id="settingsCancelBtn" class="btn-generate interactive-btn" onclick="closeSettings()" style="background:#6c757d; margin-top:0; padding:10px; flex: 1;">❌ <span data-i18n="cancelBtn">ပိတ်မည်</span></button>
-      <button id="settingsLogoutBtn" class="btn-generate interactive-btn" onclick="logout()" style="background:#dc3545; margin-top:0; padding:10px; flex: 1; display:none;">🚪 <span data-i18n="logout">Logout</span></button>
+    <div class="modal-body">
+        <div class="setup-box">
+          <div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div>
+          <div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div>
+          <div class="full-width"><label data-i18n="deptLbl">ဌာန (Department)</label><input type="text" id="empDept" placeholder="Department" value="MKB MFG FA(LH)" oninput="saveToFirebase()"></div>
+          
+          <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth"></div>
+          <div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
+          <div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
+          <div class="full-width">
+            <label data-i18n="bonusLbl">ရက်မှန်ကြေး (Bonus)</label>
+            <select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;">
+              </select>
+          </div>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px; flex: 2;" data-i18n="saveBtn">💾 သိမ်းမည်</button>
+          <button id="settingsCancelBtn" class="btn-generate interactive-btn" onclick="closeSettings()" style="background:#6c757d; margin-top:0; padding:10px; flex: 1;">❌ <span data-i18n="cancelBtn">ပိတ်မည်</span></button>
+          <button id="settingsLogoutBtn" class="btn-generate interactive-btn" onclick="logout()" style="background:#dc3545; margin-top:0; padding:10px; flex: 1; display:none;">🚪 <span data-i18n="logout">Logout</span></button>
+        </div>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="themeModal" style="z-index: 400;">
-  <div class="modal-content pop-in" style="max-width: 400px;">
-    <button class="close-modal interactive-btn" onclick="closeThemeModal()">×</button>
-    <h3 style="margin-top: 0; color: #198754;" class="logo-main">🎨 Theme Settings</h3>
-    <div class="setup-box" style="margin-top: 15px;">
-      <div>
-        <label>Header Color</label>
-        <input type="color" id="adminHeaderColor" style="height: 40px; padding: 2px; cursor: pointer;">
-      </div>
-      <div>
-        <label>Background Color</label>
-        <input type="color" id="adminBodyColor" style="height: 40px; padding: 2px; cursor: pointer;">
-      </div>
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #198754;" class="logo-main">🎨 Theme Settings</h3>
+        <button class="close-modal interactive-btn" onclick="closeThemeModal()">×</button>
     </div>
-    <div style="display:flex; gap:10px; margin-top: 20px;">
-      <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAppTheme()">Save Colors</button>
-      <button class="btn-generate interactive-btn" style="background:#6c757d; margin-top:0; flex: 1; font-size: 13px;" onclick="resetAppTheme()">Restore Default</button>
+    <div class="modal-body">
+        <div class="setup-box" style="margin-top: 5px;">
+          <div>
+            <label>Header Color</label>
+            <input type="color" id="adminHeaderColor" style="height: 40px; padding: 2px; cursor: pointer;">
+          </div>
+          <div>
+            <label>Background Color</label>
+            <input type="color" id="adminBodyColor" style="height: 40px; padding: 2px; cursor: pointer;">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAppTheme()">Save Colors</button>
+          <button class="btn-generate interactive-btn" style="background:#6c757d; margin-top:0; flex: 1; font-size: 13px;" onclick="resetAppTheme()">Restore Default</button>
+        </div>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="annManageModal" style="z-index: 400;">
-  <div class="modal-content pop-in" style="max-width: 400px;">
-    <button class="close-modal interactive-btn" onclick="closeAnnManageModal()">×</button>
-    <h3 style="margin-top: 0; color: #d35400;" class="logo-main">📢 Announcement</h3>
-    <div class="setup-box" style="margin-top: 10px;">
-      <div class="full-width">
-        <label>Date (Show on this date)</label>
-        <input type="date" id="adminAnnDate">
-      </div>
-      <div class="full-width">
-        <label>Upload Photo (Optional)</label>
-        <input type="file" id="adminAnnImgFile" accept="image/*" style="font-size: 12px; padding: 5px;" onchange="handleAdminAnnImage(event)">
-        <small id="adminAnnImgStatus" style="color: #198754; display: none; font-weight: bold; margin-top: 5px;">✓ Image loaded.</small>
-      </div>
-      <div class="full-width">
-        <label>Message (Optional)</label>
-        <textarea id="adminAnnText" rows="3" placeholder="Enter alert message..."></textarea>
-      </div>
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #d35400;" class="logo-main">📢 Announcement</h3>
+        <button class="close-modal interactive-btn" onclick="closeAnnManageModal()">×</button>
     </div>
-    <div style="display:flex; gap:10px; margin-top: 20px;">
-      <button class="btn-generate interactive-btn" style="background:#d35400; margin-top:0; flex: 2;" onclick="saveAppAnnouncement()">Save Alert</button>
-      <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="deleteAppAnnouncement()">Delete Alert</button>
+    <div class="modal-body">
+        <div class="setup-box" style="margin-top: 5px;">
+          <div class="full-width">
+            <label>Date (Show on this date)</label>
+            <input type="date" id="adminAnnDate">
+          </div>
+          <div class="full-width">
+            <label>Upload Photo (Optional)</label>
+            <input type="file" id="adminAnnImgFile" accept="image/*" style="font-size: 12px; padding: 5px;" onchange="handleAdminAnnImage(event)">
+            <small id="adminAnnImgStatus" style="color: #198754; display: none; font-weight: bold; margin-top: 5px;">✓ Image loaded.</small>
+          </div>
+          <div class="full-width">
+            <label>Message (Optional)</label>
+            <textarea id="adminAnnText" rows="3" placeholder="Enter alert message..."></textarea>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" style="background:#d35400; margin-top:0; flex: 2;" onclick="saveAppAnnouncement()">Save Alert</button>
+          <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="deleteAppAnnouncement()">Delete Alert</button>
+        </div>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="announcementModal" style="z-index: 9999;">
-  <div class="modal-content pop-in" style="text-align: center; max-width: 450px;">
-    <button class="close-modal interactive-btn" onclick="closeAnnouncement()">×</button>
-    <h3 style="margin-top: 0; color: #d35400; font-family: 'Bungee Inline', cursive;">📢 Announcement</h3>
-    <div style="margin: 15px 0;">
-       <img id="annDisplayImg" src="" style="max-width: 100%; border-radius: 10px; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+  <div class="modal-content pop-in" style="text-align: center; max-width: 450px; padding: 0;">
+    <div class="modal-header" style="justify-content: center;">
+        <button class="close-modal interactive-btn" onclick="closeAnnouncement()" style="position: absolute; right: 15px; top: 15px;">×</button>
+        <h3 style="color: #d35400; font-family: 'Bungee Inline', cursive;">📢 Announcement</h3>
     </div>
-    <p id="annDisplayText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.5; margin: 0;"></p>
-    <button class="btn-generate interactive-btn" onclick="closeAnnouncement()" style="background: #0d6efd; margin-top: 15px;">OK</button>
+    <div class="modal-body" style="padding-top: 10px;">
+        <div style="margin-bottom: 15px;">
+           <img id="annDisplayImg" src="" style="max-width: 100%; border-radius: 10px; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        </div>
+        <p id="annDisplayText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.5; margin: 0;"></p>
+        <button class="btn-generate interactive-btn" onclick="closeAnnouncement()" style="background: #0d6efd; margin-top: 15px;">OK</button>
+    </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="exportModal">
-  <div class="modal-content pop-in">
-    <button class="close-modal interactive-btn" onclick="closeExportModal()">×</button>
-    <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main" data-i18n="exportBtn">📤 Export</h3>
-    <div class="setup-box">
-      <div class="full-width"><label data-i18n="startDate">စတင်မည့်ရက်</label><input type="date" id="exportStartDate"></div>
-      <div class="full-width"><label data-i18n="endDate">အဆုံးသတ်ရက်</label><input type="date" id="exportEndDate"></div>
+  <div class="modal-content pop-in" style="padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #000080;" class="logo-main" data-i18n="exportBtn">📤 Export</h3>
+        <button class="close-modal interactive-btn" onclick="closeExportModal()">×</button>
     </div>
-    <div style="display:flex; gap:10px; margin-top: 20px;">
-      <button class="btn-generate interactive-btn" onclick="exportExcel()" style="background:#198754; margin-top:0;">📊 Excel</button>
+    <div class="modal-body">
+        <div class="setup-box" style="margin-top: 0;">
+          <div class="full-width"><label data-i18n="startDate">စတင်မည့်ရက်</label><input type="date" id="exportStartDate"></div>
+          <div class="full-width"><label data-i18n="endDate">အဆုံးသတ်ရက်</label><input type="date" id="exportEndDate"></div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" onclick="exportExcel()" style="background:#198754; margin-top:0;">📊 Excel</button>
+        </div>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="adminModal">
-  <div class="modal-content pop-in" style="max-width: 600px; max-height: 85vh; overflow-y: auto;">
-    <button class="close-modal interactive-btn" onclick="closeAdminPanel()">×</button>
-    <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main">👨‍💼 Admin Panel</h3>
-    
-    <div style="display:flex; gap:10px; margin-bottom: 10px;">
-      <input type="month" id="adminMonthSelect" class="admin-search-box" style="margin-bottom: 0; flex:1;" onchange="openAdminPanel(false)">
-      <input type="text" id="adminSearchInput" class="admin-search-box" style="margin-bottom: 0; flex:1;" placeholder="🔍 Search ID / Name" onkeyup="filterAdminUsers()">
+  <div class="modal-content pop-in" style="max-width: 600px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #000080;" class="logo-main">👨‍💼 Admin Panel</h3>
+        <button class="close-modal interactive-btn" onclick="closeAdminPanel()">×</button>
     </div>
     
-    <div style="display:flex; gap:10px; margin-bottom: 15px;">
-      <button class="btn-generate interactive-btn" onclick="exportAdminAll()" style="background:#198754; margin-top:0; padding:8px;">📊 Export All (Excel)</button>
+    <div class="modal-body">
+        <div style="display:flex; gap:10px; margin-bottom: 10px;">
+          <input type="month" id="adminMonthSelect" class="admin-search-box" style="margin-bottom: 0; flex:1;" onchange="openAdminPanel(false)">
+          <input type="text" id="adminSearchInput" class="admin-search-box" style="margin-bottom: 0; flex:1;" placeholder="🔍 Search ID / Name" onkeyup="filterAdminUsers()">
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-bottom: 15px;">
+          <button class="btn-generate interactive-btn" onclick="exportAdminAll()" style="background:#198754; margin-top:0; padding:8px;">📊 Export All (Excel)</button>
+        </div>
+        
+        <div id="adminUserList" style="margin-top: 10px;"></div>
     </div>
-    
-    <div id="adminUserList" style="margin-top: 10px;"></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="adminUserDetailModal" style="z-index: 400;">
-  <div class="modal-content pop-in" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
-    <button class="close-modal interactive-btn" onclick="closeAdminUserDetail()">×</button>
-    <h3 style="margin-top: 0; text-align: center; color: #000080;" class="logo-main" id="detailModalName">Detail</h3>
-    <div id="adminDetailContent"></div>
+  <div class="modal-content pop-in" style="max-width: 500px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #000080;" class="logo-main" id="detailModalName">Detail</h3>
+        <button class="close-modal interactive-btn" onclick="closeAdminUserDetail()">×</button>
+    </div>
+    <div class="modal-body">
+        <div id="adminDetailContent"></div>
+    </div>
   </div>
 </div>
 
@@ -495,7 +544,6 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
-  // ★ Auto Login (Splash Screen ဖျောက်မည့်စနစ်) ★
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
           let splash = document.getElementById('splashScreen');
@@ -560,7 +608,6 @@
   };
   window.currentAlertType = 'work'; 
 
-  // ★ လိုအပ်ပါက စာကို Auto Translate လုပ်ပေးမည့် စနစ် ★
   window.showCustomAlert = async (textMsg) => {
       if(!textMsg || textMsg.trim() === '') return;
       
@@ -883,7 +930,6 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
 
-  // ★ ပုံအား အလိုအလျောက် သေးငယ်အောင်ချုံ့ပြီး RTDB သို့တိုက်ရိုက်သိမ်းမည့်စနစ် (အမှားကင်းစင်ပြီး မြန်ဆန်သည်) ★
   window.handleAdminAnnImage = (e) => {
       let file = e.target.files[0];
       if (!file) return;
@@ -898,7 +944,6 @@
           let img = new Image();
           img.onload = function() {
               let canvas = document.createElement('canvas');
-              // Loading အလွန်မြန်စေရန် ပုံ၏အကျယ်ကို 400px ထိသာထားမည်
               let MAX_WIDTH = 400; 
               let MAX_HEIGHT = 400; 
               let width = img.width;
@@ -920,7 +965,6 @@
               let ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0, width, height);
               
-              // အရည်အသွေး (50%) ဖြင့် ချုံ့လိုက်သဖြင့် Size မှာ အလွန်သေးငယ်သွားမည် (Error လုံးဝမဖြစ်နိုင်ပါ)
               window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5);
               
               statusEl.innerText = "✓ Image processed and ready to save.";
@@ -941,7 +985,6 @@
       let updateData = { annDate: aDate, annText: aText };
       if(aImgData) updateData.annImg = aImgData; 
       
-      // ပုံဟောင်း URL များရှိခဲ့ပါက ရှင်းလင်းမည်
       updateData.annImgUrl = null;
 
       update(ref(db, 'appConfig'), updateData)
@@ -963,7 +1006,6 @@
       }
   };
 
-  // ★ Announcement စာကိုပါ Auto Translate လုပ်ပေးမည် ★
   window.showAnnouncement = async (imgData, textMsg) => {
       let imgEl = document.getElementById('annDisplayImg');
       let textEl = document.getElementById('annDisplayText');
@@ -1456,7 +1498,17 @@
                   grandTotalSalary += netSalary; 
                   
                   let name = uData.settings.empName; let empId = uData.settings.empId || '-'; 
-                  userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}"><div class="admin-user-name">👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></div><div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>Total OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div><div class="admin-user-salary" style="color:#198754; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Net Salary: ${netSalary.toLocaleString()} ฿</div><div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div></div>`; 
+                  
+                  // ★ အလုပ်မဆင်းသေးသူ (Inactive) ကို ခွဲခြားပြသရန် ★
+                  let isInactive = (uWork === 0 && uAbsent === 0 && uMedCount === 0);
+                  let inactiveBadge = isInactive ? `<span class="inactive-badge">⚠️ In-Active</span>` : '';
+
+                  userCardsHTML += `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}">
+                      <div class="admin-user-name"><span>👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></span> ${inactiveBadge}</div>
+                      <div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>Total OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div>
+                      <div class="admin-user-salary" style="color:#198754; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Net Salary: ${netSalary.toLocaleString()} ฿</div>
+                      <div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div>
+                  </div>`; 
               } 
               
               let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#198754; font-size:16px; margin-top:8px;">Total Net Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`; 
