@@ -495,6 +495,7 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
+  // ★ Auto Login (Splash Screen ဖျောက်မည့်စနစ်) ★
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
           let splash = document.getElementById('splashScreen');
@@ -773,6 +774,8 @@
               window.customAlertMsgs = Object.assign(window.customAlertMsgs, config.alerts);
           }
           
+          let annImgData = config.annImg || config.annImgUrl;
+
           if(currentUser && currentUser.email === ADMIN_EMAIL) {
               document.getElementById('adminHeaderColor').value = headerColor === 'white' ? '#ffffff' : headerColor;
               document.getElementById('adminBodyColor').value = bodyColor === 'skyblue' ? '#87ceeb' : bodyColor;
@@ -783,14 +786,15 @@
               if(config.annText) document.getElementById('adminAnnText').value = config.annText;
               else document.getElementById('adminAnnText').value = '';
               
-              if(config.annImgUrl) {
+              if(annImgData) {
+                  window.tempAnnImageBase64 = annImgData;
                   document.getElementById('adminAnnImgStatus').innerText = "✓ Image loaded.";
                   document.getElementById('adminAnnImgStatus').style.color = "#198754";
                   document.getElementById('adminAnnImgStatus').style.display = 'block';
               } else {
+                  window.tempAnnImageBase64 = null;
                   document.getElementById('adminAnnImgStatus').style.display = 'none';
               }
-              window.tempAnnImageUrl = config.annImgUrl || null;
               
               changeAlertType();
           }
@@ -803,12 +807,12 @@
               let todayStr = localISOTime.split('T')[0];
 
               if (annDate === todayStr) {
-                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (config.annImgUrl || "noimg");
+                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0);
                   let lastShownId = localStorage.getItem('lastAnnShownId');
                   
                   if (lastShownId !== currentAnnId) {
                       setTimeout(() => {
-                          showAnnouncement(config.annImgUrl, config.annText);
+                          showAnnouncement(annImgData, config.annText);
                       }, 500);
                       localStorage.setItem('lastAnnShownId', currentAnnId); 
                   }
@@ -879,49 +883,66 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
 
-  // ★ အမှားကင်းစင်သော File တိုက်ရိုက် Upload လုပ်မည့်စနစ် (ImgBB FormData) ★
-  window.handleAdminAnnImage = async (e) => {
+  // ★ ပုံအား အလိုအလျောက် သေးငယ်အောင်ချုံ့ပြီး RTDB သို့တိုက်ရိုက်သိမ်းမည့်စနစ် (အမှားကင်းစင်ပြီး မြန်ဆန်သည်) ★
+  window.handleAdminAnnImage = (e) => {
       let file = e.target.files[0];
       if (!file) return;
       
       let statusEl = document.getElementById('adminAnnImgStatus');
-      statusEl.innerText = "⏳ Uploading image to Server...";
+      statusEl.innerText = "⏳ Compressing image for fast loading...";
       statusEl.style.color = "#0d6efd";
       statusEl.style.display = 'block';
 
-      let formData = new FormData();
-      formData.append('image', file); // File ကို တိုက်ရိုက်ထည့်မည် (Base64 ပြောင်းရန်မလိုပါ)
+      let reader = new FileReader();
+      reader.onload = function(event) {
+          let img = new Image();
+          img.onload = function() {
+              let canvas = document.createElement('canvas');
+              // Loading အလွန်မြန်စေရန် ပုံ၏အကျယ်ကို 400px ထိသာထားမည်
+              let MAX_WIDTH = 400; 
+              let MAX_HEIGHT = 400; 
+              let width = img.width;
+              let height = img.height;
 
-      try {
-          let response = await fetch('https://api.imgbb.com/1/upload?key=64319dd6c28f096d2e61be1745778c18', {
-              method: 'POST',
-              body: formData
-          });
-          let data = await response.json();
-          
-          if(data.success) {
-              window.tempAnnImageUrl = data.data.url; // ဓာတ်ပုံ Link ကို မှတ်ထားမည်
-              statusEl.innerText = "✓ Image uploaded successfully!";
+              if (width > height) {
+                  if (width > MAX_WIDTH) {
+                      height *= MAX_WIDTH / width;
+                      width = MAX_WIDTH;
+                  }
+              } else {
+                  if (height > MAX_HEIGHT) {
+                      width *= MAX_HEIGHT / height;
+                      height = MAX_HEIGHT;
+                  }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              let ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              // အရည်အသွေး (50%) ဖြင့် ချုံ့လိုက်သဖြင့် Size မှာ အလွန်သေးငယ်သွားမည် (Error လုံးဝမဖြစ်နိုင်ပါ)
+              window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5);
+              
+              statusEl.innerText = "✓ Image processed and ready to save.";
               statusEl.style.color = "#198754";
-          } else {
-              throw new Error(data.error ? data.error.message : "Unknown upload error");
-          }
-      } catch (error) {
-          console.error("Error uploading image:", error);
-          showCustomAlert("Image Upload Failed: " + error.message);
-          statusEl.style.display = 'none';
-      }
+          };
+          img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
   };
 
   window.saveAppAnnouncement = () => {
       let aDate = document.getElementById('adminAnnDate').value;
       let aText = document.getElementById('adminAnnText').value;
-      let aImgUrl = window.tempAnnImageUrl || null; 
+      let aImgData = window.tempAnnImageBase64 || null; 
       
       if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!');
       
       let updateData = { annDate: aDate, annText: aText };
-      if(aImgUrl) updateData.annImgUrl = aImgUrl; 
+      if(aImgData) updateData.annImg = aImgData; 
+      
+      // ပုံဟောင်း URL များရှိခဲ့ပါက ရှင်းလင်းမည်
+      updateData.annImgUrl = null;
 
       update(ref(db, 'appConfig'), updateData)
       .then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
@@ -929,13 +950,13 @@
 
   window.deleteAppAnnouncement = () => {
       if(confirm('Are you sure you want to delete the current announcement?')) {
-          update(ref(db, 'appConfig'), { annDate: null, annText: null, annImgUrl: null })
+          update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null, annImgUrl: null })
           .then(() => { 
               showCustomAlert('🗑️ Announcement Deleted!'); 
               document.getElementById('adminAnnDate').value = '';
               document.getElementById('adminAnnText').value = '';
               document.getElementById('adminAnnImgFile').value = '';
-              window.tempAnnImageUrl = null;
+              window.tempAnnImageBase64 = null;
               document.getElementById('adminAnnImgStatus').style.display = 'none';
               closeAnnManageModal(); 
           });
@@ -943,12 +964,12 @@
   };
 
   // ★ Announcement စာကိုပါ Auto Translate လုပ်ပေးမည် ★
-  window.showAnnouncement = async (imgUrl, textMsg) => {
+  window.showAnnouncement = async (imgData, textMsg) => {
       let imgEl = document.getElementById('annDisplayImg');
       let textEl = document.getElementById('annDisplayText');
       
-      if (imgUrl && imgUrl.startsWith('http')) {
-          imgEl.src = imgUrl; 
+      if (imgData && (imgData.startsWith('http') || imgData.startsWith('data:image'))) {
+          imgEl.src = imgData; 
           imgEl.style.display = 'block';
       } else {
           imgEl.style.display = 'none';
