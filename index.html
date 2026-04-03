@@ -559,9 +559,23 @@
   };
   window.currentAlertType = 'work'; 
 
-  window.showCustomAlert = (textMsg) => {
+  // ★ လိုအပ်ပါက စာကို Auto Translate လုပ်ပေးမည့် စနစ် ★
+  window.showCustomAlert = async (textMsg) => {
       if(!textMsg || textMsg.trim() === '') return;
-      document.getElementById('customAlertText').innerText = textMsg;
+      
+      let displayText = textMsg;
+      if (currentLang !== 'my') {
+          try {
+              let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(textMsg)}`;
+              let res = await fetch(url);
+              let data = await res.json();
+              displayText = data[0].map(x => x[0]).join('');
+          } catch(e) {
+              console.log("Translation failed", e);
+          }
+      }
+      
+      document.getElementById('customAlertText').innerText = displayText;
       document.getElementById('customAlertModal').style.display = 'flex';
   };
 
@@ -865,40 +879,36 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
 
-  // ★ အမှားကင်းစင်သော Cloudinary (Free Image Hosting) API သို့ ပုံတင်မည့်စနစ် ★
+  // ★ အမှားကင်းစင်သော File တိုက်ရိုက် Upload လုပ်မည့်စနစ် (ImgBB FormData) ★
   window.handleAdminAnnImage = async (e) => {
       let file = e.target.files[0];
       if (!file) return;
       
       let statusEl = document.getElementById('adminAnnImgStatus');
-      statusEl.innerText = "⏳ Uploading image securely, please wait...";
+      statusEl.innerText = "⏳ Uploading image to Server...";
       statusEl.style.color = "#0d6efd";
       statusEl.style.display = 'block';
 
-      // Cloudinary အတွက် Data အစီအစဉ်ချခြင်း
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'ml_default'); // ဤနေရာသည် Cloudinary မှ ပုံမှန်ဖွင့်ပေးထားသော preset ဖြစ်သည်
-      
+      let formData = new FormData();
+      formData.append('image', file); // File ကို တိုက်ရိုက်ထည့်မည် (Base64 ပြောင်းရန်မလိုပါ)
+
       try {
-          // Cloudinary API သို့ POST ဖြင့် ပုံတင်ခြင်း (Cloud name: dyjoz7tng ကို ဥပမာအဖြစ် သုံးထားသည်)
-          const response = await fetch('https://api.cloudinary.com/v1_1/dyjoz7tng/image/upload', {
+          let response = await fetch('https://api.imgbb.com/1/upload?key=64319dd6c28f096d2e61be1745778c18', {
               method: 'POST',
               body: formData
           });
+          let data = await response.json();
           
-          const data = await response.json();
-          
-          if(data.secure_url) {
-              window.tempAnnImageUrl = data.secure_url; // တင်ပြီးပါက HTTPS Link ကို ရရှိမည်
+          if(data.success) {
+              window.tempAnnImageUrl = data.data.url; // ဓာတ်ပုံ Link ကို မှတ်ထားမည်
               statusEl.innerText = "✓ Image uploaded successfully!";
               statusEl.style.color = "#198754";
           } else {
-              throw new Error("Cloudinary upload failed");
+              throw new Error(data.error ? data.error.message : "Unknown upload error");
           }
       } catch (error) {
           console.error("Error uploading image:", error);
-          showCustomAlert("Image Upload Failed. Please try again.");
+          showCustomAlert("Image Upload Failed: " + error.message);
           statusEl.style.display = 'none';
       }
   };
@@ -932,7 +942,8 @@
       }
   };
 
-  window.showAnnouncement = (imgUrl, textMsg) => {
+  // ★ Announcement စာကိုပါ Auto Translate လုပ်ပေးမည် ★
+  window.showAnnouncement = async (imgUrl, textMsg) => {
       let imgEl = document.getElementById('annDisplayImg');
       let textEl = document.getElementById('annDisplayText');
       
@@ -943,7 +954,19 @@
           imgEl.style.display = 'none';
       }
       
-      textEl.innerText = textMsg || '';
+      let displayText = textMsg || '';
+      if (displayText && currentLang !== 'my') {
+          try {
+              let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(displayText)}`;
+              let res = await fetch(url);
+              let data = await res.json();
+              displayText = data[0].map(x => x[0]).join('');
+          } catch(e) {
+              console.log("Translation failed", e);
+          }
+      }
+      
+      textEl.innerText = displayText;
       document.getElementById('announcementModal').style.display = 'flex';
   };
 
