@@ -763,7 +763,6 @@
       window.generateGrid(false); 
   };
 
-  // ★ လအပြောင်းအလဲ အမြန်လုပ်ရန်နှင့် Auto Scroll လုပ်မည့် Function ★
   window.navigateMonth = (step) => {
       let currentMonthVal = document.getElementById('selectedMonth').value;
       if (!currentMonthVal) return;
@@ -783,8 +782,6 @@
       document.getElementById('selectedMonth').value = newMonthStr;
       
       window.handleMonthChange();
-      
-      // ခလုတ်နှိပ်ပြီးသည်နှင့် အပေါ်ဆုံးသို့ အလိုအလျောက် တက်သွားမည်
       window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1195,14 +1192,14 @@
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return; 
       
-      // ★ ပြက္ခဒိန် အပေါ်တွင် "မတ် မှ ဧပြီ" ကဲ့သို့ Dynamic ပြပေးမည့် စနစ် ★
-      let container = document.querySelector('.calendar-container');
+      // ★ ပြက္ခဒိန် အပြင်ဘက် (အပေါ်) တွင် Dynamic Period ထည့်သွင်းခြင်း ★
+      let calendarSection = document.getElementById('calendarSection');
       let pDisplay = document.getElementById('periodDisplay');
       if(!pDisplay) {
           pDisplay = document.createElement('div');
           pDisplay.id = 'periodDisplay';
           pDisplay.className = 'month-period-display';
-          container.insertBefore(pDisplay, document.getElementById('weekdaysHeader'));
+          calendarSection.parentNode.insertBefore(pDisplay, calendarSection);
           
           let style = document.createElement('style');
           style.innerHTML = `
