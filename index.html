@@ -68,7 +68,11 @@
   
   .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
   .calendar-container { min-width: 700px; } 
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 14px; background: white; padding: 12px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
+
+  /* ★ ပြက္ခဒိန်ခေါင်းစဉ် အငြိမ်ထားရန် ပြင်ဆင်ချက် ★ */
+  .weekdays-bg { position: absolute; top: 0; left: 0; width: 100%; height: 44px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 1; border: 1px solid transparent; box-sizing: border-box;}
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 14px; padding: 12px 0; background: transparent; box-shadow: none; border-radius: 0;}
+  
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; box-sizing: border-box;}
   .blank-card { background: transparent; border: none; } 
@@ -138,6 +142,7 @@
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
   .dark-mode #splashScreen { background-color: #121212 !important; }
+  .dark-mode .weekdays-bg { background-color: #1e1e1e !important; border-color: #333 !important; }
 
   #printArea { display: none; }
   @media print { 
@@ -214,11 +219,18 @@
   </div>
 
   <div class="container" onclick="closeMenusOnClickOutside(event)">
-    <div class="calendar-wrapper" id="calendarSection">
-      <div class="calendar-container">
-        <div class="weekdays" id="weekdaysHeader"></div>
-        <div class="calendar-grid" id="daysGrid"></div>
-      </div>
+    
+    <div id="dynamicPeriodContainer"></div>
+    
+    <div style="position: relative;">
+        <div class="weekdays-bg"></div>
+        
+        <div class="calendar-wrapper" id="calendarSection" style="position: relative; z-index: 2;">
+            <div class="calendar-container">
+                <div class="weekdays" id="weekdaysHeader"></div>
+                <div class="calendar-grid" id="daysGrid"></div>
+            </div>
+        </div>
     </div>
 
     <div class="ui-summary-box hover-card" style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
@@ -1192,23 +1204,7 @@
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return; 
       
-      // ★ ပြက္ခဒိန် အပြင်ဘက် (အပေါ်) တွင် Dynamic Period ထည့်သွင်းခြင်း ★
-      let calendarSection = document.getElementById('calendarSection');
-      let pDisplay = document.getElementById('periodDisplay');
-      if(!pDisplay) {
-          pDisplay = document.createElement('div');
-          pDisplay.id = 'periodDisplay';
-          pDisplay.className = 'month-period-display';
-          calendarSection.parentNode.insertBefore(pDisplay, calendarSection);
-          
-          let style = document.createElement('style');
-          style.innerHTML = `
-              .month-period-display { text-align:center; font-size:16px; font-weight:bold; color:#007bff; margin-bottom:12px; background:white; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
-              body.dark-mode .month-period-display { background:#1e1e1e !important; color:#82b1ff !important; border:1px solid #333; }
-          `;
-          document.head.appendChild(style);
-      }
-      
+      let pDisplay = document.getElementById('dynamicPeriodContainer');
       let [pY, pM] = mVal.split('-');
       let endMIdx = parseInt(pM) - 1; 
       let startMIdx = endMIdx - 1; 
@@ -1217,7 +1213,9 @@
       let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
       let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
       
-      pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`;
+      if(pDisplay) {
+          pDisplay.innerHTML = `<div style="text-align:center; font-size:16px; font-weight:bold; color:#007bff; margin-bottom:12px; background:white; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); border: 1px solid transparent;">📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span></div>`;
+      }
 
       let { startD, endD } = getPeriodDates(mVal);
       const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
@@ -1398,10 +1396,25 @@
       let l = translations[currentLang]; let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
       let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
-      let [pY, pM] = d.period.split('-'); let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      let startMIdx = parseInt(pM) - 1; let endMIdx = startMIdx + 1; let endY = parseInt(pY);
-      if(endMIdx > 11) { endMIdx = 0; endY++; }
-      let periodHeaderStr = `${engMonths[startMIdx]} 21 - ${engMonths[endMIdx]} 20, ${endY}`;
+      
+      // ★ အမှားပြင်ဆင်ချက်: လစာစလစ် ကာလအတိအကျတွက်ချက်မှု (ဥပမာ - Apr 2026 ကိုရွေးပါက Mar 21 - Apr 20 ဟုပေါ်မည်) ★
+      let [pY, pM] = d.period.split('-');
+      let pMonthNum = parseInt(pM);
+      let pYearNum = parseInt(pY);
+
+      let endMIdx = pMonthNum - 1;
+      let endYear = pYearNum;
+
+      let startMIdx = endMIdx - 1;
+      let startYear = pYearNum;
+
+      if (startMIdx < 0) {
+          startMIdx = 11;
+          startYear--;
+      }
+
+      let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      let periodHeaderStr = `${engMonths[startMIdx]} 21, ${startYear} - ${engMonths[endMIdx]} 20, ${endYear}`;
 
       let html = `
         <style> @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap'); .custom-logo-font { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; color: #21409A; letter-spacing: 1px;} </style>
