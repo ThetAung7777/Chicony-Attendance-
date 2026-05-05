@@ -589,7 +589,6 @@
       bSelect.innerHTML = `<option value="0">0</option><option value="200">200</option><option value="500">500</option><option value="800">800</option><option value="1000">1000</option>`;
   }
 
-  // ★ ဘာသာစကား ပြောင်းလဲမှုစာရင်းတွင် Previous/Next Button စာသားများကို ထည့်သွင်းထားသည် ★
   const translations = {
       my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)",
             slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ", prevMonth: "⬅️ ယခင်လ", nextMonth: "နောက်လ ➡️" },
@@ -764,13 +763,13 @@
       window.generateGrid(false); 
   };
 
-  // ★ လအပြောင်းအလဲ အမြန်လုပ်ရန် Function အသစ် ★
+  // ★ လအပြောင်းအလဲ အမြန်လုပ်ရန်နှင့် Auto Scroll လုပ်မည့် Function ★
   window.navigateMonth = (step) => {
       let currentMonthVal = document.getElementById('selectedMonth').value;
       if (!currentMonthVal) return;
 
       let [y, m] = currentMonthVal.split('-').map(Number);
-      m += step; // ယခင်လဆိုလျှင် -1 ၊ နောက်လဆိုလျှင် +1
+      m += step; 
       
       if (m > 12) {
           m = 1;
@@ -783,8 +782,10 @@
       let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
       document.getElementById('selectedMonth').value = newMonthStr;
       
-      // လပြောင်းပြီးသည်နှင့် Grid အသစ်ပြန်ဆွဲပြီး တွက်ချက်မှုများ ပြုလုပ်မည်
       window.handleMonthChange();
+      
+      // ခလုတ်နှိပ်ပြီးသည်နှင့် အပေါ်ဆုံးသို့ အလိုအလျောက် တက်သွားမည်
+      window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   document.getElementById('selectedMonth').addEventListener('change', window.handleMonthChange);
@@ -1194,13 +1195,39 @@
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return; 
       
+      // ★ ပြက္ခဒိန် အပေါ်တွင် "မတ် မှ ဧပြီ" ကဲ့သို့ Dynamic ပြပေးမည့် စနစ် ★
+      let container = document.querySelector('.calendar-container');
+      let pDisplay = document.getElementById('periodDisplay');
+      if(!pDisplay) {
+          pDisplay = document.createElement('div');
+          pDisplay.id = 'periodDisplay';
+          pDisplay.className = 'month-period-display';
+          container.insertBefore(pDisplay, document.getElementById('weekdaysHeader'));
+          
+          let style = document.createElement('style');
+          style.innerHTML = `
+              .month-period-display { text-align:center; font-size:16px; font-weight:bold; color:#007bff; margin-bottom:12px; background:white; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+              body.dark-mode .month-period-display { background:#1e1e1e !important; color:#82b1ff !important; border:1px solid #333; }
+          `;
+          document.head.appendChild(style);
+      }
+      
+      let [pY, pM] = mVal.split('-');
+      let endMIdx = parseInt(pM) - 1; 
+      let startMIdx = endMIdx - 1; 
+      if (startMIdx < 0) startMIdx = 11;
+      
+      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
+      let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
+      
+      pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`;
+
       let { startD, endD } = getPeriodDates(mVal);
       const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
       for(let i=0; i < startD.getDay(); i++) grid.innerHTML += `<div class="blank-card"></div>`;
       
       let cur = new Date(startD);
       let dd = dropdowns[currentLang]; 
-      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
       let daysArray = weekdaysText[currentLang];
 
       while (cur <= endD) {
