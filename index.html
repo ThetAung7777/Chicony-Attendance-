@@ -554,14 +554,11 @@
               document.getElementById('loginScreen').style.display = 'none'; 
               document.getElementById('mainApp').style.display = 'block';
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
-              
               if(user.email === ADMIN_EMAIL) { 
                   document.getElementById('adminPanelBtn').style.display = 'flex'; 
                   document.getElementById('themeBtn').style.display = 'flex'; 
                   document.getElementById('annBtn').style.display = 'flex'; 
                   document.getElementById('alertMenuBtn').style.display = 'flex'; 
-                  // ★ Calendar ပြင်သည့် နေရာကို ပြန်ဖော်ပေးခြင်း ★
-                  document.getElementById('adminCalendarControls').style.display = 'block'; 
               }
               
               loadAppConfig(); 
@@ -1225,6 +1222,7 @@
       calculateAll(); 
   };
 
+  // ★ SSO တွက်ချက်မှုတွင် Public Holiday Pay ကို ထည့်ပေါင်းထားပါသည် ★
   window.calculateAll = () => {
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
@@ -1306,7 +1304,8 @@
 
       let combinedBasicSalary = (work + medLeaveCount) * wage;
       
-      let ssoBaseAmount = combinedBasicSalary + lunchAllowance + nightPay; 
+      // ★ အမှားပြင်ဆင်ချက်: SSO တွက်ရာတွင် ရုံးပိတ်ရက် ရငွေ (pubHolPay) ကို ထည့်ပေါင်းထားပါသည် ★
+      let ssoBaseAmount = combinedBasicSalary + pubHolPay + lunchAllowance + nightPay; 
       let rawSso = ssoBaseAmount * 0.05; 
       let ssoDeduction = Math.round(rawSso); 
       ssoDeduction = Math.min(ssoDeduction, 750); 
@@ -1497,7 +1496,8 @@
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
                   let regularFoodAllowance = uWork * 30;
 
-                  let ssoBaseAmount = combinedBasicSalary + regularFoodAllowance + uNightPay;
+                  // ★ အမှားပြင်ဆင်ချက်: Admin တွက်ချက်မှုတွင်လည်း Public Holiday Pay ထည့်ပေးထားသည် ★
+                  let ssoBaseAmount = combinedBasicSalary + pubHolPay + regularFoodAllowance + uNightPay;
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
 
