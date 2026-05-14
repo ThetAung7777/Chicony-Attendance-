@@ -522,9 +522,9 @@
     </div>
   </div>
 </div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  // signInWithPopup နှင့် signInWithRedirect နှစ်မျိုးလုံးကို ထည့်သွင်းထားပါသည်
   import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
@@ -557,6 +557,7 @@
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
+  // Android Redirect အတွက် Result ဖမ်းခြင်း
   getRedirectResult(auth).then((result) => {
       if (result) console.log("Successfully logged in via redirect");
   }).catch((error) => {
@@ -699,13 +700,28 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
+  // ★ အပြောင်းအလဲ: iPhone (iOS) နှင့် Android အတွက် သင့်တော်သော Login Method ကို ရွေးချယ်အသုံးပြုမည် ★
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
   window.signIn = () => { 
       let loadingSpinner = document.getElementById('loadingSpinner');
       if (loadingSpinner) {
           loadingSpinner.style.display = 'flex';
-          loadingSpinner.innerText = 'Redirecting to Google...';
+          loadingSpinner.innerText = 'Connecting to Google...';
       }
-      signInWithRedirect(auth, provider);
+
+      if (isIOS) {
+          // iPhone နှင့် iOS စနစ်များတွင် Redirect အသုံးပြုပါက Login ပြုတ်တတ်သဖြင့် Popup ကို အသုံးပြုပါမည်။
+          signInWithPopup(auth, provider).then(() => {
+              if (loadingSpinner) loadingSpinner.style.display = 'none';
+          }).catch((error) => {
+              if (loadingSpinner) loadingSpinner.style.display = 'none';
+              showCustomAlert("Login Error: " + error.message);
+          });
+      } else {
+          // Android ဖုန်းများ နှင့် APK App များအတွက် Redirect ကိုသာ အသုံးပြုပါမည်။ (Popup Block ဖြစ်တတ်သောကြောင့်)
+          signInWithRedirect(auth, provider);
+      }
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
@@ -1397,7 +1413,6 @@
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
       let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
-      // ★ အမှားပြင်ဆင်ချက်: လစာစလစ် ကာလအတိအကျတွက်ချက်မှု (ဥပမာ - Apr 2026 ကိုရွေးပါက Mar 21 - Apr 20 ဟုပေါ်မည်) ★
       let [pY, pM] = d.period.split('-');
       let pMonthNum = parseInt(pM);
       let pYearNum = parseInt(pY);
@@ -1770,6 +1785,7 @@
   
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => { console.log('Service worker registered.'); }).catch(err => { console.log('Service worker registration failed:', err); }); }); }
 </script>
+
 
 </body>
 </html>
