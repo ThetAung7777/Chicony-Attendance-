@@ -579,6 +579,29 @@
   const CALENDAR_YEAR = 2026; 
   let isDataLoaded = false; 
 
+  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း ★
+  function createOTModal() {
+      if(document.getElementById('otSelectionModal')) return;
+      let d = document.createElement('div');
+      d.id = 'otSelectionModal';
+      d.className = 'modal-overlay';
+      d.style.zIndex = '10001';
+      d.innerHTML = `
+        <div class="modal-content pop-in" style="text-align: center; max-width: 320px; padding: 20px;">
+          <h3 id="otModalTitle" style="margin-top: 0; color: #0d6efd; font-size: 16px; font-weight:bold;">⏱️ OT နာရီ ရွေးချယ်ပါ</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+             <button class="btn-generate interactive-btn" onclick="setOTHours(1)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">1 <span class="ot-btn-txt">နာရီ</span></button>
+             <button class="btn-generate interactive-btn" onclick="setOTHours(2)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">2 <span class="ot-btn-txt">နာရီ</span></button>
+             <button class="btn-generate interactive-btn" onclick="setOTHours(3)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">3 <span class="ot-btn-txt">နာရီ</span></button>
+             <button class="btn-generate interactive-btn" onclick="setOTHours(4)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">4 <span class="ot-btn-txt">နာရီ</span></button>
+          </div>
+          <button id="otModalCancelBtn" class="btn-generate interactive-btn" onclick="closeOTModalForManual()" style="background: #6c757d; margin-top: 10px; padding: 10px; font-size:14px;">✍️ ပိတ်မည် / ကိုယ်တိုင်ရေးမည်</button>
+        </div>
+      `;
+      document.body.appendChild(d);
+  }
+  createOTModal();
+
   // ★ SSO တွက်ချက်မှုအတွက် Admin Setting (Default အနေဖြင့် အားလုံး On ထားမည်) ★
   window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
 
@@ -606,7 +629,7 @@
               
               if(user.email === ADMIN_EMAIL) { 
                   document.getElementById('adminPanelBtn').style.display = 'flex'; 
-                  document.getElementById('ssoMenuBtn').style.display = 'flex'; // ★ SSO Setting Button ဖော်မည်
+                  document.getElementById('ssoMenuBtn').style.display = 'flex'; 
                   document.getElementById('themeBtn').style.display = 'flex'; 
                   document.getElementById('annBtn').style.display = 'flex'; 
                   document.getElementById('alertMenuBtn').style.display = 'flex'; 
@@ -651,7 +674,7 @@
 
   // ★ Dropdown များကို အစိမ်း၊ အနီ၊ အဝါ Emoji များဖြင့် ပြင်ဆင်ထားသည် ★
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ အလုပ်ဆင်းသည်', statusAbsent: '❌ အလုပ်ပျက်ရက်', statusHoliday: '🟨 အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ ဆင်းရက်', statusAbsent: '❌ ပျက်ရက်', statusHoliday: '🟨 ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
       en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
       th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
@@ -924,7 +947,6 @@
           document.documentElement.style.setProperty('--app-header-color', headerColor);
           document.documentElement.style.setProperty('--app-bg-color', bodyColor);
           
-          // ★ SSO Settings ကို Firebase မှ ယူခြင်း ★
           if(config.ssoSettings) {
               window.ssoConfig = config.ssoSettings;
           }
@@ -1209,6 +1231,7 @@
       calculateAll();
   };
 
+  // ★ OT Input ကို နှိပ်လျှင် Popup အရင်ပြမည့်စနစ် ★
   window.currentOTInputTarget = null;
   window.toggleOTInput = (el) => { 
       let input = el.parentElement.querySelector('.ot-hours'); 
@@ -1390,7 +1413,6 @@
       calculateAll(); 
   };
 
-  // ★ SSO တွက်ချက်မှုတွင် Admin ရွေးချယ်ထားသော စနစ်ကို အခြေခံပြီး တွက်ပါမည် ★
   window.calculateAll = () => {
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
@@ -1472,7 +1494,6 @@
 
       let combinedBasicSalary = (work + medLeaveCount) * wage;
       
-      // ★ Admin ရွေးချယ်ထားသော စနစ်အတိုင်း SSO ကို တွက်ချက်ခြင်း ★
       let ssoBaseAmount = 0;
       if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
       if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
@@ -1514,7 +1535,6 @@
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
       let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
-      // ★ အမှားပြင်ဆင်ချက်: လစာစလစ် ကာလအတိအကျ (ဥပမာ မတ် ၂၁ - ဧပြီ ၂၀) အလုပ်လုပ်စေရန် ★
       let [pY, pM] = d.period.split('-');
       let pMonthNum = parseInt(pM);
       let pYearNum = parseInt(pY);
@@ -1684,7 +1704,6 @@
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
                   let regularFoodAllowance = uWork * 30;
 
-                  // ★ Admin တွက်ချက်မှုတွင်လည်း Admin ရွေးချယ်ထားသော စနစ်အတိုင်း SSO ကို တွက်ပါသည် ★
                   let ssoBaseAmount = 0;
                   if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
                   if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
