@@ -69,7 +69,6 @@
   .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
   .calendar-container { min-width: 700px; } 
 
-  /* ★ ပြက္ခဒိန်ခေါင်းစဉ် အငြိမ်ထားရန် ပြင်ဆင်ချက် ★ */
   .weekdays-bg { position: absolute; top: 0; left: 0; width: 100%; height: 44px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 1; border: 1px solid transparent; box-sizing: border-box;}
   .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 14px; padding: 12px 0; background: transparent; box-shadow: none; border-radius: 0;}
   
@@ -187,6 +186,7 @@
       <a href="#" onclick="openCalendarModal()" style="color: #17a2b8; font-weight:bold;" class="interactive-btn">📅 <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></a>
       
       <a href="#" id="adminPanelBtn" onclick="openAdminPanel(true)" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;" class="interactive-btn">🔐 <span data-i18n="adminPanel">Admin Panel</span></a>
+      <a href="#" id="ssoMenuBtn" onclick="openSsoSettingsModal()" style="display:none; color: #007bff; font-weight: bold;" class="interactive-btn">🛡️ SSO Settings</a>
       <a href="#" id="themeBtn" onclick="openThemeModal()" style="display:none; color: #198754; font-weight: bold;" class="interactive-btn">🎨 Theme Settings</a>
       <a href="#" id="annBtn" onclick="openAnnManageModal()" style="display:none; color: #d35400; font-weight: bold;" class="interactive-btn">📢 Announcement</a>
       <a href="#" id="alertMenuBtn" onclick="openAlertSettingsModal()" style="display:none; color: #6f42c1; font-weight: bold;" class="interactive-btn">🔔 Alert Settings</a>
@@ -224,7 +224,6 @@
     
     <div style="position: relative;">
         <div class="weekdays-bg"></div>
-        
         <div class="calendar-wrapper" id="calendarSection" style="position: relative; z-index: 2;">
             <div class="calendar-container">
                 <div class="weekdays" id="weekdaysHeader"></div>
@@ -292,6 +291,33 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="ssoSettingsModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #007bff;" class="logo-main">🛡️ SSO Settings</h3>
+        <button class="close-modal interactive-btn" onclick="closeSsoSettingsModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 15px;">ပကန်စံခွန်း (SSO) ၅% တွက်ချက်ရာတွင် ထည့်သွင်းပေါင်းမည့် အရာများကို ရွေးချယ်ပါ။ (Admin သာ ပြင်ဆင်နိုင်သည်)</p>
+        <div class="setup-box" style="display: flex; flex-direction: column; gap: 15px; margin-top:0;">
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="ssoOptBasic" style="width: 20px; height: 20px; cursor: pointer;"> အခြေခံလစာ (Basic Salary)
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="ssoOptPubHol" style="width: 20px; height: 20px; cursor: pointer;"> အစိုးရရုံးပိတ်ရက် ရငွေ (Public Holiday)
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="ssoOptNight" style="width: 20px; height: 20px; cursor: pointer;"> ညဆိုင်းကြေး (Night Allowance)
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="ssoOptFood" style="width: 20px; height: 20px; cursor: pointer;"> နေ့လည်စာ ထမင်းဖိုး (Food Allowance)
+          </label>
+        </div>
+        <button class="btn-generate interactive-btn" style="background:#198754; margin-top:25px; width: 100%;" onclick="saveSsoSettings()">💾 Save Settings</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="alertSettingsModal" style="z-index: 400;">
   <div class="modal-content pop-in" style="max-width: 500px; padding: 0;">
     <div class="modal-header">
@@ -302,9 +328,9 @@
         <div class="admin-manage-section">
           <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
           <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
-            <option value="work">✓ ဆင်းသည် (Present)</option>
-            <option value="absent">x ပျက်ရက် / ခွင့် (Absent / Leave)</option>
-            <option value="holiday">- ပိတ်ရက် (Holiday)</option>
+            <option value="work">✓ အလုပ်ဆင်းသည် (Present)</option>
+            <option value="absent">x အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option>
+            <option value="holiday">- အလုပ်ပိတ်ရက် (Holiday)</option>
             <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
           </select>
 
@@ -553,31 +579,11 @@
   const CALENDAR_YEAR = 2026; 
   let isDataLoaded = false; 
 
+  // ★ SSO တွက်ချက်မှုအတွက် Admin Setting (Default အနေဖြင့် အားလုံး On ထားမည်) ★
+  window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
+
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
-
-  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း ★
-  function createOTModal() {
-      if(document.getElementById('otSelectionModal')) return;
-      let d = document.createElement('div');
-      d.id = 'otSelectionModal';
-      d.className = 'modal-overlay';
-      d.style.zIndex = '10001';
-      d.innerHTML = `
-        <div class="modal-content pop-in" style="text-align: center; max-width: 320px; padding: 20px;">
-          <h3 id="otModalTitle" style="margin-top: 0; color: #0d6efd; font-size: 16px; font-weight:bold;">⏱️ OT နာရီ ရွေးချယ်ပါ</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
-             <button class="btn-generate interactive-btn" onclick="setOTHours(1)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">1 <span class="ot-btn-txt">နာရီ</span></button>
-             <button class="btn-generate interactive-btn" onclick="setOTHours(2)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">2 <span class="ot-btn-txt">နာရီ</span></button>
-             <button class="btn-generate interactive-btn" onclick="setOTHours(3)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">3 <span class="ot-btn-txt">နာရီ</span></button>
-             <button class="btn-generate interactive-btn" onclick="setOTHours(4)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">4 <span class="ot-btn-txt">နာရီ</span></button>
-          </div>
-          <button id="otModalCancelBtn" class="btn-generate interactive-btn" onclick="closeOTModalForManual()" style="background: #6c757d; margin-top: 10px; padding: 10px; font-size:14px;">✍️ ပိတ်မည် / ကိုယ်တိုင်ရေးမည်</button>
-        </div>
-      `;
-      document.body.appendChild(d);
-  }
-  createOTModal();
 
   getRedirectResult(auth).then((result) => {
       if (result) console.log("Successfully logged in via redirect");
@@ -600,6 +606,7 @@
               
               if(user.email === ADMIN_EMAIL) { 
                   document.getElementById('adminPanelBtn').style.display = 'flex'; 
+                  document.getElementById('ssoMenuBtn').style.display = 'flex'; // ★ SSO Setting Button ဖော်မည်
                   document.getElementById('themeBtn').style.display = 'flex'; 
                   document.getElementById('annBtn').style.display = 'flex'; 
                   document.getElementById('alertMenuBtn').style.display = 'flex'; 
@@ -642,10 +649,11 @@
   const englishMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
+  // ★ Dropdown များကို အစိမ်း၊ အနီ၊ အဝါ Emoji များဖြင့် ပြင်ဆင်ထားသည် ★
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ ဆင်းသည်', statusAbsent: 'x ပျက်ရက်', statusHoliday: '- ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
-      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
-      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ အလုပ်ဆင်းသည်', statusAbsent: '❌ အလုပ်ပျက်ရက်', statusHoliday: '🟨 အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
+      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
 
   let otModalText = {
@@ -678,7 +686,7 @@
       }
       
       document.getElementById('customAlertText').innerText = displayText;
-      document.getElementById('customAlertModal').style.zIndex = '10005'; // Ensures it overlays OT Selection if both open
+      document.getElementById('customAlertModal').style.zIndex = '10005'; 
       document.getElementById('customAlertModal').style.display = 'flex';
   };
 
@@ -719,7 +727,6 @@
           let key = el.getAttribute('data-i18n'); if(translations[lang][key]) el.innerText = translations[lang][key];
       });
       
-      // Update OT Modal language
       let om = otModalText[lang] || otModalText.my;
       let titleEl = document.getElementById('otModalTitle');
       if(titleEl) {
@@ -917,6 +924,11 @@
           document.documentElement.style.setProperty('--app-header-color', headerColor);
           document.documentElement.style.setProperty('--app-bg-color', bodyColor);
           
+          // ★ SSO Settings ကို Firebase မှ ယူခြင်း ★
+          if(config.ssoSettings) {
+              window.ssoConfig = config.ssoSettings;
+          }
+
           if (config.alerts) {
               window.customAlertMsgs = Object.assign(window.customAlertMsgs, config.alerts);
           }
@@ -967,6 +979,33 @@
           }
       });
   }
+
+  // ★ SSO Setting Modal Functions ★
+  window.openSsoSettingsModal = () => { 
+      document.getElementById('ssoOptBasic').checked = window.ssoConfig.basic;
+      document.getElementById('ssoOptPubHol').checked = window.ssoConfig.pubHol;
+      document.getElementById('ssoOptNight').checked = window.ssoConfig.night;
+      document.getElementById('ssoOptFood').checked = window.ssoConfig.food;
+      document.getElementById('ssoSettingsModal').style.display = 'flex'; 
+      toggleMenu(null); 
+  };
+  
+  window.closeSsoSettingsModal = () => { document.getElementById('ssoSettingsModal').style.display = 'none'; };
+
+  window.saveSsoSettings = () => {
+      let newSso = {
+          basic: document.getElementById('ssoOptBasic').checked,
+          pubHol: document.getElementById('ssoOptPubHol').checked,
+          night: document.getElementById('ssoOptNight').checked,
+          food: document.getElementById('ssoOptFood').checked
+      };
+      update(ref(db, 'appConfig/ssoSettings'), newSso).then(() => {
+          showCustomAlert('✅ SSO Settings Saved!');
+          window.ssoConfig = newSso;
+          calculateAll(); 
+          closeSsoSettingsModal();
+      });
+  };
 
   window.changeAlertType = () => {
       window.currentAlertType = document.getElementById('alertTypeSelector').value;
@@ -1170,7 +1209,6 @@
       calculateAll();
   };
 
-  // ★ OT Input ကို နှိပ်လျှင် Popup အရင်ပြမည့်စနစ် ★
   window.currentOTInputTarget = null;
   window.toggleOTInput = (el) => { 
       let input = el.parentElement.querySelector('.ot-hours'); 
@@ -1200,7 +1238,6 @@
       calculateAll(); 
   };
 
-  // ★ OT Modal မှ အလွယ်ရွေးလိုက်သော နာရီအား ထည့်သွင်းခြင်း ★
   window.setOTHours = (hrs) => {
       if(window.currentOTInputTarget) {
           window.currentOTInputTarget.value = hrs;
@@ -1209,7 +1246,6 @@
       document.getElementById('otSelectionModal').style.display = 'none';
   };
 
-  // ★ ကိုယ်တိုင်ရိုက်ထည့်ချင်ပါက Modal ကိုပိတ်ပြီး Input ထဲ Cursor ချပေးခြင်း ★
   window.closeOTModalForManual = () => {
       document.getElementById('otSelectionModal').style.display = 'none';
       if(window.currentOTInputTarget) {
@@ -1354,6 +1390,7 @@
       calculateAll(); 
   };
 
+  // ★ SSO တွက်ချက်မှုတွင် Admin ရွေးချယ်ထားသော စနစ်ကို အခြေခံပြီး တွက်ပါမည် ★
   window.calculateAll = () => {
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
@@ -1435,7 +1472,13 @@
 
       let combinedBasicSalary = (work + medLeaveCount) * wage;
       
-      let ssoBaseAmount = combinedBasicSalary + pubHolPay + lunchAllowance + nightPay; 
+      // ★ Admin ရွေးချယ်ထားသော စနစ်အတိုင်း SSO ကို တွက်ချက်ခြင်း ★
+      let ssoBaseAmount = 0;
+      if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
+      if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
+      if (window.ssoConfig.night) ssoBaseAmount += nightPay;
+      if (window.ssoConfig.food) ssoBaseAmount += lunchAllowance;
+
       let rawSso = ssoBaseAmount * 0.05; 
       let ssoDeduction = Math.round(rawSso); 
       ssoDeduction = Math.min(ssoDeduction, 750); 
@@ -1471,6 +1514,7 @@
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
       let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
+      // ★ အမှားပြင်ဆင်ချက်: လစာစလစ် ကာလအတိအကျ (ဥပမာ မတ် ၂၁ - ဧပြီ ၂၀) အလုပ်လုပ်စေရန် ★
       let [pY, pM] = d.period.split('-');
       let pMonthNum = parseInt(pM);
       let pYearNum = parseInt(pY);
@@ -1640,7 +1684,13 @@
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
                   let regularFoodAllowance = uWork * 30;
 
-                  let ssoBaseAmount = combinedBasicSalary + pubHolPay + regularFoodAllowance + uNightPay;
+                  // ★ Admin တွက်ချက်မှုတွင်လည်း Admin ရွေးချယ်ထားသော စနစ်အတိုင်း SSO ကို တွက်ပါသည် ★
+                  let ssoBaseAmount = 0;
+                  if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
+                  if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
+                  if (window.ssoConfig.night) ssoBaseAmount += uNightPay;
+                  if (window.ssoConfig.food) ssoBaseAmount += regularFoodAllowance;
+
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
 
