@@ -550,7 +550,8 @@
 </div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  // ★ အပြောင်းအလဲ: အတည်ငြိမ်ဆုံးဖြစ်သော signInWithPopup ကိုသာ အသုံးပြုမည် ★
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -607,12 +608,6 @@
 
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
-
-  getRedirectResult(auth).then((result) => {
-      if (result) console.log("Successfully logged in via redirect");
-  }).catch((error) => {
-      console.error("Redirect Login Error:", error);
-  });
 
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
@@ -672,7 +667,6 @@
   const englishMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-  // ★ Dropdown များကို အစိမ်း၊ အနီ၊ အဝါ Emoji များဖြင့် ပြင်ဆင်ထားသည် ★
   const dropdowns = {
       my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ ဆင်းရက်', statusAbsent: '❌ ပျက်ရက်', statusHoliday: '🟨 ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
       en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
@@ -768,8 +762,7 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
+  // ★ Android APK နှင့် iOS နှစ်ခုလုံးအတွက် အတည်ငြိမ်ဆုံးဖြစ်သော Popup စနစ်ကိုသာ အသုံးပြုမည် ★
   window.signIn = () => { 
       let loadingSpinner = document.getElementById('loadingSpinner');
       if (loadingSpinner) {
@@ -777,16 +770,16 @@
           loadingSpinner.innerText = 'Connecting to Google...';
       }
 
-      if (isIOS) {
-          signInWithPopup(auth, provider).then(() => {
-              if (loadingSpinner) loadingSpinner.style.display = 'none';
-          }).catch((error) => {
-              if (loadingSpinner) loadingSpinner.style.display = 'none';
+      signInWithPopup(auth, provider).then(() => {
+          if (loadingSpinner) loadingSpinner.style.display = 'none';
+      }).catch((error) => {
+          if (loadingSpinner) loadingSpinner.style.display = 'none';
+          if (error.code === 'auth/popup-blocked') {
+              showCustomAlert("Popup blocked. Please allow popups or use standard browser.");
+          } else {
               showCustomAlert("Login Error: " + error.message);
-          });
-      } else {
-          signInWithRedirect(auth, provider);
-      }
+          }
+      });
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
@@ -1002,7 +995,6 @@
       });
   }
 
-  // ★ SSO Setting Modal Functions ★
   window.openSsoSettingsModal = () => { 
       document.getElementById('ssoOptBasic').checked = window.ssoConfig.basic;
       document.getElementById('ssoOptPubHol').checked = window.ssoConfig.pubHol;
@@ -1231,7 +1223,6 @@
       calculateAll();
   };
 
-  // ★ OT Input ကို နှိပ်လျှင် Popup အရင်ပြမည့်စနစ် ★
   window.currentOTInputTarget = null;
   window.toggleOTInput = (el) => { 
       let input = el.parentElement.querySelector('.ot-hours'); 
