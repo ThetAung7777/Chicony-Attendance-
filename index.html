@@ -20,18 +20,15 @@
   }
 
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   
-  .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
   .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  /* Navbar Sticky Top (Height အတိအကျ သတ်မှတ်ထားသည်) */
+  /* Navbar Sticky Top */
   .navbar { background-color: var(--app-header-color); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 60px; box-sizing: border-box; transition: background 0.4s ease; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
@@ -43,7 +40,6 @@
   .dropdown.left { left: 10px; transform-origin: top left; }
   .dropdown.right { right: 10px; }
   .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
-  .dropdown a:hover { background-color: #f4f7f6; }
   
   .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 500; backdrop-filter: blur(3px); }
   .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -52,27 +48,29 @@
   .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
   .close-modal { font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; padding: 0; }
 
-  #splashScreen, #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
-  .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  #splashScreen, #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
-  /* Container Padding လျှော့ချထားသည် */
   .container { padding: 0 15px 15px 15px; max-width: 800px; margin: auto; position: relative;}
-
-  /* ★ လပြစာသား နှင့် နေ့ရက်များကို တစ်တွဲတည်း အသေကပ်ထားသည့် Unified Sticky Header ★ */
+  
+  /* ★ Unified Sticky Header (လစာသား + နေ့ရက်များ) ★ */
   #unifiedStickyHeader {
       position: sticky; 
       top: 60px; /* Navbar အောက် တိုက်ရိုက်ကပ်မည် */
       z-index: 150; 
       background: var(--app-bg-color); 
-      margin: 0 -15px; 
-      padding: 15px 0 10px 0; /* အပေါ် 15px အကွာအဝေး */
+      margin: 0 -15px; /* Container padding ကို offset လုပ်သည် */
+      padding: 15px 15px 15px 15px; /* အပေါ် 15px, အောက် 15px အတိအကျ ညီအောင် ချိန်ထားသည် */
       transition: background 0.4s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
   }
 
-  /* ★ လပြစာသား (ဧပြီ မှ မေ) ★ */
-  #dynamicPeriodContainer { 
+  .month-period-container {
+      text-align: center;
+      margin-bottom: 15px; /* လစာသားနှင့် နေ့ရက်ကြား 15px အကွာအဝေး */
+  }
+
+  .month-period-display { 
       font-size: 14px; 
       font-weight: bold; 
       color: #007bff; 
@@ -84,36 +82,71 @@
       display: inline-block;
   }
 
-  /* ★ နေ့ရက်ခေါင်းစဉ် (တနင်္ဂနွေ၊ တနင်္လာ) ★ */
+  /* ★ နေ့ရက်များကို အုပ်ထားသည့် အပြင်ဘောင်အသေ (Static Border) ★ */
+  .weekdays-static-box {
+      background: white;
+      border-radius: 10px; /* Round Corner အလှ */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border: 1px solid #ddd;
+      overflow: hidden; /* Scroll ဖြစ်သော အပိုင်းကို ဘောင်အောက်တွင် ဖျောက်ထားရန် */
+      width: 100%;
+      box-sizing: border-box;
+  }
+
+  #stickyWeekdaysWrapper {
+      width: 100%;
+      overflow-x: hidden; /* JavaScript ဖြင့်သာ Scroll ဆွဲမည် */
+  }
+
+  .calendar-container { 
+      min-width: 750px; 
+      padding: 0 10px; /* Grid နှင့် ကိုက်ညီစေရန် */
+      box-sizing: border-box; 
+  } 
+
+  /* ★ နေ့ရက်စာသားများ Grid နှင့် မျဉ်းကြောင်းများ ★ */
   .weekdays { 
       display: grid; 
       grid-template-columns: repeat(7, 1fr); 
+      gap: 8px; /* အောက်က ဇယားကွက်များ၏ 8px gap နှင့် အတိအကျ ချိန်ထားသည် */
       text-align: center; 
       font-weight: bold; 
       font-size: 14px; 
       background: white; 
-      border-radius: 8px; 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-      border: 1px solid #ddd;
-      overflow: hidden; /* Round corner အတွက် */
+      padding: 12px 0; 
       margin: 0;
   }
   
-  /* နေ့ရက်တစ်ခုနှင့်တစ်ခုကြား မျဉ်းကြောင်းများ */
   .weekdays > div { 
-      padding: 10px 0; 
-      border-right: 1px solid #ddd; 
-  }
-  .weekdays > div:last-child { 
-      border-right: none; 
+      position: relative;
   }
 
-  /* ★ ဇယားအပိုင်း (Scroll Container) ★ */
-  .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
-  .calendar-container { min-width: 750px; } 
+  /* နေ့တစ်နေ့နှင့် တစ်နေ့ကြား မျဉ်းကြောင်း (Divider) */
+  .weekdays > div:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: -4.5px; /* 8px gap ၏ အလယ်တည့်တည့်တွင် မျဉ်းချထားသည် */
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: #ddd;
+  }
+  
+  /* ★ အောက်ဘက်ရှိ Calendar Grid ဇယားများ ★ */
+  .calendar-wrapper { 
+      width: 100%; 
+      overflow-x: auto; 
+      padding-bottom: 10px; 
+      /* အောက်သို့ ဆွဲချပါက Unified Sticky Header အောက်သို့ ဝင်သွားမည် */
+  }
 
-  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; box-sizing: border-box;}
+  .calendar-grid { 
+      display: grid; 
+      grid-template-columns: repeat(7, 1fr); 
+      gap: 8px; 
+  }
+  
+  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
   .blank-card { background: transparent; border: none; } 
 
   .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
@@ -133,8 +166,6 @@
   
   .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
   .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
-  .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
-  .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
 
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
@@ -150,6 +181,7 @@
   .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
   .manage-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; font-size: 13px; background: white; margin-bottom: 6px; border-radius: 6px;}
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
+  
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
   .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
@@ -164,7 +196,7 @@
   .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
 
-  /* Dark Mode */
+  /* Dark Mode adjustments for new Sticky Header */
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
@@ -182,11 +214,12 @@
   .dark-mode .profile-name-text { color: #82b1ff !important; }
   .dark-mode #splashScreen { background-color: #121212 !important; }
   
-  /* Dark Mode အတွက် Sticky Header များ */
+  /* Dark Mode Sticky Header Styling */
   .dark-mode #unifiedStickyHeader { background-color: #121212 !important; }
-  .dark-mode #dynamicPeriodContainer { background-color: #1e1e1e !important; border-color: #333 !important; }
-  .dark-mode .weekdays { background-color: #1e1e1e !important; border-color: #333 !important; }
-  .dark-mode .weekdays > div { border-right-color: #444 !important; }
+  .dark-mode .month-period-display { background-color: #1e1e1e !important; border-color: #333 !important; }
+  .dark-mode .weekdays-static-box { background-color: #1e1e1e !important; border-color: #333 !important; }
+  .dark-mode .weekdays { background-color: transparent !important; border: none !important; }
+  .dark-mode .weekdays > div:not(:last-child)::after { background: #444 !important; }
 
   #printArea { display: none; }
   @media print { 
@@ -267,19 +300,21 @@
     
     <div id="unifiedStickyHeader">
         
-        <div style="text-align: center; margin-bottom: 15px;">
-            <div id="dynamicPeriodContainer"></div>
+        <div class="month-period-container">
+            <div id="dynamicPeriodContainer" class="month-period-display"></div>
         </div>
 
-        <div id="stickyWeekdaysWrapper" style="width: 100%; overflow-x: hidden; padding: 0 15px; box-sizing: border-box;">
-            <div class="calendar-container">
-                <div class="weekdays" id="weekdaysHeader"></div>
+        <div class="weekdays-static-box">
+            <div id="stickyWeekdaysWrapper">
+                <div class="calendar-container">
+                    <div class="weekdays" id="weekdaysHeader"></div>
+                </div>
             </div>
         </div>
         
     </div>
 
-    <div class="calendar-wrapper" id="calendarSection" style="width: calc(100% + 30px); margin: 0 -15px; padding: 0 15px 10px 15px; box-sizing: border-box;">
+    <div class="calendar-wrapper" id="calendarSection">
         <div class="calendar-container">
             <div class="calendar-grid" id="daysGrid"></div>
         </div>
@@ -291,7 +326,7 @@
         });
     </script>
 
-    <div class="ui-summary-box hover-card" style="margin-top: 10px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+    <div class="ui-summary-box hover-card" style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;"><span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;"><span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;"><span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b></div>
@@ -728,9 +763,9 @@
 
   // ★ ဒေတာဟောင်းများကို ပြန်ဖတ်နိုင်စေရန် Value ကို ✓, x, - သာ အသုံးပြုထားသည် ★
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ အလုပ်ဆင်းရက်', statusAbsent: '❌ အလုပ်ပျက်ရက်', statusHoliday: '🟨 အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
-      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
-      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ အလုပ်ဆင်းရက်', statusAbsent: 'x အလုပ်ပျက်ရက်', statusHoliday: '- အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
+      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
 
   let otModalText = {
@@ -1258,7 +1293,7 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  // ★ Value ကို ✓, x, - သာ အသုံးပြုပြီး ဒေတာများ မပျောက်အောင် ပြင်ဆင်ထားသည် ★
+  // ★ Value ကို ✓, x, - သာ အသုံးပြုပြီး ဒေတာဟောင်းများ မပျောက်အောင် ပြင်ဆင်ထားသည် ★
   window.handleStatusChange = (el) => {
       let val = el.value;
       let card = el.closest('.day-card');
@@ -1311,7 +1346,7 @@
       calculateAll(); 
   };
 
-  // ★ ပြင်ဆင်ချက် (၁) - OT Modal ၏ "X" ခလုတ်ကို နှိပ်ပါက OT ကို "မဆင်း" သို့ အလိုအလျောက် ပြန်ပြောင်းမည် ★
+  // ★ ပြင်ဆင်ချက် - OT Modal ၏ "X" ခလုတ်ကို နှိပ်ပါက OT ကို "မဆင်း" သို့ အလိုအလျောက် ပြန်ပြောင်းမည် ★
   window.cancelOTSelection = () => {
       if(window.currentOTSelectElement) {
           window.currentOTSelectElement.value = 'no'; // Change back to "No OT"
@@ -1518,7 +1553,7 @@
               dPay += 40; transport += 40; 
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
               
-              // ★ ပြင်ဆင်ချက် (၂) - OT နာရီ > 0 ဖြစ်မှသာ OT ထမင်းဖိုး ပေါင်းပေးမည် ★
+              // ★ ပြင်ဆင်ချက် - OT နာရီ > 0 ဖြစ်မှသာ OT ထမင်းဖိုး ပေါင်းပေးမည် ★
               if (otStatus === 'yes') { 
                   if(otVal > 0) { 
                       fPay = 60; // Lunch(30) + OT Food(30)
@@ -1530,7 +1565,7 @@
                           ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
                       } 
                   } else {
-                      fPay = 30; // OT ရွေးထားသော်လည်း နာရီမဖြည့်ရသေးပါက ထမင်းဖိုး ၃၀ သာ ပေါင်းမည်
+                      fPay = 30; // OT ရွေးထားသော်လည်း နာရီမဖြည့်ရသေးပါက သာမန်ထမင်းဖိုး ၃၀ သာ ပေါင်းမည်
                   }
               } else { 
                   fPay = 30; 
