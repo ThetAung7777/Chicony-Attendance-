@@ -31,11 +31,11 @@
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  .navbar { background-color: var(--app-header-color); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease; }
+  .navbar { background-color: var(--app-header-color); padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease; height: 40px; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
-  .app-title { text-align: center; margin: 0; line-height: 1.2; }
-  .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 24px; color: #000080; letter-spacing: 1px; }
+  .app-title { text-align: center; margin: 0; line-height: 1.1; }
+  .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 22px; color: #000080; letter-spacing: 1px; }
   .logo-tag { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
 
   .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 200; transform-origin: top right;}
@@ -57,7 +57,8 @@
   .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
-  .container { padding: 15px; max-width: 800px; margin: auto; position: relative;}
+  /* ကွက်လပ် အကွာအဝေး လျှော့ချထားသည် */
+  .container { padding: 8px 15px; max-width: 800px; margin: auto; position: relative;}
   
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
@@ -66,11 +67,14 @@
   .full-width { grid-column: span 2; }
   .btn-generate { color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; margin-top: 15px; width: 100%;}
   
+  /* ★ ခေါင်းစဉ် (လအမည်) ကို အသေထားရန် ပြင်ဆင်ချက် ★ */
+  .month-period-display { position: sticky; top: 56px; z-index: 95; text-align:center; font-size:15px; font-weight:bold; color:#007bff; margin-bottom:6px; background:white; padding:8px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+  
   .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
   .calendar-container { min-width: 700px; } 
-
-  .weekdays-bg { position: absolute; top: 0; left: 0; width: 100%; height: 44px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 1; border: 1px solid transparent; box-sizing: border-box;}
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 14px; padding: 12px 0; background: transparent; box-shadow: none; border-radius: 0;}
+  
+  /* ★ နေ့ရက်စာသားများကို အသေထားရန် ပြင်ဆင်ချက် (Grid နှင့်အတူ ဘယ်ညာရွေ့မည်၊ အပေါ်အောက် ငြိမ်မည်) ★ */
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; margin-bottom: 8px; font-size: 14px; background: white; padding: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 96px; z-index: 90; }
   
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; box-sizing: border-box;}
@@ -141,7 +145,7 @@
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
   .dark-mode #splashScreen { background-color: #121212 !important; }
-  .dark-mode .weekdays-bg { background-color: #1e1e1e !important; border-color: #333 !important; }
+  .dark-mode .month-period-display { background-color: #1e1e1e !important; border-color: #333 !important; }
 
   #printArea { display: none; }
   @media print { 
@@ -220,15 +224,12 @@
 
   <div class="container" onclick="closeMenusOnClickOutside(event)">
     
-    <div id="dynamicPeriodContainer"></div>
+    <div id="dynamicPeriodContainer" class="month-period-display"></div>
     
-    <div style="position: relative;">
-        <div class="weekdays-bg"></div>
-        <div class="calendar-wrapper" id="calendarSection" style="position: relative; z-index: 2;">
-            <div class="calendar-container">
-                <div class="weekdays" id="weekdaysHeader"></div>
-                <div class="calendar-grid" id="daysGrid"></div>
-            </div>
+    <div class="calendar-wrapper" id="calendarSection">
+        <div class="calendar-container">
+            <div class="weekdays" id="weekdaysHeader"></div>
+            <div class="calendar-grid" id="daysGrid"></div>
         </div>
     </div>
 
@@ -328,9 +329,9 @@
         <div class="admin-manage-section">
           <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
           <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
-            <option value="work">✓ အလုပ်ဆင်းသည် (Present)</option>
-            <option value="absent">x အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option>
-            <option value="holiday">- အလုပ်ပိတ်ရက် (Holiday)</option>
+            <option value="work">✅ အလုပ်ဆင်းသည် (Present)</option>
+            <option value="absent">❌ အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option>
+            <option value="holiday">🟨 အလုပ်ပိတ်ရက် (Holiday)</option>
             <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
           </select>
 
@@ -550,8 +551,7 @@
 </div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  // ★ အပြောင်းအလဲ: အတည်ငြိမ်ဆုံးဖြစ်သော signInWithPopup ကိုသာ အသုံးပြုမည် ★
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -580,7 +580,6 @@
   const CALENDAR_YEAR = 2026; 
   let isDataLoaded = false; 
 
-  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း ★
   function createOTModal() {
       if(document.getElementById('otSelectionModal')) return;
       let d = document.createElement('div');
@@ -603,11 +602,16 @@
   }
   createOTModal();
 
-  // ★ SSO တွက်ချက်မှုအတွက် Admin Setting (Default အနေဖြင့် အားလုံး On ထားမည်) ★
   window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
 
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
+
+  getRedirectResult(auth).then((result) => {
+      if (result) console.log("Successfully logged in via redirect");
+  }).catch((error) => {
+      console.error("Redirect Login Error:", error);
+  });
 
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
@@ -762,7 +766,8 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ Android APK နှင့် iOS နှစ်ခုလုံးအတွက် အတည်ငြိမ်ဆုံးဖြစ်သော Popup စနစ်ကိုသာ အသုံးပြုမည် ★
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
   window.signIn = () => { 
       let loadingSpinner = document.getElementById('loadingSpinner');
       if (loadingSpinner) {
@@ -1212,9 +1217,9 @@
       let dayKey = daysMap[dayIndex];
       
       let type = '';
-      if (val === '✓') type = 'work';
-      else if (val === 'x') type = 'absent';
-      else if (val === '-') type = 'holiday';
+      if (val.includes('✅')) type = 'work';
+      else if (val.includes('❌')) type = 'absent';
+      else if (val.includes('🟨')) type = 'holiday';
 
       if (type && window.customAlertMsgs && window.customAlertMsgs[type] && window.customAlertMsgs[type][dayKey]) {
           showCustomAlert(window.customAlertMsgs[type][dayKey]);
@@ -1338,7 +1343,7 @@
       let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
       
       if(pDisplay) {
-          pDisplay.innerHTML = `<div style="text-align:center; font-size:16px; font-weight:bold; color:#007bff; margin-bottom:12px; background:white; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); border: 1px solid transparent;">📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span></div>`;
+          pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`;
       }
 
       let { startD, endD } = getPeriodDates(mVal);
@@ -1368,9 +1373,9 @@
             <select class="shift-select" onchange="calculateAll()" style="background:#e9ecef;"><option value="day">${dd.shiftDay}</option><option value="night">${dd.shiftNight}</option></select>
             <select class="status-select" onchange="handleStatusChange(this)">
               <option value="" ${!isHolidayOrSun ? 'selected' : ''}>${dd.select}</option>
-              <option value="✓">${dd.statusWork}</option>
-              <option value="x">${dd.statusAbsent}</option>
-              <option value="-" ${isHolidayOrSun ? 'selected' : ''}>${dd.statusHoliday}</option>
+              <option value="✅">${dd.statusWork}</option>
+              <option value="❌">${dd.statusAbsent}</option>
+              <option value="🟨" ${isHolidayOrSun ? 'selected' : ''}>${dd.statusHoliday}</option>
             </select>
             <select class="leave-select" onchange="calculateAll()" style="display:none; margin-top:3px; background:#fff3cd; border:1px solid #ffecb5; color:#664d03; border-radius:4px;">
               <option value="unpaid">${dd.leaveUnpaid}</option>
@@ -1388,17 +1393,17 @@
               if (d) { 
                   card.querySelector('.shift-select').value = d.shift || 'day'; 
                   let savedStatus = d.status || '';
-                  if(savedStatus === '' && isAdminHoliday) savedStatus = '-';
+                  if(savedStatus === '' && isAdminHoliday) savedStatus = '🟨';
                   card.querySelector('.status-select').value = savedStatus; 
                   
                   let leaveSelect = card.querySelector('.leave-select');
                   leaveSelect.value = d.leaveType || 'unpaid';
-                  if(savedStatus === 'x') leaveSelect.style.display = 'block';
+                  if(savedStatus.includes('❌')) leaveSelect.style.display = 'block';
 
                   card.querySelector('.ot-select').value = d.ot || 'no'; 
                   let otInput = card.querySelector('.ot-hours'); otInput.value = d.otHours || ''; 
                   if(d.ot === 'yes') { otInput.style.display = 'block'; card.setAttribute('data-alerted', 'true'); } 
-              } else if (isAdminHoliday) { card.querySelector('.status-select').value = '-'; }
+              } else if (isAdminHoliday) { card.querySelector('.status-select').value = '🟨'; }
           });
       }
       calculateAll(); 
@@ -1425,13 +1430,13 @@
           let isSpecialDay = isSun || isAdminDouble || isAdminHoliday; 
           c.className = 'day-card'; let dPay=0, fPay=0;
 
-          if(status === 'x') { leaveSelect.style.display = 'block'; } else { leaveSelect.style.display = 'none'; }
-          if (status === '✓') { otSelect.style.display = 'block'; if(otStatus === 'yes') otInput.style.display = 'block'; else otInput.style.display = 'none'; } else { otSelect.style.display = 'none'; otInput.style.display = 'none'; otStatus = 'no'; otVal = 0; }
+          if(status.includes('❌')) { leaveSelect.style.display = 'block'; } else { leaveSelect.style.display = 'none'; }
+          if (status.includes('✅')) { otSelect.style.display = 'block'; if(otStatus === 'yes') otInput.style.display = 'block'; else otInput.style.display = 'none'; } else { otSelect.style.display = 'none'; otInput.style.display = 'none'; otStatus = 'no'; otVal = 0; }
 
-          if (status === '-') {
+          if (status.includes('🟨')) {
               if (isAdminHoliday) { pubHolCount++; pubHolPay += wage; dPay = wage; total += dPay; doubleLbl.innerText = currentLang==='my'?'ရုံးပိတ်ရက်':(currentLang==='th'?'วันหยุด':'Paid Hol'); info.innerHTML = `${dPay}฿`; c.classList.add('bg-yellow'); } 
               else { holiday++; info.innerHTML = "-"; c.classList.add(isSun ? 'bg-red' : 'bg-yellow'); doubleLbl.innerText = ''; }
-          } else if (status === '✓') {
+          } else if (status.includes('✅')) {
               work++; lastFilledShift = shift; 
               if (isSpecialDay) { 
                   double++; doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue'); if(isSat) c.classList.add('double-saturday'); 
@@ -1457,7 +1462,7 @@
               } else { fPay = 30; }
               
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
-          } else if (status === 'x') {
+          } else if (status.includes('❌')) {
               if(leaveSelect.value === 'medical') { medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay; doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave'); info.innerHTML = `${dPay}฿`; } 
               else { absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = ''; }
               c.classList.add('bg-gray');
@@ -1903,6 +1908,7 @@
   
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => { console.log('Service worker registered.'); }).catch(err => { console.log('Service worker registration failed:', err); }); }); }
 </script>
+
 
 
 </body>
