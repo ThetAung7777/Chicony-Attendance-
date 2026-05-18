@@ -14,66 +14,59 @@
 <style id="app-styles">
   @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap');
 
-  :root {
-    --app-bg-color: skyblue;
-    --app-header-color: white;
-  }
-
+  :root { --app-bg-color: skyblue; --app-header-color: white; }
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   
-  .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
   .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  .navbar { background-color: var(--app-header-color); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease; }
+  .navbar { background-color: var(--app-header-color); padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 40px; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
-  .app-title { text-align: center; margin: 0; line-height: 1.2; }
-  .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 24px; color: #000080; letter-spacing: 1px; }
+  .app-title { text-align: center; margin: 0; line-height: 1.1; }
+  .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 22px; color: #000080; letter-spacing: 1px; }
   .logo-tag { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
 
-  .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 200; transform-origin: top right;}
+  .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 300; transform-origin: top right;}
   .dropdown.left { left: 10px; transform-origin: top left; }
   .dropdown.right { right: 10px; }
   .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
-  .dropdown a:hover { background-color: #f4f7f6; }
-  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(3px); }
   
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 500; backdrop-filter: blur(3px); }
   .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
   .modal-header { padding: 15px 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; z-index: 10; }
   .modal-header h3 { margin: 0; }
   .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
   .close-modal { font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; padding: 0; }
 
-  #splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease; }
-  
-  #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
-  .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  #splashScreen, #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
-  .container { padding: 15px; max-width: 800px; margin: auto; position: relative;}
+  .container { padding: 10px 15px; max-width: 800px; margin: auto; position: relative;}
   
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
-  .setup-box input, .setup-box select, .setup-box textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: border 0.3s;}
-  .setup-box input:focus, .setup-box select:focus, .setup-box textarea:focus { border-color: #007bff; outline: none; }
+  .setup-box input, .setup-box select, .setup-box textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
   .full-width { grid-column: span 2; }
   .btn-generate { color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; margin-top: 15px; width: 100%;}
   
-  .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
-  .calendar-container { min-width: 700px; } 
-
-  .weekdays-bg { position: absolute; top: 0; left: 0; width: 100%; height: 44px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 1; border: 1px solid transparent; box-sizing: border-box;}
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 14px; padding: 12px 0; background: transparent; box-shadow: none; border-radius: 0;}
+  /* ★ လပြသည့် ခေါင်းစဉ်ကို အသေထားရန် (Size အသေးနှင့် Round Corner) ★ */
+  .month-period-display { position: sticky; top: 60px; z-index: 95; text-align:center; font-size:14px; font-weight:bold; color:#007bff; background:white; padding:6px 20px; border-radius:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); width: max-content; margin: 0 auto 10px auto; border: 1px solid #eee; }
   
-  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; box-sizing: border-box;}
+  .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
+  .calendar-container { min-width: 750px; padding: 0 5px;} 
+  
+  /* ★ ရက်များကို ဇယားအပေါ်တွင် အသေထားရန် (Grid နှင့်အတူ ဘယ်ညာရွေ့မည်၊ Round Corner ထည့်ထားသည်) ★ */
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 13px; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 105px; z-index: 90;}
+  
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
   .blank-card { background: transparent; border: none; } 
 
   .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
@@ -88,39 +81,33 @@
   .bg-blue .double-label { color: #ffeb3b !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); } 
   .date-label { display: block; font-size: 13px; font-weight: bold; color: #007bff;}
   
-  .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none;}
+  .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none; font-weight: bold;}
   .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
   
   .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
   .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
-  .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
-  .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
 
-  .admin-search-box { width: 100%; padding: 12px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: box-shadow 0.3s;}
-  .admin-search-box:focus { box-shadow: 0 0 8px rgba(0,123,255,0.3); }
-  .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; transition: transform 0.3s ease;}
-  .admin-user-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+  .admin-search-box { width: 100%; padding: 12px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none;}
+  .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; }
   .admin-user-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
   .admin-btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
   .admin-action-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; border: none; color: white; text-align: center;}
   .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
   .manage-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; font-size: 13px; background: white; margin-bottom: 6px; border-radius: 6px;}
-  .manage-btn-group button { border: none; padding: 6px 10px; border-radius: 5px; font-size: 11px; margin-left: 5px; font-weight: bold; color: white;}
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
-  .btn-exp-pdf { background: #c2185b; } .btn-exp-excel { background: #198754; }
   
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
   .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
   @media(min-width: 600px) { .year-calendar-grid { grid-template-columns: 1fr 1fr; } }
-  .month-box { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.3s ease;}
+  .month-box { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
   .month-title { text-align: center; font-weight: bold; color: #000080; margin-bottom: 10px; font-size: 15px; }
   .month-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 5px; }
   .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box; transition: transform 0.1s ease;}
+  .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box;}
   .cal-day.empty { background: transparent; border: none; }
   .cal-sun { color: #dc3545; font-weight: bold; }
-  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; cursor: pointer; border: 1px solid #ffca2c;}
+  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
 
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
@@ -135,13 +122,7 @@
   .dark-mode .ui-summary-box #grandTotal { color: #198754 !important; }
   .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
   .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
-  .dark-mode .double-saturday { border: 2px solid #ff6b81 !important; box-shadow: inset 0 0 5px rgba(255,107,129,0.5); } 
-  .dark-mode .login-box { background: #1e1e1e !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-  .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
-  .profile-email-text { color: #666; font-size: 11px; }
-  .dark-mode .profile-name-text { color: #82b1ff !important; }
-  .dark-mode #splashScreen { background-color: #121212 !important; }
-  .dark-mode .weekdays-bg { background-color: #1e1e1e !important; border-color: #333 !important; }
+  .dark-mode .month-period-display { background-color: #1e1e1e !important; border-color: #333 !important; }
 
   #printArea { display: none; }
   @media print { 
@@ -203,7 +184,6 @@
     
     <div id="rightMenu" class="dropdown right fade-in">
       <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay"></div>
-      
       <div style="padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
           <span style="font-size: 14px; color: #333;">🌍 <b data-i18n="langMenu">Language</b></span>
           <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:4px; padding:4px; font-size:13px; outline:none; cursor:pointer; background: white;" class="interactive-btn">
@@ -212,7 +192,6 @@
               <option value="th">🇹🇭 ไทย (Thai)</option>
           </select>
       </div>
-
       <a href="#" onclick="openSettings()" class="interactive-btn">⚙️ <span data-i18n="settings">Settings</span></a>
       <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;" class="interactive-btn">🚪 <span data-i18n="logout">Logout</span></a>
     </div>
@@ -220,15 +199,12 @@
 
   <div class="container" onclick="closeMenusOnClickOutside(event)">
     
-    <div id="dynamicPeriodContainer"></div>
+    <div id="dynamicPeriodContainer" class="month-period-display"></div>
     
-    <div style="position: relative;">
-        <div class="weekdays-bg"></div>
-        <div class="calendar-wrapper" id="calendarSection" style="position: relative; z-index: 2;">
-            <div class="calendar-container">
-                <div class="weekdays" id="weekdaysHeader"></div>
-                <div class="calendar-grid" id="daysGrid"></div>
-            </div>
+    <div class="calendar-wrapper" id="calendarSection">
+        <div class="calendar-container">
+            <div class="weekdays" id="weekdaysHeader"></div>
+            <div class="calendar-grid" id="daysGrid"></div>
         </div>
     </div>
 
@@ -328,9 +304,9 @@
         <div class="admin-manage-section">
           <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
           <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
-            <option value="work">✓ အလုပ်ဆင်းသည် (Present)</option>
-            <option value="absent">x အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option>
-            <option value="holiday">- အလုပ်ပိတ်ရက် (Holiday)</option>
+            <option value="work">✅ အလုပ်ဆင်းသည် (Present)</option>
+            <option value="absent">❌ အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option>
+            <option value="holiday">🟨 အလုပ်ပိတ်ရက် (Holiday)</option>
             <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
           </select>
 
@@ -550,7 +526,6 @@
 </div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  // ★ အပြောင်းအလဲ: အတည်ငြိမ်ဆုံးဖြစ်သော signInWithPopup ကိုသာ အသုံးပြုမည် ★
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
@@ -580,7 +555,7 @@
   const CALENDAR_YEAR = 2026; 
   let isDataLoaded = false; 
 
-  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း ★
+  // ★ ပြင်ဆင်ချက် (၁) - OT Popup ညာဘက်အပေါ်ထောင့်တွင် ပိတ်ရန် 'X' ခလုတ် ထည့်သွင်းခြင်း ★
   function createOTModal() {
       if(document.getElementById('otSelectionModal')) return;
       let d = document.createElement('div');
@@ -588,23 +563,21 @@
       d.className = 'modal-overlay';
       d.style.zIndex = '10001';
       d.innerHTML = `
-        <div class="modal-content pop-in" style="text-align: center; max-width: 320px; padding: 20px;">
-          <h3 id="otModalTitle" style="margin-top: 0; color: #0d6efd; font-size: 16px; font-weight:bold;">⏱️ OT နာရီ ရွေးချယ်ပါ</h3>
+        <div class="modal-content pop-in" style="text-align: center; max-width: 320px; padding: 20px; position: relative;">
+          <button class="close-modal interactive-btn" onclick="closeOTModalForManual()" style="position: absolute; right: 15px; top: 15px; font-size: 24px; color: #dc3545; background: none; border: none; padding: 0; line-height: 1;">×</button>
+          <h3 id="otModalTitle" style="margin-top: 0; color: #0d6efd; font-size: 16px; font-weight:bold; padding-top: 5px;">⏱️ OT နာရီ ရွေးချယ်ပါ</h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
              <button class="btn-generate interactive-btn" onclick="setOTHours(1)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">1 <span class="ot-btn-txt">နာရီ</span></button>
              <button class="btn-generate interactive-btn" onclick="setOTHours(2)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">2 <span class="ot-btn-txt">နာရီ</span></button>
              <button class="btn-generate interactive-btn" onclick="setOTHours(3)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">3 <span class="ot-btn-txt">နာရီ</span></button>
              <button class="btn-generate interactive-btn" onclick="setOTHours(4)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">4 <span class="ot-btn-txt">နာရီ</span></button>
           </div>
-          <button id="otModalCancelBtn" class="btn-generate interactive-btn" onclick="closeOTModalForManual()" style="background: #6c757d; margin-top: 10px; padding: 10px; font-size:14px;">✍️ ပိတ်မည် / ကိုယ်တိုင်ရေးမည်</button>
+          <button id="otModalCancelBtn" class="btn-generate interactive-btn" onclick="closeOTModalForManual()" style="background: #6c757d; margin-top: 10px; padding: 10px; font-size:14px;">✍️ ကိုယ်တိုင်ရေးမည်</button>
         </div>
       `;
       document.body.appendChild(d);
   }
   createOTModal();
-
-  // ★ SSO တွက်ချက်မှုအတွက် Admin Setting (Default အနေဖြင့် အားလုံး On ထားမည်) ★
-  window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
 
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
@@ -624,7 +597,6 @@
               
               if(user.email === ADMIN_EMAIL) { 
                   document.getElementById('adminPanelBtn').style.display = 'flex'; 
-                  document.getElementById('ssoMenuBtn').style.display = 'flex'; 
                   document.getElementById('themeBtn').style.display = 'flex'; 
                   document.getElementById('annBtn').style.display = 'flex'; 
                   document.getElementById('alertMenuBtn').style.display = 'flex'; 
@@ -650,11 +622,11 @@
 
   const translations = {
       my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)",
-            slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ", prevMonth: "⬅️ ယခင်လ", nextMonth: "နောက်လ ➡️" },
+            slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "Public Holiday", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ" },
       en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Lunch Allowance", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip",
-            slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction", prevMonth: "⬅️ Prev Month", nextMonth: "Next Month ➡️" },
+            slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction" },
       th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip",
-            slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม", prevMonth: "⬅️ เดือนก่อนหน้า", nextMonth: "เดือนถัดไป ➡️" }
+            slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม" }
   };
 
   const weekdaysText = {
@@ -668,15 +640,15 @@
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ ဆင်းရက်', statusAbsent: '❌ ပျက်ရက်', statusHoliday: '🟨 ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
-      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
-      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ ဆင်းသည်', statusAbsent: 'x ပျက်ရက်', statusHoliday: '- ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
+      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
 
   let otModalText = {
-      my: { title: "⏱️ OT နာရီ ရွေးချယ်ပါ", hr: "နာရီ", cancel: "✍️ ပိတ်မည် / ကိုယ်တိုင်ရေးမည်" },
-      en: { title: "⏱️ Select OT Hours", hr: "Hrs", cancel: "✍️ Cancel / Manual Entry" },
-      th: { title: "⏱️ เลือกเวลาทำโอที", hr: "ชม.", cancel: "✍️ ยกเลิก / พิมพ์เอง" }
+      my: { title: "⏱️ OT နာရီ ရွေးချယ်ပါ", hr: "နာရီ", cancel: "✍️ ကိုယ်တိုင်ရေးမည်" },
+      en: { title: "⏱️ Select OT Hours", hr: "Hrs", cancel: "✍️ Manual Entry" },
+      th: { title: "⏱️ เลือกเวลาทำโอที", hr: "ชม.", cancel: "✍️ พิมพ์เอง" }
   };
 
   window.customAlertMsgs = {
@@ -762,7 +734,6 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // ★ Android APK နှင့် iOS နှစ်ခုလုံးအတွက် အတည်ငြိမ်ဆုံးဖြစ်သော Popup စနစ်ကိုသာ အသုံးပြုမည် ★
   window.signIn = () => { 
       let loadingSpinner = document.getElementById('loadingSpinner');
       if (loadingSpinner) {
@@ -849,28 +820,6 @@
       window.generateGrid(false); 
   };
 
-  window.navigateMonth = (step) => {
-      let currentMonthVal = document.getElementById('selectedMonth').value;
-      if (!currentMonthVal) return;
-
-      let [y, m] = currentMonthVal.split('-').map(Number);
-      m += step; 
-      
-      if (m > 12) {
-          m = 1;
-          y++;
-      } else if (m < 1) {
-          m = 12;
-          y--;
-      }
-
-      let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
-      document.getElementById('selectedMonth').value = newMonthStr;
-      
-      window.handleMonthChange();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   document.getElementById('selectedMonth').addEventListener('change', window.handleMonthChange);
 
   function loadFromFirebase() {
@@ -940,10 +889,6 @@
           document.documentElement.style.setProperty('--app-header-color', headerColor);
           document.documentElement.style.setProperty('--app-bg-color', bodyColor);
           
-          if(config.ssoSettings) {
-              window.ssoConfig = config.ssoSettings;
-          }
-
           if (config.alerts) {
               window.customAlertMsgs = Object.assign(window.customAlertMsgs, config.alerts);
           }
@@ -994,32 +939,6 @@
           }
       });
   }
-
-  window.openSsoSettingsModal = () => { 
-      document.getElementById('ssoOptBasic').checked = window.ssoConfig.basic;
-      document.getElementById('ssoOptPubHol').checked = window.ssoConfig.pubHol;
-      document.getElementById('ssoOptNight').checked = window.ssoConfig.night;
-      document.getElementById('ssoOptFood').checked = window.ssoConfig.food;
-      document.getElementById('ssoSettingsModal').style.display = 'flex'; 
-      toggleMenu(null); 
-  };
-  
-  window.closeSsoSettingsModal = () => { document.getElementById('ssoSettingsModal').style.display = 'none'; };
-
-  window.saveSsoSettings = () => {
-      let newSso = {
-          basic: document.getElementById('ssoOptBasic').checked,
-          pubHol: document.getElementById('ssoOptPubHol').checked,
-          night: document.getElementById('ssoOptNight').checked,
-          food: document.getElementById('ssoOptFood').checked
-      };
-      update(ref(db, 'appConfig/ssoSettings'), newSso).then(() => {
-          showCustomAlert('✅ SSO Settings Saved!');
-          window.ssoConfig = newSso;
-          calculateAll(); 
-          closeSsoSettingsModal();
-      });
-  };
 
   window.changeAlertType = () => {
       window.currentAlertType = document.getElementById('alertTypeSelector').value;
@@ -1252,6 +1171,7 @@
       calculateAll(); 
   };
 
+  // ★ OT Selection Modal ကိုရွေးချယ်ပြီးနောက် တွက်ချက်ခြင်း ★
   window.setOTHours = (hrs) => {
       if(window.currentOTInputTarget) {
           window.currentOTInputTarget.value = hrs;
@@ -1328,25 +1248,13 @@
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return; 
       
-      let pDisplay = document.getElementById('dynamicPeriodContainer');
-      let [pY, pM] = mVal.split('-');
-      let endMIdx = parseInt(pM) - 1; 
-      let startMIdx = endMIdx - 1; 
-      if (startMIdx < 0) startMIdx = 11;
-      
-      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
-      let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
-      
-      if(pDisplay) {
-          pDisplay.innerHTML = `<div style="text-align:center; font-size:16px; font-weight:bold; color:#007bff; margin-bottom:12px; background:white; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); border: 1px solid transparent;">📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span></div>`;
-      }
-
       let { startD, endD } = getPeriodDates(mVal);
       const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
       for(let i=0; i < startD.getDay(); i++) grid.innerHTML += `<div class="blank-card"></div>`;
       
       let cur = new Date(startD);
       let dd = dropdowns[currentLang]; 
+      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
       let daysArray = weekdaysText[currentLang];
 
       while (cur <= endD) {
@@ -1404,6 +1312,7 @@
       calculateAll(); 
   };
 
+  // ★ ပြင်ဆင်ချက် (၂) - OT နာရီ ဖြည့်သွင်းမှသာလျှင် OT ထမင်းဖိုး ပေါင်းပေးမည့်စနစ် ★
   window.calculateAll = () => {
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
@@ -1443,18 +1352,19 @@
               dPay += 40; transport += 40; 
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
               
-              if (otStatus === 'yes') { 
+              // OT နာရီ > 0 ဖြစ်မှသာ OT ထမင်းဖိုးကို ထည့်ပေါင်းမည်
+              if (otStatus === 'yes' && otVal > 0) { 
                   fPay = 60; 
-                  if(otVal>0) { 
-                      otDays++; 
-                      if (isSpecialDay) { 
-                          ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
-                      } else { 
-                          normalOtDays++; 
-                          ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
-                      } 
+                  otDays++; 
+                  if (isSpecialDay) { 
+                      ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
+                  } else { 
+                      normalOtDays++; 
+                      ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
                   } 
-              } else { fPay = 30; }
+              } else { 
+                  fPay = 30; // OT နာရီမရှိလျှင် သာမန်ထမင်းဖိုးသာ ပေါင်းမည်
+              }
               
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
           } else if (status === 'x') {
@@ -1485,12 +1395,7 @@
 
       let combinedBasicSalary = (work + medLeaveCount) * wage;
       
-      let ssoBaseAmount = 0;
-      if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
-      if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
-      if (window.ssoConfig.night) ssoBaseAmount += nightPay;
-      if (window.ssoConfig.food) ssoBaseAmount += lunchAllowance;
-
+      let ssoBaseAmount = combinedBasicSalary + pubHolPay + lunchAllowance + nightPay; 
       let rawSso = ssoBaseAmount * 0.05; 
       let ssoDeduction = Math.round(rawSso); 
       ssoDeduction = Math.min(ssoDeduction, 750); 
@@ -1525,24 +1430,10 @@
       let l = translations[currentLang]; let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
       let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
-      
-      let [pY, pM] = d.period.split('-');
-      let pMonthNum = parseInt(pM);
-      let pYearNum = parseInt(pY);
-
-      let endMIdx = pMonthNum - 1;
-      let endYear = pYearNum;
-
-      let startMIdx = endMIdx - 1;
-      let startYear = pYearNum;
-
-      if (startMIdx < 0) {
-          startMIdx = 11;
-          startYear--;
-      }
-
-      let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      let periodHeaderStr = `${engMonths[startMIdx]} 21, ${startYear} - ${engMonths[endMIdx]} 20, ${endYear}`;
+      let [pY, pM] = d.period.split('-'); let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      let startMIdx = parseInt(pM) - 1; let endMIdx = startMIdx + 1; let endY = parseInt(pY);
+      if(endMIdx > 11) { endMIdx = 0; endY++; }
+      let periodHeaderStr = `${engMonths[startMIdx]} 21 - ${engMonths[endMIdx]} 20, ${endY}`;
 
       let html = `
         <style> @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap'); .custom-logo-font { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; color: #21409A; letter-spacing: 1px;} </style>
@@ -1695,12 +1586,7 @@
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
                   let regularFoodAllowance = uWork * 30;
 
-                  let ssoBaseAmount = 0;
-                  if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
-                  if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
-                  if (window.ssoConfig.night) ssoBaseAmount += uNightPay;
-                  if (window.ssoConfig.food) ssoBaseAmount += regularFoodAllowance;
-
+                  let ssoBaseAmount = combinedBasicSalary + pubHolPay + regularFoodAllowance + uNightPay;
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
 
