@@ -54,11 +54,8 @@
   
   .container { padding: 10px 15px; max-width: 800px; margin: auto; position: relative;}
   
-  /* ★ လပြစာသား (ဧပြီ မှ မေ) ကို Navbar အောက်တွင် အသေထားရန် ★ */
+  /* ★ လပြစာသား (ဧပြီ မှ မေ) ကို Navbar အောက်တွင် အသေကပ်ထားရန် ★ */
   .month-period-display { 
-      position: sticky; 
-      top: 70px; /* Navbar ရဲ့ အောက်မှာ ကပ်နေစေရန် */
-      z-index: 150; /* ဇယားထက် အပေါ်ရောက်နေစေရန် */
       text-align: center; 
       font-size: 15px; 
       font-weight: bold; 
@@ -69,7 +66,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
       border: 1px solid #eee; 
       width: fit-content; 
-      margin: 0 auto 10px auto; 
+      margin: 0 auto; 
   }
   
   /* ★ ဇယားအပိုင်း (Scroll Container) ★ */
@@ -77,11 +74,10 @@
       width: 100%; 
       overflow-x: auto; 
       padding-bottom: 10px; 
-      /* အပေါ်အောက် ဆွဲသည့်အခါ နေ့ရက်အောက်သို့ ဝင်သွားရန် Position ကို ပုံမှန်ထားမည် */
   }
   .calendar-container { min-width: 750px; padding: 0 5px; } 
 
-  /* ★ နေ့ရက်ခေါင်းစဉ် (တနင်္ဂနွေ၊ တနင်္လာ) ★ */
+  /* ★ နေ့ရက်ခေါင်းစဉ် (တနင်္ဂနွေ၊ တနင်္လာ) မျဉ်းများနှင့် Round Corner ★ */
   .weekdays { 
       display: grid; 
       grid-template-columns: repeat(7, 1fr); 
@@ -89,16 +85,10 @@
       font-weight: bold; 
       font-size: 14px; 
       background: white; 
-      margin-bottom: 10px; 
       border-radius: 8px; 
       box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-      
-      /* အောက်ကိုဆွဲလျှင် အပေါ်တွင်ကပ်နေစေရန် Sticky */
-      position: sticky; 
-      top: 115px; /* လစာသားရဲ့ အောက်မှာ ကပ်နေစေရန် */
-      z-index: 140; /* အောက်က ဇယားကွက်များထက် အပေါ်ရောက်နေစေရန် */
       border: 1px solid #ddd;
-      overflow: hidden;
+      overflow: hidden; /* round corner သေချာပေါ်စေရန် */
   }
   
   /* နေ့ရက်တစ်ခုနှင့်တစ်ခုကြား မျဉ်းကြောင်းများ */
@@ -114,8 +104,7 @@
       display: grid; 
       grid-template-columns: repeat(7, 1fr); 
       gap: 8px; 
-      position: relative; 
-      z-index: 1; /* နေ့ရက်ခေါင်းစဉ်၏ အောက်တွင် ရှိနေစေရန် */
+      margin-top: 10px;
   }
   
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
@@ -153,7 +142,6 @@
   .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
   .manage-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; font-size: 13px; background: white; margin-bottom: 6px; border-radius: 6px;}
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
-  
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
   .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
@@ -168,9 +156,11 @@
   .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
 
+  /* Dark Mode Adjustments */
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
-  .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+  .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
+  .dark-mode .dropdown a:hover { background-color: #333 !important; }
   .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .setup-box textarea, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
   .dark-mode .day-card { background: #2c2c2c !important; border-color: #444 !important; }
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
@@ -178,8 +168,17 @@
   .dark-mode .ui-summary-box span { color: #ccc !important; } .dark-mode .ui-summary-box b { color: #fff !important; }
   .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
   .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
+  .dark-mode .login-box { background: #1e1e1e !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+  .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
+  .profile-email-text { color: #666; font-size: 11px; }
+  .dark-mode .profile-name-text { color: #82b1ff !important; }
+  .dark-mode #splashScreen { background-color: #121212 !important; }
+  
+  /* Sticky Containers Dark Mode */
+  .dark-mode #monthStickyBg, .dark-mode #stickyWeekdaysWrapper { background-color: #121212 !important; }
   .dark-mode .month-period-display { background-color: #1e1e1e !important; border-color: #333 !important; }
-  .dark-mode .weekdays > div { border-right-color: #444; }
+  .dark-mode .weekdays { background-color: #1e1e1e !important; border-color: #333 !important; }
+  .dark-mode .weekdays > div { border-right-color: #444 !important; }
 
   #printArea { display: none; }
   @media print { 
@@ -258,14 +257,27 @@
 
   <div class="container" onclick="closeMenusOnClickOutside(event)">
     
-    <div id="dynamicPeriodContainer" class="month-period-display"></div>
+    <div style="position: sticky; top: 60px; z-index: 150; background: var(--app-bg-color); padding: 10px 0 5px 0; transition: background 0.4s ease;" id="monthStickyBg">
+        <div id="dynamicPeriodContainer" class="month-period-display"></div>
+    </div>
+    
+    <div id="stickyWeekdaysWrapper" style="position: sticky; top: 108px; z-index: 140; width: 100%; overflow-x: hidden; background: var(--app-bg-color); padding-bottom: 5px; transition: background 0.4s ease;">
+        <div class="calendar-container" id="stickyWeekdaysContainer">
+            <div class="weekdays" id="weekdaysHeader" style="margin-bottom: 0;"></div>
+        </div>
+    </div>
     
     <div class="calendar-wrapper" id="calendarSection">
         <div class="calendar-container">
-            <div class="weekdays" id="weekdaysHeader"></div>
             <div class="calendar-grid" id="daysGrid"></div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('calendarSection').addEventListener('scroll', function() {
+            document.getElementById('stickyWeekdaysWrapper').scrollLeft = this.scrollLeft;
+        });
+    </script>
 
     <div class="ui-summary-box hover-card" style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;"><span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b></div>
@@ -516,6 +528,22 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="announcementModal" style="z-index: 9999;">
+  <div class="modal-content pop-in" style="text-align: center; max-width: 450px; padding: 0;">
+    <div class="modal-header" style="justify-content: center;">
+        <button class="close-modal interactive-btn" onclick="closeAnnouncement()" style="position: absolute; right: 15px; top: 15px;">×</button>
+        <h3 style="color: #d35400; font-family: 'Bungee Inline', cursive;">📢 Announcement</h3>
+    </div>
+    <div class="modal-body" style="padding-top: 10px;">
+        <div style="margin-bottom: 15px;">
+           <img id="annDisplayImg" src="" style="max-width: 100%; border-radius: 10px; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        </div>
+        <p id="annDisplayText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.5; margin: 0;"></p>
+        <button class="btn-generate interactive-btn" onclick="closeAnnouncement()" style="background: #0d6efd; margin-top: 15px;">OK</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="exportModal">
   <div class="modal-content pop-in" style="padding: 0;">
     <div class="modal-header">
@@ -540,6 +568,7 @@
         <h3 style="color: #000080;" class="logo-main">👨‍💼 Admin Panel</h3>
         <button class="close-modal interactive-btn" onclick="closeAdminPanel()">×</button>
     </div>
+    
     <div class="modal-body">
         <div style="display:flex; gap:10px; margin-bottom: 10px;">
           <input type="month" id="adminMonthSelect" class="admin-search-box" style="margin-bottom: 0; flex:1;" onchange="openAdminPanel(false)">
@@ -687,7 +716,7 @@
 
   // ★ Value များကို ✓, x, - သာ အသုံးပြုထားသဖြင့် အရင်ဒေတာဟောင်းများ အကုန်ပြန်ပေါ်လာမည် ★
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ ဆင်းသည်', statusAbsent: 'x ပျက်ရက်', statusHoliday: '- ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ အလုပ်ဆင်းရက်', statusAbsent: 'x အလုပ်ပျက်ရက်', statusHoliday: '- အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
       en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
       th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
@@ -1217,7 +1246,6 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  // ★ Value ကို ✓, x, - သာ အသုံးပြုပြီး ဒေတာဟောင်းများ မပျောက်အောင် ပြင်ဆင်ထားသည် ★
   window.handleStatusChange = (el) => {
       let val = el.value;
       let card = el.closest('.day-card');
@@ -1252,7 +1280,7 @@
       if(el.value === 'yes') { 
           input.style.display = 'block'; 
           window.currentOTInputTarget = input;
-          window.currentOTSelectElement = el; // ★ 'X' နှိပ်ပါက ပြန်ပြောင်းရန် သိမ်းထားမည်
+          window.currentOTSelectElement = el; 
           
           document.getElementById('otSelectionModal').style.display = 'flex';
 
@@ -1270,10 +1298,10 @@
       calculateAll(); 
   };
 
-  // ★ ပြင်ဆင်ချက် (၁) - OT Modal ၏ "X" ခလုတ်ကို နှိပ်ပါက OT ကို "မဆင်း" သို့ အလိုအလျောက် ပြန်ပြောင်းမည် ★
+  // ★ ပြင်ဆင်ချက် - OT Modal ၏ "X" ခလုတ်ကို နှိပ်ပါက OT ကို "မဆင်း" သို့ အလိုအလျောက် ပြန်ပြောင်းမည် ★
   window.cancelOTSelection = () => {
       if(window.currentOTSelectElement) {
-          window.currentOTSelectElement.value = 'no'; // Change back to "No OT"
+          window.currentOTSelectElement.value = 'no'; 
       }
       if(window.currentOTInputTarget) {
           window.currentOTInputTarget.style.display = 'none';
@@ -1395,7 +1423,6 @@
           let div = document.createElement('div'); div.className = 'day-card';
           div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); div.setAttribute('data-is-sun', isSun); div.setAttribute('data-is-sat', isSat);
           
-          // ★ Value များကို ✓, x, - သာ အသုံးပြုထားသဖြင့် အရင်ဒေတာဟောင်းများ အကုန်ပြန်ပေါ်လာမည် ★
           div.innerHTML = `
             <label class="date-label">${displayDate}</label>
             <div class="double-label" style="font-size: 10px; color: #0d6efd; font-weight: bold; margin-bottom: 2px; height: 12px;"></div>
@@ -1477,7 +1504,7 @@
               dPay += 40; transport += 40; 
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
               
-              // ★ ပြင်ဆင်ချက် (၂) - OT နာရီ > 0 ဖြစ်မှသာ OT ထမင်းဖိုး ပေါင်းပေးမည် ★
+              // ★ ပြင်ဆင်ချက် - OT နာရီ > 0 ဖြစ်မှသာ OT ထမင်းဖိုး ၃၀ အပိုထပ်ပေါင်းမည် ★
               if (otStatus === 'yes') { 
                   if(otVal > 0) { 
                       fPay = 60; // Lunch(30) + OT Food(30)
@@ -1489,7 +1516,7 @@
                           ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
                       } 
                   } else {
-                      fPay = 30; // OT ရွေးထားသော်လည်း နာရီမဖြည့်ရသေးပါက ထမင်းဖိုး ၃၀ သာ ပေါင်းမည်
+                      fPay = 30; // OT ရွေးထားသော်လည်း နာရီမဖြည့်ရသေးပါက သာမန်ထမင်းဖိုး ၃၀ သာ ပေါင်းမည်
                   }
               } else { 
                   fPay = 30; 
@@ -1565,7 +1592,6 @@
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
       let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
-      // ★ ပြင်ဆင်ချက် (၄) - လစာစလစ် ရက်စွဲ အတိအကျ ပြင်ဆင်ခြင်း ★
       let [pY, pM] = d.period.split('-');
       let pMonthNum = parseInt(pM);
       let pYearNum = parseInt(pY);
