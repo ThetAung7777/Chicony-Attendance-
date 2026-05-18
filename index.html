@@ -10,6 +10,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style id="app-styles">
   @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap');
@@ -20,8 +21,11 @@
   }
 
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   
+  .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
   .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
@@ -54,20 +58,20 @@
   
   .container { padding: 0 15px 15px 15px; max-width: 800px; margin: auto; position: relative;}
   
-  /* ★ Unified Sticky Header (လစာသား + နေ့ရက်များ) ★ */
+  /* Unified Sticky Header */
   #unifiedStickyHeader {
       position: sticky; 
-      top: 60px; /* Navbar အောက် တိုက်ရိုက်ကပ်မည် */
+      top: 60px; 
       z-index: 150; 
       background: var(--app-bg-color); 
-      margin: 0 -15px; /* Container padding ကို offset လုပ်သည် */
-      padding: 15px 15px 15px 15px; /* အပေါ် 15px, အောက် 15px အတိအကျ ညီအောင် ချိန်ထားသည် */
+      margin: 0 -15px; 
+      padding: 15px 15px 15px 15px; 
       transition: background 0.4s ease;
   }
 
   .month-period-container {
       text-align: center;
-      margin-bottom: 15px; /* လစာသားနှင့် နေ့ရက်ကြား 15px အကွာအဝေး */
+      margin-bottom: 15px; 
   }
 
   .month-period-display { 
@@ -82,33 +86,33 @@
       display: inline-block;
   }
 
-  /* ★ နေ့ရက်များကို အုပ်ထားသည့် အပြင်ဘောင်အသေ (Static Border) ★ */
+  /* နေ့ရက်ခေါင်းစဉ်အပြင်ဘောင် */
   .weekdays-static-box {
       background: white;
-      border-radius: 10px; /* Round Corner အလှ */
+      border-radius: 10px; 
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
       border: 1px solid #ddd;
-      overflow: hidden; /* Scroll ဖြစ်သော အပိုင်းကို ဘောင်အောက်တွင် ဖျောက်ထားရန် */
+      overflow: hidden; 
       width: 100%;
       box-sizing: border-box;
   }
 
   #stickyWeekdaysWrapper {
       width: 100%;
-      overflow-x: hidden; /* JavaScript ဖြင့်သာ Scroll ဆွဲမည် */
+      overflow-x: hidden; 
   }
 
   .calendar-container { 
       min-width: 750px; 
-      padding: 0 10px; /* Grid နှင့် ကိုက်ညီစေရန် */
+      padding: 0 10px; 
       box-sizing: border-box; 
   } 
 
-  /* ★ နေ့ရက်စာသားများ Grid နှင့် မျဉ်းကြောင်းများ ★ */
+  /* နေ့ရက်များ */
   .weekdays { 
       display: grid; 
       grid-template-columns: repeat(7, 1fr); 
-      gap: 8px; /* အောက်က ဇယားကွက်များ၏ 8px gap နှင့် အတိအကျ ချိန်ထားသည် */
+      gap: 8px; 
       text-align: center; 
       font-weight: bold; 
       font-size: 14px; 
@@ -117,34 +121,13 @@
       margin: 0;
   }
   
-  .weekdays > div { 
-      position: relative;
-  }
-
-  /* နေ့တစ်နေ့နှင့် တစ်နေ့ကြား မျဉ်းကြောင်း (Divider) */
+  .weekdays > div { position: relative; }
   .weekdays > div:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      right: -4.5px; /* 8px gap ၏ အလယ်တည့်တည့်တွင် မျဉ်းချထားသည် */
-      top: 0;
-      bottom: 0;
-      width: 1px;
-      background: #ddd;
+      content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd;
   }
   
-  /* ★ အောက်ဘက်ရှိ Calendar Grid ဇယားများ ★ */
-  .calendar-wrapper { 
-      width: 100%; 
-      overflow-x: auto; 
-      padding-bottom: 10px; 
-      /* အောက်သို့ ဆွဲချပါက Unified Sticky Header အောက်သို့ ဝင်သွားမည် */
-  }
-
-  .calendar-grid { 
-      display: grid; 
-      grid-template-columns: repeat(7, 1fr); 
-      gap: 8px; 
-  }
+  .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px;}
   
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
   .blank-card { background: transparent; border: none; } 
@@ -164,8 +147,60 @@
   .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none; font-weight:bold;}
   .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
   
-  .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
-  .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
+  /* ★ Developer Footer Design အသစ် ★ */
+  .developer-footer { 
+      background: linear-gradient(145deg, #ffffff, #f4f7f6); 
+      margin-top: 20px; 
+      padding: 20px; 
+      border-radius: 12px; 
+      text-align: center; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+      border: 1px solid #e0eaf5; 
+  }
+  .dev-name { 
+      font-family: 'Orbitron', sans-serif; 
+      font-weight: bold; 
+      color: #000080; 
+      font-size: 16px; 
+      margin-bottom: 5px; 
+      letter-spacing: 0.5px; 
+  }
+  .dev-subtitle { 
+      font-size: 12px; 
+      color: #666; 
+      margin-bottom: 15px; 
+      font-weight: bold; 
+  }
+  .social-btn-group { 
+      display: flex; 
+      justify-content: center; 
+      gap: 15px; 
+      flex-wrap: wrap; 
+  }
+  .social-btn { 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      padding: 8px 18px; 
+      border-radius: 20px; 
+      font-size: 13px; 
+      font-weight: bold; 
+      text-decoration: none; 
+      color: white !important; 
+      transition: transform 0.2s, box-shadow 0.2s; 
+  }
+  .social-btn.line { 
+      background: #00C300; 
+      box-shadow: 0 4px 10px rgba(0,195,0,0.25); 
+  }
+  .social-btn.telegram { 
+      background: #0088cc; 
+      box-shadow: 0 4px 10px rgba(0,136,204,0.25); 
+  }
+  .social-btn:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15); 
+  }
 
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
@@ -181,7 +216,6 @@
   .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
   .manage-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; font-size: 13px; background: white; margin-bottom: 6px; border-radius: 6px;}
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
-  
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
   .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
@@ -196,9 +230,9 @@
   .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
 
-  /* Dark Mode adjustments for new Sticky Header */
+  /* Dark Mode Adjustments */
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
-  .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+  .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
   .dark-mode .dropdown a:hover { background-color: #333 !important; }
   .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .setup-box textarea, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
@@ -206,6 +240,7 @@
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
   .dark-mode .ui-summary-box { background-color: #1e1e1e !important; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
   .dark-mode .ui-summary-box span { color: #ccc !important; } .dark-mode .ui-summary-box b { color: #fff !important; }
+  .dark-mode .ui-summary-box #grandTotal { color: #198754 !important; }
   .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
   .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
   .dark-mode .login-box { background: #1e1e1e !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
@@ -214,12 +249,15 @@
   .dark-mode .profile-name-text { color: #82b1ff !important; }
   .dark-mode #splashScreen { background-color: #121212 !important; }
   
-  /* Dark Mode Sticky Header Styling */
+  /* Dark Mode Sticky Header & Footer Styling */
   .dark-mode #unifiedStickyHeader { background-color: #121212 !important; }
   .dark-mode .month-period-display { background-color: #1e1e1e !important; border-color: #333 !important; }
   .dark-mode .weekdays-static-box { background-color: #1e1e1e !important; border-color: #333 !important; }
   .dark-mode .weekdays { background-color: transparent !important; border: none !important; }
   .dark-mode .weekdays > div:not(:last-child)::after { background: #444 !important; }
+  .dark-mode .developer-footer { background: linear-gradient(145deg, #1e1e1e, #252525) !important; border-color: #333 !important; }
+  .dark-mode .dev-subtitle { color: #aaa !important; }
+  .dark-mode .dev-name { color: #82b1ff !important; }
 
   #printArea { display: none; }
   @media print { 
@@ -299,11 +337,9 @@
   <div class="container" onclick="closeMenusOnClickOutside(event)">
     
     <div id="unifiedStickyHeader">
-        
         <div class="month-period-container">
             <div id="dynamicPeriodContainer" class="month-period-display"></div>
         </div>
-
         <div class="weekdays-static-box">
             <div id="stickyWeekdaysWrapper">
                 <div class="calendar-container">
@@ -311,7 +347,6 @@
                 </div>
             </div>
         </div>
-        
     </div>
 
     <div class="calendar-wrapper" id="calendarSection">
@@ -363,10 +398,14 @@
 
     <div class="developer-footer hover-card">
       <div class="dev-name">👨‍💻 Developed by THET AUNG</div>
-      <div style="font-size: 12px; margin-bottom: 5px;" class="dev-contact">Contact for Support & Updates</div>
-      <div class="dev-contact">
-        <a href="http://line.me/ti/p/~678777705" target="_blank" class="interactive-btn">💬 LINE: 678777705</a>
-        <a href="https://t.me/ThetAung7777" target="_blank" class="interactive-btn">✈️ Telegram: @ThetAung7777</a>
+      <div class="dev-subtitle">Contact for Support & Updates</div>
+      <div class="social-btn-group">
+        <a href="http://line.me/ti/p/~678777705" target="_blank" class="social-btn line interactive-btn">
+          <i class="fab fa-line" style="font-size: 16px;"></i> LINE
+        </a>
+        <a href="https://t.me/ThetAung7777" target="_blank" class="social-btn telegram interactive-btn">
+          <i class="fab fa-telegram" style="font-size: 16px;"></i> Telegram
+        </a>
       </div>
     </div>
   </div>
