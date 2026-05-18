@@ -14,31 +14,30 @@
 <style id="app-styles">
   @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap');
 
-  :root {
-    --app-bg-color: skyblue;
-    --app-header-color: white;
-  }
-
+  :root { --app-bg-color: skyblue; --app-header-color: white; }
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
   .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
+  .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  .navbar { background-color: var(--app-header-color); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background 0.4s ease;}
+  .navbar { background-color: var(--app-header-color); padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 40px; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
-  .app-title { text-align: center; margin: 0; line-height: 1.2; }
+  .app-title { text-align: center; margin: 0; line-height: 1.1; }
   .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 22px; color: #000080; letter-spacing: 1px; }
   .logo-tag { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
 
-  .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 200; transform-origin: top right;}
+  .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 300; transform-origin: top right;}
   .dropdown.left { left: 10px; transform-origin: top left; }
   .dropdown.right { right: 10px; }
   .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
   
-  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(3px); }
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 500; backdrop-filter: blur(3px); }
   .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
   .modal-header { padding: 15px 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; z-index: 10; }
   .modal-header h3 { margin: 0; }
@@ -53,19 +52,20 @@
   
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
-  .setup-box input, .setup-box select, .setup-box textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px;}
+  .setup-box input, .setup-box select, .setup-box textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
   .full-width { grid-column: span 2; }
   .btn-generate { color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; margin-top: 15px; width: 100%;}
   
-  /* ★ လပြသည့် ခေါင်းစဉ်ကို အသေထားရန် ★ */
-  .month-period-display { position: sticky; top: 58px; z-index: 95; text-align:center; font-size:15px; font-weight:bold; color:#007bff; margin-bottom:10px; background:white; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+  /* ★ လပြသည့် ခေါင်းစဉ်ကို အသေထားရန် (Size အသေးနှင့် Round Corner) ★ */
+  .month-period-display { position: sticky; top: 60px; z-index: 95; text-align:center; font-size:14px; font-weight:bold; color:#007bff; background:white; padding:6px 20px; border-radius:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); width: max-content; margin: 0 auto 10px auto; border: 1px solid #eee; }
   
-  /* ★ ပြက္ခဒိန် ဇယား အမှားကင်းစင်ရေး ★ */
-  .calendar-wrapper { width: 100%; overflow-x: auto; overflow-y: hidden; padding-bottom: 10px; }
-  .calendar-container { min-width: 750px; padding: 5px; } 
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 14px; background: white; padding: 12px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
+  .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
+  .calendar-container { min-width: 750px; padding: 0 5px;} 
+  
+  /* ★ ရက်များကို ဇယားအပေါ်တွင် အသေထားရန် (Grid နှင့်အတူ ဘယ်ညာရွေ့မည်၊ Round Corner ထည့်ထားသည်) ★ */
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 13px; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 105px; z-index: 90;}
+  
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-  
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
   .blank-card { background: transparent; border: none; } 
 
@@ -88,7 +88,7 @@
   .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
 
   .admin-search-box { width: 100%; padding: 12px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none;}
-  .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; transition: transform 0.3s ease;}
+  .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; }
   .admin-user-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
   .admin-btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
   .admin-action-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; border: none; color: white; text-align: center;}
@@ -107,7 +107,7 @@
   .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box;}
   .cal-day.empty { background: transparent; border: none; }
   .cal-sun { color: #dc3545; font-weight: bold; }
-  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; cursor: pointer; border: 1px solid #ffca2c;}
+  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
 
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
@@ -119,6 +119,7 @@
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
   .dark-mode .ui-summary-box { background-color: #1e1e1e !important; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
   .dark-mode .ui-summary-box span { color: #ccc !important; } .dark-mode .ui-summary-box b { color: #fff !important; }
+  .dark-mode .ui-summary-box #grandTotal { color: #198754 !important; }
   .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
   .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
   .dark-mode .month-period-display { background-color: #1e1e1e !important; border-color: #333 !important; }
@@ -183,7 +184,6 @@
     
     <div id="rightMenu" class="dropdown right fade-in">
       <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay"></div>
-      
       <div style="padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
           <span style="font-size: 14px; color: #333;">🌍 <b data-i18n="langMenu">Language</b></span>
           <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:4px; padding:4px; font-size:13px; outline:none; cursor:pointer; background: white;" class="interactive-btn">
@@ -192,7 +192,6 @@
               <option value="th">🇹🇭 ไทย (Thai)</option>
           </select>
       </div>
-
       <a href="#" onclick="openSettings()" class="interactive-btn">⚙️ <span data-i18n="settings">Settings</span></a>
       <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;" class="interactive-btn">🚪 <span data-i18n="logout">Logout</span></a>
     </div>
@@ -305,9 +304,9 @@
         <div class="admin-manage-section">
           <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
           <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
-            <option value="work">✅ အလုပ်ဆင်းသည်</option>
-            <option value="absent">❌ အလုပ်ပျက်ရက် / ခွင့်</option>
-            <option value="holiday">🟨 အလုပ်ပိတ်ရက်</option>
+            <option value="work">✅ အလုပ်ဆင်းသည် (Present)</option>
+            <option value="absent">❌ အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option>
+            <option value="holiday">🟨 အလုပ်ပိတ်ရက် (Holiday)</option>
             <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
           </select>
 
@@ -525,6 +524,7 @@
     </div>
   </div>
 </div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -641,9 +641,9 @@
   const englishMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-  // ★ ဒေတာအဟောင်းများ မပျက်စေရန် Value ကို ✓, x, - အဖြစ်ထားပြီး အပြင်တွင်သာ စာသားအသစ်များ ပြပေးထားပါသည် ★
+  // ★ Value ကို ✓, x, - အဖြစ်သာ သတ်မှတ်ထားသဖြင့် အရင်ဒေတာများ မပျက်ပါ ★
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ အလုပ်ဆင်းရက်', statusAbsent: '❌ အလုပ်ပျက်ရက်', statusHoliday: '🟨 အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ ဆင်းရက်', statusAbsent: '❌ ပျက်ရက်', statusHoliday: '🟨 ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
       en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
       th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
@@ -737,7 +737,6 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  // Loop မပတ်စေရန် signInWithPopup သာ အသုံးပြုပါမည်
   window.signIn = () => { 
       let loadingSpinner = document.getElementById('loadingSpinner');
       if (loadingSpinner) {
@@ -1174,7 +1173,7 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  // ★ Database တွင် ✓, x, - အတိုင်း သိမ်းဆည်းရန် Value ကိုသာ စစ်ပါမည် ★
+  // ★ Value စစ်ဆေးရာတွင် ယခင် ✓, x, - ကိုသာ စစ်ပါမည် ★
   window.handleStatusChange = (el) => {
       let val = el.value;
       let card = el.closest('.day-card');
@@ -1310,7 +1309,7 @@
       let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
       
       if(pDisplay) {
-          pDisplay.innerHTML = `<div style="text-align:center; font-size:16px; font-weight:bold; color:#007bff; margin-bottom:12px; background:white; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); border: 1px solid transparent;">📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span></div>`;
+          pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`;
       }
 
       let { startD, endD } = getPeriodDates(mVal);
@@ -1334,7 +1333,7 @@
           let div = document.createElement('div'); div.className = 'day-card';
           div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); div.setAttribute('data-is-sun', isSun); div.setAttribute('data-is-sat', isSat);
           
-          // ★ Value တွင် ✓, x, - ကိုသာသုံးထားသဖြင့် အရင်ဒေတာဟောင်းများ အကုန်ပြန်ပေါ်လာမည် ★
+          // ★ Value ကို ✓, x, - ထားပြီး အရင်ဒေတာဟောင်းများကို အလိုအလျောက် ပြန်ဖတ်စေသည် ★
           div.innerHTML = `
             <label class="date-label">${displayDate}</label>
             <div class="double-label" style="font-size: 10px; color: #0d6efd; font-weight: bold; margin-bottom: 2px; height: 12px;"></div>
@@ -1876,7 +1875,5 @@
   
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => { console.log('Service worker registered.'); }).catch(err => { console.log('Service worker registration failed:', err); }); }); }
 </script>
-
-
 </body>
 </html>
