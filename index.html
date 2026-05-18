@@ -86,7 +86,7 @@
   .bg-blue .double-label { color: #ffeb3b !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); } 
   .date-label { display: block; font-size: 13px; font-weight: bold; color: #007bff;}
   
-  .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none; font-weight:bold;}
+  .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none; font-weight: bold;}
   .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
   
   .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
@@ -218,6 +218,8 @@
   <div class="container" onclick="closeMenusOnClickOutside(event)">
     <div class="calendar-wrapper" id="calendarSection">
       <div class="calendar-container">
+        <div id="dynamicPeriodContainer" style="text-align:center; font-size:16px; font-weight:bold; color:#007bff; margin-bottom:10px;"></div>
+        
         <div class="weekdays" id="weekdaysHeader"></div>
         <div class="calendar-grid" id="daysGrid"></div>
       </div>
@@ -251,6 +253,11 @@
       <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #333; font-size:18px; color:#198754;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#198754;">0 ฿</b></div>
 
       <button class="btn-generate interactive-btn" onclick="openSalarySlip()" style="background:#0d6efd; margin-top:15px; width: 100%;">🧾 <span data-i18n="salarySlipBtn">လစာစလစ် ကြည့်မည်</span></button>
+      
+      <div style="display:flex; justify-content:space-between; margin-top:12px; gap: 10px;">
+          <button class="btn-generate interactive-btn" onclick="navigateMonth(-1)" style="background:#6c757d; margin-top:0; font-size: 13px; padding: 10px;"><span data-i18n="prevMonth">⬅️ ယခင်လ</span></button>
+          <button class="btn-generate interactive-btn" onclick="navigateMonth(1)" style="background:#198754; margin-top:0; font-size: 13px; padding: 10px;"><span data-i18n="nextMonth">နောက်လ ➡️</span></button>
+      </div>
     </div>
 
     <div class="developer-footer hover-card">
@@ -301,6 +308,20 @@
         </div>
         <button class="btn-generate interactive-btn" style="background:#198754; margin-top:25px; width: 100%;" onclick="saveSsoSettings()">💾 Save Settings</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="otSelectionModal" style="z-index: 10001;">
+  <div class="modal-content pop-in" style="text-align: center; max-width: 320px; padding: 20px; position: relative;">
+    <button class="close-modal interactive-btn" onclick="cancelOTSelection()" style="position: absolute; right: 15px; top: 15px; font-size: 28px; color: #dc3545; background: none; border: none; padding: 0; line-height: 1;">×</button>
+    <h3 id="otModalTitle" style="margin-top: 0; color: #0d6efd; font-size: 16px; font-weight:bold; padding-top: 5px;">⏱️ OT နာရီ ရွေးချယ်ပါ</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+       <button class="btn-generate interactive-btn" onclick="setOTHours(1)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">1 <span class="ot-btn-txt">နာရီ</span></button>
+       <button class="btn-generate interactive-btn" onclick="setOTHours(2)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">2 <span class="ot-btn-txt">နာရီ</span></button>
+       <button class="btn-generate interactive-btn" onclick="setOTHours(3)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">3 <span class="ot-btn-txt">နာရီ</span></button>
+       <button class="btn-generate interactive-btn" onclick="setOTHours(4)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">4 <span class="ot-btn-txt">နာရီ</span></button>
+    </div>
+    <button id="otModalCancelBtn" class="btn-generate interactive-btn" onclick="closeOTModalForManual()" style="background: #6c757d; margin-top: 10px; padding: 10px; font-size:14px;">✍️ ကိုယ်တိုင်ရေးမည်</button>
   </div>
 </div>
 
@@ -534,7 +555,6 @@
     </div>
   </div>
 </div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -565,9 +585,10 @@
   window.adminCalculated = {}; 
   const CALENDAR_YEAR = 2026; 
   let isDataLoaded = false; 
+
   window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
 
-  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း ★
+  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း (❌ ခလုတ်ပါဝင်သည်) ★
   function createOTModal() {
       if(document.getElementById('otSelectionModal')) return;
       let d = document.createElement('div');
@@ -635,11 +656,11 @@
 
   const translations = {
       my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)",
-            slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ" },
+            slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ", prevMonth: "⬅️ ယခင်လ", nextMonth: "နောက်လ ➡️" },
       en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Lunch Allowance", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip",
-            slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction" },
+            slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction", prevMonth: "⬅️ Prev Month", nextMonth: "Next Month ➡️" },
       th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip",
-            slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม" }
+            slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม", prevMonth: "⬅️ เดือนก่อนหน้า", nextMonth: "เดือนถัดไป ➡️" }
   };
 
   const weekdaysText = {
@@ -652,11 +673,11 @@
   const englishMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-  // ★ ဒေတာဟောင်းများ မပျက်စေရန် အရင် Value များကိုသာ သုံးထားပါသည် ★
+  // ★ Value များကို ✓, x, - သာ အသုံးပြုထားသဖြင့် အရင်ဒေတာဟောင်းများ အကုန်ပြန်ပေါ်လာမည် ★
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ အလုပ်ဆင်းရက်', statusAbsent: 'x အလုပ်ပျက်ရက်', statusHoliday: '- အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
-      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
-      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ အလုပ်ဆင်းရက်', statusAbsent: '❌ အလုပ်ပျက်ရက်', statusHoliday: '🟨 အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
+      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
 
   let otModalText = {
@@ -689,7 +710,7 @@
       }
       
       document.getElementById('customAlertText').innerText = displayText;
-      document.getElementById('customAlertModal').style.zIndex = '10005';
+      document.getElementById('customAlertModal').style.zIndex = '10005'; 
       document.getElementById('customAlertModal').style.display = 'flex';
   };
 
@@ -828,6 +849,28 @@
 
       document.getElementById('attBonusSetting').value = newBonus;
       window.generateGrid(false); 
+  };
+
+  window.navigateMonth = (step) => {
+      let currentMonthVal = document.getElementById('selectedMonth').value;
+      if (!currentMonthVal) return;
+
+      let [y, m] = currentMonthVal.split('-').map(Number);
+      m += step; 
+      
+      if (m > 12) {
+          m = 1;
+          y++;
+      } else if (m < 1) {
+          m = 12;
+          y--;
+      }
+
+      let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
+      document.getElementById('selectedMonth').value = newMonthStr;
+      
+      window.handleMonthChange();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   document.getElementById('selectedMonth').addEventListener('change', window.handleMonthChange);
@@ -1162,7 +1205,7 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  // ★ Value ကို ✓, x, - သာ အသုံးပြုပြီး ဒေတာများ မပျောက်အောင် ပြင်ဆင်ထားသည် ★
+  // ★ Value ကို ✓, x, - သာ အသုံးပြုပြီး ဒေတာဟောင်းများ မပျောက်အောင် ပြင်ဆင်ထားသည် ★
   window.handleStatusChange = (el) => {
       let val = el.value;
       let card = el.closest('.day-card');
@@ -1197,7 +1240,7 @@
       if(el.value === 'yes') { 
           input.style.display = 'block'; 
           window.currentOTInputTarget = input;
-          window.currentOTSelectElement = el; // Store the select element for canceling
+          window.currentOTSelectElement = el; // ★ 'X' နှိပ်ပါက ပြန်ပြောင်းရန် သိမ်းထားမည်
           
           document.getElementById('otSelectionModal').style.display = 'flex';
 
@@ -1215,7 +1258,7 @@
       calculateAll(); 
   };
 
-  // ★ ပြင်ဆင်ချက် (၁) - OT Modal ၏ "X" ခလုတ်ကို နှိပ်ပါက OT ကို "မဆင်း" သို့ ပြန်ပြောင်းမည် ★
+  // ★ ပြင်ဆင်ချက် (၁) - OT Modal ၏ "X" ခလုတ်ကို နှိပ်ပါက OT ကို "မဆင်း" သို့ အလိုအလျောက် ပြန်ပြောင်းမည် ★
   window.cancelOTSelection = () => {
       if(window.currentOTSelectElement) {
           window.currentOTSelectElement.value = 'no'; // Change back to "No OT"
@@ -1340,6 +1383,7 @@
           let div = document.createElement('div'); div.className = 'day-card';
           div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); div.setAttribute('data-is-sun', isSun); div.setAttribute('data-is-sat', isSat);
           
+          // ★ Value များကို ✓, x, - သာ အသုံးပြုထားသဖြင့် အရင်ဒေတာဟောင်းများ အကုန်ပြန်ပေါ်လာမည် ★
           div.innerHTML = `
             <label class="date-label">${displayDate}</label>
             <div class="double-label" style="font-size: 10px; color: #0d6efd; font-weight: bold; margin-bottom: 2px; height: 12px;"></div>
@@ -1422,17 +1466,21 @@
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
               
               // ★ ပြင်ဆင်ချက် (၂) - OT နာရီ > 0 ဖြစ်မှသာ OT ထမင်းဖိုး ပေါင်းပေးမည် ★
-              if (otStatus === 'yes' && otVal > 0) { 
-                  fPay = 60; // Lunch(30) + OT Food(30)
-                  otDays++; 
-                  if (isSpecialDay) { 
-                      ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
-                  } else { 
-                      normalOtDays++; 
-                      ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
-                  } 
+              if (otStatus === 'yes') { 
+                  if(otVal > 0) { 
+                      fPay = 60; // Lunch(30) + OT Food(30)
+                      otDays++; 
+                      if (isSpecialDay) { 
+                          ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
+                      } else { 
+                          normalOtDays++; 
+                          ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
+                      } 
+                  } else {
+                      fPay = 30; // OT ရွေးထားသော်လည်း နာရီမဖြည့်ရသေးပါက ထမင်းဖိုး ၃၀ သာ ပေါင်းမည်
+                  }
               } else { 
-                  fPay = 30; // Only Lunch(30)
+                  fPay = 30; 
               }
               
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
@@ -1505,6 +1553,7 @@
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
       let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
       
+      // ★ ပြင်ဆင်ချက် (၄) - လစာစလစ် ရက်စွဲ အတိအကျ ပြင်ဆင်ခြင်း ★
       let [pY, pM] = d.period.split('-');
       let pMonthNum = parseInt(pM);
       let pYearNum = parseInt(pY);
