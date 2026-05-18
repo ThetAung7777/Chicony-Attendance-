@@ -20,51 +20,45 @@
   }
 
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   
-  .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
   .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  /* Navbar Sticky */
+  /* Navbar Sticky Top */
   .navbar { background-color: var(--app-header-color); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 60px; box-sizing: border-box; transition: background 0.4s ease; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
   .app-title { text-align: center; margin: 0; line-height: 1.2; }
-  .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 22px; color: #000080; letter-spacing: 1px; }
+  .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 24px; color: #000080; letter-spacing: 1px; }
   .logo-tag { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
 
   .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 300; transform-origin: top right;}
   .dropdown.left { left: 10px; transform-origin: top left; }
   .dropdown.right { right: 10px; }
   .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
-  .dropdown a:hover { background-color: #f4f7f6; }
-  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 500; backdrop-filter: blur(3px); }
   
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 500; backdrop-filter: blur(3px); }
   .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
   .modal-header { padding: 15px 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; z-index: 10; }
   .modal-header h3 { margin: 0; }
   .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
   .close-modal { font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; padding: 0; }
 
-  #splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease; }
-  
-  #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; transition: background 0.4s ease;}
-  .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  #splashScreen, #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
   .container { padding: 10px 15px; max-width: 800px; margin: auto; position: relative;}
   
-  /* ★ လပြစာသား (ဧပြီ မှ မေ) Sticky & Fixed Style ★ */
+  /* ★ လပြစာသား (ဧပြီ မှ မေ) ကို Navbar အောက်တွင် အသေထားရန် ★ */
   .month-period-display { 
       position: sticky; 
-      top: 65px; 
-      z-index: 150; 
+      top: 70px; /* Navbar ရဲ့ အောက်မှာ ကပ်နေစေရန် */
+      z-index: 150; /* ဇယားထက် အပေါ်ရောက်နေစေရန် */
       text-align: center; 
       font-size: 15px; 
       font-weight: bold; 
@@ -78,10 +72,16 @@
       margin: 0 auto 10px auto; 
   }
   
-  .calendar-wrapper { width: 100%; overflow-x: auto; overflow-y: visible; padding-bottom: 10px; }
+  /* ★ ဇယားအပိုင်း (Scroll Container) ★ */
+  .calendar-wrapper { 
+      width: 100%; 
+      overflow-x: auto; 
+      padding-bottom: 10px; 
+      /* အပေါ်အောက် ဆွဲသည့်အခါ နေ့ရက်အောက်သို့ ဝင်သွားရန် Position ကို ပုံမှန်ထားမည် */
+  }
   .calendar-container { min-width: 750px; padding: 0 5px; } 
 
-  /* ★ နေ့ရက်စာသားများ (တနင်္ဂနွေ၊ တနင်္လာ) Sticky & Borders ★ */
+  /* ★ နေ့ရက်ခေါင်းစဉ် (တနင်္ဂနွေ၊ တနင်္လာ) ★ */
   .weekdays { 
       display: grid; 
       grid-template-columns: repeat(7, 1fr); 
@@ -91,14 +91,17 @@
       background: white; 
       margin-bottom: 10px; 
       border-radius: 8px; 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+      
+      /* အောက်ကိုဆွဲလျှင် အပေါ်တွင်ကပ်နေစေရန် Sticky */
       position: sticky; 
-      top: 115px; 
-      z-index: 140;
+      top: 115px; /* လစာသားရဲ့ အောက်မှာ ကပ်နေစေရန် */
+      z-index: 140; /* အောက်က ဇယားကွက်များထက် အပေါ်ရောက်နေစေရန် */
       border: 1px solid #ddd;
-      overflow: hidden; /* round corner သေချာပေါ်စေရန် */
+      overflow: hidden;
   }
   
+  /* နေ့ရက်တစ်ခုနှင့်တစ်ခုကြား မျဉ်းကြောင်းများ */
   .weekdays > div { 
       padding: 12px 0; 
       border-right: 1px solid #ddd; 
@@ -107,8 +110,15 @@
       border-right: none; 
   }
   
-  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; box-sizing: border-box;}
+  .calendar-grid { 
+      display: grid; 
+      grid-template-columns: repeat(7, 1fr); 
+      gap: 8px; 
+      position: relative; 
+      z-index: 1; /* နေ့ရက်ခေါင်းစဉ်၏ အောက်တွင် ရှိနေစေရန် */
+  }
+  
+  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
   .blank-card { background: transparent; border: none; } 
 
   .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
@@ -128,8 +138,6 @@
   
   .developer-footer { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000080;}
   .dev-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; }
-  .dev-contact { font-size: 13px; color: #555; display: flex; justify-content: center; gap: 15px; margin-top: 8px; }
-  .dev-contact a { text-decoration: none; color: #007bff; font-weight: bold; }
 
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
@@ -145,6 +153,7 @@
   .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
   .manage-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; font-size: 13px; background: white; margin-bottom: 6px; border-radius: 6px;}
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
+  
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
   .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
@@ -162,7 +171,6 @@
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content, .dark-mode .calendar-wrapper .weekdays, .dark-mode .developer-footer { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
-  .dark-mode .dropdown a:hover { background-color: #333 !important; }
   .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .setup-box textarea, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
   .dark-mode .day-card { background: #2c2c2c !important; border-color: #444 !important; }
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
@@ -355,10 +363,10 @@
         <div class="admin-manage-section">
           <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
           <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
-            <option value="work">✓ အလုပ်ဆင်းသည်</option>
-            <option value="absent">x အလုပ်ပျက်ရက် / ခွင့်</option>
-            <option value="holiday">- အလုပ်ပိတ်ရက်</option>
-            <option value="ot">⏱️ OT ဆင်းသည်</option>
+            <option value="work">✓ အလုပ်ဆင်းသည် (Present)</option>
+            <option value="absent">x အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option>
+            <option value="holiday">- အလုပ်ပိတ်ရက် (Holiday)</option>
+            <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
           </select>
 
           <h4 style="margin:0 0 10px 0; font-size:13px; color:#666;">📅 ရက်အလိုက် ပေါ်မည့်စာများ ထည့်သွင်းရန်</h4>
@@ -383,7 +391,7 @@
 
 <div class="modal-overlay" id="slipModal" style="z-index: 500;">
   <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff;">
-    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="calendarModal">
@@ -440,7 +448,7 @@
           <div class="full-width">
             <label data-i18n="bonusLbl">ရက်မှန်ကြေး (Bonus)</label>
             <select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;">
-            </select>
+              </select>
           </div>
         </div>
         
@@ -558,9 +566,6 @@
     </div>
   </div>
 </div>
-
-
-
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
