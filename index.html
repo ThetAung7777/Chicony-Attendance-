@@ -20,19 +20,16 @@
     --app-header-color: white;
   }
 
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 20px; transition: background 0.4s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  /* ★ Fixed Ticker ကြောင့် အောက်ဆုံးစာများ မကွယ်စေရန် padding-bottom: 60px သို့ ပြောင်းထားသည် ★ */
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 60px; transition: background 0.4s ease; }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   
-  .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
   .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  /* Navbar Sticky Top */
   .navbar { background-color: var(--app-header-color); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 60px; box-sizing: border-box; transition: background 0.4s ease; }
   .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
@@ -58,73 +55,19 @@
   
   .container { padding: 0 15px 15px 15px; max-width: 800px; margin: auto; position: relative;}
   
-  /* Unified Sticky Header */
   #unifiedStickyHeader {
-      position: sticky; 
-      top: 60px; 
-      z-index: 150; 
-      background: var(--app-bg-color); 
-      margin: 0 -15px; 
-      padding: 15px 15px 15px 15px; 
-      transition: background 0.4s ease;
+      position: sticky; top: 60px; z-index: 150; background: var(--app-bg-color); margin: 0 -15px; padding: 15px 15px 15px 15px; transition: background 0.4s ease;
   }
+  .month-period-container { text-align: center; margin-bottom: 15px; }
+  .month-period-display { font-size: 14px; font-weight: bold; color: #007bff; background: white; padding: 6px 20px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #eee; display: inline-block;}
 
-  .month-period-container {
-      text-align: center;
-      margin-bottom: 15px; 
-  }
+  .weekdays-static-box { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #ddd; overflow: hidden; width: 100%; box-sizing: border-box;}
+  #stickyWeekdaysWrapper { width: 100%; overflow-x: hidden; }
+  .calendar-container { min-width: 750px; padding: 0 10px; box-sizing: border-box; } 
 
-  .month-period-display { 
-      font-size: 14px; 
-      font-weight: bold; 
-      color: #007bff; 
-      background: white; 
-      padding: 6px 20px; 
-      border-radius: 20px; 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-      border: 1px solid #eee; 
-      display: inline-block;
-  }
-
-  /* နေ့ရက်ခေါင်းစဉ်အပြင်ဘောင် */
-  .weekdays-static-box {
-      background: white;
-      border-radius: 10px; 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      border: 1px solid #ddd;
-      overflow: hidden; 
-      width: 100%;
-      box-sizing: border-box;
-  }
-
-  #stickyWeekdaysWrapper {
-      width: 100%;
-      overflow-x: hidden; 
-  }
-
-  .calendar-container { 
-      min-width: 750px; 
-      padding: 0 10px; 
-      box-sizing: border-box; 
-  } 
-
-  /* နေ့ရက်များ */
-  .weekdays { 
-      display: grid; 
-      grid-template-columns: repeat(7, 1fr); 
-      gap: 8px; 
-      text-align: center; 
-      font-weight: bold; 
-      font-size: 14px; 
-      background: white; 
-      padding: 12px 0; 
-      margin: 0;
-  }
-  
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 12px 0; margin: 0;}
   .weekdays > div { position: relative; }
-  .weekdays > div:not(:last-child)::after {
-      content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd;
-  }
+  .weekdays > div:not(:last-child)::after { content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd; }
   
   .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px;}
@@ -147,59 +90,43 @@
   .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none; font-weight:bold;}
   .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
   
-  /* ★ Developer Footer Design အသစ် ★ */
-  .developer-footer { 
-      background: linear-gradient(145deg, #ffffff, #f4f7f6); 
-      margin-top: 20px; 
-      padding: 20px; 
-      border-radius: 12px; 
-      text-align: center; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-      border: 1px solid #e0eaf5; 
+  .developer-footer { background: linear-gradient(145deg, #ffffff, #f4f7f6); margin-top: 20px; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e0eaf5; }
+  .dev-name { font-family: 'Orbitron', sans-serif; font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; letter-spacing: 0.5px; }
+  .dev-subtitle { font-size: 12px; color: #666; margin-bottom: 15px; font-weight: bold; }
+  .social-btn-group { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+  .social-btn { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; color: white !important; transition: transform 0.2s, box-shadow 0.2s; }
+  .social-btn.line { background: #00C300; box-shadow: 0 4px 10px rgba(0,195,0,0.25); }
+  .social-btn.telegram { background: #0088cc; box-shadow: 0 4px 10px rgba(0,136,204,0.25); }
+  .social-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+
+  /* ★ အောက်ဆုံးရှိ စာရွေ့ကြော်ငြာ (Fixed Ticker) Design ★ */
+  .ticker-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 128, 0.9); /* Dark Blue */
+      border-top: 2px solid #ffeb3b; /* Yellow border */
+      color: white;
+      padding: 10px 0;
+      z-index: 1000;
+      overflow: hidden;
+      white-space: nowrap;
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
   }
-  .dev-name { 
-      font-family: 'Orbitron', sans-serif; 
-      font-weight: bold; 
-      color: #000080; 
-      font-size: 16px; 
-      margin-bottom: 5px; 
-      letter-spacing: 0.5px; 
+  .ticker-text {
+      display: inline-block;
+      padding-left: 100vw;
+      animation: marquee 20s linear infinite;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
   }
-  .dev-subtitle { 
-      font-size: 12px; 
-      color: #666; 
-      margin-bottom: 15px; 
-      font-weight: bold; 
-  }
-  .social-btn-group { 
-      display: flex; 
-      justify-content: center; 
-      gap: 15px; 
-      flex-wrap: wrap; 
-  }
-  .social-btn { 
-      display: flex; 
-      align-items: center; 
-      gap: 6px; 
-      padding: 8px 18px; 
-      border-radius: 20px; 
-      font-size: 13px; 
-      font-weight: bold; 
-      text-decoration: none; 
-      color: white !important; 
-      transition: transform 0.2s, box-shadow 0.2s; 
-  }
-  .social-btn.line { 
-      background: #00C300; 
-      box-shadow: 0 4px 10px rgba(0,195,0,0.25); 
-  }
-  .social-btn.telegram { 
-      background: #0088cc; 
-      box-shadow: 0 4px 10px rgba(0,136,204,0.25); 
-  }
-  .social-btn:hover { 
-      transform: translateY(-2px); 
-      box-shadow: 0 6px 15px rgba(0,0,0,0.15); 
+  @keyframes marquee {
+      0%   { transform: translate(0, 0); }
+      100% { transform: translate(-100%, 0); }
   }
 
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
@@ -218,19 +145,6 @@
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
-  .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
-  @media(min-width: 600px) { .year-calendar-grid { grid-template-columns: 1fr 1fr; } }
-  .month-box { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
-  .month-title { text-align: center; font-weight: bold; color: #000080; margin-bottom: 10px; font-size: 15px; }
-  .month-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 5px; }
-  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box;}
-  .cal-day.empty { background: transparent; border: none; }
-  .cal-sun { color: #dc3545; font-weight: bold; }
-  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
-  .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
-
-  /* Dark Mode Adjustments */
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
   .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
@@ -240,16 +154,13 @@
   .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
   .dark-mode .ui-summary-box { background-color: #1e1e1e !important; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
   .dark-mode .ui-summary-box span { color: #ccc !important; } .dark-mode .ui-summary-box b { color: #fff !important; }
-  .dark-mode .ui-summary-box #grandTotal { color: #198754 !important; }
   .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
   .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
   .dark-mode .login-box { background: #1e1e1e !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
   .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
-  .dark-mode #splashScreen { background-color: #121212 !important; }
   
-  /* Dark Mode Sticky Header & Footer Styling */
   .dark-mode #unifiedStickyHeader { background-color: #121212 !important; }
   .dark-mode .month-period-display { background-color: #1e1e1e !important; border-color: #333 !important; }
   .dark-mode .weekdays-static-box { background-color: #1e1e1e !important; border-color: #333 !important; }
@@ -258,11 +169,12 @@
   .dark-mode .developer-footer { background: linear-gradient(145deg, #1e1e1e, #252525) !important; border-color: #333 !important; }
   .dark-mode .dev-subtitle { color: #aaa !important; }
   .dark-mode .dev-name { color: #82b1ff !important; }
+  .dark-mode .ticker-wrap { background: rgba(30, 30, 30, 0.95) !important; border-top: 2px solid #0d6efd !important; }
 
   #printArea { display: none; }
   @media print { 
       body { background: white !important; padding: 0; margin: 0; } 
-      #mainApp, #loginScreen, #splashScreen, #slipModal, .modal-overlay { display: none !important; } 
+      #mainApp, #loginScreen, #splashScreen, #slipModal, .modal-overlay, .ticker-wrap { display: none !important; } 
       #printArea { display: block !important; width: 100%; color: black; font-size: 12px; }
       table { border-collapse: collapse; width: 100%; page-break-inside: avoid; }
       th, td { border: 1px solid #ccc; padding: 6px; }
@@ -302,6 +214,7 @@
       <a href="#" onclick="openCalendarModal()" style="color: #17a2b8; font-weight:bold;" class="interactive-btn">📅 <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></a>
       
       <a href="#" id="adminPanelBtn" onclick="openAdminPanel(true)" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;" class="interactive-btn">🔐 <span data-i18n="adminPanel">Admin Panel</span></a>
+      <a href="#" id="tickerMenuBtn" onclick="openTickerModal()" style="display:none; color: #e67e22; font-weight: bold;" class="interactive-btn">📜 Ticker (စာရွေ့ကြော်ငြာ)</a>
       <a href="#" id="ssoMenuBtn" onclick="openSsoSettingsModal()" style="display:none; color: #007bff; font-weight: bold;" class="interactive-btn">🛡️ SSO Settings</a>
       <a href="#" id="themeBtn" onclick="openThemeModal()" style="display:none; color: #198754; font-weight: bold;" class="interactive-btn">🎨 Theme Settings</a>
       <a href="#" id="annBtn" onclick="openAnnManageModal()" style="display:none; color: #d35400; font-weight: bold;" class="interactive-btn">📢 Announcement</a>
@@ -409,6 +322,11 @@
       </div>
     </div>
   </div>
+
+  <div id="tickerBar" class="ticker-wrap" style="display:none;">
+      <span id="tickerString" class="ticker-text"></span>
+  </div>
+
 </div>
 
 <div class="modal-overlay" id="customAlertModal" style="z-index: 10000;">
@@ -420,6 +338,27 @@
     <div class="modal-body" style="padding: 25px;">
         <p id="customAlertText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.6; margin: 0; font-weight: 500;"></p>
         <button class="btn-generate interactive-btn" onclick="closeCustomAlert()" style="background: #0d6efd; margin-top: 20px; width: 120px; padding: 10px; font-size: 14px;">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="tickerModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #e67e22;" class="logo-main">📜 စာရွေ့ကြော်ငြာ (Ticker)</h3>
+        <button class="close-modal interactive-btn" onclick="closeTickerModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="setup-box" style="margin-top: 5px;">
+          <div class="full-width">
+            <label>ကြော်ငြာစာသား ထည့်ပါ (အောက်ဆုံးတွင် ရွေ့နေမည်)</label>
+            <textarea id="adminTickerText" rows="3" placeholder="ဥပမာ - မနက်ဖြန် စက်ရုံပိတ်ပါမည်။"></textarea>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveTickerText()">💾 Save Text</button>
+          <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="deleteTickerText()">🗑️ Delete</button>
+        </div>
     </div>
   </div>
 </div>
@@ -715,7 +654,7 @@
 
   window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
 
-  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း (❌ ခလုတ်ပါဝင်သည်) ★
+  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း ★
   function createOTModal() {
       if(document.getElementById('otSelectionModal')) return;
       let d = document.createElement('div');
@@ -762,6 +701,8 @@
                   document.getElementById('annBtn').style.display = 'flex'; 
                   document.getElementById('alertMenuBtn').style.display = 'flex'; 
                   document.getElementById('adminCalendarControls').style.display = 'block'; 
+                  // ★ Admin အတွက် Ticker Button ဖော်ပေးခြင်း ★
+                  document.getElementById('tickerMenuBtn').style.display = 'flex';
               }
               
               loadAppConfig(); 
@@ -800,11 +741,10 @@
   const englishMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-  // ★ ဒေတာဟောင်းများကို ပြန်ဖတ်နိုင်စေရန် Value ကို ✓, x, - သာ အသုံးပြုထားသည် ★
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✓ အလုပ်ဆင်းရက်', statusAbsent: 'x အလုပ်ပျက်ရက်', statusHoliday: '- အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
-      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✓ Present', statusAbsent: 'x Absent', statusHoliday: '- Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
-      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✓ ทำงาน', statusAbsent: 'x ขาดงาน', statusHoliday: '- วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ အလုပ်ဆင်းရက်', statusAbsent: '❌ အလုပ်ပျက်ရက်', statusHoliday: '🟨 အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
+      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
 
   let otModalText = {
@@ -1100,6 +1040,22 @@
               }
               
               changeAlertType();
+              
+              // ★ Ticker data for admin input ★
+              if(config.tickerText) {
+                  document.getElementById('adminTickerText').value = config.tickerText;
+              } else {
+                  document.getElementById('adminTickerText').value = "";
+              }
+          }
+          
+          // ★ Show or hide Ticker based on Database ★
+          if(config.tickerText && config.tickerText.trim() !== "") {
+              document.getElementById('tickerBar').style.display = 'flex';
+              document.getElementById('tickerString').innerText = config.tickerText;
+          } else {
+              document.getElementById('tickerBar').style.display = 'none';
+              document.getElementById('tickerString').innerText = "";
           }
 
           let annDate = config.annDate;
@@ -1123,6 +1079,31 @@
           }
       });
   }
+
+  // ★ Ticker Modal Functions ★
+  window.openTickerModal = () => { 
+      document.getElementById('tickerModal').style.display = 'flex'; 
+      toggleMenu(null); 
+  };
+  window.closeTickerModal = () => { document.getElementById('tickerModal').style.display = 'none'; };
+  
+  window.saveTickerText = () => {
+      let txt = document.getElementById('adminTickerText').value.trim();
+      if(!txt) return showCustomAlert('⚠️ ကျေးဇူးပြု၍ ကြော်ငြာစာသား ထည့်ပါ!');
+      update(ref(db, 'appConfig'), { tickerText: txt }).then(() => {
+          showCustomAlert('✅ စာရွေ့ကြော်ငြာ သိမ်းဆည်းပြီးပါပြီ!');
+          closeTickerModal();
+      });
+  };
+  window.deleteTickerText = () => {
+      if(confirm('စာရွေ့ကြော်ငြာကို ဖျက်ပစ်မှာ သေချာပါသလား?')) {
+          update(ref(db, 'appConfig'), { tickerText: null }).then(() => {
+              showCustomAlert('🗑️ ကြော်ငြာဖျက်လိုက်ပါပြီ!');
+              document.getElementById('adminTickerText').value = "";
+              closeTickerModal();
+          });
+      }
+  };
 
   window.openSsoSettingsModal = () => { 
       document.getElementById('ssoOptBasic').checked = window.ssoConfig.basic;
@@ -1592,7 +1573,6 @@
               dPay += 40; transport += 40; 
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
               
-              // ★ ပြင်ဆင်ချက် - OT နာရီ > 0 ဖြစ်မှသာ OT ထမင်းဖိုး ပေါင်းပေးမည် ★
               if (otStatus === 'yes') { 
                   if(otVal > 0) { 
                       fPay = 60; // Lunch(30) + OT Food(30)
