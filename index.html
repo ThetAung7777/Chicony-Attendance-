@@ -140,7 +140,7 @@
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
-  /* ★ ပြန်လည်ထည့်သွင်းထားသော စက်ရုံပြက္ခဒိန် (Factory Calendar) CSS Grid များ ★ */
+  /* စက်ရုံပြက္ခဒိန် Grid CSS */
   .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
   @media(min-width: 600px) { .year-calendar-grid { grid-template-columns: 1fr 1fr; } }
   .month-box { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
@@ -182,8 +182,9 @@
   .dark-mode .ticker-wrap { background: rgba(30, 30, 30, 0.95) !important; border-top: 2px solid #0d6efd !important; }
   .dark-mode .profile-btn { background-color: #333 !important; border-color: #555 !important; }
   .dark-mode .profile-btn span { color: #e0e0e0 !important; }
-  .dark-mode .spinner { border-color: rgba(255, 255, 255, 0.1); border-left-color: #82b1ff; }
   
+  .dark-mode .spinner { border-color: rgba(255, 255, 255, 0.1); border-left-color: #82b1ff; }
+
   /* Dark Mode for Factory Calendar */
   .dark-mode .month-box { background-color: #1e1e1e !important; border-color: #333 !important; }
   .dark-mode .month-title { color: #82b1ff !important; }
@@ -646,7 +647,6 @@
 <script type="module">
   // Firebase Modules
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  // ★ ပြင်ဆင်ချက် - signInWithPopup သို့ ပြန်လည်ပြောင်းလဲထားသည် (Login Loop ဖြေရှင်းရန်) ★
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
@@ -953,7 +953,10 @@
           }
           if(config.tickerText && config.tickerText.trim() !== "") { document.getElementById('tickerBar').style.display = 'flex'; document.getElementById('tickerString').innerText = config.tickerText; } else { document.getElementById('tickerBar').style.display = 'none'; }
           let annDate = config.annDate;
-          if (annDate) { let todayStr = (new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; if (annDate === todayStr) { let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0); if (localStorage.getItem('lastAnnShownId') !== currentAnnId) { setTimeout(() => { showAnnouncement(annImgData, config.annText); }, 500); localStorage.setItem('lastAnnShownId', currentAnnId); } } }
+          if (annDate) { 
+              let d = new Date(); let todayStr = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
+              if (annDate === todayStr) { let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0); if (localStorage.getItem('lastAnnShownId') !== currentAnnId) { setTimeout(() => { showAnnouncement(annImgData, config.annText); }, 500); localStorage.setItem('lastAnnShownId', currentAnnId); } } 
+          }
       });
   }
 
@@ -981,7 +984,9 @@
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
   window.handleAdminAnnImage = (e) => { let file = e.target.files[0]; if (!file) return; let statusEl = document.getElementById('adminAnnImgStatus'); statusEl.innerText = "⏳ Compressing..."; statusEl.style.display = 'block'; let reader = new FileReader(); reader.onload = function(event) { let img = new Image(); img.onload = function() { let canvas = document.createElement('canvas'); let MAX = 400; let w = img.width; let h = img.height; if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } } canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5); statusEl.innerText = "✓ Ready."; }; img.src = event.target.result; }; reader.readAsDataURL(file); };
-  window.saveAppAnnouncement = () => { let d = document.getElementById('adminAnnDate').value; let t = document.getElementById('adminAnnText').value; if(!d) return showCustomAlert('⚠️ Select Date!'); let data = { annDate: d, annText: t }; if(window.tempAnnImageBase64) data.annImg = window.tempAnnImageBase64; update(ref(db, 'appConfig'), data).then(() => { showCustomAlert('📢 Announcement Saved!'); closeAnnManageModal(); }); };
+  
+  // ★ Announcement Bug Fixed (Will correctly clear history to preview again) ★
+  window.saveAppAnnouncement = () => { let d = document.getElementById('adminAnnDate').value; let t = document.getElementById('adminAnnText').value; if(!d) return showCustomAlert('⚠️ Select Date!'); let data = { annDate: d, annText: t }; if(window.tempAnnImageBase64) data.annImg = window.tempAnnImageBase64; update(ref(db, 'appConfig'), data).then(() => { localStorage.removeItem('lastAnnShownId'); showCustomAlert('📢 Announcement Saved!'); closeAnnManageModal(); }); };
   window.deleteAppAnnouncement = () => { if(confirm('Delete announcement?')) { update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null }).then(() => { showCustomAlert('🗑️ Deleted!'); closeAnnManageModal(); }); } };
 
   window.showAnnouncement = async (imgData, textMsg) => { let imgEl = document.getElementById('annDisplayImg'); let textEl = document.getElementById('annDisplayText'); if (imgData) { imgEl.src = imgData; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; } let txt = textMsg || ''; if (txt && currentLang !== 'my') { try { let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(txt)}`; let res = await fetch(url); let data = await res.json(); txt = data[0].map(x => x[0]).join(''); } catch(e) { console.log(e); } } textEl.innerText = txt; document.getElementById('announcementModal').style.display = 'flex'; };
@@ -993,10 +998,43 @@
 
   function renderAdminManageList() { let html = ''; let dates = Object.keys(globalCalendar).sort(); if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } else { dates.forEach(d => { let data = globalCalendar[d]; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; html += `<div class="manage-list-item"><div><b>${d}</b> <span>(${badge} ${data.desc||''})</span></div><div><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; }); } document.getElementById('adminManageList').innerHTML = html; }
 
+  // ★ OT Alert Bug Fixed (Will only show AFTER OT hours are set) ★
+  window.handleOTAlert = (inputEl) => {
+      if(inputEl.value > 0) {
+          let card = inputEl.closest('.day-card');
+          let dayKey = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(card.getAttribute('data-real-date')).getDay()];
+          if(!card.hasAttribute('data-alerted') && window.customAlertMsgs?.ot?.[dayKey]) {
+              showCustomAlert(window.customAlertMsgs.ot[dayKey]);
+              card.setAttribute('data-alerted', 'true');
+          }
+      }
+  };
+
   window.handleStatusChange = (el) => { let val = el.value; let card = el.closest('.day-card'); let dateStr = card.getAttribute('data-real-date'); let dayKey = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(dateStr).getDay()]; let type = val === '✓' ? 'work' : (val === 'x' ? 'absent' : (val === '-' ? 'holiday' : '')); if (type && window.customAlertMsgs?.[type]?.[dayKey]) showCustomAlert(window.customAlertMsgs[type][dayKey]); calculateAll(); };
-  window.toggleOTInput = (el) => { let input = el.parentElement.querySelector('.ot-hours'); let card = el.closest('.day-card'); let dayKey = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(card.getAttribute('data-real-date')).getDay()]; if(el.value === 'yes') { input.style.display = 'block'; window.currentOTInputTarget = input; window.currentOTSelectElement = el; document.getElementById('otSelectionModal').style.display = 'flex'; if(!card.hasAttribute('data-alerted') && window.customAlertMsgs?.ot?.[dayKey]) { showCustomAlert(window.customAlertMsgs.ot[dayKey]); card.setAttribute('data-alerted', 'true'); } } else { input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); } calculateAll(); };
+  
+  window.toggleOTInput = (el) => { 
+      let input = el.parentElement.querySelector('.ot-hours'); let card = el.closest('.day-card'); 
+      if(el.value === 'yes') { 
+          input.style.display = 'block'; window.currentOTInputTarget = input; window.currentOTSelectElement = el; 
+          document.getElementById('otSelectionModal').style.display = 'flex'; 
+          // Alert logic removed from here, moved to after selecting hours.
+      } else { 
+          input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); 
+      } 
+      calculateAll(); 
+  };
+  
   window.cancelOTSelection = () => { if(window.currentOTSelectElement) window.currentOTSelectElement.value = 'no'; if(window.currentOTInputTarget) { window.currentOTInputTarget.style.display = 'none'; window.currentOTInputTarget.value = ''; let card = window.currentOTInputTarget.closest('.day-card'); if (card) card.removeAttribute('data-alerted'); } document.getElementById('otSelectionModal').style.display = 'none'; calculateAll(); };
-  window.setOTHours = (hrs) => { if(window.currentOTInputTarget) { window.currentOTInputTarget.value = hrs; calculateAll(); } document.getElementById('otSelectionModal').style.display = 'none'; };
+  
+  window.setOTHours = (hrs) => { 
+      if(window.currentOTInputTarget) { 
+          window.currentOTInputTarget.value = hrs; 
+          window.handleOTAlert(window.currentOTInputTarget); // Show alert AFTER setting hours
+          calculateAll(); 
+      } 
+      document.getElementById('otSelectionModal').style.display = 'none'; 
+  };
+  
   window.closeOTModalForManual = () => { document.getElementById('otSelectionModal').style.display = 'none'; if(window.currentOTInputTarget) window.currentOTInputTarget.focus(); };
 
   function renderYearCalendar() { document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR; const container = document.getElementById('yearCalendarContainer'); container.innerHTML = ''; let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths); let daysHeader = weekdaysText[currentLang]; for(let m = 0; m < 12; m++) { let monthDiv = document.createElement('div'); monthDiv.className = 'month-box'; let title = `<div class="month-title">${monthsArray[m]}</div>`; let header = `<div class="month-days-header"><div style="color:#dc3545;">${daysHeader[0]}</div><div>${daysHeader[1]}</div><div>${daysHeader[2]}</div><div>${daysHeader[3]}</div><div>${daysHeader[4]}</div><div>${daysHeader[5]}</div><div style="color:#007bff;">${daysHeader[6]}</div></div>`; let gridHtml = `<div class="month-grid">`; let firstDay = new Date(CALENDAR_YEAR, m, 1).getDay(); let daysInMonth = new Date(CALENDAR_YEAR, m + 1, 0).getDate(); for(let i = 0; i < firstDay; i++) gridHtml += `<div class="cal-day empty"></div>`; for(let d = 1; d <= daysInMonth; d++) { let curDate = new Date(CALENDAR_YEAR, m, d); let dateKey = `${curDate.getFullYear()}-${String(curDate.getMonth()+1).padStart(2,'0')}-${String(curDate.getDate()).padStart(2,'0')}`; let isSun = curDate.getDay() === 0; let isSat = curDate.getDay() === 6; let calData = globalCalendar[dateKey]; let classes = 'cal-day'; let onClick = ''; if(calData) { if(calData.type === 'holiday') { classes += ' cal-holiday'; let safeDesc = calData.desc ? calData.desc.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ''; onClick = `onclick="showCustomAlert('${safeDesc}')"`; } else if(calData.type === 'double') { classes += ' cal-double'; if(isSat) classes += ' double-saturday'; } } else if(isSun) { classes += ' cal-sun'; } gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`; } gridHtml += `</div>`; monthDiv.innerHTML = title + header + gridHtml; container.appendChild(monthDiv); } }
@@ -1030,7 +1068,7 @@
               <option value="unpaid">${dd.leaveUnpaid}</option><option value="medical">${dd.leaveMed}</option>
             </select>
             <select class="ot-select" onchange="toggleOTInput(this)"><option value="no">${dd.otNo}</option><option value="yes">${dd.otYes}</option></select>
-            <input type="number" class="ot-hours" placeholder="${dd.otHr}" oninput="calculateAll()" style="display: none;" min="0" step="0.5">
+            <input type="number" class="ot-hours" placeholder="${dd.otHr}" onchange="handleOTAlert(this); calculateAll()" oninput="calculateAll()" style="display: none;" min="0" step="0.5">
             <div class="daily-info">-</div>`;
           grid.appendChild(div); cur.setDate(cur.getDate() + 1);
       }
@@ -1156,16 +1194,14 @@
       let selectedMonthVal = document.getElementById('adminMonthSelect').value; if (!selectedMonthVal) return;
       let { startD, endD } = getPeriodDates(selectedMonthVal);
       
-      // ★ Admin Panel Bug Fixed: Calculations correctly scoped ★
+      // ★ Admin Panel Bug Fixed ★
       get(ref(db, 'users')).then((snapshot) => {
           if (snapshot.exists()) {
               let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; window.adminCalculated = {}; let tempUsersArray = [];
               for (let uid in allUsers) {
                   let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue;
-                  
                   let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0;
                   let baseHourRate = otRate / 1.5, rate20 = baseHourRate * 2; let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, pubHolPay=0; let uOt15Hrs = 0, uOt20Hrs = 0; let uNightPay = 0;
-                  
                   if (uData.attendance) {
                       let cur = new Date(startD);
                       while(cur <= endD) {
@@ -1184,20 +1220,10 @@
                           cur.setDate(cur.getDate()+1);
                       }
                   }
-                  
                   let uOtHrs = uOt15Hrs + uOt20Hrs; totalEmployees++; let totalAbs = uAbsent + uMedCount; let uBonus = totalAbs > 0 ? 200 : bonusSetting; uTotalPay += uBonus;
-                  
-                  // Proper Salary Math Execution
-                  let combinedBasicSalary = (uWork + uMedCount) * wage;
-                  let regularFoodAllowance = uWork * 30;
-                  let ssoBaseAmount = 0;
-                  if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
-                  if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
-                  if (window.ssoConfig.night) ssoBaseAmount += uNightPay;
-                  if (window.ssoConfig.food) ssoBaseAmount += regularFoodAllowance;
-
-                  let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
-                  let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
+                  let combinedBasicSalary = (uWork + uMedCount) * wage; let regularFoodAllowance = uWork * 30; let ssoBaseAmount = 0;
+                  if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary; if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay; if (window.ssoConfig.night) ssoBaseAmount += uNightPay; if (window.ssoConfig.food) ssoBaseAmount += regularFoodAllowance;
+                  let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750); let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
                   
                   window.adminCalculated[uid] = { work: uWork, absent: uAbsent, med: uMedCount, ot: uOtHrs, double: uDouble, total: netSalary, gross: uTotalPay, sso: ssoDeduction }; grandTotalSalary += netSalary;
                   let isInactive = (uWork === 0 && uAbsent === 0 && uMedCount === 0);
