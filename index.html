@@ -182,9 +182,8 @@
   .dark-mode .ticker-wrap { background: rgba(30, 30, 30, 0.95) !important; border-top: 2px solid #0d6efd !important; }
   .dark-mode .profile-btn { background-color: #333 !important; border-color: #555 !important; }
   .dark-mode .profile-btn span { color: #e0e0e0 !important; }
-  
   .dark-mode .spinner { border-color: rgba(255, 255, 255, 0.1); border-left-color: #82b1ff; }
-
+  
   /* Dark Mode for Factory Calendar */
   .dark-mode .month-box { background-color: #1e1e1e !important; border-color: #333 !important; }
   .dark-mode .month-title { color: #82b1ff !important; }
@@ -779,13 +778,14 @@
       }
   };
 
-  // ★ Authentication Setup (Popup သို့ ပြန်ပြောင်းထားပြီး Loading တန်းပေါ်အောင် လုပ်ထားသည်) ★
+  // ★ Authentication Setup (Login loop ကို ရှင်းလင်းထားသည်) ★
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
           let splash = document.getElementById('splashScreen');
           if (splash) splash.style.display = 'none';
 
           if (user) {
+              // Login ဝင်ပြီးသားဆိုလျှင် (Loading ဝိုင်းလည်ပြီး Main App ကို တန်းဝင်မည်)
               currentUser = user; 
               document.getElementById('loginScreen').style.display = 'none'; 
               document.getElementById('mainApp').style.display = 'block';
@@ -803,11 +803,11 @@
               
               loadAppConfig(); loadGlobalCalendar(); loadFromFirebase();
           } else { 
-              // User is not logged in. Show the login button, hide loading spinner.
+              // User မရှိမှသာ Login ဝင်ခိုင်းသည့် ခလုတ်ကို ပြမည်
               document.getElementById('loginScreen').style.display = 'flex'; 
               document.getElementById('mainApp').style.display = 'none'; 
-              document.getElementById('loginLoadingState').style.display = 'none';
-              document.getElementById('loginGoogleBtn').style.display = 'flex';
+              document.getElementById('loginLoadingState').style.display = 'none'; // Loading ဝိုင်းလည်တာ ဖျောက်မည်
+              document.getElementById('loginGoogleBtn').style.display = 'flex'; // ခလုတ်ပြမည်
           }
       });
   }).catch((error) => { 
@@ -815,6 +815,7 @@
   });
 
   window.signIn = () => { 
+      // ခလုတ်ကိုနှိပ်လိုက်ပါက Loading အဝိုင်းလေး ပြန်ပေါ်လာစေမည်
       document.getElementById('loginGoogleBtn').style.display = 'none';
       document.getElementById('loginLoadingState').style.display = 'block';
       signInWithPopup(auth, provider).catch((error) => {
@@ -828,7 +829,6 @@
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
 
   // ★ Other Core App Functions ★
-
   function createOTModal() {
       if(document.getElementById('otSelectionModal')) return;
       let d = document.createElement('div');
@@ -952,10 +952,17 @@
               changeAlertType(); if(config.tickerText) document.getElementById('adminTickerText').value = config.tickerText;
           }
           if(config.tickerText && config.tickerText.trim() !== "") { document.getElementById('tickerBar').style.display = 'flex'; document.getElementById('tickerString').innerText = config.tickerText; } else { document.getElementById('tickerBar').style.display = 'none'; }
+          
           let annDate = config.annDate;
           if (annDate) { 
               let d = new Date(); let todayStr = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
-              if (annDate === todayStr) { let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0); if (localStorage.getItem('lastAnnShownId') !== currentAnnId) { setTimeout(() => { showAnnouncement(annImgData, config.annText); }, 500); localStorage.setItem('lastAnnShownId', currentAnnId); } } 
+              if (annDate === todayStr) { 
+                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0); 
+                  if (localStorage.getItem('lastAnnShownId') !== currentAnnId) { 
+                      setTimeout(() => { showAnnouncement(annImgData, config.annText); }, 500); 
+                      localStorage.setItem('lastAnnShownId', currentAnnId); 
+                  } 
+              } 
           }
       });
   }
@@ -986,7 +993,11 @@
   window.handleAdminAnnImage = (e) => { let file = e.target.files[0]; if (!file) return; let statusEl = document.getElementById('adminAnnImgStatus'); statusEl.innerText = "⏳ Compressing..."; statusEl.style.display = 'block'; let reader = new FileReader(); reader.onload = function(event) { let img = new Image(); img.onload = function() { let canvas = document.createElement('canvas'); let MAX = 400; let w = img.width; let h = img.height; if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } } canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5); statusEl.innerText = "✓ Ready."; }; img.src = event.target.result; }; reader.readAsDataURL(file); };
   
   // ★ Announcement Bug Fixed (Will correctly clear history to preview again) ★
-  window.saveAppAnnouncement = () => { let d = document.getElementById('adminAnnDate').value; let t = document.getElementById('adminAnnText').value; if(!d) return showCustomAlert('⚠️ Select Date!'); let data = { annDate: d, annText: t }; if(window.tempAnnImageBase64) data.annImg = window.tempAnnImageBase64; update(ref(db, 'appConfig'), data).then(() => { localStorage.removeItem('lastAnnShownId'); showCustomAlert('📢 Announcement Saved!'); closeAnnManageModal(); }); };
+  window.saveAppAnnouncement = () => { 
+      let d = document.getElementById('adminAnnDate').value; let t = document.getElementById('adminAnnText').value; if(!d) return showCustomAlert('⚠️ Select Date!'); 
+      let data = { annDate: d, annText: t }; if(window.tempAnnImageBase64) data.annImg = window.tempAnnImageBase64; 
+      update(ref(db, 'appConfig'), data).then(() => { localStorage.removeItem('lastAnnShownId'); showCustomAlert('📢 Announcement Saved!'); closeAnnManageModal(); }); 
+  };
   window.deleteAppAnnouncement = () => { if(confirm('Delete announcement?')) { update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null }).then(() => { showCustomAlert('🗑️ Deleted!'); closeAnnManageModal(); }); } };
 
   window.showAnnouncement = async (imgData, textMsg) => { let imgEl = document.getElementById('annDisplayImg'); let textEl = document.getElementById('annDisplayText'); if (imgData) { imgEl.src = imgData; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; } let txt = textMsg || ''; if (txt && currentLang !== 'my') { try { let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(txt)}`; let res = await fetch(url); let data = await res.json(); txt = data[0].map(x => x[0]).join(''); } catch(e) { console.log(e); } } textEl.innerText = txt; document.getElementById('announcementModal').style.display = 'flex'; };
@@ -998,7 +1009,7 @@
 
   function renderAdminManageList() { let html = ''; let dates = Object.keys(globalCalendar).sort(); if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } else { dates.forEach(d => { let data = globalCalendar[d]; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; html += `<div class="manage-list-item"><div><b>${d}</b> <span>(${badge} ${data.desc||''})</span></div><div><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; }); } document.getElementById('adminManageList').innerHTML = html; }
 
-  // ★ OT Alert Bug Fixed (Will only show AFTER OT hours are set) ★
+  // ★ OT Alert Bug Fixed (Will only show AFTER OT hours are set, not on dropdown selection) ★
   window.handleOTAlert = (inputEl) => {
       if(inputEl.value > 0) {
           let card = inputEl.closest('.day-card');
@@ -1017,7 +1028,7 @@
       if(el.value === 'yes') { 
           input.style.display = 'block'; window.currentOTInputTarget = input; window.currentOTSelectElement = el; 
           document.getElementById('otSelectionModal').style.display = 'flex'; 
-          // Alert logic removed from here, moved to after selecting hours.
+          // Alert is removed from here, moved to handleOTAlert
       } else { 
           input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); 
       } 
@@ -1029,7 +1040,7 @@
   window.setOTHours = (hrs) => { 
       if(window.currentOTInputTarget) { 
           window.currentOTInputTarget.value = hrs; 
-          window.handleOTAlert(window.currentOTInputTarget); // Show alert AFTER setting hours
+          window.handleOTAlert(window.currentOTInputTarget); // ★ Alert ကို နာရီရွေးပြီးမှ ပြမည် ★
           calculateAll(); 
       } 
       document.getElementById('otSelectionModal').style.display = 'none'; 
@@ -1194,14 +1205,16 @@
       let selectedMonthVal = document.getElementById('adminMonthSelect').value; if (!selectedMonthVal) return;
       let { startD, endD } = getPeriodDates(selectedMonthVal);
       
-      // ★ Admin Panel Bug Fixed ★
+      // ★ Admin Panel Bug Fixed: Variables scoped properly for accurate calculations ★
       get(ref(db, 'users')).then((snapshot) => {
           if (snapshot.exists()) {
               let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; window.adminCalculated = {}; let tempUsersArray = [];
               for (let uid in allUsers) {
                   let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue;
+                  
                   let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0;
                   let baseHourRate = otRate / 1.5, rate20 = baseHourRate * 2; let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, pubHolPay=0; let uOt15Hrs = 0, uOt20Hrs = 0; let uNightPay = 0;
+                  
                   if (uData.attendance) {
                       let cur = new Date(startD);
                       while(cur <= endD) {
@@ -1220,10 +1233,19 @@
                           cur.setDate(cur.getDate()+1);
                       }
                   }
+                  
                   let uOtHrs = uOt15Hrs + uOt20Hrs; totalEmployees++; let totalAbs = uAbsent + uMedCount; let uBonus = totalAbs > 0 ? 200 : bonusSetting; uTotalPay += uBonus;
-                  let combinedBasicSalary = (uWork + uMedCount) * wage; let regularFoodAllowance = uWork * 30; let ssoBaseAmount = 0;
-                  if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary; if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay; if (window.ssoConfig.night) ssoBaseAmount += uNightPay; if (window.ssoConfig.food) ssoBaseAmount += regularFoodAllowance;
-                  let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750); let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
+                  
+                  let combinedBasicSalary = (uWork + uMedCount) * wage;
+                  let regularFoodAllowance = uWork * 30;
+                  let ssoBaseAmount = 0;
+                  if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
+                  if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
+                  if (window.ssoConfig.night) ssoBaseAmount += uNightPay;
+                  if (window.ssoConfig.food) ssoBaseAmount += regularFoodAllowance;
+
+                  let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
+                  let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
                   
                   window.adminCalculated[uid] = { work: uWork, absent: uAbsent, med: uMedCount, ot: uOtHrs, double: uDouble, total: netSalary, gross: uTotalPay, sso: ssoDeduction }; grandTotalSalary += netSalary;
                   let isInactive = (uWork === 0 && uAbsent === 0 && uMedCount === 0);
