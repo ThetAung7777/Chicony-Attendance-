@@ -70,7 +70,7 @@
   .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
   
-  /* ★ Custom Spinner for Initial Login Check ★ */
+  /* Custom Spinner for Initial Login Check */
   .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 40px; height: 40px; border-radius: 50%; border-left-color: #000080; animation: spin 1s linear infinite; margin: 20px auto; }
   
   .container { padding: 0 15px 15px 15px; max-width: 800px; margin: auto; position: relative;}
@@ -140,6 +140,19 @@
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
+  /* ★ ပြန်လည်ထည့်သွင်းထားသော စက်ရုံပြက္ခဒိန် (Factory Calendar) CSS Grid များ ★ */
+  .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
+  @media(min-width: 600px) { .year-calendar-grid { grid-template-columns: 1fr 1fr; } }
+  .month-box { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
+  .month-title { text-align: center; font-weight: bold; color: #000080; margin-bottom: 10px; font-size: 15px; }
+  .month-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 5px; }
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box;}
+  .cal-day.empty { background: transparent; border: none; }
+  .cal-sun { color: #dc3545; font-weight: bold; }
+  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
+  .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
+
   /* Dark Mode Adjustments */
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
@@ -169,8 +182,14 @@
   .dark-mode .ticker-wrap { background: rgba(30, 30, 30, 0.95) !important; border-top: 2px solid #0d6efd !important; }
   .dark-mode .profile-btn { background-color: #333 !important; border-color: #555 !important; }
   .dark-mode .profile-btn span { color: #e0e0e0 !important; }
-  
   .dark-mode .spinner { border-color: rgba(255, 255, 255, 0.1); border-left-color: #82b1ff; }
+  
+  /* Dark Mode for Factory Calendar */
+  .dark-mode .month-box { background-color: #1e1e1e !important; border-color: #333 !important; }
+  .dark-mode .month-title { color: #82b1ff !important; }
+  .dark-mode .cal-day { background-color: #2c2c2c !important; border-color: #444 !important; color: #e0e0e0 !important; }
+  .dark-mode .cal-day.empty { background-color: transparent !important; border-color: transparent !important; }
+  .dark-mode .month-days-header { color: #aaa !important; }
 
   /* Cropper Modal CSS Box */
   .cropper-view-box, .cropper-face { border-radius: 50%; }
@@ -627,7 +646,8 @@
 <script type="module">
   // Firebase Modules
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  // ★ ပြင်ဆင်ချက် - signInWithPopup သို့ ပြန်လည်ပြောင်းလဲထားသည် (Login Loop ဖြေရှင်းရန်) ★
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -759,21 +779,8 @@
       }
   };
 
-  // ★ Authentication Setup with signInWithRedirect to fix Login Loops ★
+  // ★ Authentication Setup (Popup သို့ ပြန်ပြောင်းထားပြီး Loading တန်းပေါ်အောင် လုပ်ထားသည်) ★
   setPersistence(auth, browserLocalPersistence).then(() => {
-      
-      // Handle the result of the redirect before checking auth state
-      getRedirectResult(auth).then((result) => {
-          if (result && result.user) {
-              // Successfully logged in via redirect
-          }
-      }).catch((error) => {
-          console.error("Redirect Error:", error);
-          showCustomAlert("Login Error: " + error.message);
-          document.getElementById('loginLoadingState').style.display = 'none';
-          document.getElementById('loginGoogleBtn').style.display = 'block';
-      });
-
       onAuthStateChanged(auth, (user) => {
           let splash = document.getElementById('splashScreen');
           if (splash) splash.style.display = 'none';
@@ -800,7 +807,7 @@
               document.getElementById('loginScreen').style.display = 'flex'; 
               document.getElementById('mainApp').style.display = 'none'; 
               document.getElementById('loginLoadingState').style.display = 'none';
-              document.getElementById('loginGoogleBtn').style.display = 'block';
+              document.getElementById('loginGoogleBtn').style.display = 'flex';
           }
       });
   }).catch((error) => { 
@@ -808,10 +815,14 @@
   });
 
   window.signIn = () => { 
-      // Show loading state while redirecting
       document.getElementById('loginGoogleBtn').style.display = 'none';
       document.getElementById('loginLoadingState').style.display = 'block';
-      signInWithRedirect(auth, provider);
+      signInWithPopup(auth, provider).catch((error) => {
+          console.error(error);
+          document.getElementById('loginLoadingState').style.display = 'none';
+          document.getElementById('loginGoogleBtn').style.display = 'flex';
+          showCustomAlert("Login Error: " + error.message);
+      });
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
@@ -969,18 +980,7 @@
 
   window.openAnnManageModal = () => { document.getElementById('annManageModal').style.display = 'flex'; toggleMenu(null); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
-  window.handleAdminAnnImage = (e) => {
-      let file = e.target.files[0]; if (!file) return;
-      let statusEl = document.getElementById('adminAnnImgStatus'); statusEl.innerText = "⏳ Compressing..."; statusEl.style.display = 'block';
-      let reader = new FileReader(); reader.onload = function(event) {
-          let img = new Image(); img.onload = function() {
-              let canvas = document.createElement('canvas'); let MAX = 400; let w = img.width; let h = img.height;
-              if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
-              canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-              window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5); statusEl.innerText = "✓ Ready.";
-          }; img.src = event.target.result;
-      }; reader.readAsDataURL(file);
-  };
+  window.handleAdminAnnImage = (e) => { let file = e.target.files[0]; if (!file) return; let statusEl = document.getElementById('adminAnnImgStatus'); statusEl.innerText = "⏳ Compressing..."; statusEl.style.display = 'block'; let reader = new FileReader(); reader.onload = function(event) { let img = new Image(); img.onload = function() { let canvas = document.createElement('canvas'); let MAX = 400; let w = img.width; let h = img.height; if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } } canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5); statusEl.innerText = "✓ Ready."; }; img.src = event.target.result; }; reader.readAsDataURL(file); };
   window.saveAppAnnouncement = () => { let d = document.getElementById('adminAnnDate').value; let t = document.getElementById('adminAnnText').value; if(!d) return showCustomAlert('⚠️ Select Date!'); let data = { annDate: d, annText: t }; if(window.tempAnnImageBase64) data.annImg = window.tempAnnImageBase64; update(ref(db, 'appConfig'), data).then(() => { showCustomAlert('📢 Announcement Saved!'); closeAnnManageModal(); }); };
   window.deleteAppAnnouncement = () => { if(confirm('Delete announcement?')) { update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null }).then(() => { showCustomAlert('🗑️ Deleted!'); closeAnnManageModal(); }); } };
 
@@ -1155,13 +1155,17 @@
       document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; toggleMenu(null);
       let selectedMonthVal = document.getElementById('adminMonthSelect').value; if (!selectedMonthVal) return;
       let { startD, endD } = getPeriodDates(selectedMonthVal);
+      
+      // ★ Admin Panel Bug Fixed: Calculations correctly scoped ★
       get(ref(db, 'users')).then((snapshot) => {
           if (snapshot.exists()) {
               let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; window.adminCalculated = {}; let tempUsersArray = [];
               for (let uid in allUsers) {
                   let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue;
+                  
                   let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0; let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0;
                   let baseHourRate = otRate / 1.5, rate20 = baseHourRate * 2; let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, pubHolPay=0; let uOt15Hrs = 0, uOt20Hrs = 0; let uNightPay = 0;
+                  
                   if (uData.attendance) {
                       let cur = new Date(startD);
                       while(cur <= endD) {
@@ -1180,9 +1184,21 @@
                           cur.setDate(cur.getDate()+1);
                       }
                   }
+                  
                   let uOtHrs = uOt15Hrs + uOt20Hrs; totalEmployees++; let totalAbs = uAbsent + uMedCount; let uBonus = totalAbs > 0 ? 200 : bonusSetting; uTotalPay += uBonus;
-                  let ssoBase = combinedBasicSalary; let ssoDeduction = Math.min(Math.round(((uWork * 30) + uNightPay + pubHolPay + (uWork * wage)) * 0.05), 750);
+                  
+                  // Proper Salary Math Execution
+                  let combinedBasicSalary = (uWork + uMedCount) * wage;
+                  let regularFoodAllowance = uWork * 30;
+                  let ssoBaseAmount = 0;
+                  if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
+                  if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
+                  if (window.ssoConfig.night) ssoBaseAmount += uNightPay;
+                  if (window.ssoConfig.food) ssoBaseAmount += regularFoodAllowance;
+
+                  let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
+                  
                   window.adminCalculated[uid] = { work: uWork, absent: uAbsent, med: uMedCount, ot: uOtHrs, double: uDouble, total: netSalary, gross: uTotalPay, sso: ssoDeduction }; grandTotalSalary += netSalary;
                   let isInactive = (uWork === 0 && uAbsent === 0 && uMedCount === 0);
                   let cardHtml = `<div class="admin-user-card" data-name="${uData.settings.empName.toLowerCase()}" data-empid="${(uData.settings.empId || '').toLowerCase()}">
@@ -1198,7 +1214,7 @@
               let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#198754; font-size:16px; margin-top:8px;">Total Net Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`;
               document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>');
           } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; }
-      });
+      }).catch((error) => { document.getElementById('adminUserList').innerHTML = '<div style="color:red; text-align:center;">Error: ' + error.message + '</div>'; });
   };
   window.closeAdminPanel = () => document.getElementById('adminModal').style.display = 'none';
   window.filterAdminUsers = () => { let input = document.getElementById('adminSearchInput').value.toLowerCase(); let cards = document.querySelectorAll('.admin-user-card'); cards.forEach(card => { let name = card.getAttribute('data-name'); let empid = card.getAttribute('data-empid'); if(name.includes(input) || empid.includes(input)) card.style.display = 'block'; else card.style.display = 'none'; }); };
