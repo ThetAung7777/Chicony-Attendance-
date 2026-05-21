@@ -690,7 +690,6 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      // 5MB size calculation limit check
       if (file.size > 5 * 1024 * 1024) { 
           showCustomAlert("⚠️ ပုံအရွယ်အစားက 5MB ထက် ကြီးနေပါတယ်။ \nအနည်းငယ် သေးတဲ့ပုံကို ရွေးပေးပါ။");
           return;
@@ -778,14 +777,12 @@
       }
   };
 
-  // ★ Authentication Setup (Login loop ကို ရှင်းလင်းထားသည်) ★
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
           let splash = document.getElementById('splashScreen');
           if (splash) splash.style.display = 'none';
 
           if (user) {
-              // Login ဝင်ပြီးသားဆိုလျှင် (Loading ဝိုင်းလည်ပြီး Main App ကို တန်းဝင်မည်)
               currentUser = user; 
               document.getElementById('loginScreen').style.display = 'none'; 
               document.getElementById('mainApp').style.display = 'block';
@@ -803,11 +800,10 @@
               
               loadAppConfig(); loadGlobalCalendar(); loadFromFirebase();
           } else { 
-              // User မရှိမှသာ Login ဝင်ခိုင်းသည့် ခလုတ်ကို ပြမည်
               document.getElementById('loginScreen').style.display = 'flex'; 
               document.getElementById('mainApp').style.display = 'none'; 
-              document.getElementById('loginLoadingState').style.display = 'none'; // Loading ဝိုင်းလည်တာ ဖျောက်မည်
-              document.getElementById('loginGoogleBtn').style.display = 'flex'; // ခလုတ်ပြမည်
+              document.getElementById('loginLoadingState').style.display = 'none';
+              document.getElementById('loginGoogleBtn').style.display = 'flex';
           }
       });
   }).catch((error) => { 
@@ -815,7 +811,6 @@
   });
 
   window.signIn = () => { 
-      // ခလုတ်ကိုနှိပ်လိုက်ပါက Loading အဝိုင်းလေး ပြန်ပေါ်လာစေမည်
       document.getElementById('loginGoogleBtn').style.display = 'none';
       document.getElementById('loginLoadingState').style.display = 'block';
       signInWithPopup(auth, provider).catch((error) => {
@@ -828,7 +823,6 @@
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
 
-  // ★ Other Core App Functions ★
   function createOTModal() {
       if(document.getElementById('otSelectionModal')) return;
       let d = document.createElement('div');
@@ -956,13 +950,7 @@
           let annDate = config.annDate;
           if (annDate) { 
               let d = new Date(); let todayStr = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
-              if (annDate === todayStr) { 
-                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0); 
-                  if (localStorage.getItem('lastAnnShownId') !== currentAnnId) { 
-                      setTimeout(() => { showAnnouncement(annImgData, config.annText); }, 500); 
-                      localStorage.setItem('lastAnnShownId', currentAnnId); 
-                  } 
-              } 
+              if (annDate === todayStr) { let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0); if (localStorage.getItem('lastAnnShownId') !== currentAnnId) { setTimeout(() => { showAnnouncement(annImgData, config.annText); }, 500); localStorage.setItem('lastAnnShownId', currentAnnId); } } 
           }
       });
   }
@@ -992,7 +980,6 @@
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
   window.handleAdminAnnImage = (e) => { let file = e.target.files[0]; if (!file) return; let statusEl = document.getElementById('adminAnnImgStatus'); statusEl.innerText = "⏳ Compressing..."; statusEl.style.display = 'block'; let reader = new FileReader(); reader.onload = function(event) { let img = new Image(); img.onload = function() { let canvas = document.createElement('canvas'); let MAX = 400; let w = img.width; let h = img.height; if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } } canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5); statusEl.innerText = "✓ Ready."; }; img.src = event.target.result; }; reader.readAsDataURL(file); };
   
-  // ★ Announcement Bug Fixed (Will correctly clear history to preview again) ★
   window.saveAppAnnouncement = () => { 
       let d = document.getElementById('adminAnnDate').value; let t = document.getElementById('adminAnnText').value; if(!d) return showCustomAlert('⚠️ Select Date!'); 
       let data = { annDate: d, annText: t }; if(window.tempAnnImageBase64) data.annImg = window.tempAnnImageBase64; 
@@ -1009,7 +996,89 @@
 
   function renderAdminManageList() { let html = ''; let dates = Object.keys(globalCalendar).sort(); if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } else { dates.forEach(d => { let data = globalCalendar[d]; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; html += `<div class="manage-list-item"><div><b>${d}</b> <span>(${badge} ${data.desc||''})</span></div><div><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; }); } document.getElementById('adminManageList').innerHTML = html; }
 
-  // ★ OT Alert Bug Fixed (Will only show AFTER OT hours are set, not on dropdown selection) ★
+  // ★ Save Photo စနစ် ဖြေရှင်းချက် (html2canvas font bug fix) ★
+  window.downloadSlipImage = (btn) => {
+      let printArea = document.getElementById('slipPrintArea');
+      if (!printArea) return;
+      
+      let originalText = btn ? btn.innerHTML : "🖼️ Save Photo";
+      if(btn) { btn.innerHTML = "⏳ Saving..."; btn.disabled = true; }
+
+      // Force white background for reliability
+      html2canvas(printArea, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+          let imgData = canvas.toDataURL('image/jpeg', 1.0);
+          let link = document.createElement('a'); link.href = imgData;
+          let d = window.currentSlipData; let p = d && d.period ? d.period : 'slip';
+          link.download = `Chicony_Slip_${p}.jpg`; 
+          document.body.appendChild(link); link.click(); document.body.removeChild(link);
+          
+          if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
+          showCustomAlert("✅ လစာစလစ်ကို ဖုန်းထဲသို့ သိမ်းဆည်းပြီးပါပြီ။");
+      }).catch(err => { 
+          console.error("Error generating image: ", err); 
+          if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
+          showCustomAlert("❌ ပုံသိမ်းခြင်း မအောင်မြင်ပါ။"); 
+      });
+  };
+
+  window.openSalarySlip = () => {
+      let l = translations[currentLang]; let d = window.currentSlipData; let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-'; let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
+      let [pY, pM] = d.period.split('-'); let pMonthNum = parseInt(pM); let pYearNum = parseInt(pY); let endMIdx = pMonthNum - 1; let endYear = pYearNum; let startMIdx = endMIdx - 1; let startYear = pYearNum; if (startMIdx < 0) { startMIdx = 11; startYear--; }
+      let periodHeaderStr = `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][startMIdx]} 21, ${startYear} - ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][endMIdx]} 20, ${endYear}`;
+      
+      // ★ inline @import style ဖြုတ်ထားသည် (html2canvas မလည်စေရန်) ★
+      let html = `
+        <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
+            <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+                <table style="width: 100%; border: none;"><tr><td style="border: none; text-align: left; vertical-align: bottom;"><h1 style="margin: 0; font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; color: #21409A; font-size: 34px; letter-spacing: 1px;">Chicony<span style="font-size:12px; vertical-align:top; font-family: Arial, sans-serif; font-weight: bold; color: #21409A;">®</span></h1></td><td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br><b>Salary Period: ${periodHeaderStr}</b></td></tr></table>
+            </div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 14px;">${l.slipTitle}</div>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
+                <tr style="background: #f8f9fa;"><th style="border: 1px solid #ccc; padding: 6px;">${l.idLbl}</th><th style="border: 1px solid #ccc; padding: 6px;">${l.nameLbl}</th><th style="border: 1px solid #ccc; padding: 6px;">${l.deptLbl}</th><th style="border: 1px solid #ccc; padding: 6px;">${l.netSalary}</th></tr>
+                <tr><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${empId}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${name}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${displayDept}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center; font-weight:bold; font-size: 12px; color: #198754;">${d.net.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+            </table>
+            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+              <tr>
+                <td style="width: 50%; padding: 0; vertical-align: top; border: 1px solid #ccc;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #f8f9fa;"><th style="padding: 6px; border-bottom: 1px solid #ccc; text-align:left;">${l.slipIncome}</th><th style="padding: 6px; border-bottom: 1px solid #ccc; text-align:right;">${l.slipAmount}</th></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipBasic}</td><td style="padding: 4px 6px; text-align:right;">${d.combinedBasicSalary.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipPubHol}</td><td style="padding: 4px 6px; text-align:right;">${d.pubHolPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipFood}</td><td style="padding: 4px 6px; text-align:right;">${d.lunchFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipTrans}</td><td style="padding: 4px 6px; text-align:right;">${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipAtt}</td><td style="padding: 4px 6px; text-align:right;">${d.bonus.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipNight}</td><td style="padding: 4px 6px; text-align:right;">${d.nightAll.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipOtFood}</td><td style="padding: 4px 6px; text-align:right;">${d.otFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">OT 1.5 % (${d.ot15Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot15Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">OT 2.0 % (${d.ot20Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot20Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr style="font-weight:bold; border-top:1px solid #ccc;"><td style="padding: 6px;">${l.slipGross}</td><td style="padding: 6px; text-align:right;">${d.gross.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                    </table>
+                </td>
+                <td style="width: 50%; padding: 0; vertical-align: top; border: 1px solid #ccc; border-left: none;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #f8f9fa;"><th style="padding: 6px; border-bottom: 1px solid #ccc; text-align:left;">${l.slipDeduct}</th><th style="padding: 6px; border-bottom: 1px solid #ccc; text-align:right;">${l.slipAmount}</th></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipSso}</td><td style="padding: 4px 6px; text-align:right;">${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                        <tr><td style="padding: 4px 6px;">${l.slipTax}</td><td style="padding: 4px 6px; text-align:right;">0.00</td></tr>
+                        <tr><td colspan="2" style="height: 180px;"></td></tr>
+                        <tr style="font-weight:bold; color: #dc3545; border-top: 1px solid #ccc;"><td style="padding: 6px;">${l.slipTotDeduct}</td><td style="padding: 6px; text-align:right;">-${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
+                    </table>
+                </td>
+              </tr>
+            </table>
+        </div>`;
+      let slipHeader = `
+        <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
+            <h3 style="margin:0; font-size: 15px;">🧾 <span>${l.slipTitle}</span></h3>
+            <div style="display:flex; align-items:center; gap: 15px;">
+                <button class="interactive-btn" onclick="downloadSlipImage(this)" style="background: #28a745; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; font-size: 13px;">🖼️ Save Photo</button>
+                <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="color:white; font-size:24px; background:none; border:none; padding:0;">×</button>
+            </div>
+        </div>`;
+      document.querySelector('#slipModal .modal-content').innerHTML = slipHeader + `<div id="slipPrintArea" style="padding: 15px; background: white;">${html}</div>`;
+      document.getElementById('slipModal').style.display = 'flex';
+  };
+
+  // ★ OT Alert ကို နာရီရွေးမှသာ ပြမည့်စနစ် ★
   window.handleOTAlert = (inputEl) => {
       if(inputEl.value > 0) {
           let card = inputEl.closest('.day-card');
@@ -1028,7 +1097,6 @@
       if(el.value === 'yes') { 
           input.style.display = 'block'; window.currentOTInputTarget = input; window.currentOTSelectElement = el; 
           document.getElementById('otSelectionModal').style.display = 'flex'; 
-          // Alert is removed from here, moved to handleOTAlert
       } else { 
           input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); 
       } 
@@ -1040,7 +1108,7 @@
   window.setOTHours = (hrs) => { 
       if(window.currentOTInputTarget) { 
           window.currentOTInputTarget.value = hrs; 
-          window.handleOTAlert(window.currentOTInputTarget); // ★ Alert ကို နာရီရွေးပြီးမှ ပြမည် ★
+          window.handleOTAlert(window.currentOTInputTarget); 
           calculateAll(); 
       } 
       document.getElementById('otSelectionModal').style.display = 'none'; 
@@ -1048,6 +1116,8 @@
   
   window.closeOTModalForManual = () => { document.getElementById('otSelectionModal').style.display = 'none'; if(window.currentOTInputTarget) window.currentOTInputTarget.focus(); };
 
+  function renderAdminManageList() { let html = ''; let dates = Object.keys(globalCalendar).sort(); if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } else { dates.forEach(d => { let data = globalCalendar[d]; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; html += `<div class="manage-list-item"><div><b>${d}</b> <span>(${badge} ${data.desc||''})</span></div><div><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; }); } document.getElementById('adminManageList').innerHTML = html; }
+  
   function renderYearCalendar() { document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR; const container = document.getElementById('yearCalendarContainer'); container.innerHTML = ''; let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths); let daysHeader = weekdaysText[currentLang]; for(let m = 0; m < 12; m++) { let monthDiv = document.createElement('div'); monthDiv.className = 'month-box'; let title = `<div class="month-title">${monthsArray[m]}</div>`; let header = `<div class="month-days-header"><div style="color:#dc3545;">${daysHeader[0]}</div><div>${daysHeader[1]}</div><div>${daysHeader[2]}</div><div>${daysHeader[3]}</div><div>${daysHeader[4]}</div><div>${daysHeader[5]}</div><div style="color:#007bff;">${daysHeader[6]}</div></div>`; let gridHtml = `<div class="month-grid">`; let firstDay = new Date(CALENDAR_YEAR, m, 1).getDay(); let daysInMonth = new Date(CALENDAR_YEAR, m + 1, 0).getDate(); for(let i = 0; i < firstDay; i++) gridHtml += `<div class="cal-day empty"></div>`; for(let d = 1; d <= daysInMonth; d++) { let curDate = new Date(CALENDAR_YEAR, m, d); let dateKey = `${curDate.getFullYear()}-${String(curDate.getMonth()+1).padStart(2,'0')}-${String(curDate.getDate()).padStart(2,'0')}`; let isSun = curDate.getDay() === 0; let isSat = curDate.getDay() === 6; let calData = globalCalendar[dateKey]; let classes = 'cal-day'; let onClick = ''; if(calData) { if(calData.type === 'holiday') { classes += ' cal-holiday'; let safeDesc = calData.desc ? calData.desc.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ''; onClick = `onclick="showCustomAlert('${safeDesc}')"`; } else if(calData.type === 'double') { classes += ' cal-double'; if(isSat) classes += ' double-saturday'; } } else if(isSun) { classes += ' cal-sun'; } gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`; } gridHtml += `</div>`; monthDiv.innerHTML = title + header + gridHtml; container.appendChild(monthDiv); } }
 
   window.openCalendarModal = () => { document.getElementById('calendarModal').style.display = 'flex'; toggleMenu(null); }; window.closeCalendarModal = () => document.getElementById('calendarModal').style.display = 'none';
@@ -1142,62 +1212,7 @@
       saveToFirebase();
   };
 
-  window.openSalarySlip = () => {
-      let l = translations[currentLang]; let d = window.currentSlipData; let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-'; let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
-      let [pY, pM] = d.period.split('-'); let pMonthNum = parseInt(pM); let pYearNum = parseInt(pY); let endMIdx = pMonthNum - 1; let endYear = pYearNum; let startMIdx = endMIdx - 1; let startYear = pYearNum; if (startMIdx < 0) { startMIdx = 11; startYear--; }
-      let periodHeaderStr = `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][startMIdx]} 21, ${startYear} - ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][endMIdx]} 20, ${endYear}`;
-      let html = `
-        <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
-            <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                <table style="width: 100%; border: none;"><tr><td style="border: none; text-align: left; vertical-align: bottom;"><h1 style="margin: 0; font-family:'Orbitron',sans-serif; color: #21409A; font-size: 34px;">Chicony</h1></td><td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br><b>Salary Period: ${periodHeaderStr}</b></td></tr></table>
-            </div>
-            <div style="text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 14px;">${l.slipTitle}</div>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
-                <tr style="background: #f8f9fa;"><th style="border: 1px solid #ccc; padding: 6px;">${l.idLbl}</th><th style="border: 1px solid #ccc; padding: 6px;">${l.nameLbl}</th><th style="border: 1px solid #ccc; padding: 6px;">${l.deptLbl}</th><th style="border: 1px solid #ccc; padding: 6px;">${l.netSalary}</th></tr>
-                <tr><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${empId}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${name}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${displayDept}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center; font-weight:bold; font-size: 12px; color: #198754;">${d.net.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-            </table>
-            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-              <tr>
-                <td style="width: 50%; padding: 0; vertical-align: top; border: 1px solid #ccc;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr style="background: #f8f9fa;"><th style="padding: 6px; border-bottom: 1px solid #ccc; text-align:left;">${l.slipIncome}</th><th style="padding: 6px; border-bottom: 1px solid #ccc; text-align:right;">${l.slipAmount}</th></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipBasic}</td><td style="padding: 4px 6px; text-align:right;">${d.combinedBasicSalary.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipPubHol}</td><td style="padding: 4px 6px; text-align:right;">${d.pubHolPay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipFood}</td><td style="padding: 4px 6px; text-align:right;">${d.lunchFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipTrans}</td><td style="padding: 4px 6px; text-align:right;">${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipAtt}</td><td style="padding: 4px 6px; text-align:right;">${d.bonus.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipNight}</td><td style="padding: 4px 6px; text-align:right;">${d.nightAll.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipOtFood}</td><td style="padding: 4px 6px; text-align:right;">${d.otFood.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">OT 1.5 % (${d.ot15Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot15Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">OT 2.0 % (${d.ot20Hrs} hrs)</td><td style="padding: 4px 6px; text-align:right;">${d.ot20Pay.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr style="font-weight:bold; border-top:1px solid #ccc;"><td style="padding: 6px;">${l.slipGross}</td><td style="padding: 6px; text-align:right;">${d.gross.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                    </table>
-                </td>
-                <td style="width: 50%; padding: 0; vertical-align: top; border: 1px solid #ccc; border-left: none;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr style="background: #f8f9fa;"><th style="padding: 6px; border-bottom: 1px solid #ccc; text-align:left;">${l.slipDeduct}</th><th style="padding: 6px; border-bottom: 1px solid #ccc; text-align:right;">${l.slipAmount}</th></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipSso}</td><td style="padding: 4px 6px; text-align:right;">${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                        <tr><td style="padding: 4px 6px;">${l.slipTax}</td><td style="padding: 4px 6px; text-align:right;">0.00</td></tr>
-                        <tr><td colspan="2" style="height: 180px;"></td></tr>
-                        <tr style="font-weight:bold; color: #dc3545; border-top: 1px solid #ccc;"><td style="padding: 6px;">${l.slipTotDeduct}</td><td style="padding: 6px; text-align:right;">-${d.sso.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
-                    </table>
-                </td>
-              </tr>
-            </table>
-        </div>`;
-      let slipHeader = `
-        <div style="padding: 12px 15px; background: #004488; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
-            <h3 style="margin:0; font-size: 15px;">🧾 <span>${l.slipTitle}</span></h3>
-            <div style="display:flex; align-items:center; gap: 15px;">
-                <button class="interactive-btn" onclick="downloadSlipImage()" style="background: #28a745; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; font-size: 13px;">🖼️ Save Photo</button>
-                <button class="close-modal interactive-btn" onclick="closeSlipModal()" style="color:white; font-size:24px; background:none; border:none; padding:0;">×</button>
-            </div>
-        </div>`;
-      document.querySelector('#slipModal .modal-content').innerHTML = slipHeader + `<div id="slipPrintArea" style="padding: 15px; background: white;">${html}</div>`;
-      document.getElementById('slipModal').style.display = 'flex';
-  };
-  window.closeSlipModal = () => { document.getElementById('slipModal').style.display = 'none'; };
-
+  // ★ Admin Panel Bug Fixed ★
   window.openAdminPanel = (isInit = true) => {
       document.getElementById('adminModal').style.display = 'flex';
       if (isInit) { document.getElementById('adminSearchInput').value = ''; document.getElementById('adminMonthSelect').value = window.getRealCurrentMonth(); }
@@ -1205,7 +1220,6 @@
       let selectedMonthVal = document.getElementById('adminMonthSelect').value; if (!selectedMonthVal) return;
       let { startD, endD } = getPeriodDates(selectedMonthVal);
       
-      // ★ Admin Panel Bug Fixed: Variables scoped properly for accurate calculations ★
       get(ref(db, 'users')).then((snapshot) => {
           if (snapshot.exists()) {
               let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; window.adminCalculated = {}; let tempUsersArray = [];
