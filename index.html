@@ -26,6 +26,7 @@
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+  @keyframes spinLoader { to { transform: rotate(360deg); } }
   
   .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -293,15 +294,23 @@
 <body>
 
 <div id="splashScreen">
-    <h1 style="font-family: 'Bungee Inline', 'Orbitron', cursive; color: #000080; font-size: 40px; margin: 0; animation: pulse 1.5s infinite;">CHICONY</h1>
-    <p style="color: #666; font-weight: bold; margin-top: 5px; font-family: 'Segoe UI', sans-serif;">Loading...</p>
+    <h1 style="font-family: 'Bungee Inline', 'Orbitron', cursive; color: #000080; font-size: 40px; margin: 0 0 20px 0; animation: pulse 1.5s infinite;">CHICONY</h1>
+    <!-- ★ Beautiful loading spinner ★ -->
+    <div style="position:relative; width:56px; height:56px; margin: 0 auto 16px auto;">
+        <div style="position:absolute; inset:0; border-radius:50%; border:5px solid #e0e8ff;"></div>
+        <div id="splashSpinner" style="position:absolute; inset:0; border-radius:50%; border:5px solid transparent; border-top-color:#000080; animation:spinLoader 0.9s linear infinite;"></div>
+    </div>
+    <p style="color: #888; font-weight: bold; margin: 0; font-family: 'Segoe UI', sans-serif; font-size:13px; letter-spacing:1px;">LOADING...</p>
 </div>
 
-<div id="loginScreen">
-  <div class="login-box">
+<div id="loginScreen" style="display:none;">
+  <div class="login-box pop-in">
     <h2 style="margin-bottom: 5px;" class="logo-main">CHICONY</h2>
     <p style="margin-top: 0;" class="logo-tag">ATTENDANCE SYSTEM</p>
-    <button class="google-btn interactive-btn" onclick="signIn()">Login with Google</button>
+    <button class="google-btn interactive-btn" onclick="signIn()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFF" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#FFF" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FFF" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FFF" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Login with Google
+    </button>
   </div>
 </div>
 
@@ -930,12 +939,13 @@
       onAuthStateChanged(auth, (user) => {
           let splash = document.getElementById('splashScreen');
           let loadingSpinner = document.getElementById('loadingSpinner');
-          if (splash) splash.style.display = 'none';
-          if (loadingSpinner) loadingSpinner.style.display = 'none';
 
           if (user) {
-              currentUser = user; 
-              document.getElementById('loginScreen').style.display = 'none'; 
+              // ★ Already logged in: hide splash smoothly, show app ★
+              currentUser = user;
+              if (splash) splash.style.display = 'none';
+              if (loadingSpinner) loadingSpinner.style.display = 'none';
+              document.getElementById('loginScreen').style.display = 'none';
               document.getElementById('mainApp').style.display = 'block';
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
               
@@ -952,13 +962,20 @@
               loadAppConfig(); 
               loadGlobalCalendar(); 
               loadFromFirebase();
-          } else { 
-              document.getElementById('loginScreen').style.display = 'flex'; 
+          } else {
+              // ★ Not logged in: hide spinner, show login screen ★
+              if (splash) splash.style.display = 'none';
+              if (loadingSpinner) loadingSpinner.style.display = 'none';
+              document.getElementById('loginScreen').style.display = 'flex';
               document.getElementById('mainApp').style.display = 'none'; 
           }
       });
   }).catch((error) => {
       console.error("Persistence error:", error);
+      // Fallback: show login
+      let splash = document.getElementById('splashScreen');
+      if (splash) splash.style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
   });
 
   let bSelect = document.getElementById('attBonusSetting');
@@ -1761,7 +1778,19 @@
       document.getElementById('holidayInfoModal').style.display = 'none';
   };
 
-  window.openCalendarModal = () => { document.getElementById('calendarModal').style.display = 'flex'; toggleMenu(null); };
+  window.openCalendarModal = () => {
+      document.getElementById('calendarModal').style.display = 'flex';
+      toggleMenu(null);
+      // ★ Scroll to current month after modal opens ★
+      setTimeout(() => {
+          let now = new Date();
+          let currentMonthIndex = now.getMonth(); // 0-based
+          let monthBoxes = document.querySelectorAll('#yearCalendarContainer .month-box');
+          if (monthBoxes && monthBoxes[currentMonthIndex]) {
+              monthBoxes[currentMonthIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+      }, 120);
+  };
   window.closeCalendarModal = () => document.getElementById('calendarModal').style.display = 'none';
   window.toggleMenu = (id) => { let el = document.getElementById(id); let isVisible = el && el.style.display === 'flex'; document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; if(id && !isVisible) el.style.display='flex'; };
   window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
