@@ -27,6 +27,7 @@
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   @keyframes spinLoader { to { transform: rotate(360deg); } }
+  @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
   
   .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -164,6 +165,7 @@
   .profile-email-text { color: #666; font-size: 11px; }
   .dark-mode .profile-name-text { color: #82b1ff !important; }
   .dark-mode #splashScreen { background-color: #121212 !important; }
+  .dark-mode #typewriterText, .dark-mode #typewriterCursor { color: #82b1ff !important; }
   
   .dark-mode #unifiedStickyHeader { background-color: #121212 !important; }
   .dark-mode .weekdays-static-box { background-color: #1e1e1e !important; border-color: #333 !important; }
@@ -294,13 +296,15 @@
 <body>
 
 <div id="splashScreen">
-    <h1 style="font-family: 'Bungee Inline', 'Orbitron', cursive; color: #000080; font-size: 40px; margin: 0 0 20px 0; animation: pulse 1.5s infinite;">CHICONY</h1>
-    <!-- ★ Beautiful loading spinner ★ -->
-    <div style="position:relative; width:56px; height:56px; margin: 0 auto 16px auto;">
-        <div style="position:absolute; inset:0; border-radius:50%; border:5px solid #e0e8ff;"></div>
-        <div id="splashSpinner" style="position:absolute; inset:0; border-radius:50%; border:5px solid transparent; border-top-color:#000080; animation:spinLoader 0.9s linear infinite;"></div>
+    <!-- Typewriter title -->
+    <div style="font-family:'Bungee Inline','Orbitron',cursive; color:#000080; font-size:46px; margin:0 0 10px 0; letter-spacing:4px; min-height:60px; display:flex; align-items:center; justify-content:center;">
+        <span id="typewriterText"></span><span id="typewriterCursor" style="animation:cursorBlink 0.7s step-end infinite; color:#000080;">|</span>
     </div>
-    <p style="color: #888; font-weight: bold; margin: 0; font-family: 'Segoe UI', sans-serif; font-size:13px; letter-spacing:1px;">LOADING...</p>
+    <p style="color:#888; font-size:13px; font-family:'Segoe UI',sans-serif; margin:0 0 28px 0; letter-spacing:2px; font-weight:600;">ATTENDANCE SYSTEM</p>
+    <!-- Thin progress bar -->
+    <div style="width:160px; height:4px; background:#e0e8ff; border-radius:4px; overflow:hidden;">
+        <div id="splashBar" style="height:100%; width:0%; background:linear-gradient(90deg,#000080,#4169e1); border-radius:4px; transition:width 0.3s ease;"></div>
+    </div>
 </div>
 
 <div id="loginScreen" style="display:none;">
@@ -350,23 +354,42 @@
       </button>
     </div>
     
-    <div id="rightMenu" class="dropdown right fade-in">
-      <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay"></div>
-      
-      <a href="#" onclick="triggerProfilePhotoInput()" class="interactive-btn" style="color: #28a745;">📸 <span>ပုံအသစ်တင်မည်</span></a>
-      <a href="#" onclick="removeProfilePhoto()" class="interactive-btn" id="removePhotoBtn" style="color: #dc3545; display:none;">🗑️ <span>ပုံဖျက်မည်</span></a>
-      
-      <div style="padding: 10px 15px; border-bottom: 1px solid #eee; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: 14px; color: #333;">🌍 <b data-i18n="langMenu">Language</b></span>
-          <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:4px; padding:4px; font-size:13px; outline:none; cursor:pointer; background: white;" class="interactive-btn">
-              <option value="my">🇲🇲 မြန်မာ</option>
-              <option value="en">🇬🇧 English</option>
-              <option value="th">🇹🇭 ไทย (Thai)</option>
-          </select>
+    <div id="rightMenu" class="dropdown right fade-in" style="min-width:260px; border-radius:14px; overflow:hidden; padding:0; box-shadow:0 8px 30px rgba(0,0,0,0.2);">
+
+      <!-- ★ Blue header: Avatar (click→viewer) + name + email ★ -->
+      <div style="background:linear-gradient(135deg,#000080 0%,#1a3a8f 100%); padding:20px 15px 16px; text-align:center;">
+        <div style="position:relative; display:inline-block; margin-bottom:10px;">
+          <!-- Avatar — click opens viewer -->
+          <div id="profileAvatarBig" onclick="openProfileViewer()" style="width:76px; height:76px; border-radius:50%; border:3px solid rgba(255,255,255,0.9); background:#c8d8f0; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.35);">
+            <span id="profileIconBig" style="font-size:38px; line-height:1;">👤</span>
+            <img id="profileImgBig" style="display:none; width:100%; height:100%; object-fit:cover;" alt="Profile">
+          </div>
+          <!-- 📷 camera badge — click uploads directly -->
+          <button onclick="event.stopPropagation(); triggerProfilePhotoInput()" style="position:absolute; bottom:1px; right:1px; width:26px; height:26px; border-radius:50%; background:#ffc107; border:2px solid white; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,0.35); padding:0;">📷</button>
+        </div>
+        <div id="userEmailDisplay" style="background:transparent; padding:0; border:none;"></div>
       </div>
 
-      <a href="#" onclick="openSettings()" class="interactive-btn">⚙️ <span data-i18n="settings">Settings</span></a>
-      <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;" class="interactive-btn">🚪 <span data-i18n="logout">Logout</span></a>
+      <!-- ★ Settings row ★ -->
+      <div style="background:white; padding:8px 14px; border-bottom:1px solid #eee; display:flex; align-items:center; gap:8px;">
+        <button onclick="openSettings(); toggleMenu(null);" style="flex:1; background:#f0f4ff; border:none; padding:9px; border-radius:10px; font-size:13px; font-weight:bold; color:#000080; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+          ⚙️ Settings
+        </button>
+        <button onclick="confirmLogout()" style="background:#fff0f0; border:1px solid #ffcccc; padding:9px 14px; border-radius:10px; font-size:13px; font-weight:bold; color:#dc3545; cursor:pointer; display:flex; align-items:center; gap:5px; white-space:nowrap;">
+          🚪 Logout
+        </button>
+      </div>
+
+      <!-- ★ Language selector ★ -->
+      <div style="background:white; padding:8px 14px; display:flex; align-items:center; gap:8px;">
+        <span style="font-size:16px;">🌍</span>
+        <select id="langSelector" onchange="changeLanguage(this.value)" style="flex:1; border:1px solid #ddd; border-radius:8px; padding:7px 10px; font-size:13px; outline:none; cursor:pointer; background:white; color:#333;">
+            <option value="my">🇲🇲 မြန်မာ</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="th">🇹🇭 ไทย</option>
+        </select>
+      </div>
+
     </div>
   </div>
 
@@ -449,18 +472,58 @@
 
 </div>
 
+<!-- ★ Profile Viewer Modal ★ -->
+<div class="modal-overlay" id="profileViewerModal" style="z-index:10001; background:rgba(0,0,0,0.93); display:none;" onclick="closeProfileViewer()">
+  <div style="position:relative; width:92%; max-width:360px; margin:auto;" onclick="event.stopPropagation()">
+
+    <!-- Close X -->
+    <button onclick="closeProfileViewer()" style="position:absolute; top:-48px; right:0; background:rgba(255,255,255,0.18); border:none; color:white; width:38px; height:38px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold;">✕</button>
+
+    <!-- Photo -->
+    <div style="border-radius:18px; overflow:hidden; background:#1a1a2e; box-shadow:0 8px 30px rgba(0,0,0,0.5);">
+      <img id="profileViewerImg" src="" alt="Profile" style="width:100%; aspect-ratio:1; object-fit:cover; display:none;">
+      <div id="profileViewerPlaceholder" style="width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:110px; background:linear-gradient(135deg,#c8d8f0,#e8edf5);">👤</div>
+    </div>
+
+    <!-- Name -->
+    <div id="profileViewerName" style="color:white; text-align:center; font-size:17px; font-weight:bold; margin:14px 0 14px; text-shadow:0 1px 4px rgba(0,0,0,0.5);"></div>
+
+    <!-- 3 action buttons -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:24px;">
+      <!-- Upload new photo -->
+      <button onclick="triggerProfilePhotoInputFromViewer()" style="background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);">
+        <span style="font-size:24px;">📸</span>တင်မည်
+      </button>
+      <!-- Edit / re-crop -->
+      <button onclick="triggerEditCrop()" id="profileViewerEditBtn" style="background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);">
+        <span style="font-size:24px;">✏️</span>ပြင်မည်
+      </button>
+      <!-- Delete -->
+      <button onclick="removeProfilePhotoFromViewer()" id="profileViewerDeleteBtn" style="background:rgba(220,53,69,0.55); border:1px solid rgba(220,53,69,0.4); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);">
+        <span style="font-size:24px;">🗑️</span>ဖျက်မည်
+      </button>
+    </div>
+
+  </div>
+</div>
+
 <div class="modal-overlay" id="cropModal" style="z-index: 10002;">
   <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
     <div class="modal-header">
-        <h3 style="color: #007bff;" class="logo-main">✂️ Crop Photo</h3>
+        <h3 style="color: #0d6efd;" class="logo-main">✂️ ပုံဖြတ်ပြီး Upload</h3>
         <button class="close-modal interactive-btn" onclick="closeCropModal()">×</button>
     </div>
     <div class="modal-body" style="text-align: center; padding: 15px;">
         <div style="max-height: 400px; width: 100%; overflow: hidden; background: #eee; border-radius: 8px;">
             <img id="cropImage" style="max-width: 100%; display: block;">
         </div>
-        <div style="display:flex; gap:10px; margin-top: 15px;">
-          <button class="btn-generate interactive-btn" onclick="saveCroppedPhoto()" style="background:#198754; margin-top:0; flex: 2;">💾 Set Photo</button>
+        <div style="display:flex; gap:8px; margin-top: 15px; justify-content:center;">
+          <button onclick="if(cropper)cropper.rotate(-90)" style="background:#6c757d; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:18px; cursor:pointer;">↺</button>
+          <button onclick="if(cropper)cropper.rotate(90)" style="background:#6c757d; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:18px; cursor:pointer;">↻</button>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 10px;">
+          <button class="btn-generate interactive-btn" onclick="closeCropModal()" style="background:#6c757d; margin-top:0; flex:1;">❌ ပိတ်မည်</button>
+          <button class="btn-generate interactive-btn" onclick="saveCroppedPhoto()" style="background:#0d6efd; margin-top:0; flex: 2;">⬆️ Upload လုပ်မည်</button>
         </div>
     </div>
   </div>
@@ -767,6 +830,24 @@
     appId: "1:769429938968:web:aeb2228ab137f888ceb46d"
   };
 
+  // ★ Typewriter splash animation ★
+  (function startTypewriter() {
+      const word = "CHICONY";
+      const el = document.getElementById('typewriterText');
+      const bar = document.getElementById('splashBar');
+      if (!el) return;
+      let i = 0;
+      const interval = setInterval(() => {
+          if (i <= word.length) {
+              el.textContent = word.slice(0, i);
+              if (bar) bar.style.width = (i / word.length * 100) + '%';
+              i++;
+          } else {
+              clearInterval(interval);
+          }
+      }, 120);
+  })();
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
@@ -835,27 +916,28 @@
   window.saveCroppedPhoto = () => {
       if (!cropper) return;
       
-      showLoadingSpinner("Saving Photo...");
+      showLoadingSpinner("Uploading Photo...");
       
-      // Get cropped canvas (250x250)
-      const canvas = cropper.getCroppedCanvas({
-          width: 250,
-          height: 250,
-      });
+      // Get cropped canvas (300x300)
+      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
       
-      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-      
+      // Update UI immediately
       window.updateProfilePhotoView(compressedBase64);
+      // Also update settings object
+      if(appData.settings) appData.settings.profilePhoto = compressedBase64;
+      window.currentProfilePhoto = compressedBase64;
       
       if(currentUser) {
           set(ref(db, `users/${currentUser.uid}/settings/profilePhoto`), compressedBase64)
           .then(() => {
               hideLoadingSpinner();
               closeCropModal();
+              showCustomAlert("✅ Profile ပုံ Upload ပြီးပါပြီ!");
           })
           .catch(err => {
               hideLoadingSpinner();
-              showCustomAlert("❌ Save Error: " + err.message);
+              showCustomAlert("❌ Upload Error: " + err.message);
           });
       } else {
           hideLoadingSpinner();
@@ -884,28 +966,101 @@
       }
   };
 
+  // ★ Profile Viewer open/close ★
+  window.openProfileViewer = () => {
+      toggleMenu(null);
+      // Set viewer name
+      let nameEl = document.getElementById('profileViewerName');
+      let empName = document.getElementById('empName') ? document.getElementById('empName').value : '';
+      if(nameEl) nameEl.innerText = empName || currentUser?.displayName || '';
+      document.getElementById('profileViewerModal').style.display = 'flex';
+  };
+
+  window.closeProfileViewer = () => {
+      document.getElementById('profileViewerModal').style.display = 'none';
+  };
+
+  // Upload from viewer
+  window.triggerProfilePhotoInputFromViewer = () => {
+      closeProfileViewer();
+      document.getElementById('profilePhotoInput').click();
+  };
+
+  // Edit/re-crop current photo from viewer
+  window.triggerEditCrop = () => {
+      if (!window.currentProfilePhoto) return;
+      closeProfileViewer();
+      // Load existing photo into cropper
+      const image = document.getElementById('cropImage');
+      image.src = window.currentProfilePhoto;
+      document.getElementById('cropModal').style.display = 'flex';
+      if(cropper) { cropper.destroy(); }
+      cropper = new Cropper(image, { aspectRatio: 1, viewMode: 1, autoCropArea: 1, background: false });
+  };
+
+  // Delete from viewer
+  window.removeProfilePhotoFromViewer = () => {
+      if(!confirm("Profile ပုံကို ဖျက်ရန် သေချာပါသလား?")) return;
+      closeProfileViewer();
+      showLoadingSpinner("Removing...");
+      window.updateProfilePhotoView(null);
+      if(currentUser) {
+          remove(ref(db, `users/${currentUser.uid}/settings/profilePhoto`))
+          .then(() => hideLoadingSpinner())
+          .catch(err => { hideLoadingSpinner(); showCustomAlert("❌ Error: " + err.message); });
+      } else { hideLoadingSpinner(); }
+  };
+
   window.updateProfilePhotoView = (base64Data) => {
+      // Navbar small button
       const iconSlot = document.getElementById('profileIconSlot');
       const imgSlot = document.getElementById('profileImgSlot');
       const btnContainer = document.getElementById('profileBtnContainer');
+      // rightMenu big avatar
+      const iconBig = document.getElementById('profileIconBig');
+      const imgBig = document.getElementById('profileImgBig');
+      // viewer
+      const viewerImg = document.getElementById('profileViewerImg');
+      const viewerPlaceholder = document.getElementById('profileViewerPlaceholder');
+      const viewerEditBtn = document.getElementById('profileViewerEditBtn');
+      const viewerDeleteBtn = document.getElementById('profileViewerDeleteBtn');
+      const profileViewBtn = document.getElementById('profileViewBtn');
+      // delete buttons
       const removeBtn = document.getElementById('removePhotoBtn');
       
+      window.currentProfilePhoto = base64Data || null;
+
       if (base64Data && (base64Data.startsWith('data:image') || base64Data.startsWith('http'))) {
+          // Small navbar avatar
           if(iconSlot) iconSlot.style.display = 'none';
-          if(imgSlot) {
-              imgSlot.src = base64Data;
-              imgSlot.style.display = 'block';
-          }
-          if(btnContainer) btnContainer.style.border = '2px solid #007bff'; 
-          if(removeBtn) removeBtn.style.display = 'flex'; // ပုံရှိမှ ဖျက်ခလုတ်ပြမည်
+          if(imgSlot) { imgSlot.src = base64Data; imgSlot.style.display = 'block'; }
+          if(btnContainer) btnContainer.style.border = '2px solid #ffc107';
+          // Big avatar in menu
+          if(iconBig) iconBig.style.display = 'none';
+          if(imgBig) { imgBig.src = base64Data; imgBig.style.display = 'block'; }
+          // Viewer
+          if(viewerImg) { viewerImg.src = base64Data; viewerImg.style.display = 'block'; }
+          if(viewerPlaceholder) viewerPlaceholder.style.display = 'none';
+          if(viewerEditBtn) viewerEditBtn.style.display = 'flex';
+          if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'flex';
+          // Buttons
+          if(removeBtn) removeBtn.style.display = 'flex';
+          if(profileViewBtn) profileViewBtn.style.display = 'flex';
       } else {
+          // Small navbar avatar
           if(iconSlot) iconSlot.style.display = 'block';
-          if(imgSlot) {
-              imgSlot.style.display = 'none';
-              imgSlot.src = "";
-          }
+          if(imgSlot) { imgSlot.style.display = 'none'; imgSlot.src = ''; }
           if(btnContainer) btnContainer.style.border = '1px solid #ccc';
-          if(removeBtn) removeBtn.style.display = 'none'; // ပုံမရှိလျှင် ဖျက်ခလုတ်ဖျောက်မည်
+          // Big avatar in menu
+          if(iconBig) iconBig.style.display = 'flex';
+          if(imgBig) { imgBig.style.display = 'none'; imgBig.src = ''; }
+          // Viewer
+          if(viewerImg) { viewerImg.style.display = 'none'; viewerImg.src = ''; }
+          if(viewerPlaceholder) viewerPlaceholder.style.display = 'flex';
+          if(viewerEditBtn) viewerEditBtn.style.display = 'none';
+          if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'none';
+          // Buttons
+          if(removeBtn) removeBtn.style.display = 'none';
       }
   };
 
@@ -947,7 +1102,7 @@
               if (loadingSpinner) loadingSpinner.style.display = 'none';
               document.getElementById('loginScreen').style.display = 'none';
               document.getElementById('mainApp').style.display = 'block';
-              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
+              document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">Loading...</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${user.email}</div>`;
               
               if(user.email === ADMIN_EMAIL) { 
                   document.getElementById('adminPanelBtn').style.display = 'flex'; 
@@ -1112,7 +1267,23 @@
       });
   };
 
-  window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
+  window.logout = () => { 
+      toggleMenu(null);
+      signOut(auth).then(() => { 
+          document.getElementById('mainApp').style.display = 'none'; 
+          document.getElementById('loginScreen').style.display = 'flex'; 
+          location.reload(); 
+      }); 
+  };
+
+  window.confirmLogout = () => {
+      toggleMenu(null);
+      // Simple confirm then logout
+      if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
+          showLoadingSpinner("Logging out...");
+          signOut(auth).then(() => { location.reload(); }).catch(() => { hideLoadingSpinner(); });
+      }
+  };
 
   window.saveToFirebase = () => {
       if (!currentUser || !isDataLoaded) return;
@@ -1148,7 +1319,7 @@
       }
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
-
+  
   window.checkAbsencesForMonth = (yyyy_mm) => {
       if (!appData.attendance) return false;
       let { startD, endD } = getPeriodDates(yyyy_mm);
@@ -1291,14 +1462,14 @@
               } else {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr; 
                   appData.settings.selectedMonth = realCurrentMonthStr;
-                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
+                  document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">${appData.settings.empName}</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
                   isDataLoaded = true; window.generateGrid(false); 
               }
               
           } else {
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
-              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
+              document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">New User</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(true); 
               
               setTimeout(() => {
@@ -1813,7 +1984,7 @@
       saveToFirebase(); calculateAll(); 
       document.getElementById('settingsModal').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
-      document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
+      document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">${nameInput}</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
   };
 
   window.generateGrid = (isNew = true) => {
