@@ -350,49 +350,23 @@
       </button>
     </div>
     
-    <div id="rightMenu" class="dropdown right fade-in" style="min-width:260px; border-radius:14px; overflow:hidden; padding:0;">
+    <div id="rightMenu" class="dropdown right fade-in">
+      <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay"></div>
       
-      <!-- ★ FB-Style Profile Card ★ -->
-      <div style="background: linear-gradient(135deg, #000080 0%, #1a3a8f 100%); padding: 20px 15px 15px 15px; text-align:center; position:relative;">
-        <!-- Big profile avatar -->
-        <div style="position:relative; display:inline-block; margin-bottom:10px;">
-          <div id="profileAvatarBig" onclick="openProfileViewer()" style="width:72px; height:72px; border-radius:50%; border:3px solid white; background:#e8edf5; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:transform 0.2s;">
-            <span id="profileIconBig" style="font-size:36px;">👤</span>
-            <img id="profileImgBig" style="display:none; width:100%; height:100%; object-fit:cover;" alt="Profile">
-          </div>
-          <!-- Camera badge -->
-          <button onclick="event.stopPropagation(); triggerProfilePhotoInput()" style="position:absolute; bottom:0; right:0; width:26px; height:26px; border-radius:50%; background:#ffc107; border:2px solid white; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,0.3);" title="Change Photo">📷</button>
-        </div>
-        <div id="userEmailDisplay" style="background:transparent; padding:0; border:none;"></div>
+      <a href="#" onclick="triggerProfilePhotoInput()" class="interactive-btn" style="color: #28a745;">📸 <span>ပုံအသစ်တင်မည်</span></a>
+      <a href="#" onclick="removeProfilePhoto()" class="interactive-btn" id="removePhotoBtn" style="color: #dc3545; display:none;">🗑️ <span>ပုံဖျက်မည်</span></a>
+      
+      <div style="padding: 10px 15px; border-bottom: 1px solid #eee; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 14px; color: #333;">🌍 <b data-i18n="langMenu">Language</b></span>
+          <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:4px; padding:4px; font-size:13px; outline:none; cursor:pointer; background: white;" class="interactive-btn">
+              <option value="my">🇲🇲 မြန်မာ</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="th">🇹🇭 ไทย (Thai)</option>
+          </select>
       </div>
 
-      <!-- Profile action buttons -->
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1px; background:#eee;">
-        <button onclick="openProfileViewer()" id="profileViewBtn" style="background:white; border:none; padding:10px 4px; font-size:11px; font-weight:bold; color:#0d6efd; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px;">
-          <span style="font-size:18px;">👁️</span>ကြည့်မည်
-        </button>
-        <button onclick="triggerProfilePhotoInput()" style="background:white; border:none; padding:10px 4px; font-size:11px; font-weight:bold; color:#198754; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px;">
-          <span style="font-size:18px;">📸</span>တင်မည်
-        </button>
-        <button onclick="removeProfilePhoto()" id="removePhotoBtn" style="background:white; border:none; padding:10px 4px; font-size:11px; font-weight:bold; color:#dc3545; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:3px;">
-          <span style="font-size:18px;">🗑️</span>ဖျက်မည်
-        </button>
-        <button onclick="openSettings(); toggleMenu(null);" id="settingsMenuBtn" style="background:white; border:none; padding:10px 4px; font-size:11px; font-weight:bold; color:#6c757d; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; grid-column: span 1;">
-          <span style="font-size:18px;">⚙️</span>Settings
-        </button>
-      </div>
-
-      <!-- Language + Logout -->
-      <div style="padding: 10px 14px; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; background:white;">
-        <span style="font-size: 13px; color: #333;">🌍</span>
-        <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:6px; padding:4px 8px; font-size:12px; outline:none; cursor:pointer; background:white; flex:1; margin:0 8px;" class="interactive-btn">
-            <option value="my">🇲🇲 မြန်မာ</option>
-            <option value="en">🇬🇧 English</option>
-            <option value="th">🇹🇭 ไทย (Thai)</option>
-        </select>
-        <button onclick="logout()" style="background:#dc3545; color:white; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;">🚪</button>
-      </div>
-
+      <a href="#" onclick="openSettings()" class="interactive-btn">⚙️ <span data-i18n="settings">Settings</span></a>
+      <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;" class="interactive-btn">🚪 <span data-i18n="logout">Logout</span></a>
     </div>
   </div>
 
@@ -475,36 +449,6 @@
 
 </div>
 
-<!-- ★ Profile Viewer Modal (FB-style full view) ★ -->
-<div class="modal-overlay" id="profileViewerModal" style="z-index: 10001; background: rgba(0,0,0,0.92);" onclick="closeProfileViewer()">
-  <div style="position:relative; width:100%; max-width:380px; margin:auto;" onclick="event.stopPropagation()">
-    <!-- Close btn -->
-    <button onclick="closeProfileViewer()" style="position:absolute; top:-44px; right:0; background:rgba(255,255,255,0.15); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
-    
-    <!-- Profile photo full view -->
-    <div style="border-radius:16px; overflow:hidden; background:#111; position:relative;">
-      <img id="profileViewerImg" src="" alt="Profile" style="width:100%; aspect-ratio:1; object-fit:cover; display:block;">
-      <div id="profileViewerPlaceholder" style="width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:100px; background:#e8edf5;">👤</div>
-    </div>
-    
-    <!-- Name under photo -->
-    <div id="profileViewerName" style="color:white; text-align:center; font-size:18px; font-weight:bold; margin: 14px 0 16px 0;"></div>
-    
-    <!-- Action buttons row -->
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; padding:0 4px 20px 4px;">
-      <button onclick="triggerProfilePhotoInputFromViewer()" style="background:rgba(255,255,255,0.15); border:none; color:white; padding:12px 4px; border-radius:12px; font-size:12px; font-weight:bold; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(4px);">
-        <span style="font-size:22px;">📸</span>တင်မည်
-      </button>
-      <button onclick="triggerEditCrop()" id="profileViewerEditBtn" style="background:rgba(255,255,255,0.15); border:none; color:white; padding:12px 4px; border-radius:12px; font-size:12px; font-weight:bold; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(4px);">
-        <span style="font-size:22px;">✏️</span>ပြင်မည်
-      </button>
-      <button onclick="removeProfilePhotoFromViewer()" id="profileViewerDeleteBtn" style="background:rgba(220,53,69,0.6); border:none; color:white; padding:12px 4px; border-radius:12px; font-size:12px; font-weight:bold; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(4px);">
-        <span style="font-size:22px;">🗑️</span>ဖျက်မည်
-      </button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="cropModal" style="z-index: 10002;">
   <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
     <div class="modal-header">
@@ -515,13 +459,8 @@
         <div style="max-height: 400px; width: 100%; overflow: hidden; background: #eee; border-radius: 8px;">
             <img id="cropImage" style="max-width: 100%; display: block;">
         </div>
-        <div style="display:flex; gap:8px; margin-top: 15px; justify-content:center;">
-          <button onclick="if(cropper)cropper.rotate(-90)" style="background:#6c757d; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:18px; cursor:pointer;">↺</button>
-          <button onclick="if(cropper)cropper.rotate(90)" style="background:#6c757d; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:18px; cursor:pointer;">↻</button>
-        </div>
-        <div style="display:flex; gap:10px; margin-top: 10px;">
-          <button class="btn-generate interactive-btn" onclick="closeCropModal()" style="background:#6c757d; margin-top:0; flex:1;">❌ ပိတ်မည်</button>
-          <button class="btn-generate interactive-btn" onclick="saveCroppedPhoto()" style="background:#198754; margin-top:0; flex: 2;">💾 သိမ်းမည်</button>
+        <div style="display:flex; gap:10px; margin-top: 15px;">
+          <button class="btn-generate interactive-btn" onclick="saveCroppedPhoto()" style="background:#198754; margin-top:0; flex: 2;">💾 Set Photo</button>
         </div>
     </div>
   </div>
@@ -945,101 +884,28 @@
       }
   };
 
-  // ★ Profile Viewer open/close ★
-  window.openProfileViewer = () => {
-      toggleMenu(null);
-      // Set viewer name
-      let nameEl = document.getElementById('profileViewerName');
-      let empName = document.getElementById('empName') ? document.getElementById('empName').value : '';
-      if(nameEl) nameEl.innerText = empName || currentUser?.displayName || '';
-      document.getElementById('profileViewerModal').style.display = 'flex';
-  };
-
-  window.closeProfileViewer = () => {
-      document.getElementById('profileViewerModal').style.display = 'none';
-  };
-
-  // Upload from viewer
-  window.triggerProfilePhotoInputFromViewer = () => {
-      closeProfileViewer();
-      document.getElementById('profilePhotoInput').click();
-  };
-
-  // Edit/re-crop current photo from viewer
-  window.triggerEditCrop = () => {
-      if (!window.currentProfilePhoto) return;
-      closeProfileViewer();
-      // Load existing photo into cropper
-      const image = document.getElementById('cropImage');
-      image.src = window.currentProfilePhoto;
-      document.getElementById('cropModal').style.display = 'flex';
-      if(cropper) { cropper.destroy(); }
-      cropper = new Cropper(image, { aspectRatio: 1, viewMode: 1, autoCropArea: 1, background: false });
-  };
-
-  // Delete from viewer
-  window.removeProfilePhotoFromViewer = () => {
-      if(!confirm("Profile ပုံကို ဖျက်ရန် သေချာပါသလား?")) return;
-      closeProfileViewer();
-      showLoadingSpinner("Removing...");
-      window.updateProfilePhotoView(null);
-      if(currentUser) {
-          remove(ref(db, `users/${currentUser.uid}/settings/profilePhoto`))
-          .then(() => hideLoadingSpinner())
-          .catch(err => { hideLoadingSpinner(); showCustomAlert("❌ Error: " + err.message); });
-      } else { hideLoadingSpinner(); }
-  };
-
   window.updateProfilePhotoView = (base64Data) => {
-      // Navbar small button
       const iconSlot = document.getElementById('profileIconSlot');
       const imgSlot = document.getElementById('profileImgSlot');
       const btnContainer = document.getElementById('profileBtnContainer');
-      // rightMenu big avatar
-      const iconBig = document.getElementById('profileIconBig');
-      const imgBig = document.getElementById('profileImgBig');
-      // viewer
-      const viewerImg = document.getElementById('profileViewerImg');
-      const viewerPlaceholder = document.getElementById('profileViewerPlaceholder');
-      const viewerEditBtn = document.getElementById('profileViewerEditBtn');
-      const viewerDeleteBtn = document.getElementById('profileViewerDeleteBtn');
-      const profileViewBtn = document.getElementById('profileViewBtn');
-      // delete buttons
       const removeBtn = document.getElementById('removePhotoBtn');
       
-      window.currentProfilePhoto = base64Data || null;
-
       if (base64Data && (base64Data.startsWith('data:image') || base64Data.startsWith('http'))) {
-          // Small navbar avatar
           if(iconSlot) iconSlot.style.display = 'none';
-          if(imgSlot) { imgSlot.src = base64Data; imgSlot.style.display = 'block'; }
-          if(btnContainer) btnContainer.style.border = '2px solid #ffc107';
-          // Big avatar in menu
-          if(iconBig) iconBig.style.display = 'none';
-          if(imgBig) { imgBig.src = base64Data; imgBig.style.display = 'block'; }
-          // Viewer
-          if(viewerImg) { viewerImg.src = base64Data; viewerImg.style.display = 'block'; }
-          if(viewerPlaceholder) viewerPlaceholder.style.display = 'none';
-          if(viewerEditBtn) viewerEditBtn.style.display = 'flex';
-          if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'flex';
-          // Buttons
-          if(removeBtn) removeBtn.style.display = 'flex';
-          if(profileViewBtn) profileViewBtn.style.display = 'flex';
+          if(imgSlot) {
+              imgSlot.src = base64Data;
+              imgSlot.style.display = 'block';
+          }
+          if(btnContainer) btnContainer.style.border = '2px solid #007bff'; 
+          if(removeBtn) removeBtn.style.display = 'flex'; // ပုံရှိမှ ဖျက်ခလုတ်ပြမည်
       } else {
-          // Small navbar avatar
           if(iconSlot) iconSlot.style.display = 'block';
-          if(imgSlot) { imgSlot.style.display = 'none'; imgSlot.src = ''; }
+          if(imgSlot) {
+              imgSlot.style.display = 'none';
+              imgSlot.src = "";
+          }
           if(btnContainer) btnContainer.style.border = '1px solid #ccc';
-          // Big avatar in menu
-          if(iconBig) iconBig.style.display = 'flex';
-          if(imgBig) { imgBig.style.display = 'none'; imgBig.src = ''; }
-          // Viewer
-          if(viewerImg) { viewerImg.style.display = 'none'; viewerImg.src = ''; }
-          if(viewerPlaceholder) viewerPlaceholder.style.display = 'flex';
-          if(viewerEditBtn) viewerEditBtn.style.display = 'none';
-          if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'none';
-          // Buttons
-          if(removeBtn) removeBtn.style.display = 'none';
+          if(removeBtn) removeBtn.style.display = 'none'; // ပုံမရှိလျှင် ဖျက်ခလုတ်ဖျောက်မည်
       }
   };
 
@@ -1081,7 +947,7 @@
               if (loadingSpinner) loadingSpinner.style.display = 'none';
               document.getElementById('loginScreen').style.display = 'none';
               document.getElementById('mainApp').style.display = 'block';
-              document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">Loading...</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${user.email}</div>`;
+              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
               
               if(user.email === ADMIN_EMAIL) { 
                   document.getElementById('adminPanelBtn').style.display = 'flex'; 
@@ -1425,14 +1291,14 @@
               } else {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr; 
                   appData.settings.selectedMonth = realCurrentMonthStr;
-                  document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">${appData.settings.empName}</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
+                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
                   isDataLoaded = true; window.generateGrid(false); 
               }
               
           } else {
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
-              document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">New User</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
+              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(true); 
               
               setTimeout(() => {
@@ -1947,7 +1813,7 @@
       saveToFirebase(); calculateAll(); 
       document.getElementById('settingsModal').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
-      document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">${nameInput}</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
+      document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
   };
 
   window.generateGrid = (isNew = true) => {
