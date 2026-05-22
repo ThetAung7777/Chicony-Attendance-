@@ -147,8 +147,8 @@
   .month-title { text-align: center; font-weight: bold; color: #000080; margin-bottom: 10px; font-size: 15px; }
   .month-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 5px; }
   .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box;}
-  .cal-day.empty { background: transparent; border: none; }
+  .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box; cursor: pointer;}
+  .cal-day.empty { background: transparent; border: none; cursor: default;}
   .cal-sun { color: #dc3545; font-weight: bold; }
   .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
   .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
@@ -646,7 +646,6 @@
 <script type="module">
   // Firebase Modules
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  // ★ ပြင်ဆင်ချက် - signInWithPopup သို့ ပြန်လည်ပြောင်းလဲထားသည် (Login Loop ဖြေရှင်းရန်) ★
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
@@ -691,7 +690,6 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      // 5MB size calculation limit check
       if (file.size > 5 * 1024 * 1024) { 
           showCustomAlert("⚠️ ပုံအရွယ်အစားက 5MB ထက် ကြီးနေပါတယ်။ \nအနည်းငယ် သေးတဲ့ပုံကို ရွေးပေးပါ။");
           return;
@@ -803,7 +801,6 @@
               
               loadAppConfig(); loadGlobalCalendar(); loadFromFirebase();
           } else { 
-              // User is not logged in. Show the login button, hide loading spinner.
               document.getElementById('loginScreen').style.display = 'flex'; 
               document.getElementById('mainApp').style.display = 'none'; 
               document.getElementById('loginLoadingState').style.display = 'none';
@@ -826,8 +823,6 @@
   };
 
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
-
-  // ★ Other Core App Functions ★
 
   function createOTModal() {
       if(document.getElementById('otSelectionModal')) return;
@@ -992,7 +987,6 @@
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
   window.handleAdminAnnImage = (e) => { let file = e.target.files[0]; if (!file) return; let statusEl = document.getElementById('adminAnnImgStatus'); statusEl.innerText = "⏳ Compressing..."; statusEl.style.display = 'block'; let reader = new FileReader(); reader.onload = function(event) { let img = new Image(); img.onload = function() { let canvas = document.createElement('canvas'); let MAX = 400; let w = img.width; let h = img.height; if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } } canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5); statusEl.innerText = "✓ Ready."; }; img.src = event.target.result; }; reader.readAsDataURL(file); };
   
-  // ★ Announcement Bug Fixed (Will correctly clear history to preview again) ★
   window.saveAppAnnouncement = () => { 
       let d = document.getElementById('adminAnnDate').value; let t = document.getElementById('adminAnnText').value; if(!d) return showCustomAlert('⚠️ Select Date!'); 
       let data = { annDate: d, annText: t }; if(window.tempAnnImageBase64) data.annImg = window.tempAnnImageBase64; 
@@ -1009,7 +1003,7 @@
 
   function renderAdminManageList() { let html = ''; let dates = Object.keys(globalCalendar).sort(); if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } else { dates.forEach(d => { let data = globalCalendar[d]; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; html += `<div class="manage-list-item"><div><b>${d}</b> <span>(${badge} ${data.desc||''})</span></div><div><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; }); } document.getElementById('adminManageList').innerHTML = html; }
 
-  // ★ OT Alert Bug Fixed (Will only show AFTER OT hours are set, not on dropdown selection) ★
+  // ★ OT Alert Bug Fixed (Will only show AFTER OT hours are set) ★
   window.handleOTAlert = (inputEl) => {
       let val = parseFloat(inputEl.value);
       if(val > 0) {
@@ -1029,7 +1023,6 @@
       if(el.value === 'yes') { 
           input.style.display = 'block'; window.currentOTInputTarget = input; window.currentOTSelectElement = el; 
           document.getElementById('otSelectionModal').style.display = 'flex'; 
-          // Alert is removed from here, moved to handleOTAlert
       } else { 
           input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); 
       } 
@@ -1049,7 +1042,38 @@
   
   window.closeOTModalForManual = () => { document.getElementById('otSelectionModal').style.display = 'none'; if(window.currentOTInputTarget) window.currentOTInputTarget.focus(); };
 
-  function renderYearCalendar() { document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR; const container = document.getElementById('yearCalendarContainer'); container.innerHTML = ''; let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths); let daysHeader = weekdaysText[currentLang]; for(let m = 0; m < 12; m++) { let monthDiv = document.createElement('div'); monthDiv.className = 'month-box'; let title = `<div class="month-title">${monthsArray[m]}</div>`; let header = `<div class="month-days-header"><div style="color:#dc3545;">${daysHeader[0]}</div><div>${daysHeader[1]}</div><div>${daysHeader[2]}</div><div>${daysHeader[3]}</div><div>${daysHeader[4]}</div><div>${daysHeader[5]}</div><div style="color:#007bff;">${daysHeader[6]}</div></div>`; let gridHtml = `<div class="month-grid">`; let firstDay = new Date(CALENDAR_YEAR, m, 1).getDay(); let daysInMonth = new Date(CALENDAR_YEAR, m + 1, 0).getDate(); for(let i = 0; i < firstDay; i++) gridHtml += `<div class="cal-day empty"></div>`; for(let d = 1; d <= daysInMonth; d++) { let curDate = new Date(CALENDAR_YEAR, m, d); let dateKey = `${curDate.getFullYear()}-${String(curDate.getMonth()+1).padStart(2,'0')}-${String(curDate.getDate()).padStart(2,'0')}`; let isSun = curDate.getDay() === 0; let isSat = curDate.getDay() === 6; let calData = globalCalendar[dateKey]; let classes = 'cal-day'; let onClick = ''; if(calData) { if(calData.type === 'holiday') { classes += ' cal-holiday'; let safeDesc = calData.desc ? calData.desc.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ''; onClick = `onclick="showCustomAlert('${safeDesc}')"`; } else if(calData.type === 'double') { classes += ' cal-double'; if(isSat) classes += ' double-saturday'; } } else if(isSun) { classes += ' cal-sun'; } gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`; } gridHtml += `</div>`; monthDiv.innerHTML = title + header + gridHtml; container.appendChild(monthDiv); } }
+  // ★ Factory Calendar Bug Fixed (Clicking yellow date shows proper description) ★
+  function renderYearCalendar() { 
+      document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR; 
+      const container = document.getElementById('yearCalendarContainer'); container.innerHTML = ''; 
+      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths); 
+      let daysHeader = weekdaysText[currentLang]; 
+      for(let m = 0; m < 12; m++) { 
+          let monthDiv = document.createElement('div'); monthDiv.className = 'month-box'; 
+          let title = `<div class="month-title">${monthsArray[m]}</div>`; 
+          let header = `<div class="month-days-header"><div style="color:#dc3545;">${daysHeader[0]}</div><div>${daysHeader[1]}</div><div>${daysHeader[2]}</div><div>${daysHeader[3]}</div><div>${daysHeader[4]}</div><div>${daysHeader[5]}</div><div style="color:#007bff;">${daysHeader[6]}</div></div>`; 
+          let gridHtml = `<div class="month-grid">`; 
+          let firstDay = new Date(CALENDAR_YEAR, m, 1).getDay(); let daysInMonth = new Date(CALENDAR_YEAR, m + 1, 0).getDate(); 
+          for(let i = 0; i < firstDay; i++) gridHtml += `<div class="cal-day empty"></div>`; 
+          for(let d = 1; d <= daysInMonth; d++) { 
+              let curDate = new Date(CALENDAR_YEAR, m, d); 
+              let dateKey = `${curDate.getFullYear()}-${String(curDate.getMonth()+1).padStart(2,'0')}-${String(curDate.getDate()).padStart(2,'0')}`; 
+              let isSun = curDate.getDay() === 0; let isSat = curDate.getDay() === 6; 
+              let calData = globalCalendar[dateKey]; let classes = 'cal-day'; let onClick = ''; 
+              if(calData) { 
+                  if(calData.type === 'holiday') { 
+                      classes += ' cal-holiday'; 
+                      // ★ Calendar နှိပ်လျှင် ပိတ်ရက်စာသား ပြမည့်စနစ် သေချာအောင် ပြင်ထားသည် ★
+                      let safeDesc = calData.desc ? calData.desc.replace(/'/g, "\\'").replace(/"/g, "&quot;") : 'ပိတ်ရက် (Holiday)'; 
+                      onClick = `onclick="window.showCustomAlert('${safeDesc}')"`; 
+                  } 
+                  else if(calData.type === 'double') { classes += ' cal-double'; if(isSat) classes += ' double-saturday'; } 
+              } else if(isSun) { classes += ' cal-sun'; } 
+              gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`; 
+          } 
+          gridHtml += `</div>`; monthDiv.innerHTML = title + header + gridHtml; container.appendChild(monthDiv); 
+      } 
+  }
 
   window.openCalendarModal = () => { document.getElementById('calendarModal').style.display = 'flex'; toggleMenu(null); }; window.closeCalendarModal = () => document.getElementById('calendarModal').style.display = 'none';
   window.toggleMenu = (id) => { let el = id ? document.getElementById(id) : null; let vis = el && el.style.display === 'flex'; document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; if(el && !vis) el.style.display='flex'; };
@@ -1143,7 +1167,7 @@
       saveToFirebase();
   };
 
-  // ★ Save Photo စနစ် ဖြေရှင်းချက် (html2canvas font bug fix) ★
+  // ★ Save Photo စနစ် ဖြေရှင်းချက် (html2canvas bug ကို Standard Font နဲ့ အလုပ်လုပ်အောင် ပြင်ထားသည်) ★
   window.downloadSlipImage = (btn) => {
       let printArea = document.getElementById('slipPrintArea');
       if (!printArea) return;
@@ -1151,21 +1175,22 @@
       let originalText = btn ? btn.innerHTML : "🖼️ Save Photo";
       if(btn) { btn.innerHTML = "⏳ Saving..."; btn.disabled = true; }
 
-      // Force white background for reliability
-      html2canvas(printArea, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
-          let imgData = canvas.toDataURL('image/jpeg', 1.0);
-          let link = document.createElement('a'); link.href = imgData;
-          let d = window.currentSlipData; let p = d && d.period ? d.period : 'slip';
-          link.download = `Chicony_Slip_${p}.jpg`; 
-          document.body.appendChild(link); link.click(); document.body.removeChild(link);
-          
-          if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
-          showCustomAlert("✅ လစာစလစ်ကို ဖုန်းထဲသို့ သိမ်းဆည်းပြီးပါပြီ။");
-      }).catch(err => { 
-          console.error("Error generating image: ", err); 
-          if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
-          showCustomAlert("❌ ပုံသိမ်းခြင်း မအောင်မြင်ပါ။"); 
-      });
+      setTimeout(() => {
+          html2canvas(printArea, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false }).then(canvas => {
+              let imgData = canvas.toDataURL('image/jpeg', 1.0);
+              let link = document.createElement('a'); link.href = imgData;
+              let d = window.currentSlipData; let p = d && d.period ? d.period : 'slip';
+              link.download = `Chicony_Slip_${p}.jpg`; 
+              document.body.appendChild(link); link.click(); document.body.removeChild(link);
+              
+              if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
+              showCustomAlert("✅ လစာစလစ်ကို ဖုန်းထဲသို့ သိမ်းဆည်းပြီးပါပြီ။");
+          }).catch(err => { 
+              console.error("Error generating image: ", err); 
+              if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
+              showCustomAlert("❌ ပုံသိမ်းခြင်း မအောင်မြင်ပါ။"); 
+          });
+      }, 500); // UI render ပြီးမှ capture ဖမ်းရန် 500ms စောင့်မည်
   };
 
   window.openSalarySlip = () => {
@@ -1173,11 +1198,10 @@
       let [pY, pM] = d.period.split('-'); let pMonthNum = parseInt(pM); let pYearNum = parseInt(pY); let endMIdx = pMonthNum - 1; let endYear = pYearNum; let startMIdx = endMIdx - 1; let startYear = pYearNum; if (startMIdx < 0) { startMIdx = 11; startYear--; }
       let periodHeaderStr = `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][startMIdx]} 21, ${startYear} - ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][endMIdx]} 20, ${endYear}`;
       
-      // ★ inline @import style ဖြုတ်ထားသည် (html2canvas မလည်စေရန်) ★
       let html = `
         <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
             <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                <table style="width: 100%; border: none;"><tr><td style="border: none; text-align: left; vertical-align: bottom;"><h1 style="margin: 0; font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; color: #21409A; font-size: 34px; letter-spacing: 1px;">Chicony<span style="font-size:12px; vertical-align:top; font-family: Arial, sans-serif; font-weight: bold; color: #21409A;">®</span></h1></td><td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br><b>Salary Period: ${periodHeaderStr}</b></td></tr></table>
+                <table style="width: 100%; border: none;"><tr><td style="border: none; text-align: left; vertical-align: bottom;"><h1 style="margin: 0; font-family: Arial, sans-serif; font-weight: bold; color: #000080; font-size: 34px; letter-spacing: 1px;">Chicony<span style="font-size:12px; vertical-align:top; font-family: Arial, sans-serif; font-weight: bold; color: #000080;">®</span></h1></td><td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br><b>Salary Period: ${periodHeaderStr}</b></td></tr></table>
             </div>
             <div style="text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 14px;">${l.slipTitle}</div>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
@@ -1233,7 +1257,6 @@
       let selectedMonthVal = document.getElementById('adminMonthSelect').value; if (!selectedMonthVal) return;
       let { startD, endD } = getPeriodDates(selectedMonthVal);
       
-      // ★ Admin Panel Bug Fixed: Variables scoped properly for accurate calculations ★
       get(ref(db, 'users')).then((snapshot) => {
           if (snapshot.exists()) {
               let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; window.adminCalculated = {}; let tempUsersArray = [];
