@@ -11,6 +11,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <style id="app-styles">
   @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap');
@@ -22,7 +24,10 @@
 
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 60px; transition: background 0.4s ease; }
   @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   
+  .fade-in { animation: fadeIn 0.2s ease-in-out; }
   .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
   .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
@@ -31,8 +36,17 @@
 
   /* Navbar Sticky Top */
   .navbar { background-color: var(--app-header-color); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 60px; box-sizing: border-box; transition: background 0.4s ease; }
-  .menu-btn, .profile-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
+  .menu-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
+  /* ★ Profile Photo Button အဝိုင်းပုံစံ CSS ★ */
+  .profile-btn {
+      background: #f1f1f1; border: 1px solid #ccc; width: 36px; height: 36px; border-radius: 50%; 
+      cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; 
+      outline: none; position: relative; transition: all 0.2s;
+  }
+  .profile-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .profile-btn span { font-size: 18px; color: #333; }
+
   .app-title { text-align: center; margin: 0; line-height: 1.2; }
   .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 24px; color: #000080; letter-spacing: 1px; }
   .logo-tag { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
@@ -41,6 +55,7 @@
   .dropdown.left { left: 10px; transform-origin: top left; }
   .dropdown.right { right: 10px; }
   .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
+  .dropdown a:hover { background-color: #f4f7f6; }
   
   .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 500; backdrop-filter: blur(3px); }
   .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -55,7 +70,7 @@
   
   .container { padding: 0 15px 15px 15px; max-width: 800px; margin: auto; position: relative;}
   
-  /* ★ Unified Sticky Header (ဧပြီမှမေ ကို ဖယ်ထုတ်လိုက်ပြီး နေ့ရက်များကိုသာ အသေထားမည်) ★ */
+  /* Unified Sticky Header */
   #unifiedStickyHeader {
       position: sticky; 
       top: 60px; 
@@ -66,45 +81,17 @@
       transition: background 0.4s ease;
   }
 
-  /* နေ့ရက်ခေါင်းစဉ်အပြင်ဘောင် */
   .weekdays-static-box {
-      background: white;
-      border-radius: 10px; 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      border: 1px solid #ddd;
-      overflow: hidden; 
-      width: 100%;
-      box-sizing: border-box;
+      background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border: 1px solid #ddd; overflow: hidden; width: 100%; box-sizing: border-box;
   }
 
-  #stickyWeekdaysWrapper {
-      width: 100%;
-      overflow-x: hidden; 
-  }
+  #stickyWeekdaysWrapper { width: 100%; overflow-x: hidden; }
+  .calendar-container { min-width: 750px; padding: 0 10px; box-sizing: border-box; } 
 
-  .calendar-container { 
-      min-width: 750px; 
-      padding: 0 10px; 
-      box-sizing: border-box; 
-  } 
-
-  /* နေ့ရက်များ */
-  .weekdays { 
-      display: grid; 
-      grid-template-columns: repeat(7, 1fr); 
-      gap: 8px; 
-      text-align: center; 
-      font-weight: bold; 
-      font-size: 14px; 
-      background: white; 
-      padding: 12px 0; 
-      margin: 0;
-  }
-  
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 12px 0; margin: 0;}
   .weekdays > div { position: relative; }
-  .weekdays > div:not(:last-child)::after {
-      content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd;
-  }
+  .weekdays > div:not(:last-child)::after { content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd; }
   
   .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px;}
@@ -137,35 +124,10 @@
   .social-btn.telegram { background: #0088cc; box-shadow: 0 4px 10px rgba(0,136,204,0.25); }
   .social-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
 
-  /* အောက်ဆုံးရှိ စာရွေ့ကြော်ငြာ (Fixed Ticker) Design */
-  .ticker-wrap {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(0, 0, 128, 0.9);
-      border-top: 2px solid #ffeb3b; 
-      color: white;
-      padding: 10px 0;
-      z-index: 1000;
-      overflow: hidden;
-      white-space: nowrap;
-      box-shadow: 0 -4px 10px rgba(0,0,0,0.15);
-      display: flex;
-      align-items: center;
-  }
-  .ticker-text {
-      display: inline-block;
-      padding-left: 100vw;
-      animation: marquee 20s linear infinite;
-      font-size: 14px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-  }
-  @keyframes marquee {
-      0%   { transform: translate(0, 0); }
-      100% { transform: translate(-100%, 0); }
-  }
+  /* Ticker Design */
+  .ticker-wrap { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 128, 0.9); border-top: 2px solid #ffeb3b; color: white; padding: 10px 0; z-index: 1000; overflow: hidden; white-space: nowrap; box-shadow: 0 -4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; }
+  .ticker-text { display: inline-block; padding-left: 100vw; animation: marquee 20s linear infinite; font-size: 14px; font-weight: bold; letter-spacing: 0.5px; }
+  @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
 
   .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
   .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
@@ -183,23 +145,10 @@
   .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
-  /* ★ ပြန်လည်ထည့်သွင်းထားသော စက်ရုံပြက္ခဒိန် CSS (Factory Calendar Grid) ★ */
-  .year-calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
-  @media(min-width: 600px) { .year-calendar-grid { grid-template-columns: 1fr 1fr; } }
-  .month-box { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
-  .month-title { text-align: center; font-weight: bold; color: #000080; margin-bottom: 10px; font-size: 15px; }
-  .month-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 5px; }
-  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-day { padding: 8px 0; text-align: center; font-size: 12px; border-radius: 6px; background: white; border: 1px solid #eee; box-sizing: border-box;}
-  .cal-day.empty { background: transparent; border: none; }
-  .cal-sun { color: #dc3545; font-weight: bold; }
-  .cal-holiday { background-color: #ffc107 !important; color: #000 !important; font-weight: bold; border: 1px solid #ffca2c;}
-  .cal-double { background-color: #0d6efd !important; color: white !important; font-weight: bold; }
-
   /* Dark Mode Adjustments */
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
   .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
-  .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .profile-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
+  .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
   .dark-mode .dropdown a:hover { background-color: #333 !important; }
   .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .setup-box textarea, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
   .dark-mode .day-card { background: #2c2c2c !important; border-color: #444 !important; }
@@ -223,13 +172,17 @@
   .dark-mode .dev-subtitle { color: #aaa !important; }
   .dark-mode .dev-name { color: #82b1ff !important; }
   .dark-mode .ticker-wrap { background: rgba(30, 30, 30, 0.95) !important; border-top: 2px solid #0d6efd !important; }
-  
-  /* Dark Mode for Factory Calendar */
-  .dark-mode .month-box { background-color: #1e1e1e !important; border-color: #333 !important; }
-  .dark-mode .month-title { color: #82b1ff !important; }
-  .dark-mode .cal-day { background-color: #2c2c2c !important; border-color: #444 !important; color: #e0e0e0 !important; }
-  .dark-mode .cal-day.empty { background-color: transparent !important; border-color: transparent !important; }
-  .dark-mode .month-days-header { color: #aaa !important; }
+  .dark-mode .profile-btn { background-color: #333 !important; border-color: #555 !important; }
+  .dark-mode .profile-btn span { color: #e0e0e0 !important; }
+
+  /* Cropper Modal Specific Adjustments */
+  .cropper-view-box,
+  .cropper-face {
+    border-radius: 50%;
+  }
+  .cropper-modal {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
 
   #printArea { display: none; }
   @media print { 
@@ -286,14 +239,21 @@
       <span class="logo-tag" data-i18n="appSubtitle">Attendance & Salary</span>
     </h2>
     
-    <div style="display:flex; align-items: center; gap:5px;">
-      <button class="profile-btn interactive-btn" onclick="toggleMenu('rightMenu')">👤</button>
+    <div style="display:flex; align-items: center; gap:5px; position: relative;">
+      <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)">
+      <button class="profile-btn interactive-btn" onclick="toggleMenu('rightMenu')" id="profileBtnContainer">
+        <span id="profileIconSlot">👤</span>
+        <img id="profileImgSlot" style="display:none;" alt="Profile">
+      </button>
     </div>
     
     <div id="rightMenu" class="dropdown right fade-in">
       <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay"></div>
       
-      <div style="padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
+      <a href="#" onclick="triggerProfilePhotoInput()" class="interactive-btn" style="color: #28a745;">📸 <span>ပုံအသစ်တင်မည်</span></a>
+      <a href="#" onclick="removeProfilePhoto()" class="interactive-btn" id="removePhotoBtn" style="color: #dc3545; display:none;">🗑️ <span>ပုံဖျက်မည်</span></a>
+      
+      <div style="padding: 10px 15px; border-bottom: 1px solid #eee; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
           <span style="font-size: 14px; color: #333;">🌍 <b data-i18n="langMenu">Language</b></span>
           <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:4px; padding:4px; font-size:13px; outline:none; cursor:pointer; background: white;" class="interactive-btn">
               <option value="my">🇲🇲 မြန်မာ</option>
@@ -384,6 +344,23 @@
       <span id="tickerString" class="ticker-text"></span>
   </div>
 
+</div>
+
+<div class="modal-overlay" id="cropModal" style="z-index: 10002;">
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #007bff;" class="logo-main">✂️ Crop Photo</h3>
+        <button class="close-modal interactive-btn" onclick="closeCropModal()">×</button>
+    </div>
+    <div class="modal-body" style="text-align: center; padding: 15px;">
+        <div style="max-height: 400px; width: 100%; overflow: hidden; background: #eee; border-radius: 8px;">
+            <img id="cropImage" style="max-width: 100%; display: block;">
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 15px;">
+          <button class="btn-generate interactive-btn" onclick="saveCroppedPhoto()" style="background:#198754; margin-top:0; flex: 2;">💾 Set Photo</button>
+        </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="customAlertModal" style="z-index: 10000;">
@@ -610,22 +587,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="announcementModal" style="z-index: 9999;">
-  <div class="modal-content pop-in" style="text-align: center; max-width: 450px; padding: 0;">
-    <div class="modal-header" style="justify-content: center;">
-        <button class="close-modal interactive-btn" onclick="closeAnnouncement()" style="position: absolute; right: 15px; top: 15px;">×</button>
-        <h3 style="color: #d35400; font-family: 'Bungee Inline', cursive;">📢 Announcement</h3>
-    </div>
-    <div class="modal-body" style="padding-top: 10px;">
-        <div style="margin-bottom: 15px;">
-           <img id="annDisplayImg" src="" style="max-width: 100%; border-radius: 10px; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-        </div>
-        <p id="annDisplayText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.5; margin: 0;"></p>
-        <button class="btn-generate interactive-btn" onclick="closeAnnouncement()" style="background: #0d6efd; margin-top: 15px;">OK</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="exportModal">
   <div class="modal-content pop-in" style="padding: 0;">
     <div class="modal-header">
@@ -666,7 +627,7 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="adminUserDetailModal" style="z-index: 400;">
+<div class="modal-overlay" id="adminUserDetailModal" style="z-index: 600;">
   <div class="modal-content pop-in" style="max-width: 500px; padding: 0;">
     <div class="modal-header">
         <h3 style="color: #000080;" class="logo-main" id="detailModalName">Detail</h3>
@@ -711,7 +672,130 @@
 
   window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
 
-  // ★ OT Selection Modal ကို HTML တွင် Auto ထည့်သွင်းခြင်း ★
+  // ★ Profile Photo Functions with Cropper.js ★
+  let cropper = null;
+
+  window.triggerProfilePhotoInput = () => {
+      toggleMenu(null); 
+      document.getElementById('profilePhotoInput').click();
+  };
+
+  window.handleProfilePhotoUpload = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // ★ ပြင်ဆင်ချက် - 5MB ထိ ခွင့်ပြုပေးမည် ★
+      if (file.size > 5 * 1024 * 1024) { 
+          showCustomAlert("⚠️ ပုံအရွယ်အစားက 5MB ထက် ကြီးနေပါတယ်။ \nအနည်းငယ် သေးတဲ့ပုံကို ရွေးပေးပါ။");
+          return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+          // Open crop modal
+          document.getElementById('cropModal').style.display = 'flex';
+          const image = document.getElementById('cropImage');
+          image.src = event.target.result;
+          
+          // Destroy old cropper if exists
+          if(cropper) { cropper.destroy(); }
+          
+          // Initialize new cropper with 1:1 Aspect Ratio (အဝိုင်းဖြတ်ရန် Square ယူမည်)
+          cropper = new Cropper(image, {
+              aspectRatio: 1, 
+              viewMode: 1,
+              autoCropArea: 1,
+              background: false
+          });
+          
+          // Reset input to allow choosing the same file again if needed
+          document.getElementById('profilePhotoInput').value = '';
+      };
+      reader.readAsDataURL(file);
+  };
+
+  window.closeCropModal = () => {
+      document.getElementById('cropModal').style.display = 'none';
+      if(cropper) { cropper.destroy(); cropper = null; }
+  };
+
+  window.saveCroppedPhoto = () => {
+      if (!cropper) return;
+      
+      showLoadingSpinner("Saving Photo...");
+      
+      // Get cropped canvas (250x250)
+      const canvas = cropper.getCroppedCanvas({
+          width: 250,
+          height: 250,
+      });
+      
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+      
+      window.updateProfilePhotoView(compressedBase64);
+      
+      if(currentUser) {
+          set(ref(db, `users/${currentUser.uid}/settings/profilePhoto`), compressedBase64)
+          .then(() => {
+              hideLoadingSpinner();
+              closeCropModal();
+          })
+          .catch(err => {
+              hideLoadingSpinner();
+              showCustomAlert("❌ Save Error: " + err.message);
+          });
+      } else {
+          hideLoadingSpinner();
+          closeCropModal();
+      }
+  };
+
+  window.removeProfilePhoto = () => {
+      if(!confirm("Profile ပုံကို ဖျက်ရန် သေချာပါသလား?")) return;
+      
+      showLoadingSpinner("Removing...");
+      window.updateProfilePhotoView(null);
+      toggleMenu(null);
+      
+      if(currentUser) {
+          remove(ref(db, `users/${currentUser.uid}/settings/profilePhoto`))
+          .then(() => {
+              hideLoadingSpinner();
+          })
+          .catch(err => {
+              hideLoadingSpinner();
+              showCustomAlert("❌ Remove Error: " + err.message);
+          });
+      } else {
+          hideLoadingSpinner();
+      }
+  };
+
+  window.updateProfilePhotoView = (base64Data) => {
+      const iconSlot = document.getElementById('profileIconSlot');
+      const imgSlot = document.getElementById('profileImgSlot');
+      const btnContainer = document.getElementById('profileBtnContainer');
+      const removeBtn = document.getElementById('removePhotoBtn');
+      
+      if (base64Data && (base64Data.startsWith('data:image') || base64Data.startsWith('http'))) {
+          if(iconSlot) iconSlot.style.display = 'none';
+          if(imgSlot) {
+              imgSlot.src = base64Data;
+              imgSlot.style.display = 'block';
+          }
+          if(btnContainer) btnContainer.style.border = '2px solid #007bff'; 
+          if(removeBtn) removeBtn.style.display = 'flex'; // ပုံရှိမှ ဖျက်ခလုတ်ပြမည်
+      } else {
+          if(iconSlot) iconSlot.style.display = 'block';
+          if(imgSlot) {
+              imgSlot.style.display = 'none';
+              imgSlot.src = "";
+          }
+          if(btnContainer) btnContainer.style.border = '1px solid #ccc';
+          if(removeBtn) removeBtn.style.display = 'none'; // ပုံမရှိလျှင် ဖျက်ခလုတ်ဖျောက်မည်
+      }
+  };
+
   function createOTModal() {
       if(document.getElementById('otSelectionModal')) return;
       let d = document.createElement('div');
@@ -780,11 +864,11 @@
 
   const translations = {
       my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ (Transport)", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)",
-            slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ", prevMonth: "⬅️ ယခင်လ", nextMonth: "နောက်လ ➡️" },
+            slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ", prevMonth: "⬅️ ယခင်လ", nextMonth: "နောက်လ ➡️", changePhoto: "Profile ပုံပြောင်းမည်" },
       en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Lunch Allowance", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip",
-            slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction", prevMonth: "⬅️ Prev Month", nextMonth: "Next Month ➡️" },
+            slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction", prevMonth: "⬅️ Prev Month", nextMonth: "Next Month ➡️", changePhoto: "Upload New Photo" },
       th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip",
-            slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม", prevMonth: "⬅️ เดือนก่อนหน้า", nextMonth: "เดือนถัดไป ➡️" }
+            slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม", prevMonth: "⬅️ เดือนก่อนหน้า", nextMonth: "เดือนถัดไป ➡️", changePhoto: "อัพโหลดรูปใหม่" }
   };
 
   const weekdaysText = {
@@ -797,17 +881,16 @@
   const englishMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-  // ★ ဒေတာဟောင်းများကို ပြန်ဖတ်နိုင်စေရန် Value ကို ✓, x, - သာ အသုံးပြုထားသည် ★
   const dropdowns = {
-      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ အလုပ်ဆင်းရက်', statusAbsent: '❌ အလုပ်ပျက်ရက်', statusHoliday: '🟨 အလုပ်ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
+      my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ ဆင်းရက်', statusAbsent: '❌ ပျက်ရက်', statusHoliday: '🟨 ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
       en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
       th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
   };
 
   let otModalText = {
-      my: { title: "⏱️ OT နာရီ ရွေးချယ်ပါ", hr: "နာရီ", cancel: "✍️ ကိုယ်တိုင်ရေးမည်" },
-      en: { title: "⏱️ Select OT Hours", hr: "Hrs", cancel: "✍️ Manual Entry" },
-      th: { title: "⏱️ เลือกเวลาทำโอที", hr: "ชม.", cancel: "✍️ พิมพ์เอง" }
+      my: { title: "⏱️ OT နာရီ ရွေးချယ်ပါ", hr: "နာရီ", cancel: "✍️ ပိတ်မည် / ကိုယ်တိုင်ရေးမည်" },
+      en: { title: "⏱️ Select OT Hours", hr: "Hrs", cancel: "✍️ Cancel / Manual Entry" },
+      th: { title: "⏱️ เลือกเวลาทำโอที", hr: "ชม.", cancel: "✍️ ยกเลิก / พิมพ์เอง" }
   };
 
   window.customAlertMsgs = {
@@ -911,7 +994,10 @@
   window.logout = () => { signOut(auth).then(() => { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; location.reload(); }); };
 
   window.saveToFirebase = () => {
-      if (!currentUser || !isDataLoaded) return; 
+      if (!currentUser || !isDataLoaded) return;
+      // ★ Bug Fix 1: bonusHistory ကို preserve လုပ်မည် ★
+      let existingBonusHistory = appData.settings && appData.settings.bonusHistory ? appData.settings.bonusHistory : {};
+      let existingProfilePhoto = appData.settings && appData.settings.profilePhoto ? appData.settings.profilePhoto : null;
       appData.settings = {
           empName: document.getElementById('empName').value, 
           empId: document.getElementById('empId').value,
@@ -920,6 +1006,7 @@
           dailyWage: document.getElementById('dailyWage').value,
           otRate: document.getElementById('otRate').value, 
           attBonusSetting: document.getElementById('attBonusSetting').value,
+          bonusHistory: existingBonusHistory,
       }; 
       if (!appData.attendance) appData.attendance = {};
       document.querySelectorAll('.day-card').forEach(card => {
@@ -932,6 +1019,12 @@
               };
           }
       });
+      // Profile Photo မဖျက်မိစေရန် (bonusHistory save ဖြစ်ပြီး existingProfilePhoto ကို ပြန်ထည့်မည်)
+      if (!appData.settings.profilePhoto && existingProfilePhoto) {
+          appData.settings.profilePhoto = existingProfilePhoto;
+      } else if (!appData.settings.profilePhoto && window.currentProfilePhoto) {
+          appData.settings.profilePhoto = window.currentProfilePhoto;
+      }
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
 
@@ -954,24 +1047,37 @@
       let newMonthStr = document.getElementById('selectedMonth').value;
       if (!newMonthStr) return;
 
+      // ★ Bug Fix 1: Firebase မှာ သိမ်းထားတဲ့ bonus ကို စစ်မည် (UI value မဟုတ်) ★
+      // ယခင်လ ပျက်ရက်ရှိ/မရှိ စစ်ပြီး bonus တွက်မည်
       let [y, m] = newMonthStr.split('-').map(Number);
       let prevM = m - 1; let prevY = y;
       if (prevM < 1) { prevM = 12; prevY--; }
       let prevMonthStr = `${prevY}-${String(prevM).padStart(2, '0')}`;
 
+      // ယခင်လ bonus ကို firebase ဒေတာမှ တိုက်ရိုက်ယူမည်
+      let savedPrevBonus = appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[prevMonthStr]
+          ? parseInt(appData.settings.bonusHistory[prevMonthStr])
+          : (appData.settings && appData.settings.attBonusSetting ? parseInt(appData.settings.attBonusSetting) : 500);
+
+      // ယခင်လ ပျက်ရက်ရှိ/မရှိ စစ်မည်
       let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
-      let currentBonus = parseInt(document.getElementById('attBonusSetting').value);
-      
-      let newBonus = currentBonus; 
-      
+
+      let newBonus;
       if (hasAbsence) {
-          newBonus = 500; 
+          newBonus = 500;
       } else {
-          if (currentBonus === 500) newBonus = 800;       
-          else if (currentBonus === 800) newBonus = 1000; 
+          if (savedPrevBonus === 500) newBonus = 800;
+          else if (savedPrevBonus === 800) newBonus = 1000;
+          else if (savedPrevBonus === 1000) newBonus = 1000;
+          else newBonus = 800;
       }
 
       document.getElementById('attBonusSetting').value = newBonus;
+
+      // ★ လအလိုက် bonus history သိမ်းမည် ★
+      if (!appData.settings.bonusHistory) appData.settings.bonusHistory = {};
+      appData.settings.bonusHistory[newMonthStr] = newBonus;
+
       window.generateGrid(false); 
   };
 
@@ -993,11 +1099,28 @@
       let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
       document.getElementById('selectedMonth').value = newMonthStr;
       
-      window.handleMonthChange();
+      // ★ Bug Fix 1: navigate ပြန်သွားရင် bonusHistory မှ bonus ကိုယူမည် ★
+      if (step < 0) {
+          // ယခင်လ (back) သွားရင် saved history မှ ယူမည်
+          let savedHistoryBonus = appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr]
+              ? parseInt(appData.settings.bonusHistory[newMonthStr])
+              : null;
+          
+          if (savedHistoryBonus !== null) {
+              document.getElementById('attBonusSetting').value = savedHistoryBonus;
+              window.generateGrid(false);
+          } else {
+              window.handleMonthChange();
+          }
+      } else {
+          window.handleMonthChange();
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   document.getElementById('selectedMonth').addEventListener('change', window.handleMonthChange);
+
+  window.currentProfilePhoto = null;
 
   function loadFromFirebase() {
       document.getElementById('loadingSpinner').style.display = 'flex';
@@ -1019,12 +1142,31 @@
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
               document.getElementById('attBonusSetting').value = savedBonus;
 
+              // ★ Load Profile Photo from Database ★
+              if(appData.settings.profilePhoto) {
+                  window.currentProfilePhoto = appData.settings.profilePhoto;
+                  window.updateProfilePhotoView(window.currentProfilePhoto);
+              }
+
               let lastSavedMonth = appData.settings.selectedMonth || "";
+              
+              // ★ Bug Fix 1: လမ်ကြောင်း load ဖြစ်ရင် saved bonus ကို ထားပြီး handleMonthChange မလုပ်ရ ★
+              // လက်ရှိလ ၏ bonus ကို bonusHistory မှ ရယူမည်
+              let currentMonthBonus = (appData.settings.bonusHistory && appData.settings.bonusHistory[realCurrentMonthStr])
+                  ? parseInt(appData.settings.bonusHistory[realCurrentMonthStr])
+                  : savedBonus;
+              document.getElementById('attBonusSetting').value = currentMonthBonus;
 
               if (lastSavedMonth && lastSavedMonth !== realCurrentMonthStr) {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr;
                   isDataLoaded = true;
-                  window.handleMonthChange(); 
+                  // ★ handleMonthChange ခေါ်မည် ဒါပေမဲ့ current month bonus ကိုပြောင်းမသွားစေဖို့ ★
+                  window.generateGrid(false);
+                  // bonus ကို history မှ စစ်ပြီး set ပြန်လုပ်မည်
+                  let reCalcBonus = (appData.settings.bonusHistory && appData.settings.bonusHistory[realCurrentMonthStr])
+                      ? parseInt(appData.settings.bonusHistory[realCurrentMonthStr])
+                      : currentMonthBonus;
+                  document.getElementById('attBonusSetting').value = reCalcBonus;
               } else {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr; 
                   appData.settings.selectedMonth = realCurrentMonthStr;
@@ -1105,7 +1247,6 @@
               }
           }
           
-          // ★ Show or hide Ticker based on Database ★
           if(config.tickerText && config.tickerText.trim() !== "") {
               document.getElementById('tickerBar').style.display = 'flex';
               document.getElementById('tickerString').innerText = config.tickerText;
@@ -1136,7 +1277,6 @@
       });
   }
 
-  // ★ Ticker Modal Functions ★
   window.openTickerModal = () => { 
       document.getElementById('tickerModal').style.display = 'flex'; 
       toggleMenu(null); 
@@ -1369,7 +1509,7 @@
       document.getElementById('adminManageList').innerHTML = html;
   }
 
-  // ★ Value ကို ✓, x, - သာ အသုံးပြုပြီး ဒေတာများ မပျောက်အောင် ပြင်ဆင်ထားသည် ★
+  // ★ Value ကို ✓, x, - သာ အသုံးပြုပြီး ဒေတာဟောင်းများ မပျောက်အောင် ပြင်ဆင်ထားသည် ★
   window.handleStatusChange = (el) => {
       let val = el.value;
       let card = el.closest('.day-card');
@@ -1404,7 +1544,7 @@
       if(el.value === 'yes') { 
           input.style.display = 'block'; 
           window.currentOTInputTarget = input;
-          window.currentOTSelectElement = el; // ★ 'X' နှိပ်ပါက ပြန်ပြောင်းရန် သိမ်းထားမည်
+          window.currentOTSelectElement = el;
           
           document.getElementById('otSelectionModal').style.display = 'flex';
 
@@ -1422,10 +1562,9 @@
       calculateAll(); 
   };
 
-  // ★ ပြင်ဆင်ချက် - OT Modal ၏ "X" ခလုတ်ကို နှိပ်ပါက OT ကို "မဆင်း" သို့ အလိုအလျောက် ပြန်ပြောင်းမည် ★
   window.cancelOTSelection = () => {
       if(window.currentOTSelectElement) {
-          window.currentOTSelectElement.value = 'no'; // Change back to "No OT"
+          window.currentOTSelectElement.value = 'no'; 
       }
       if(window.currentOTInputTarget) {
           window.currentOTInputTarget.style.display = 'none';
@@ -1473,7 +1612,15 @@
               let calData = globalCalendar[dateKey]; let classes = 'cal-day'; let onClick = '';
               
               if(calData) {
-                  if(calData.type === 'holiday') { classes += ' cal-holiday'; let safeDesc = calData.desc ? calData.desc.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ''; onClick = `onclick="showCustomAlert('${safeDesc}')"`; }
+                  if(calData.type === 'holiday') { 
+                      classes += ' cal-holiday'; 
+                      // ★ Bug Fix 3: desc မပါလဲ holiday info ပြသမည် ★
+                      let alertMsg = (calData.desc && calData.desc.trim() !== '') 
+                          ? ('📅 ' + calData.desc) 
+                          : '📅 ပိတ်ရက် (Holiday)';
+                      let safeDesc = alertMsg.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                      onClick = `onclick="showCustomAlert('${safeDesc}')"`; 
+                  }
                   else if(calData.type === 'double') { classes += ' cal-double'; if(isSat) classes += ' double-saturday'; }
               } else if(isSun) { classes += ' cal-sun'; }
               gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`;
@@ -1513,6 +1660,19 @@
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return; 
       
+      let pDisplay = document.getElementById('dynamicPeriodContainer');
+      let [pY, pM] = mVal.split('-');
+      let endMIdx = parseInt(pM) - 1; 
+      let startMIdx = endMIdx - 1; 
+      if (startMIdx < 0) startMIdx = 11;
+      
+      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
+      let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
+      
+      if(pDisplay) {
+          pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`;
+      }
+
       let { startD, endD } = getPeriodDates(mVal);
       const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
       for(let i=0; i < startD.getDay(); i++) grid.innerHTML += `<div class="blank-card"></div>`;
@@ -1520,7 +1680,6 @@
       let cur = new Date(startD);
       let dd = dropdowns[currentLang]; 
       let daysArray = weekdaysText[currentLang];
-      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
 
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
@@ -1535,7 +1694,6 @@
           let div = document.createElement('div'); div.className = 'day-card';
           div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); div.setAttribute('data-is-sun', isSun); div.setAttribute('data-is-sat', isSat);
           
-          // ★ Value များကို ✓, x, - သာ အသုံးပြုထားသဖြင့် အရင်ဒေတာဟောင်းများ အကုန်ပြန်ပေါ်လာမည် ★
           div.innerHTML = `
             <label class="date-label">${displayDate}</label>
             <div class="double-label" style="font-size: 10px; color: #0d6efd; font-weight: bold; margin-bottom: 2px; height: 12px;"></div>
@@ -1619,7 +1777,7 @@
               
               if (otStatus === 'yes') { 
                   if(otVal > 0) { 
-                      fPay = 60; // Lunch(30) + OT Food(30)
+                      fPay = 60; 
                       otDays++; 
                       if (isSpecialDay) { 
                           ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
@@ -1628,7 +1786,7 @@
                           ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
                       } 
                   } else {
-                      fPay = 30; // OT ရွေးထားသော်လည်း နာရီမဖြည့်ရသေးပါက သာမန်ထမင်းဖိုး ၃၀ သာ ပေါင်းမည်
+                      fPay = 30; 
                   }
               } else { 
                   fPay = 30; 
@@ -2081,7 +2239,5 @@
   
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => { console.log('Service worker registered.'); }).catch(err => { console.log('Service worker registration failed:', err); }); }); }
 </script>
-
-
 </body>
 </html>
