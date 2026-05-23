@@ -144,7 +144,7 @@
   .admin-action-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; border: none; color: white; text-align: center;}
   .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
   .manage-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; font-size: 13px; background: white; margin-bottom: 6px; border-radius: 6px;}
-  .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; }
+  .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; } .btn-exp-excel { background: #198754 !important; color: white !important; }
   .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
 
   /* Dark Mode Adjustments */
@@ -354,42 +354,20 @@
       </button>
     </div>
     
-    <div id="rightMenu" class="dropdown right fade-in" style="min-width:260px; border-radius:14px; overflow:hidden; padding:0; box-shadow:0 8px 30px rgba(0,0,0,0.2);">
-
-      <!-- ★ Blue header: Avatar (click→viewer) + name + email ★ -->
-      <div style="background:linear-gradient(135deg,#000080 0%,#1a3a8f 100%); padding:20px 15px 16px; text-align:center;">
-        <div style="position:relative; display:inline-block; margin-bottom:10px;">
-          <!-- Avatar — click opens viewer -->
-          <div id="profileAvatarBig" onclick="openProfileViewer()" style="width:76px; height:76px; border-radius:50%; border:3px solid rgba(255,255,255,0.9); background:#c8d8f0; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.35);">
-            <span id="profileIconBig" style="font-size:38px; line-height:1;">👤</span>
-            <img id="profileImgBig" style="display:none; width:100%; height:100%; object-fit:cover;" alt="Profile">
-          </div>
-          <!-- 📷 camera badge — click uploads directly -->
-          <button onclick="event.stopPropagation(); event.preventDefault(); toggleMenu(null); setTimeout(()=>{ document.getElementById('profilePhotoInput').click(); },200);" style="position:absolute; bottom:1px; right:1px; width:26px; height:26px; border-radius:50%; background:#ffc107; border:2px solid white; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,0.35); padding:0;">📷</button>
-        </div>
-        <div id="userEmailDisplay" style="background:transparent; padding:0; border:none;"></div>
+    <div id="rightMenu" class="dropdown right fade-in">
+      <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay"></div>
+      <a href="#" onclick="triggerProfilePhotoInput()" class="interactive-btn" style="color: #28a745;">📸 <span>ပုံအသစ်တင်မည်</span></a>
+      <a href="#" onclick="removeProfilePhoto()" class="interactive-btn" id="removePhotoBtn" style="color: #dc3545; display:none;">🗑️ <span>ပုံဖျက်မည်</span></a>
+      <div style="padding: 10px 15px; border-bottom: 1px solid #eee; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 14px; color: #333;">🌍 <b data-i18n="langMenu">Language</b></span>
+          <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:4px; padding:4px; font-size:13px; outline:none; cursor:pointer; background: white;" class="interactive-btn">
+              <option value="my">🇲🇲 မြန်မာ</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="th">🇹🇭 ไทย (Thai)</option>
+          </select>
       </div>
-
-      <!-- ★ Settings row ★ -->
-      <div style="background:white; padding:8px 14px; border-bottom:1px solid #eee; display:flex; align-items:center; gap:8px;">
-        <button onclick="openSettings(); toggleMenu(null);" style="flex:1; background:#f0f4ff; border:none; padding:9px; border-radius:10px; font-size:13px; font-weight:bold; color:#000080; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-          ⚙️ Settings
-        </button>
-        <button onclick="confirmLogout()" style="background:#fff0f0; border:1px solid #ffcccc; padding:9px 14px; border-radius:10px; font-size:13px; font-weight:bold; color:#dc3545; cursor:pointer; display:flex; align-items:center; gap:5px; white-space:nowrap;">
-          🚪 Logout
-        </button>
-      </div>
-
-      <!-- ★ Language selector ★ -->
-      <div style="background:white; padding:8px 14px; display:flex; align-items:center; gap:8px;">
-        <span style="font-size:16px;">🌍</span>
-        <select id="langSelector" onchange="changeLanguage(this.value)" style="flex:1; border:1px solid #ddd; border-radius:8px; padding:7px 10px; font-size:13px; outline:none; cursor:pointer; background:white; color:#333;">
-            <option value="my">🇲🇲 မြန်မာ</option>
-            <option value="en">🇬🇧 English</option>
-            <option value="th">🇹🇭 ไทย</option>
-        </select>
-      </div>
-
+      <a href="#" onclick="openSettings()" class="interactive-btn">⚙️ <span data-i18n="settings">Settings</span></a>
+      <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;" class="interactive-btn">🚪 <span data-i18n="logout">Logout</span></a>
     </div>
   </div>
 
@@ -870,11 +848,8 @@
   let cropper = null;
 
   window.triggerProfilePhotoInput = () => {
-      // ★ menu ပိတ်ပြီးမှ file picker ဖွင့်မည် (setTimeout မပါရင် Safari/Chrome mobile မှာ မပွင့်) ★
       toggleMenu(null);
-      setTimeout(() => {
-          document.getElementById('profilePhotoInput').click();
-      }, 200);
+      setTimeout(() => { document.getElementById('profilePhotoInput').click(); }, 150);
   };
 
   window.handleProfilePhotoUpload = (e) => {
@@ -1017,55 +992,36 @@
   };
 
   window.updateProfilePhotoView = (base64Data) => {
-      // Navbar small button
       const iconSlot = document.getElementById('profileIconSlot');
       const imgSlot = document.getElementById('profileImgSlot');
       const btnContainer = document.getElementById('profileBtnContainer');
-      // rightMenu big avatar
-      const iconBig = document.getElementById('profileIconBig');
-      const imgBig = document.getElementById('profileImgBig');
-      // viewer
+      const removeBtn = document.getElementById('removePhotoBtn');
+      // viewer (optional — still present)
       const viewerImg = document.getElementById('profileViewerImg');
       const viewerPlaceholder = document.getElementById('profileViewerPlaceholder');
       const viewerEditBtn = document.getElementById('profileViewerEditBtn');
       const viewerDeleteBtn = document.getElementById('profileViewerDeleteBtn');
-      const profileViewBtn = document.getElementById('profileViewBtn');
-      // delete buttons
-      const removeBtn = document.getElementById('removePhotoBtn');
-      
+
       window.currentProfilePhoto = base64Data || null;
 
       if (base64Data && (base64Data.startsWith('data:image') || base64Data.startsWith('http'))) {
-          // Small navbar avatar
           if(iconSlot) iconSlot.style.display = 'none';
           if(imgSlot) { imgSlot.src = base64Data; imgSlot.style.display = 'block'; }
-          if(btnContainer) btnContainer.style.border = '2px solid #ffc107';
-          // Big avatar in menu
-          if(iconBig) iconBig.style.display = 'none';
-          if(imgBig) { imgBig.src = base64Data; imgBig.style.display = 'block'; }
-          // Viewer
+          if(btnContainer) btnContainer.style.border = '2px solid #007bff';
+          if(removeBtn) removeBtn.style.display = 'flex';
           if(viewerImg) { viewerImg.src = base64Data; viewerImg.style.display = 'block'; }
           if(viewerPlaceholder) viewerPlaceholder.style.display = 'none';
           if(viewerEditBtn) viewerEditBtn.style.display = 'flex';
           if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'flex';
-          // Buttons
-          if(removeBtn) removeBtn.style.display = 'flex';
-          if(profileViewBtn) profileViewBtn.style.display = 'flex';
       } else {
-          // Small navbar avatar
           if(iconSlot) iconSlot.style.display = 'block';
           if(imgSlot) { imgSlot.style.display = 'none'; imgSlot.src = ''; }
           if(btnContainer) btnContainer.style.border = '1px solid #ccc';
-          // Big avatar in menu
-          if(iconBig) iconBig.style.display = 'flex';
-          if(imgBig) { imgBig.style.display = 'none'; imgBig.src = ''; }
-          // Viewer
+          if(removeBtn) removeBtn.style.display = 'none';
           if(viewerImg) { viewerImg.style.display = 'none'; viewerImg.src = ''; }
           if(viewerPlaceholder) viewerPlaceholder.style.display = 'flex';
           if(viewerEditBtn) viewerEditBtn.style.display = 'none';
           if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'none';
-          // Buttons
-          if(removeBtn) removeBtn.style.display = 'none';
       }
   };
 
@@ -1107,7 +1063,7 @@
               if (loadingSpinner) loadingSpinner.style.display = 'none';
               document.getElementById('loginScreen').style.display = 'none';
               document.getElementById('mainApp').style.display = 'block';
-              document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">Loading...</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${user.email}</div>`;
+              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
               
               if(user.email === ADMIN_EMAIL) { 
                   document.getElementById('adminPanelBtn').style.display = 'flex'; 
@@ -1273,12 +1229,7 @@
   };
 
   window.logout = () => { 
-      toggleMenu(null);
-      signOut(auth).then(() => { 
-          document.getElementById('mainApp').style.display = 'none'; 
-          document.getElementById('loginScreen').style.display = 'flex'; 
-          location.reload(); 
-      }); 
+      signOut(auth).then(() => { location.reload(); }); 
   };
 
   window.confirmLogout = () => {
@@ -1290,7 +1241,8 @@
               signOut(auth)
                   .then(() => { location.reload(); })
                   .catch((err) => { hideLoadingSpinner(); showCustomAlert("❌ Logout Error: " + err.message); });
-          }      }, 100);
+          }
+      }, 100);
   };
 
   window.saveToFirebase = () => {
@@ -1322,8 +1274,7 @@
       // Profile Photo မဖျက်မိစေရန် (bonusHistory save ဖြစ်ပြီး existingProfilePhoto ကို ပြန်ထည့်မည်)
       if (!appData.settings.profilePhoto && existingProfilePhoto) {
           appData.settings.profilePhoto = existingProfilePhoto;
-      } else if (!appData.settings.profilePhoto && window.currentProfilePhoto) {
-          appData.settings.profilePhoto = window.currentProfilePhoto;
+      } else if (!appData.settings.profilePhoto && window.currentProfilePhoto) {          appData.settings.profilePhoto = window.currentProfilePhoto;
       }
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
@@ -1470,14 +1421,14 @@
               } else {
                   document.getElementById('selectedMonth').value = realCurrentMonthStr; 
                   appData.settings.selectedMonth = realCurrentMonthStr;
-                  document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">${appData.settings.empName}</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
+                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
                   isDataLoaded = true; window.generateGrid(false); 
               }
               
           } else {
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
-              document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">New User</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
+              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(true); 
               
               setTimeout(() => {
@@ -1998,7 +1949,7 @@
       saveToFirebase(); calculateAll(); 
       document.getElementById('settingsModal').style.display = 'none'; 
       document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
-      document.getElementById('userEmailDisplay').innerHTML = `<div style="color:white; font-size:15px; font-weight:bold; margin-bottom:2px;">${nameInput}</div><div style="color:rgba(255,255,255,0.7); font-size:11px;">${currentUser.email}</div>`;
+      document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
   };
 
   window.generateGrid = (isNew = true) => {
