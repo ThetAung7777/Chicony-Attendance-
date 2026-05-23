@@ -1320,6 +1320,7 @@
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
   
+  
   window.checkAbsencesForMonth = (yyyy_mm) => {
       if (!appData.attendance) return false;
       let { startD, endD } = getPeriodDates(yyyy_mm);
