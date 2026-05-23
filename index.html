@@ -107,7 +107,10 @@
   .bg-yellow { background-color: #ffc107 !important; border-color: #ffca2c !important; } 
   .bg-gray { background-color: #858c93 !important; border-color: #6c757d !important; } 
   .bg-dark-gray { background-color: #495057 !important; border-color: #343a40 !important; }
-  .double-saturday { border: 2px solid #dc3545 !important; box-shadow: inset 0 0 5px rgba(220,53,69,0.5); } 
+  .double-saturday { border: 2px solid #dc3545 !important; box-shadow: inset 0 0 5px rgba(220,53,69,0.5); }
+  .sum-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:14px; border-bottom:1px solid #f0f0f0; }
+  .sum-row:last-child { border-bottom: none; }
+  .sum-row b { font-weight:700; white-space:nowrap; } 
   .bg-green .date-label, .bg-red .date-label, .bg-blue .date-label, .bg-gray .date-label, .bg-dark-gray .date-label { color: white !important; }
   .bg-yellow .date-label { color: #000 !important; } 
   .bg-blue .double-label { color: #ffeb3b !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); } 
@@ -337,6 +340,7 @@
       <a href="#" id="tickerMenuBtn" onclick="openTickerModal()" style="display:none; color: #e67e22; font-weight: bold;" class="interactive-btn">📜 Ticker (စာရွေ့ကြော်ငြာ)</a>
       <a href="#" id="ssoMenuBtn" onclick="openSsoSettingsModal()" style="display:none; color: #007bff; font-weight: bold;" class="interactive-btn">🛡️ SSO Settings</a>
       <a href="#" id="themeBtn" onclick="openThemeModal()" style="display:none; color: #198754; font-weight: bold;" class="interactive-btn">🎨 Theme Settings</a>
+      <a href="#" id="fontBtn" onclick="openFontModal()" style="display:none; color: #6f42c1; font-weight: bold;" class="interactive-btn">🔤 Font Settings</a>
       <a href="#" id="annBtn" onclick="openAnnManageModal()" style="display:none; color: #d35400; font-weight: bold;" class="interactive-btn">📢 Announcement</a>
       <a href="#" id="alertMenuBtn" onclick="openAlertSettingsModal()" style="display:none; color: #6f42c1; font-weight: bold;" class="interactive-btn">🔔 Alert Settings</a>
     </div>
@@ -395,38 +399,54 @@
         });
     </script>
 
-    <div class="ui-summary-box hover-card" style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;"><span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;"><span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;"><span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b></div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px; color:#6610f2;">
-          <span><span data-i18n="foodOt">OT ထမင်းဖိုး</span> (<span id="foodOtDays">0</span>)</span> <b id="foodOtTotal">0</b>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:#6610f2; border-bottom:1px solid #eee; padding-bottom: 4px;">
-          <span><span data-i18n="foodNoOt">နေ့လည်စာ ထမင်းဖိုး</span> (<span id="foodNoOtDays">0</span>)</span> <b id="foodNoOtTotal">0</b>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b></div>
+    <div class="ui-summary-box hover-card" id="summaryBox" style="margin-top:20px; background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08); overflow:hidden;">
 
-      <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b></div>
-      <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightAllowance">စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0</b></div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:2px solid #ccc; color: #8e44ad; padding-bottom: 8px;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:bold; color: #333;"><span data-i18n="totalIncome">စုစုပေါင်း ဝင်ငွေ (Gross)</span> <b id="grossTotalDisplay">0 ฿</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:bold; color: #dc3545;"><span data-i18n="ssoDeduct">ပကန်စံခွန်း (SSO 5%)</span> <b id="ssoDisplay">- 0 ฿</b></div>
-      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #333; font-size:18px; color:#198754;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#198754;">0 ฿</b></div>
+      <!-- Section: အလုပ်ဆင်း (always show) -->
+      <div style="background:#f8f9fa; padding:10px 15px; border-bottom:2px solid #e9ecef;">
+        <div style="font-size:11px; font-weight:800; color:#6c757d; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;">📋 အလုပ်ဆင်းချက်</div>
+        <div class="sum-row" style="color:#333;"><span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span><b id="workCount">0</b></div>
+        <div class="sum-row" id="rowOtDays" style="color:#fd7e14; display:none;"><span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span><b id="otDaysCount">0</b></div>
+        <div class="sum-row" id="rowDouble" style="color:#0d6efd; display:none;"><span data-i18n="doubleDays">နှစ်ဆရက်</span><b id="doubleCount">0</b></div>
+        <div class="sum-row" id="rowOtTotal" style="color:#d35400; display:none;"><span data-i18n="otTotal">OT စုစုပေါင်း</span><b id="otTotalCombine">0</b></div>
+        <div class="sum-row" id="rowAbsent" style="color:#dc3545; display:none;"><span data-i18n="absent">ပျက်ရက် (-)</span><b id="absentCount">0</b></div>
+        <div class="sum-row" id="rowHoliday" style="color:#d4a017; display:none;"><span data-i18n="holiday">ပိတ်ရက်</span><b id="holidayCount">0</b></div>
+        <div class="sum-row" id="rowNightShift" style="color:#17a2b8; display:none;"><span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span><b id="nightShiftDisplay">0</b></div>
+      </div>
 
-      <button class="btn-generate interactive-btn" onclick="openSalarySlip()" style="background:#0d6efd; margin-top:15px; width: 100%;">🧾 <span data-i18n="salarySlipBtn">လစာစလစ် ကြည့်မည်</span></button>
-      
-      <div style="display:flex; justify-content:space-between; margin-top:12px; gap: 10px;">
-          <button class="btn-generate interactive-btn" onclick="navigateMonth(-1)" style="background:#6c757d; margin-top:0; font-size: 13px; padding: 10px;"><span data-i18n="prevMonth">⬅️ ယခင်လ</span></button>
-          <button class="btn-generate interactive-btn" onclick="navigateMonth(1)" style="background:#198754; margin-top:0; font-size: 13px; padding: 10px;"><span data-i18n="nextMonth">နောက်လ ➡️</span></button>
+      <!-- Section: ဝင်ငွေ -->
+      <div style="background:white; padding:10px 15px; border-bottom:2px solid #e9ecef;">
+        <div style="font-size:11px; font-weight:800; color:#6c757d; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;">💰 ဝင်ငွေများ</div>
+        <div class="sum-row" style="color:#333;"><span>အခြေခံ လစာ</span><b id="basicPayDisplay">0 ฿</b></div>
+        <div class="sum-row" id="rowOtPay" style="color:#fd7e14; display:none;"><span>OT ငွေ</span><b id="otPayDisplay">0 ฿</b></div>
+        <div class="sum-row" id="rowBonus" style="color:#20c997; display:none;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span><b id="attBonusDisplay">0 ฿</b></div>
+        <div class="sum-row" id="rowTransport" style="color:#28a745; display:none;"><span data-i18n="transport">ကားခ (Transport)</span><b id="transportDisplay">0 ฿</b></div>
+        <div class="sum-row" id="rowFoodOt" style="color:#6610f2; display:none;"><span data-i18n="foodOt">OT ထမင်းဖိုး</span><b id="foodOtTotal">0 ฿</b></div>
+        <div class="sum-row" id="rowFoodNoOt" style="color:#6610f2; display:none;"><span data-i18n="foodNoOt">နေ့လည်စာ ထမင်းဖိုး</span><b id="foodNoOtTotal">0 ฿</b></div>
+        <div class="sum-row" id="rowNightAllow" style="color:#17a2b8; display:none;"><span data-i18n="nightAllowance">ညကြေး (Night Allowance)</span><b id="nightAllowanceDisplay">0 ฿</b></div>
+        <div class="sum-row" id="rowMedLeave" style="color:#d35400; display:none;"><span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span><b id="medLeaveDisplay">0</b></div>
+        <div class="sum-row" id="rowPubHol" style="color:#8e44ad; display:none;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span><b id="pubHolidayDisplay">0</b></div>
+      </div>
+
+      <!-- Section: Gross / SSO / Net -->
+      <div style="background:#f8f9ff; padding:12px 15px;">
+        <div class="sum-row" style="font-size:14px; font-weight:bold; color:#333; margin-bottom:6px;"><span data-i18n="totalIncome">စုစုပေါင်း ဝင်ငွေ (Gross)</span><b id="grossTotalDisplay">0 ฿</b></div>
+        <div class="sum-row" style="font-size:13px; color:#dc3545; margin-bottom:8px;"><span data-i18n="ssoDeduct">ပကန်စံခွန်း (SSO 5%)</span><b id="ssoDisplay">- 0 ฿</b></div>
+        <div style="border-top:2px solid #dee2e6; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+          <b data-i18n="netSalary" style="font-size:15px; color:#198754;">အသားတင် လစာ</b>
+          <b id="grandTotal" style="font-size:22px; color:#198754;">0 ฿</b>
+        </div>
+      </div>
+
+      <!-- Hidden helper spans for JS compat -->
+      <span id="foodOtDays" style="display:none;">0</span>
+      <span id="foodNoOtDays" style="display:none;">0</span>
+
+      <div style="padding:12px 15px 0;">
+        <button class="btn-generate interactive-btn" onclick="openSalarySlip()" style="background:#0d6efd; margin-top:0; width:100%; margin-bottom:10px;">🧾 <span data-i18n="salarySlipBtn">လစာစလစ် ကြည့်မည်</span></button>
+        <div style="display:flex; gap:10px; margin-bottom:12px;">
+          <button class="btn-generate interactive-btn" onclick="navigateMonth(-1)" style="background:#6c757d; margin-top:0; font-size:13px; padding:10px; flex:1;"><span data-i18n="prevMonth">⬅️ ယခင်လ</span></button>
+          <button class="btn-generate interactive-btn" onclick="navigateMonth(1)" style="background:#198754; margin-top:0; font-size:13px; padding:10px; flex:1;"><span data-i18n="nextMonth">နောက်လ ➡️</span></button>
+        </div>
       </div>
     </div>
 
@@ -448,6 +468,37 @@
       <span id="tickerString" class="ticker-text"></span>
   </div>
 
+</div>
+
+<!-- ★ Font Control Modal (Admin only) ★ -->
+<div class="modal-overlay" id="fontControlModal" style="z-index:5000; display:none;">
+  <div class="modal-content pop-in" style="max-width:340px;">
+    <div class="modal-header">
+      <h3 style="color:#000080;" class="logo-main">🔤 Font Settings</h3>
+      <button class="close-modal interactive-btn" onclick="closeFontModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <label style="font-weight:bold; display:block; margin-bottom:6px;">Font Style</label>
+      <select id="fontFamilySelect" onchange="applyFontSettings()" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:8px; font-size:14px; margin-bottom:14px;">
+        <option value="'Noto Sans Myanmar', 'Segoe UI', sans-serif">Default (Noto Sans)</option>
+        <option value="'Padauk', sans-serif">Padauk</option>
+        <option value="'Myanmar Text', sans-serif">Myanmar Text</option>
+        <option value="'Pyidaungsu', sans-serif">Pyidaungsu</option>
+        <option value="'Arial', sans-serif">Arial</option>
+        <option value="'Georgia', serif">Georgia (Serif)</option>
+        <option value="'Courier New', monospace">Courier New (Mono)</option>
+      </select>
+      <label style="font-weight:bold; display:block; margin-bottom:6px;">Font Size: <span id="fontSizeLabel">15</span>px</label>
+      <input type="range" id="fontSizeRange" min="12" max="20" value="15" oninput="applyFontSettings()" style="width:100%; margin-bottom:14px; accent-color:#000080;">
+      <label style="font-weight:bold; display:block; margin-bottom:6px;">Card Size: <span id="cardSizeLabel">Normal</span></label>
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <button onclick="setCardSize('compact')" style="flex:1; padding:8px; border:2px solid #ccc; border-radius:8px; cursor:pointer; font-size:12px; font-weight:bold;" id="btnCompact">Compact</button>
+        <button onclick="setCardSize('normal')" style="flex:1; padding:8px; border:2px solid #000080; background:#000080; color:white; border-radius:8px; cursor:pointer; font-size:12px; font-weight:bold;" id="btnNormal">Normal</button>
+        <button onclick="setCardSize('large')" style="flex:1; padding:8px; border:2px solid #ccc; border-radius:8px; cursor:pointer; font-size:12px; font-weight:bold;" id="btnLarge">Large</button>
+      </div>
+      <button class="btn-generate interactive-btn" onclick="saveFontSettings()" style="background:#198754; margin-top:0;">💾 Save Font Settings</button>
+    </div>
+  </div>
 </div>
 
 <!-- ★ Profile Viewer Modal ★ -->
@@ -893,33 +944,41 @@
 
   window.saveCroppedPhoto = () => {
       if (!cropper) return;
-      
       showLoadingSpinner("Uploading Photo...");
-      
-      // Get cropped canvas (300x300)
-      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
-      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
-      
-      // Update UI immediately
-      window.updateProfilePhotoView(compressedBase64);
-      // Also update settings object
-      if(appData.settings) appData.settings.profilePhoto = compressedBase64;
-      window.currentProfilePhoto = compressedBase64;
-      
-      if(currentUser) {
-          set(ref(db, `users/${currentUser.uid}/settings/profilePhoto`), compressedBase64)
-          .then(() => {
+      try {
+          // ★ 200x200 + quality 0.65 — Firebase size limit အောက် ကျစ်မည် ★
+          const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 });
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+          
+          // Base64 size check (~200KB limit for Firebase)
+          if (compressedBase64.length > 200000) {
+              hideLoadingSpinner();
+              showCustomAlert("⚠️ ပုံသေးသေးလေး ရွေးပါ သို့မဟုတ် crop ကို ပိုသေးအောင် ဆွဲပါ");
+              return;
+          }
+
+          window.updateProfilePhotoView(compressedBase64);
+          if(appData.settings) appData.settings.profilePhoto = compressedBase64;
+          window.currentProfilePhoto = compressedBase64;
+          
+          if(currentUser) {
+              set(ref(db, `users/${currentUser.uid}/settings/profilePhoto`), compressedBase64)
+              .then(() => {
+                  hideLoadingSpinner();
+                  closeCropModal();
+                  showCustomAlert("✅ Profile ပုံ Upload ပြီးပါပြီ!");
+              })
+              .catch(err => {
+                  hideLoadingSpinner();
+                  showCustomAlert("❌ Upload Error: " + err.message);
+              });
+          } else {
               hideLoadingSpinner();
               closeCropModal();
-              showCustomAlert("✅ Profile ပုံ Upload ပြီးပါပြီ!");
-          })
-          .catch(err => {
-              hideLoadingSpinner();
-              showCustomAlert("❌ Upload Error: " + err.message);
-          });
-      } else {
+          }
+      } catch(e) {
           hideLoadingSpinner();
-          closeCropModal();
+          showCustomAlert("❌ Error: " + e.message);
       }
   };
 
@@ -1073,6 +1132,7 @@
                   document.getElementById('annBtn').style.display = 'flex'; 
                   document.getElementById('alertMenuBtn').style.display = 'flex'; 
                   document.getElementById('adminCalendarControls').style.display = 'block'; 
+                  document.getElementById('fontBtn').style.display = 'flex'; 
               }
               
               loadAppConfig(); 
@@ -1274,7 +1334,8 @@
       // Profile Photo မဖျက်မိစေရန် (bonusHistory save ဖြစ်ပြီး existingProfilePhoto ကို ပြန်ထည့်မည်)
       if (!appData.settings.profilePhoto && existingProfilePhoto) {
           appData.settings.profilePhoto = existingProfilePhoto;
-      } else if (!appData.settings.profilePhoto && window.currentProfilePhoto) {          appData.settings.profilePhoto = window.currentProfilePhoto;
+      } else if (!appData.settings.profilePhoto && window.currentProfilePhoto) {
+          appData.settings.profilePhoto = window.currentProfilePhoto;
       }
       set(ref(db, 'users/' + currentUser.uid), appData);
   };
@@ -1301,8 +1362,7 @@
       // ★ Bug Fix 1: Firebase မှာ သိမ်းထားတဲ့ bonus ကို စစ်မည် (UI value မဟုတ်) ★
       // ယခင်လ ပျက်ရက်ရှိ/မရှိ စစ်ပြီး bonus တွက်မည်
       let [y, m] = newMonthStr.split('-').map(Number);
-      let prevM = m - 1; let prevY = y;
-      if (prevM < 1) { prevM = 12; prevY--; }
+      let prevM = m - 1; let prevY = y;      if (prevM < 1) { prevM = 12; prevY--; }
       let prevMonthStr = `${prevY}-${String(prevM).padStart(2, '0')}`;
 
       // ယခင်လ bonus ကို firebase ဒေတာမှ တိုက်ရိုက်ယူမည်
@@ -1914,6 +1974,79 @@
       document.getElementById('holidayInfoModal').style.display = 'none';
   };
 
+  // ★ Font Control Functions ★
+  let currentCardSize = 'normal';
+  
+  window.openFontModal = () => {
+      toggleMenu(null);
+      // Load saved settings
+      let saved = localStorage.getItem('chiconyFontSettings');
+      if(saved) {
+          let s = JSON.parse(saved);
+          if(s.family) document.getElementById('fontFamilySelect').value = s.family;
+          if(s.size) { document.getElementById('fontSizeRange').value = s.size; document.getElementById('fontSizeLabel').innerText = s.size; }
+          if(s.cardSize) { currentCardSize = s.cardSize; updateCardSizeBtns(); }
+      }
+      setTimeout(() => { document.getElementById('fontControlModal').style.display = 'flex'; }, 100);
+  };
+
+  window.closeFontModal = () => { document.getElementById('fontControlModal').style.display = 'none'; };
+
+  window.applyFontSettings = () => {
+      let family = document.getElementById('fontFamilySelect').value;
+      let size = document.getElementById('fontSizeRange').value;
+      document.getElementById('fontSizeLabel').innerText = size;
+      document.body.style.fontFamily = family;
+      document.body.style.fontSize = size + 'px';
+  };
+
+  window.setCardSize = (size) => {
+      currentCardSize = size;
+      updateCardSizeBtns();
+      applyCardSize(size);
+  };
+
+  function updateCardSizeBtns() {
+      ['compact','normal','large'].forEach(s => {
+          let btn = document.getElementById('btn' + s.charAt(0).toUpperCase() + s.slice(1));
+          if(btn) { btn.style.background = (s === currentCardSize) ? '#000080' : ''; btn.style.color = (s === currentCardSize) ? 'white' : ''; btn.style.borderColor = (s === currentCardSize) ? '#000080' : '#ccc'; }
+      });
+      let labels = {compact:'Compact', normal:'Normal', large:'Large'};
+      document.getElementById('cardSizeLabel').innerText = labels[currentCardSize];
+  }
+
+  function applyCardSize(size) {
+      let cards = document.querySelectorAll('.day-card');
+      let map = { compact: '70px', normal: '100px', large: '130px' };
+      cards.forEach(c => { c.style.minWidth = map[size] || '100px'; });
+  }
+
+  window.saveFontSettings = () => {
+      applyFontSettings();
+      applyCardSize(currentCardSize);
+      let settings = {
+          family: document.getElementById('fontFamilySelect').value,
+          size: document.getElementById('fontSizeRange').value,
+          cardSize: currentCardSize
+      };
+      localStorage.setItem('chiconyFontSettings', JSON.stringify(settings));
+      closeFontModal();
+      showCustomAlert('✅ Font Settings Saved!');
+  };
+
+  // Apply saved font on load
+  (function loadFontOnStart() {
+      let saved = localStorage.getItem('chiconyFontSettings');
+      if(saved) {
+          try {
+              let s = JSON.parse(saved);
+              if(s.family) document.body.style.fontFamily = s.family;
+              if(s.size) document.body.style.fontSize = s.size + 'px';
+              if(s.cardSize) { currentCardSize = s.cardSize; applyCardSize(s.cardSize); }
+          } catch(e) {}
+      }
+  })();
+
   window.openCalendarModal = () => {
       document.getElementById('calendarModal').style.display = 'flex';
       toggleMenu(null);
@@ -2134,9 +2267,53 @@
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days'); let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
       document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; 
       document.getElementById('otDaysCount').innerText = `${normalOtDays} ${uDay} / ${ot15Hrs} ${uHr}`; 
-      document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
-      document.getElementById('otTotalCombine').innerText = `${otHrs} ${uHr}`; 
-      document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; document.getElementById('foodOtTotal').innerText = `${otFoodAllowance.toLocaleString()} ฿`; document.getElementById('foodNoOtDays').innerText = `${work} ${uDay}`; document.getElementById('foodNoOtTotal').innerText = `${lunchAllowance.toLocaleString()} ฿`; document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`; document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; document.getElementById('grossTotalDisplay').innerText = `${total.toLocaleString()} ฿`; document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`; document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
+      // ★ Summary: Set values ★
+      let showRow = (id, show) => { let el = document.getElementById(id); if(el) el.style.display = show ? 'flex' : 'none'; };
+      let setText = (id, txt) => { let el = document.getElementById(id); if(el) el.innerText = txt; };
+
+      // Work section
+      setText('workCount', `${work} ${uDay} / ${work*8} ${uHr}`);
+      showRow('rowOtDays', normalOtDays > 0);
+      setText('otDaysCount', `${normalOtDays} ${uDay} / ${ot15Hrs} ${uHr}`);
+      showRow('rowDouble', double > 0);
+      setText('doubleCount', `${double} ${uDay} / ${double*8} ${uHr}`);
+      showRow('rowOtTotal', otHrs > 0);
+      setText('otTotalCombine', `${otHrs} ${uHr}`);
+      showRow('rowAbsent', absentUnpaid > 0);
+      setText('absentCount', `${absentUnpaid} ${uDay}`);
+      showRow('rowHoliday', holiday > 0);
+      setText('holidayCount', `${holiday} ${uDay}`);
+      showRow('rowNightShift', night > 0);
+      setText('nightShiftDisplay', `${night} ${uDay}`);
+
+      // Income section
+      setText('basicPayDisplay', `${combinedBasicSalary.toLocaleString()} ฿`);
+      let otTotalPay = (ot15Pay||0) + (ot20Pay||0);
+      showRow('rowOtPay', otTotalPay > 0);
+      setText('otPayDisplay', `${otTotalPay.toLocaleString()} ฿`);
+      showRow('rowBonus', finalBonus > 0);
+      setText('attBonusDisplay', `${finalBonus.toLocaleString()} ฿`);
+      showRow('rowTransport', transport > 0);
+      setText('transportDisplay', `${transport.toLocaleString()} ฿`);
+      showRow('rowFoodOt', otFoodAllowance > 0);
+      setText('foodOtTotal', `${otFoodAllowance.toLocaleString()} ฿`);
+      showRow('rowFoodNoOt', lunchAllowance > 0);
+      setText('foodNoOtTotal', `${lunchAllowance.toLocaleString()} ฿`);
+      showRow('rowNightAllow', nightPay > 0);
+      setText('nightAllowanceDisplay', `${nightPay.toLocaleString()} ฿`);
+      showRow('rowMedLeave', medLeaveCount > 0);
+      setText('medLeaveDisplay', `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`);
+      showRow('rowPubHol', pubHolCount > 0);
+      setText('pubHolidayDisplay', `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`);
+
+      // Totals
+      setText('grossTotalDisplay', `${total.toLocaleString()} ฿`);
+      setText('ssoDisplay', `- ${ssoDeduction.toLocaleString()} ฿`);
+      setText('grandTotal', `${netSalary.toLocaleString()} ฿`);
+
+      // Legacy compat
+      setText('foodOtDays', `${otDays} ${uDay}`);
+      setText('foodNoOtDays', `${work} ${uDay}`);
       
       saveToFirebase();
   };
