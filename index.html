@@ -1289,9 +1289,9 @@
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
           if (appData.attendance[key] && appData.attendance[key].status === 'x') {
-              hasAbsence = true; break;
-          }
-          cur.setDate(cur.getDate() + 1);      }
+              hasAbsence = true; break;          }
+          cur.setDate(cur.getDate() + 1);
+      }
       return hasAbsence;
   };
 
@@ -1957,8 +1957,9 @@
       if(!isDataLoaded) return; 
       const mVal = document.getElementById('selectedMonth').value;
       if (!mVal) return;
-      // Clear previous today highlights
-      document.querySelectorAll('.day-card.today-card').forEach(c => c.classList.remove('today-card'));
+      // ဒီနေ့ key တစ်ကြိမ်တည်း တွက်ထားမည်
+      let _now = new Date();
+      let _todayKey = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
       
       let pDisplay = document.getElementById('dynamicPeriodContainer');
       let [pY, pM] = mVal.split('-');
@@ -1992,6 +1993,7 @@
           let isHolidayOrSun = isSun || isAdminHoliday; 
           
           let div = document.createElement('div'); div.className = 'day-card';
+          if (key === _todayKey) div.classList.add('today-card');
           div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); div.setAttribute('data-is-sun', isSun); div.setAttribute('data-is-sat', isSat);
           
           div.innerHTML = `
@@ -2035,29 +2037,23 @@
       }
       calculateAll();
 
-      // ★ Grid တည်ဆောက်ပြီး တစ်ကြိမ်တည်း scroll (calculateAll တိုင်း မဖြစ်ရ) ★
+      // ★ Grid တည်ဆောက်ပြီး scroll — today-card ကို card create မှာ ပြီးသား ★
       requestAnimationFrame(() => {
-          let now = new Date();
-          let todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
-          // ဒီနေ့ card ကို dashed border ထည့်
-          let todayCard = document.querySelector(`.day-card[data-real-date="${todayKey}"]`);
-          if (todayCard) todayCard.classList.add('today-card');
-
           let allCards = document.querySelectorAll('.day-card');
+          let todayCard = document.querySelector('.day-card.today-card');
           let scrollTarget = null;
 
-          // (၁) ဒီနေ့ မတိုင်မီ မဖြည့်ရသေးတဲ့ ရက်ကို ဦးစားပေး
+          // (၁) ဒီနေ့ မတိုင်မီ မဖြည့်ရသေးတဲ့ ရက်
           for (let card of allCards) {
               let cardDate = card.getAttribute('data-real-date');
-              if (cardDate && cardDate < todayKey) {
+              if (cardDate && cardDate < _todayKey) {
                   let st = card.querySelector('.status-select');
                   if (st && st.value === '') { scrollTarget = card; break; }
               }
           }
-          // (၂) အရင်ရက် အကုန်ဖြည့်ပြီး → ဒီနေ့ card
+          // (၂) အရင်ရက် ပြည့် → ဒီနေ့
           if (!scrollTarget) scrollTarget = todayCard;
-          // (၃) ဒီနေ့ period မပါ → မဖြည့်ရသေးတဲ့ ပထမ card
+          // (၃) period ထဲ ဒီနေ့မပါ → မဖြည့်ရသေးတဲ့ ပထမ card
           if (!scrollTarget) {
               for (let card of allCards) {
                   let st = card.querySelector('.status-select');
