@@ -99,6 +99,8 @@
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px;}
   
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
+  .day-card.today-card { border: 2.5px solid #000080 !important; box-shadow: 0 0 0 3px rgba(0,0,128,0.15) !important; background: #f0f4ff !important; }
+  .dark-mode .day-card.today-card { background: #1a2a4a !important; border-color: #82b1ff !important; box-shadow: 0 0 0 3px rgba(130,177,255,0.2) !important; }
   .blank-card { background: transparent; border: none; } 
 
   .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
@@ -1287,8 +1289,7 @@
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
           if (appData.attendance[key] && appData.attendance[key].status === 'x') {
-              hasAbsence = true; break;
-          }
+              hasAbsence = true; break;          }
           cur.setDate(cur.getDate() + 1);
       }
       return hasAbsence;
@@ -1955,7 +1956,9 @@
   window.generateGrid = (isNew = true) => {
       if(!isDataLoaded) return; 
       const mVal = document.getElementById('selectedMonth').value;
-      if (!mVal) return; 
+      if (!mVal) return;
+      // Clear previous today highlights
+      document.querySelectorAll('.day-card.today-card').forEach(c => c.classList.remove('today-card'));
       
       let pDisplay = document.getElementById('dynamicPeriodContainer');
       let [pY, pM] = mVal.split('-');
@@ -2139,6 +2142,34 @@
       document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; document.getElementById('foodOtTotal').innerText = `${otFoodAllowance.toLocaleString()} ฿`; document.getElementById('foodNoOtDays').innerText = `${work} ${uDay}`; document.getElementById('foodNoOtTotal').innerText = `${lunchAllowance.toLocaleString()} ฿`; document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`; document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; document.getElementById('grossTotalDisplay').innerText = `${total.toLocaleString()} ฿`; document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`; document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
       
       saveToFirebase();
+
+      // ★ Auto-scroll: ဒီနေ့ ဇယားကွက် / မဖြည့်ရသေးတဲ့ ဇယားကွက်ဆီ scroll သွားမည် ★
+      requestAnimationFrame(() => {
+          let now = new Date();
+          let todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+          // ဒီနေ့ card ရှာ
+          let todayCard = document.querySelector(`.day-card[data-real-date="${todayKey}"]`);
+
+          if (todayCard) {
+              // ဒီနေ့ card ရှိရင် → ဒီနေ့ card ဆီ scroll
+              todayCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // ဒီနေ့ card ကို highlight လုပ်မည်
+              todayCard.classList.add('today-card');
+          } else {
+              // ဒီနေ့ card မရှိ (period ထဲမပါ) → မဖြည့်ရသေးတဲ့ ပထမဆုံး card ဆီ scroll
+              let cards = document.querySelectorAll('.day-card');
+              let firstEmpty = null;
+              for (let card of cards) {
+                  let statusSel = card.querySelector('.status-select');
+                  if (statusSel && statusSel.value === '') {
+                      firstEmpty = card;
+                      break;
+                  }
+              }
+              if (firstEmpty) firstEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+      });
   };
 
   window.downloadSlipImage = () => {
