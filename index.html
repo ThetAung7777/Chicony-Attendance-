@@ -99,8 +99,8 @@
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px;}
   
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
-  .day-card.today-card { border: 2.5px dashed #000080 !important; box-shadow: none !important; }
-  .dark-mode .day-card.today-card { border-color: #82b1ff !important; }
+  .day-card.today-card { outline: 3px dashed #000080 !important; outline-offset: 2px; }
+  .dark-mode .day-card.today-card { outline-color: #82b1ff !important; }
   .blank-card { background: transparent; border: none; } 
 
   .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
