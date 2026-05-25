@@ -99,8 +99,8 @@
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px;}
   
   .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
-  .day-card.today-card { border: 2.5px solid #000080 !important; box-shadow: 0 0 0 3px rgba(0,0,128,0.15) !important; background: #f0f4ff !important; }
-  .dark-mode .day-card.today-card { background: #1a2a4a !important; border-color: #82b1ff !important; box-shadow: 0 0 0 3px rgba(130,177,255,0.2) !important; }
+  .day-card.today-card { border: 2.5px dashed #000080 !important; box-shadow: none !important; }
+  .dark-mode .day-card.today-card { border-color: #82b1ff !important; }
   .blank-card { background: transparent; border: none; } 
 
   .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
@@ -1289,15 +1289,15 @@
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
           if (appData.attendance[key] && appData.attendance[key].status === 'x') {
-              hasAbsence = true; break;          }
+              hasAbsence = true; break;
+          }
           cur.setDate(cur.getDate() + 1);
       }
       return hasAbsence;
   };
 
   window.handleMonthChange = () => {
-      let newMonthStr = document.getElementById('selectedMonth').value;
-      if (!newMonthStr) return;
+      let newMonthStr = document.getElementById('selectedMonth').value;      if (!newMonthStr) return;
 
       // ★ Bug Fix 1: Firebase မှာ သိမ်းထားတဲ့ bonus ကို စစ်မည် (UI value မဟုတ်) ★
       // ယခင်လ ပျက်ရက်ရှိ/မရှိ စစ်ပြီး bonus တွက်မည်
@@ -2151,24 +2151,40 @@
           // ဒီနေ့ card ရှာ
           let todayCard = document.querySelector(`.day-card[data-real-date="${todayKey}"]`);
 
-          if (todayCard) {
-              // ဒီနေ့ card ရှိရင် → ဒီနေ့ card ဆီ scroll
-              todayCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              // ဒီနေ့ card ကို highlight လုပ်မည်
-              todayCard.classList.add('today-card');
-          } else {
-              // ဒီနေ့ card မရှိ (period ထဲမပါ) → မဖြည့်ရသေးတဲ့ ပထမဆုံး card ဆီ scroll
-              let cards = document.querySelectorAll('.day-card');
-              let firstEmpty = null;
-              for (let card of cards) {
+          // ဒီနေ့ card ကို dashed border သာ ထည့် (bg မပြောင်း)
+          if (todayCard) todayCard.classList.add('today-card');
+
+          // ★ Scroll priority: ဒီနေ့ မတိုင်မီ မဖြည့်ရသေးတဲ့ အရင်ဆုံး card ကို scroll ★
+          let allCards = document.querySelectorAll('.day-card');
+          let scrollTarget = null;
+
+          for (let card of allCards) {
+              let cardDate = card.getAttribute('data-real-date');
+              // ဒီနေ့ မတိုင်မီ ရက်တွေကို စစ်မည်
+              if (cardDate && cardDate < todayKey) {
                   let statusSel = card.querySelector('.status-select');
                   if (statusSel && statusSel.value === '') {
-                      firstEmpty = card;
+                      scrollTarget = card;
                       break;
                   }
               }
-              if (firstEmpty) firstEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
+
+          // အရင်ရက်တွေ အကုန်ဖြည့်ပြီးရင် ဒီနေ့ card ဆီ scroll
+          if (!scrollTarget) scrollTarget = todayCard;
+
+          // todayCard မပါတဲ့ period (ယခင်လ/နောက်လ) ဆိုရင် မဖြည့်ရသေးတဲ့ ပထမ card
+          if (!scrollTarget) {
+              for (let card of allCards) {
+                  let statusSel = card.querySelector('.status-select');
+                  if (statusSel && statusSel.value === '') {
+                      scrollTarget = card;
+                      break;
+                  }
+              }
+          }
+
+          if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
   };
 
