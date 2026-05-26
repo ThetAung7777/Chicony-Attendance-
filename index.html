@@ -91,7 +91,7 @@
   #stickyWeekdaysWrapper { width: 100%; overflow-x: hidden; }
   .calendar-container { min-width: 750px; padding: 0 10px; box-sizing: border-box; } 
 
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 12px 0; margin: 0;}
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 10px 10px; margin: 0; box-sizing: border-box;}
   .weekdays > div { position: relative; }
   .weekdays > div:not(:last-child)::after { content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd; }
   
@@ -2036,8 +2036,8 @@
       }
       calculateAll();
 
-      // ★ Grid တည်ဆောက်ပြီး scroll — today-card ကို card create မှာ ပြီးသား ★
-      requestAnimationFrame(() => {
+      // ★ Grid render ပြီးမှ scroll (setTimeout 150ms) ★
+      setTimeout(() => {
           let allCards = document.querySelectorAll('.day-card');
           let todayCard = document.querySelector('.day-card.today-card');
           let scrollTarget = null;
@@ -2067,7 +2067,7 @@
               let cardTop = scrollTarget.getBoundingClientRect().top + window.scrollY;
               window.scrollTo({ top: cardTop - navH - stickyH - 10, behavior: 'smooth' });
           }
-      });
+      }, 150);
   };
 
   window.calculateAll = () => {
