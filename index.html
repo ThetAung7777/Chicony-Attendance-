@@ -91,7 +91,7 @@
   #stickyWeekdaysWrapper { width: 100%; overflow-x: hidden; }
   .calendar-container { min-width: 750px; padding: 0 10px; box-sizing: border-box; } 
 
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 12px 0; margin: 0;}
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 10px 10px; margin: 0; box-sizing: border-box;}
   .weekdays > div { position: relative; }
   .weekdays > div:not(:last-child)::after { content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd; }
   
@@ -1292,8 +1292,7 @@
               hasAbsence = true; break;          }
           cur.setDate(cur.getDate() + 1);
       }
-      return hasAbsence;
-  };
+      return hasAbsence;  };
 
   window.handleMonthChange = () => {
       let newMonthStr = document.getElementById('selectedMonth').value;
@@ -2037,8 +2036,8 @@
       }
       calculateAll();
 
-      // ★ Grid တည်ဆောက်ပြီး scroll — today-card ကို card create မှာ ပြီးသား ★
-      requestAnimationFrame(() => {
+      // ★ Grid render ပြီးမှ scroll (sticky header offset ထည့်) ★
+      setTimeout(() => {
           let allCards = document.querySelectorAll('.day-card');
           let todayCard = document.querySelector('.day-card.today-card');
           let scrollTarget = null;
@@ -2060,8 +2059,14 @@
                   if (st && st.value === '') { scrollTarget = card; break; }
               }
           }
-          if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
+          if (scrollTarget) {
+              // navbar + sticky header offset
+              let navH = (document.querySelector('.navbar') || {offsetHeight:60}).offsetHeight;
+              let stickyH = (document.getElementById('unifiedStickyHeader') || {offsetHeight:80}).offsetHeight;
+              let top = scrollTarget.getBoundingClientRect().top + window.scrollY - navH - stickyH - 10;
+              window.scrollTo({ top, behavior: 'smooth' });
+          }
+      }, 200);
   };
 
   window.calculateAll = () => {
