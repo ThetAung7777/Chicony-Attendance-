@@ -91,7 +91,7 @@
   #stickyWeekdaysWrapper { width: 100%; overflow-x: hidden; }
   .calendar-container { min-width: 750px; padding: 0 10px; box-sizing: border-box; } 
 
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 10px 10px; margin: 0; box-sizing: border-box;}
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 12px 0; margin: 0;}
   .weekdays > div { position: relative; }
   .weekdays > div:not(:last-child)::after { content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd; }
   
@@ -1292,7 +1292,8 @@
               hasAbsence = true; break;          }
           cur.setDate(cur.getDate() + 1);
       }
-      return hasAbsence;  };
+      return hasAbsence;
+  };
 
   window.handleMonthChange = () => {
       let newMonthStr = document.getElementById('selectedMonth').value;
@@ -2036,8 +2037,8 @@
       }
       calculateAll();
 
-      // ★ Grid render ပြီးမှ scroll (setTimeout 150ms) ★
-      setTimeout(() => {
+      // ★ Grid တည်ဆောက်ပြီး scroll — today-card ကို card create မှာ ပြီးသား ★
+      requestAnimationFrame(() => {
           let allCards = document.querySelectorAll('.day-card');
           let todayCard = document.querySelector('.day-card.today-card');
           let scrollTarget = null;
@@ -2059,15 +2060,8 @@
                   if (st && st.value === '') { scrollTarget = card; break; }
               }
           }
-          if (scrollTarget) {
-              let navbar = document.querySelector('.navbar');
-              let stickyHdr = document.getElementById('unifiedStickyHeader');
-              let navH = navbar ? navbar.offsetHeight : 60;
-              let stickyH = stickyHdr ? stickyHdr.offsetHeight : 80;
-              let cardTop = scrollTarget.getBoundingClientRect().top + window.scrollY;
-              window.scrollTo({ top: cardTop - navH - stickyH - 10, behavior: 'smooth' });
-          }
-      }, 150);
+          if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
   };
 
   window.calculateAll = () => {
