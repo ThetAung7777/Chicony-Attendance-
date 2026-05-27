@@ -1292,8 +1292,7 @@
               hasAbsence = true; break;          }
           cur.setDate(cur.getDate() + 1);
       }
-      return hasAbsence;
-  };
+      return hasAbsence;  };
 
   window.handleMonthChange = () => {
       let newMonthStr = document.getElementById('selectedMonth').value;
@@ -1317,10 +1316,10 @@
       let newBonus;
       if (hasAbsence) {
           newBonus = 500;
-      } else {          if (savedPrevBonus === 500) newBonus = 800;
+      } else {
+          if (savedPrevBonus === 500) newBonus = 800;
           else if (savedPrevBonus === 800) newBonus = 1000;
-          else if (savedPrevBonus === 1000) newBonus = 1000;
-          else newBonus = 800;
+          else if (savedPrevBonus === 1000) newBonus = 1000;          else newBonus = 800;
       }
 
       document.getElementById('attBonusSetting').value = newBonus;
@@ -2036,22 +2035,31 @@
       }
       calculateAll();
 
-      // ★ Grid render ပြီးမှ scroll (sticky header offset ထည့်) ★
+      // ★ Grid render ပြီးမှ scroll ★
       setTimeout(() => {
           let allCards = document.querySelectorAll('.day-card');
           let todayCard = document.querySelector('.day-card.today-card');
           let scrollTarget = null;
 
-          // (၁) ဒီနေ့ မတိုင်မီ မဖြည့်ရသေးတဲ့ ရက်
+          // (၁) ဒီနေ့ မတိုင်မီ မဖြည့်ရသေးတဲ့ နောက်ဆုံးရက် (ပျက်ကွက် ရှာ)
+          let lastEmpty = null;
           for (let card of allCards) {
               let cardDate = card.getAttribute('data-real-date');
               if (cardDate && cardDate < _todayKey) {
                   let st = card.querySelector('.status-select');
-                  if (st && st.value === '') { scrollTarget = card; break; }
+                  if (st && st.value === '') lastEmpty = card;
               }
           }
-          // (၂) အရင်ရက် ပြည့် → ဒီနေ့
-          if (!scrollTarget) scrollTarget = todayCard;
+          if (lastEmpty) scrollTarget = lastEmpty;
+
+          // (၂) အရင်ရက် ပြည့်ရင် → ဒီနေ့ တစ်ရက်မတိုင်မီ row ကနေ ပြ (ဒီနေ့, မနေ့, မနက်ဖြန် မြင်ရမည်)
+          if (!scrollTarget && todayCard) {
+              // ဒီနေ့ card ရဲ့ တစ်ရက်မတိုင်မီ card ကို scroll anchor အဖြစ်သုံး
+              let allCardsArr = Array.from(allCards);
+              let todayIdx = allCardsArr.indexOf(todayCard);
+              scrollTarget = todayIdx > 0 ? allCardsArr[todayIdx - 1] : todayCard;
+          }
+
           // (၃) period ထဲ ဒီနေ့မပါ → မဖြည့်ရသေးတဲ့ ပထမ card
           if (!scrollTarget) {
               for (let card of allCards) {
@@ -2059,11 +2067,11 @@
                   if (st && st.value === '') { scrollTarget = card; break; }
               }
           }
+
           if (scrollTarget) {
-              // navbar + sticky header offset
               let navH = (document.querySelector('.navbar') || {offsetHeight:60}).offsetHeight;
               let stickyH = (document.getElementById('unifiedStickyHeader') || {offsetHeight:80}).offsetHeight;
-              let top = scrollTarget.getBoundingClientRect().top + window.scrollY - navH - stickyH - 10;
+              let top = scrollTarget.getBoundingClientRect().top + window.scrollY - navH - stickyH - 8;
               window.scrollTo({ top, behavior: 'smooth' });
           }
       }, 200);
@@ -2179,12 +2187,11 @@
 
   window.downloadSlipImage = () => {
       let printArea = document.getElementById('slipPrintArea');
-      let originalBackground = printArea.style.background;
+      if (!printArea) { showCustomAlert("❌ Slip area not found."); return; }
+      let originalBg = printArea.style.background;
       printArea.style.background = 'white';
+      showLoadingSpinner("Saving...");
 
-      showLoadingSpinner("Saving image...");
-
-      // ★ scale:4 → high quality (3-5MB range) ★
       html2canvas(printArea, {
           scale: 4,
           useCORS: true,
@@ -2192,25 +2199,19 @@
           backgroundColor: '#ffffff',
           logging: false,
       }).then(canvas => {
-          // ★ WATERMARK — "CHICONY" diagonal across the slip ★
+          // ── CHICONY watermark ──
           let ctx = canvas.getContext('2d');
-          let w = canvas.width;
-          let h = canvas.height;
-
-          // Repeat watermark in a grid pattern
+          let cw = canvas.width, ch = canvas.height;
           ctx.save();
           ctx.globalAlpha = 0.07;
           ctx.fillStyle = '#21409A';
-          let fontSize = Math.round(w * 0.055);
-          ctx.font = `bold ${fontSize}px 'Arial', sans-serif`;
+          let fs = Math.round(cw * 0.055);
+          ctx.font = `bold ${fs}px Arial, sans-serif`;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-
-          // Rotate and tile
-          let stepX = w * 0.38;
-          let stepY = h * 0.18;
-          for (let y = -stepY; y < h + stepY; y += stepY) {
-              for (let x = -stepX; x < w + stepX; x += stepX) {
+          let sx = cw * 0.38, sy = ch * 0.18;
+          for (let y = 0; y < ch + sy; y += sy) {
+              for (let x = 0; x < cw + sx; x += sx) {
                   ctx.save();
                   ctx.translate(x, y);
                   ctx.rotate(-Math.PI / 7);
@@ -2220,23 +2221,27 @@
           }
           ctx.restore();
 
-          // Export as high-quality PNG (lossless, ~3-5MB)
-          let imgData = canvas.toDataURL('image/png');
-          let link = document.createElement('a');
-          link.href = imgData;
-          let d = window.currentSlipData;
-          let p = d && d.period ? d.period : 'slip';
-          link.download = `Chicony_Slip_${p}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          printArea.style.background = originalBackground;
-          hideLoadingSpinner();
+          // ── Save as PNG (lossless, high quality) ──
+          canvas.toBlob(blob => {
+              let url = URL.createObjectURL(blob);
+              let link = document.createElement('a');
+              let d = window.currentSlipData;
+              let p = d && d.period ? d.period : 'slip';
+              link.href = url;
+              link.download = `Chicony_Slip_${p}.png`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+              printArea.style.background = originalBg;
+              hideLoadingSpinner();
+          }, 'image/png');
+
       }).catch(err => {
-          console.error("Error generating image:", err);
-          printArea.style.background = originalBackground;
+          console.error("Slip save error:", err);
+          printArea.style.background = originalBg;
           hideLoadingSpinner();
-          showCustomAlert("❌ Failed to save image: " + err.message);
+          showCustomAlert("❌ Save failed: " + err.message);
       });
   };
 
