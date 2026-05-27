@@ -1292,7 +1292,8 @@
               hasAbsence = true; break;          }
           cur.setDate(cur.getDate() + 1);
       }
-      return hasAbsence;  };
+      return hasAbsence;
+  };
 
   window.handleMonthChange = () => {
       let newMonthStr = document.getElementById('selectedMonth').value;
@@ -1316,8 +1317,7 @@
       let newBonus;
       if (hasAbsence) {
           newBonus = 500;
-      } else {
-          if (savedPrevBonus === 500) newBonus = 800;
+      } else {          if (savedPrevBonus === 500) newBonus = 800;
           else if (savedPrevBonus === 800) newBonus = 1000;
           else if (savedPrevBonus === 1000) newBonus = 1000;
           else newBonus = 800;
@@ -2180,14 +2180,64 @@
   window.downloadSlipImage = () => {
       let printArea = document.getElementById('slipPrintArea');
       let originalBackground = printArea.style.background;
-      printArea.style.background = 'white'; 
-      html2canvas(printArea, { scale: 2, useCORS: true }).then(canvas => {
-          let imgData = canvas.toDataURL('image/jpeg', 1.0);
-          let link = document.createElement('a'); link.href = imgData;
-          let d = window.currentSlipData; let p = d && d.period ? d.period : 'slip';
-          link.download = `Chicony_Slip_${p}.jpg`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      printArea.style.background = 'white';
+
+      showLoadingSpinner("Saving image...");
+
+      // ★ scale:4 → high quality (3-5MB range) ★
+      html2canvas(printArea, {
+          scale: 4,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+      }).then(canvas => {
+          // ★ WATERMARK — "CHICONY" diagonal across the slip ★
+          let ctx = canvas.getContext('2d');
+          let w = canvas.width;
+          let h = canvas.height;
+
+          // Repeat watermark in a grid pattern
+          ctx.save();
+          ctx.globalAlpha = 0.07;
+          ctx.fillStyle = '#21409A';
+          let fontSize = Math.round(w * 0.055);
+          ctx.font = `bold ${fontSize}px 'Arial', sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Rotate and tile
+          let stepX = w * 0.38;
+          let stepY = h * 0.18;
+          for (let y = -stepY; y < h + stepY; y += stepY) {
+              for (let x = -stepX; x < w + stepX; x += stepX) {
+                  ctx.save();
+                  ctx.translate(x, y);
+                  ctx.rotate(-Math.PI / 7);
+                  ctx.fillText('CHICONY', 0, 0);
+                  ctx.restore();
+              }
+          }
+          ctx.restore();
+
+          // Export as high-quality PNG (lossless, ~3-5MB)
+          let imgData = canvas.toDataURL('image/png');
+          let link = document.createElement('a');
+          link.href = imgData;
+          let d = window.currentSlipData;
+          let p = d && d.period ? d.period : 'slip';
+          link.download = `Chicony_Slip_${p}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
           printArea.style.background = originalBackground;
-      }).catch(err => { console.error("Error generating image: ", err); showCustomAlert("Failed to save image."); });
+          hideLoadingSpinner();
+      }).catch(err => {
+          console.error("Error generating image:", err);
+          printArea.style.background = originalBackground;
+          hideLoadingSpinner();
+          showCustomAlert("❌ Failed to save image: " + err.message);
+      });
   };
 
   window.openSalarySlip = () => {
