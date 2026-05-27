@@ -98,7 +98,9 @@
   .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px;}
   
-  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
+  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; transition: transform 0.12s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.12s ease; cursor: pointer; user-select: none; -webkit-user-select: none;}
+  .day-card:active:not(.blank-card) { transform: scale(0.91) translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,128,0.18); }
+  .dark-mode .day-card:active:not(.blank-card) { box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
   .day-card.today-card { outline: 3px dashed #000080 !important; outline-offset: 2px; }
   .dark-mode .day-card.today-card { outline-color: #82b1ff !important; }
   .blank-card { background: transparent; border: none; } 
@@ -1310,8 +1312,7 @@
           ? parseInt(appData.settings.bonusHistory[prevMonthStr])
           : (appData.settings && appData.settings.attBonusSetting ? parseInt(appData.settings.attBonusSetting) : 500);
 
-      // ယခင်လ ပျက်ရက်ရှိ/မရှိ စစ်မည်
-      let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
+      // ယခင်လ ပျက်ရက်ရှိ/မရှိ စစ်မည်      let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
 
       let newBonus;
       if (hasAbsence) {
@@ -1319,7 +1320,8 @@
       } else {
           if (savedPrevBonus === 500) newBonus = 800;
           else if (savedPrevBonus === 800) newBonus = 1000;
-          else if (savedPrevBonus === 1000) newBonus = 1000;          else newBonus = 800;
+          else if (savedPrevBonus === 1000) newBonus = 1000;
+          else newBonus = 800;
       }
 
       document.getElementById('attBonusSetting').value = newBonus;
@@ -2035,38 +2037,20 @@
       }
       calculateAll();
 
-      // ★ Grid render ပြီးမှ scroll ★
+      // ★ Grid render ပြီးမှ scroll — ပထမဆုံး empty card ကိုသွား ★
       setTimeout(() => {
           let allCards = document.querySelectorAll('.day-card');
-          let todayCard = document.querySelector('.day-card.today-card');
           let scrollTarget = null;
 
-          // (၁) ဒီနေ့ မတိုင်မီ မဖြည့်ရသေးတဲ့ နောက်ဆုံးရက် (ပျက်ကွက် ရှာ)
-          let lastEmpty = null;
+          // date မစစ်ဘဲ ပထမဆုံး status မဖြည့်ရသေးတဲ့ card
           for (let card of allCards) {
-              let cardDate = card.getAttribute('data-real-date');
-              if (cardDate && cardDate < _todayKey) {
-                  let st = card.querySelector('.status-select');
-                  if (st && st.value === '') lastEmpty = card;
-              }
-          }
-          if (lastEmpty) scrollTarget = lastEmpty;
-
-          // (၂) အရင်ရက် ပြည့်ရင် → ဒီနေ့ တစ်ရက်မတိုင်မီ row ကနေ ပြ (ဒီနေ့, မနေ့, မနက်ဖြန် မြင်ရမည်)
-          if (!scrollTarget && todayCard) {
-              // ဒီနေ့ card ရဲ့ တစ်ရက်မတိုင်မီ card ကို scroll anchor အဖြစ်သုံး
-              let allCardsArr = Array.from(allCards);
-              let todayIdx = allCardsArr.indexOf(todayCard);
-              scrollTarget = todayIdx > 0 ? allCardsArr[todayIdx - 1] : todayCard;
+              if (card.classList.contains('blank-card')) continue;
+              let st = card.querySelector('.status-select');
+              if (st && st.value === '') { scrollTarget = card; break; }
           }
 
-          // (၃) period ထဲ ဒီနေ့မပါ → မဖြည့်ရသေးတဲ့ ပထမ card
-          if (!scrollTarget) {
-              for (let card of allCards) {
-                  let st = card.querySelector('.status-select');
-                  if (st && st.value === '') { scrollTarget = card; break; }
-              }
-          }
+          // အကုန်ဖြည့်ပြီးရင် → today card
+          if (!scrollTarget) scrollTarget = document.querySelector('.day-card.today-card');
 
           if (scrollTarget) {
               let navH = (document.querySelector('.navbar') || {offsetHeight:60}).offsetHeight;
@@ -2190,7 +2174,9 @@
       if (!printArea) { showCustomAlert("❌ Slip area not found."); return; }
       let originalBg = printArea.style.background;
       printArea.style.background = 'white';
-      showLoadingSpinner("Saving...");
+      // Show loading spinner
+      let spinner = document.getElementById('loadingSpinner');
+      if (spinner) { spinner.style.display = 'flex'; spinner.innerText = 'Saving image...'; }
 
       html2canvas(printArea, {
           scale: 4,
@@ -2234,13 +2220,13 @@
               document.body.removeChild(link);
               URL.revokeObjectURL(url);
               printArea.style.background = originalBg;
-              hideLoadingSpinner();
+              if (spinner) spinner.style.display = 'none';
           }, 'image/png');
 
       }).catch(err => {
           console.error("Slip save error:", err);
           printArea.style.background = originalBg;
-          hideLoadingSpinner();
+          if (spinner) spinner.style.display = 'none';
           showCustomAlert("❌ Save failed: " + err.message);
       });
   };
