@@ -550,7 +550,15 @@
         <button class="close-modal interactive-btn" onclick="closeSsoSettingsModal()">×</button>
     </div>
     <div class="modal-body">
-        <p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 15px;">ပကန်စံခွန်း (SSO) ၅% တွက်ချက်ရာတွင် ထည့်သွင်းပေါင်းမည့် အရာများကို ရွေးချယ်ပါ။ (Admin သာ ပြင်ဆင်နိုင်သည်)</p>
+        <p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 12px;">ပကန်စံခွန်း (SSO) ၅% တွက်ချက်ရာတွင် ထည့်သွင်းပေါင်းမည့် အရာများကို ရွေးချယ်ပါ။ (Admin သာ ပြင်ဆင်နိုင်သည်)</p>
+
+        <!-- လရွေးချယ်ရန် -->
+        <div style="background:#f8f9fa; border-radius:8px; padding:12px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <span style="font-size:13px; font-weight:bold; color:#333; white-space:nowrap;">📅 SSO လ ရွေးချယ်ပါ</span>
+          <input type="month" id="ssoMonthSelect" style="border:1px solid #ccc; border-radius:6px; padding:6px 10px; font-size:13px; outline:none; flex:1; max-width:180px;" onchange="loadSsoForMonth()">
+        </div>
+        <div id="ssoCurrentLabel" style="font-size:12px; color:#007bff; margin-bottom:12px; font-weight:bold;"></div>
+
         <div class="setup-box" style="display: flex; flex-direction: column; gap: 15px; margin-top:0;">
           <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
             <input type="checkbox" id="ssoOptBasic" style="width: 20px; height: 20px; cursor: pointer;"> အခြေခံလစာ (Basic Salary)
@@ -565,7 +573,7 @@
             <input type="checkbox" id="ssoOptFood" style="width: 20px; height: 20px; cursor: pointer;"> နေ့လည်စာ ထမင်းဖိုး (Food Allowance)
           </label>
         </div>
-        <button class="btn-generate interactive-btn" style="background:#198754; margin-top:25px; width: 100%;" onclick="saveSsoSettings()">💾 Save Settings</button>
+        <button class="btn-generate interactive-btn" style="background:#198754; margin-top:25px; width: 100%;" onclick="saveSsoSettings()">💾 Save SSO Settings</button>
     </div>
   </div>
 </div>
@@ -1313,8 +1321,7 @@
       // ယခင်လ ပျက်ရက်ရှိ/မရှိ စစ်မည်
       let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
 
-      let newBonus;
-      if (hasAbsence) {
+      let newBonus;      if (hasAbsence) {
           newBonus = 500;
       } else {
           if (savedPrevBonus === 500) newBonus = 800;
@@ -1459,6 +1466,11 @@
           document.documentElement.style.setProperty('--app-header-color', headerColor);
           document.documentElement.style.setProperty('--app-bg-color', bodyColor);
           
+          // ssoHistory load မည်
+          if(config.ssoHistory) {
+              window.ssoHistory = config.ssoHistory;
+          }
+          // legacy ssoSettings (backward compat)
           if(config.ssoSettings) {
               window.ssoConfig = config.ssoSettings;
           }
@@ -1552,28 +1564,70 @@
       }
   };
 
-  window.openSsoSettingsModal = () => { 
-      document.getElementById('ssoOptBasic').checked = window.ssoConfig.basic;
-      document.getElementById('ssoOptPubHol').checked = window.ssoConfig.pubHol;
-      document.getElementById('ssoOptNight').checked = window.ssoConfig.night;
-      document.getElementById('ssoOptFood').checked = window.ssoConfig.food;
+  window.openSsoSettingsModal = () => {
+      // လက်ရှိ selectedMonth ကို default ထားမည်
+      let curMonth = document.getElementById('selectedMonth').value || '';
+      let ssoMonthSel = document.getElementById('ssoMonthSelect');
+      if (ssoMonthSel) ssoMonthSel.value = curMonth;
+
+      // ထို လ ၏ SSO config ကို load လုပ်မည်
+      loadSsoForMonth();
       document.getElementById('ssoSettingsModal').style.display = 'flex'; 
       toggleMenu(null); 
   };
   
   window.closeSsoSettingsModal = () => { document.getElementById('ssoSettingsModal').style.display = 'none'; };
 
+  // SSO ကို လအလိုက် load လုပ်မည်
+  window.loadSsoForMonth = () => {
+      let monthKey = document.getElementById('ssoMonthSelect').value;
+      let labelEl = document.getElementById('ssoCurrentLabel');
+
+      // ထို လ ၏ history ရှိ/မရှိ စစ်မည်
+      let cfg = { basic: true, pubHol: true, night: true, food: true }; // default
+      if (monthKey && window.ssoHistory && window.ssoHistory[monthKey]) {
+          cfg = window.ssoHistory[monthKey];
+      }
+
+      document.getElementById('ssoOptBasic').checked = cfg.basic;
+      document.getElementById('ssoOptPubHol').checked = cfg.pubHol;
+      document.getElementById('ssoOptNight').checked = cfg.night;
+      document.getElementById('ssoOptFood').checked = cfg.food;
+
+      if (labelEl) {
+          if (monthKey && window.ssoHistory && window.ssoHistory[monthKey]) {
+              labelEl.innerText = `✅ ${monthKey} — SSO setting ရှိပြီးသား`;
+              labelEl.style.color = '#198754';
+          } else if (monthKey) {
+              labelEl.innerText = `⚠️ ${monthKey} — SSO setting မရှိသေး (default သုံးမည်)`;
+              labelEl.style.color = '#fd7e14';
+          } else {
+              labelEl.innerText = '';
+          }
+      }
+  };
+
   window.saveSsoSettings = () => {
+      let monthKey = document.getElementById('ssoMonthSelect').value;
+      if (!monthKey) { showCustomAlert("❌ ကျေးဇူးပြု၍ လကို ရွေးပါ"); return; }
+
       let newSso = {
           basic: document.getElementById('ssoOptBasic').checked,
           pubHol: document.getElementById('ssoOptPubHol').checked,
           night: document.getElementById('ssoOptNight').checked,
           food: document.getElementById('ssoOptFood').checked
       };
-      update(ref(db, 'appConfig/ssoSettings'), newSso).then(() => {
-          showCustomAlert('✅ SSO Settings Saved!');
-          window.ssoConfig = newSso;
-          calculateAll(); 
+      if (!window.ssoHistory) window.ssoHistory = {};
+      window.ssoHistory[monthKey] = newSso;
+      // Firebase မှာ ssoHistory တစ်ခုလုံး သိမ်းမည်
+      set(ref(db, 'appConfig/ssoHistory'), window.ssoHistory).then(() => {
+          // လက်ရှိ selected month နဲ့ တူရင် ssoConfig ကိုလည်း update
+          let curMonth = document.getElementById('selectedMonth').value;
+          if (monthKey === curMonth) window.ssoConfig = newSso;
+
+          showCustomAlert('✅ ' + monthKey + ' SSO Settings Saved!');
+          loadSsoForMonth(); // label refresh
+          calculateAll();
           closeSsoSettingsModal();
       });
   };
@@ -2070,6 +2124,11 @@
   };
 
   window.calculateAll = () => {
+      // ★ လက်ရှိ month ၏ SSO config ကို ssoHistory မှ ယူမည် ★
+      let _calcMonth = document.getElementById('selectedMonth').value || '';
+      if (_calcMonth && window.ssoHistory && window.ssoHistory[_calcMonth]) {
+          window.ssoConfig = window.ssoHistory[_calcMonth];
+      }
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
