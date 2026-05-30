@@ -1321,7 +1321,8 @@
       // ယခင်လ ပျက်ရက်ရှိ/မရှိ စစ်မည်
       let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
 
-      let newBonus;      if (hasAbsence) {
+      let newBonus;
+      if (hasAbsence) {
           newBonus = 500;
       } else {
           if (savedPrevBonus === 500) newBonus = 800;
@@ -1338,7 +1339,6 @@
 
       window.generateGrid(false); 
   };
-
   window.navigateMonth = (step) => {
       let currentMonthVal = document.getElementById('selectedMonth').value;
       if (!currentMonthVal) return;
@@ -1828,7 +1828,7 @@
       let dayIndex = new Date(dateStr).getDay();
       let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       let dayKey = daysMap[dayIndex];
-      
+
       let type = '';
       if (val === '✓') type = 'work';
       else if (val === 'x') type = 'absent';
@@ -1837,8 +1837,43 @@
       if (type && window.customAlertMsgs && window.customAlertMsgs[type] && window.customAlertMsgs[type][dayKey]) {
           showCustomAlert(window.customAlertMsgs[type][dayKey]);
       }
-      
+
       calculateAll();
+
+      // ★ ဖြည့်ပြီးနောက် ကျော်ထားတဲ့ ရက်တွေ စစ်မည် ★
+      if (val !== '') {
+          setTimeout(() => {
+              let allCards = Array.from(document.querySelectorAll('.day-card:not(.blank-card)'));
+              let filledIdx = allCards.indexOf(card);
+
+              // ဒီ card မတိုင်မီ empty card တွေ ရှာမည်
+              let skippedDates = [];
+              for (let i = 0; i < filledIdx; i++) {
+                  let c = allCards[i];
+                  let st = c.querySelector('.status-select');
+                  if (st && st.value === '') {
+                      let d = c.getAttribute('data-real-date');
+                      if (d) {
+                          let dObj = new Date(d);
+                          // month/day format (မြန်မာ style)
+                          skippedDates.push(`${dObj.getDate()} ရက် (${['တနင်္ဂနွေ','တနင်္လာ','အင်္ဂါ','ဗုဒ္ဓဟူး','ကြာသပတေး','သောကြာ','စနေ'][dObj.getDay()]})`);
+                      }
+                  }
+              }
+
+              if (skippedDates.length > 0) {
+                  let msg = '⚠️ အောက်ပါ ရက်များ မဖြည့်ရသေးပါ —
+
+';
+                  msg += skippedDates.join('
+');
+                  msg += '
+
+ကျေးဇူးပြု၍ ဖြည့်သွင်းပါ။';
+                  showCustomAlert(msg);
+              }
+          }, 400);
+      }
   };
 
   window.currentOTSelectElement = null;
