@@ -819,7 +819,7 @@
   };
 
   // ★ Typewriter splash animation ★
-  (function startTypewriter() {
+  function startTypewriter() {
       const word = "CHICONY";
       const el = document.getElementById('typewriterText');
       const bar = document.getElementById('splashBar');
@@ -834,7 +834,13 @@
               clearInterval(interval);
           }
       }, 120);
-  })();
+  }
+  // DOM ready ဖြစ်မှ run မည်
+  if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startTypewriter);
+  } else {
+      startTypewriter();
+  }
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -1340,9 +1346,9 @@
       window.generateGrid(false); 
   };
 
-  window.navigateMonth = (step) => {
-      let currentMonthVal = document.getElementById('selectedMonth').value;
+  window.navigateMonth = (step) => {      let currentMonthVal = document.getElementById('selectedMonth').value;
       if (!currentMonthVal) return;
+
       let [y, m] = currentMonthVal.split('-').map(Number);
       m += step; 
       
