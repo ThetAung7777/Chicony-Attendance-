@@ -1,3 +1,1057 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chicony Attendance & Salary</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#000080">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<style id="app-styles">
+  @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap');
+
+  :root {
+    --app-bg-color: skyblue;
+    --app-header-color: white;
+  }
+
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--app-bg-color); margin: 0; padding-bottom: 60px; transition: background 0.4s ease; }
+  @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+  @keyframes spinLoader { to { transform: rotate(360deg); } }
+  @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+  
+  .fade-in { animation: fadeIn 0.2s ease-in-out; }
+  .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .interactive-btn { transition: transform 0.1s ease, filter 0.1s ease; cursor: pointer; }
+  .interactive-btn:active { transform: scale(0.92) !important; filter: brightness(0.9); }
+  .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+
+  /* Navbar Sticky Top */
+  .navbar { background-color: var(--app-header-color); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 60px; box-sizing: border-box; transition: background 0.4s ease; }
+  .menu-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
+  
+  /* ★ Profile Photo Button အဝိုင်းပုံစံ CSS ★ */
+  .profile-btn {
+      background: #f1f1f1; border: 1px solid #ccc; width: 36px; height: 36px; border-radius: 50%; 
+      cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; 
+      outline: none; position: relative; transition: all 0.2s;
+  }
+  .profile-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .profile-btn span { font-size: 18px; color: #333; }
+
+  .app-title { text-align: center; margin: 0; line-height: 1.2; }
+  .logo-main { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; font-size: 24px; color: #000080; letter-spacing: 1px; }
+  .logo-tag { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11px; color: #666; font-weight: bold; letter-spacing: 0.5px;}
+
+  .dropdown { position: absolute; top: 55px; background-color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; display: none; flex-direction: column; min-width: 220px; z-index: 300; transform-origin: top right;}
+  .dropdown.left { left: 10px; transform-origin: top left; }
+  .dropdown.right { right: 10px; }
+  .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
+  .dropdown a:hover { background-color: #f4f7f6; }
+  
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 500; backdrop-filter: blur(3px); }
+  .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+  .modal-header { padding: 15px 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; z-index: 10; }
+  .modal-header h3 { margin: 0; }
+  .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+  .close-modal { font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; padding: 0; }
+
+  #splashScreen, #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; }
+  .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
+  
+  .container { padding: 0 15px 15px 15px; max-width: 800px; margin: auto; position: relative;}
+  
+  /* Unified Sticky Header */
+  #unifiedStickyHeader {
+      position: sticky; 
+      top: 60px; 
+      z-index: 150; 
+      background: var(--app-bg-color); 
+      margin: 0 -15px; 
+      padding: 15px; 
+      transition: background 0.4s ease;
+  }
+
+  .weekdays-static-box {
+      background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border: 1px solid #ddd; overflow: hidden; width: 100%; box-sizing: border-box;
+  }
+
+  #stickyWeekdaysWrapper { width: 100%; overflow-x: hidden; }
+  .calendar-container { min-width: 750px; padding: 0 10px; box-sizing: border-box; } 
+
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; font-weight: bold; font-size: 14px; background: white; padding: 10px 10px; margin: 0; box-sizing: border-box;}
+  .weekdays > div { position: relative; }
+  .weekdays > div:not(:last-child)::after { content: ''; position: absolute; right: -4.5px; top: 0; bottom: 0; width: 1px; background: #ddd; }
+  
+  .calendar-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px;}
+  
+  .day-card { border: 1px solid #ddd; padding: 8px; border-radius: 10px; text-align: center; background: #fafafa; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;}
+  .day-card.today-card { outline: 3px dashed #000080 !important; outline-offset: 2px; }
+  .dark-mode .day-card.today-card { outline-color: #82b1ff !important; }
+  .blank-card { background: transparent; border: none; } 
+
+  .bg-green { background-color: #198754 !important; border-color: #146c43 !important; }
+  .bg-red { background-color: #dc3545 !important; border-color: #b02a37 !important; }
+  .bg-blue { background-color: #0d6efd !important; border-color: #0a58ca !important; } 
+  .bg-yellow { background-color: #ffc107 !important; border-color: #ffca2c !important; } 
+  .bg-gray { background-color: #858c93 !important; border-color: #6c757d !important; } 
+  .bg-dark-gray { background-color: #495057 !important; border-color: #343a40 !important; }
+  .double-saturday { border: 2px solid #dc3545 !important; box-shadow: inset 0 0 5px rgba(220,53,69,0.5); } 
+  .bg-green .date-label, .bg-red .date-label, .bg-blue .date-label, .bg-gray .date-label, .bg-dark-gray .date-label { color: white !important; }
+  .bg-yellow .date-label { color: #000 !important; } 
+  .bg-blue .double-label { color: #ffeb3b !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); } 
+  .date-label { display: block; font-size: 13px; font-weight: bold; color: #007bff;}
+  
+  .day-card select, .day-card input { width: 100%; padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; text-align: center; box-sizing: border-box; background-color: white; color: black; outline: none; font-weight:bold;}
+  .daily-info { font-size: 11px; font-weight: bold; color: #333 !important; margin-top: 3px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);}
+  
+  /* Developer Footer Design */
+  .developer-footer { background: linear-gradient(145deg, #ffffff, #f4f7f6); margin-top: 20px; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e0eaf5; }
+  .dev-name { font-family: 'Orbitron', sans-serif; font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; letter-spacing: 0.5px; }
+  .dev-subtitle { font-size: 12px; color: #666; margin-bottom: 15px; font-weight: bold; }
+  .social-btn-group { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+  .social-btn { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; color: white !important; transition: transform 0.2s, box-shadow 0.2s; }
+  .social-btn.line { background: #00C300; box-shadow: 0 4px 10px rgba(0,195,0,0.25); }
+  .social-btn.telegram { background: #0088cc; box-shadow: 0 4px 10px rgba(0,136,204,0.25); }
+  .social-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+
+  /* Ticker Design */
+  .ticker-wrap { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 128, 0.9); border-top: 2px solid #ffeb3b; color: white; padding: 10px 0; z-index: 1000; overflow: hidden; white-space: nowrap; box-shadow: 0 -4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; }
+  .ticker-text { display: inline-block; padding-left: 100vw; animation: marquee 20s linear infinite; font-size: 14px; font-weight: bold; letter-spacing: 0.5px; }
+  @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+
+  .setup-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;}
+  .setup-box label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;}
+  .setup-box input, .setup-box select, .setup-box textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px;}
+  .full-width { grid-column: span 2; }
+  .btn-generate { color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; margin-top: 15px; width: 100%;}
+  
+  .admin-search-box { width: 100%; padding: 12px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none;}
+  .admin-user-card { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 12px; }
+  .admin-user-name { font-weight: bold; color: #000080; font-size: 16px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
+  .admin-btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .admin-action-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; border: none; color: white; text-align: center;}
+  .admin-manage-section { background: #e9ecef; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
+  .manage-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; font-size: 13px; background: white; margin-bottom: 6px; border-radius: 6px;}
+  .btn-view { background: #17a2b8; } .btn-edit, .btn-sm-edit { background: #ffc107; color: black !important; } .btn-delete, .btn-sm-del { background: #dc3545; } .btn-exp-excel { background: #198754 !important; color: white !important; }
+  .inactive-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; animation: pulse 1.5s infinite;}
+
+  /* Dark Mode Adjustments */
+  body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
+  .dark-mode .navbar, .dark-mode .dropdown, .dark-mode .modal-header, .dark-mode .modal-content { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+  .dark-mode .app-title, .dark-mode .menu-btn, .dark-mode .dark-mode-btn, .dark-mode .logo-main, .dark-mode .dropdown a { color: #e0e0e0 !important; }
+  .dark-mode .dropdown a:hover { background-color: #333 !important; }
+  .dark-mode .setup-box input, .dark-mode .setup-box select, .dark-mode .setup-box textarea, .dark-mode .day-card select, .dark-mode .day-card input { background-color: #333 !important; color: #fff !important; border-color: #555 !important; }
+  .dark-mode .day-card { background: #2c2c2c !important; border-color: #444 !important; }
+  .dark-mode .daily-info { background: rgba(0,0,0,0.6) !important; color: #fff !important; }
+  .dark-mode .ui-summary-box { background-color: #1e1e1e !important; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
+  .dark-mode .ui-summary-box span { color: #ccc !important; } .dark-mode .ui-summary-box b { color: #fff !important; }
+  .dark-mode .ui-summary-box #grandTotal { color: #198754 !important; }
+  .dark-mode .day-card.bg-yellow { background-color: #664d03 !important; border-color: #8f6c04 !important; }
+  .dark-mode .day-card.bg-gray { background-color: #495057 !important; border-color: #343a40 !important; }
+  .dark-mode .login-box { background: #1e1e1e !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+  .profile-name-text { color: #000080; font-size: 15px; font-weight: bold; }
+  .profile-email-text { color: #666; font-size: 11px; }
+  .dark-mode .profile-name-text { color: #82b1ff !important; }
+  .dark-mode #splashScreen { background-color: #121212 !important; }
+  .dark-mode #typewriterText, .dark-mode #typewriterCursor { color: #82b1ff !important; }
+  
+  .dark-mode #unifiedStickyHeader { background-color: #121212 !important; }
+  .dark-mode .weekdays-static-box { background-color: #1e1e1e !important; border-color: #333 !important; }
+  .dark-mode .weekdays { background-color: transparent !important; border: none !important; }
+  .dark-mode .weekdays > div:not(:last-child)::after { background: #444 !important; }
+  .dark-mode .developer-footer { background: linear-gradient(145deg, #1e1e1e, #252525) !important; border-color: #333 !important; }
+  .dark-mode .dev-subtitle { color: #aaa !important; }
+  .dark-mode .dev-name { color: #82b1ff !important; }
+  .dark-mode .ticker-wrap { background: rgba(30, 30, 30, 0.95) !important; border-top: 2px solid #0d6efd !important; }
+  .dark-mode .profile-btn { background-color: #333 !important; border-color: #555 !important; }
+  .dark-mode .profile-btn span { color: #e0e0e0 !important; }
+
+  /* Cropper Modal Specific Adjustments */
+  .cropper-view-box,
+  .cropper-face {
+    border-radius: 50%;
+  }
+  .cropper-modal {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  /* ★ Year Calendar (ပြက္ခဒိန်) Design - ပုံထဲကအတိုင်း ★ */
+  .year-calendar-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 4px 0 10px 0;
+  }
+  .month-box {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,128,0.08);
+      border: 1px solid #e8edf5;
+      overflow: hidden;
+      padding: 0 0 10px 0;
+  }
+  .month-title {
+      font-family: 'Bungee Inline', 'Orbitron', cursive;
+      font-size: 18px;
+      font-weight: bold;
+      color: #000080;
+      text-align: center;
+      padding: 14px 0 10px 0;
+      letter-spacing: 0.5px;
+  }
+  .month-days-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #555;
+      padding: 0 8px 6px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 6px;
+  }
+  .month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      padding: 4px 8px 0 8px;
+  }
+  .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      cursor: default;
+      transition: transform 0.1s;
+      position: relative;
+  }
+  .cal-day.empty { background: transparent; }
+  .cal-day.cal-sun { color: #dc3545; font-weight: bold; }
+  .cal-day.cal-sat { color: #0d6efd; font-weight: bold; }
+  .cal-day.cal-holiday {
+      background: #ffc107;
+      color: #000 !important;
+      font-weight: bold;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(255,193,7,0.4);
+  }
+  .cal-day.cal-holiday:active { transform: scale(0.9); }
+  .cal-day.cal-double {
+      background: #0d6efd;
+      color: #fff !important;
+      font-weight: bold;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(13,110,253,0.4);
+  }
+  .cal-day.cal-double.double-saturday {
+      outline: 2px solid #dc3545;
+      outline-offset: 1px;
+  }
+  .cal-day.cal-sun.cal-holiday { color: #000 !important; }
+
+  /* Dark mode calendar */
+  .dark-mode .month-box { background: #1e1e1e !important; border-color: #333 !important; }
+  .dark-mode .month-title { color: #82b1ff !important; }
+  .dark-mode .month-days-header { color: #aaa !important; border-color: #333 !important; }
+  .dark-mode .cal-day { color: #e0e0e0; }
+  .dark-mode .cal-day.cal-sun { color: #ff6b6b !important; }
+  .dark-mode .cal-day.cal-holiday { background: #c8960c !important; color: #000 !important; }
+  .dark-mode .cal-day.cal-double { background: #0a58ca !important; }
+
+  /* Holiday info popup */
+  #holidayInfoModal .modal-content { max-width: 320px; text-align: center; }
+  .holiday-popup-icon { font-size: 40px; margin-bottom: 8px; }
+  .holiday-popup-desc { font-size: 16px; font-weight: bold; color: #333; margin: 8px 0 16px 0; line-height: 1.5; }
+  .holiday-popup-date { font-size: 12px; color: #888; margin-bottom: 12px; }
+
+  #printArea { display: none; }
+  @media print { 
+      body { background: white !important; padding: 0; margin: 0; } 
+      #mainApp, #loginScreen, #splashScreen, #slipModal, .modal-overlay, .ticker-wrap { display: none !important; } 
+      #printArea { display: block !important; width: 100%; color: black; font-size: 12px; }
+      table { border-collapse: collapse; width: 100%; page-break-inside: avoid; }
+      th, td { border: 1px solid #ccc; padding: 6px; }
+      th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      @page { margin: 0.5cm; }
+  }
+</style>
+</head>
+<body>
+
+<div id="splashScreen">
+    <!-- Typewriter title -->
+    <div style="font-family:'Bungee Inline','Orbitron',cursive; color:#000080; font-size:46px; margin:0 0 10px 0; letter-spacing:4px; min-height:60px; display:flex; align-items:center; justify-content:center;">
+        <span id="typewriterText"></span><span id="typewriterCursor" style="animation:cursorBlink 0.7s step-end infinite; color:#000080;">|</span>
+    </div>
+    <p style="color:#888; font-size:13px; font-family:'Segoe UI',sans-serif; margin:0 0 28px 0; letter-spacing:2px; font-weight:600;">ATTENDANCE SYSTEM</p>
+    <!-- Thin progress bar -->
+    <div style="width:160px; height:4px; background:#e0e8ff; border-radius:4px; overflow:hidden;">
+        <div id="splashBar" style="height:100%; width:0%; background:linear-gradient(90deg,#000080,#4169e1); border-radius:4px; transition:width 0.3s ease;"></div>
+    </div>
+</div>
+
+<div id="loginScreen" style="display:none;">
+  <div class="login-box pop-in">
+    <h2 style="margin-bottom: 5px;" class="logo-main">CHICONY</h2>
+    <p style="margin-top: 0;" class="logo-tag">ATTENDANCE SYSTEM</p>
+    <button class="google-btn interactive-btn" onclick="signIn()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFF" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#FFF" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FFF" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FFF" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Login with Google
+    </button>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingSpinner" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:2000; display:none; justify-content:center; align-items:center; font-weight:bold; color:#000080;">Loading Data...</div>
+
+<div id="printArea"></div>
+
+<div id="mainApp" style="display: none;">
+  <div class="navbar">
+    <div style="display:flex; gap: 10px; align-items: center;">
+      <button class="menu-btn interactive-btn" onclick="toggleMenu('leftMenu')">☰</button>
+      <button class="dark-mode-btn interactive-btn" onclick="toggleDarkMode()" id="darkModeIcon">🌓</button>
+    </div>
+    
+    <div id="leftMenu" class="dropdown left fade-in">
+      <a href="#" onclick="openExportModal()" class="interactive-btn">📥 <span data-i18n="exportBtn">Export (Excel / PDF)</span></a>
+      <a href="#" onclick="openCalendarModal()" style="color: #17a2b8; font-weight:bold;" class="interactive-btn">📅 <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></a>
+      
+      <a href="#" id="adminPanelBtn" onclick="openAdminPanel(true)" style="display:none; color: #c2185b; font-weight: bold; border-top: 2px solid #eee;" class="interactive-btn">🔐 <span data-i18n="adminPanel">Admin Panel</span></a>
+      <a href="#" id="tickerMenuBtn" onclick="openTickerModal()" style="display:none; color: #e67e22; font-weight: bold;" class="interactive-btn">📜 Ticker (စာရွေ့ကြော်ငြာ)</a>
+      <a href="#" id="ssoMenuBtn" onclick="openSsoSettingsModal()" style="display:none; color: #007bff; font-weight: bold;" class="interactive-btn">🛡️ SSO Settings</a>
+      <a href="#" id="themeBtn" onclick="openThemeModal()" style="display:none; color: #198754; font-weight: bold;" class="interactive-btn">🎨 Theme Settings</a>
+      <a href="#" id="annBtn" onclick="openAnnManageModal()" style="display:none; color: #d35400; font-weight: bold;" class="interactive-btn">📢 Announcement</a>
+      <a href="#" id="alertMenuBtn" onclick="openAlertSettingsModal()" style="display:none; color: #6f42c1; font-weight: bold;" class="interactive-btn">🔔 Alert Settings</a>
+    </div>
+    
+    <h2 class="app-title">
+      <span class="logo-main">Chicony <span id="titleShiftIcon" style="font-size: 20px; font-family: 'Segoe UI', sans-serif;">☀️</span></span><br>
+      <span class="logo-tag" data-i18n="appSubtitle">Attendance & Salary</span>
+    </h2>
+    
+    <div style="display:flex; align-items: center; gap:5px; position: relative;">
+      <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)">
+      <button class="profile-btn interactive-btn" onclick="toggleMenu('rightMenu')" id="profileBtnContainer">
+        <span id="profileIconSlot">👤</span>
+        <img id="profileImgSlot" style="display:none;" alt="Profile">
+      </button>
+    </div>
+    
+    <div id="rightMenu" class="dropdown right fade-in">
+      <div style="padding: 10px 15px; background: #f1f1f1; border-bottom: 1px solid #ddd;" id="userEmailDisplay"></div>
+      <a href="#" onclick="triggerProfilePhotoInput()" class="interactive-btn" style="color: #28a745;">📸 <span>ပုံအသစ်တင်မည်</span></a>
+      <a href="#" onclick="removeProfilePhoto()" class="interactive-btn" id="removePhotoBtn" style="color: #dc3545; display:none;">🗑️ <span>ပုံဖျက်မည်</span></a>
+      <div style="padding: 10px 15px; border-bottom: 1px solid #eee; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 14px; color: #333;">🌍 <b data-i18n="langMenu">Language</b></span>
+          <select id="langSelector" onchange="changeLanguage(this.value)" style="border:1px solid #ccc; border-radius:4px; padding:4px; font-size:13px; outline:none; cursor:pointer; background: white;" class="interactive-btn">
+              <option value="my">🇲🇲 မြန်မာ</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="th">🇹🇭 ไทย (Thai)</option>
+          </select>
+      </div>
+      <a href="#" onclick="openSettings()" class="interactive-btn">⚙️ <span data-i18n="settings">Settings</span></a>
+      <a href="#" onclick="logout()" style="color: red; border-top: 1px solid #eee;" class="interactive-btn">🚪 <span data-i18n="logout">Logout</span></a>
+    </div>
+  </div>
+
+  <div class="container" onclick="closeMenusOnClickOutside(event)">
+    
+    <div id="unifiedStickyHeader">
+        <div class="weekdays-static-box">
+            <div id="stickyWeekdaysWrapper">
+                <div class="calendar-container">
+                    <div class="weekdays" id="weekdaysHeader"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="calendar-wrapper" id="calendarSection">
+        <div class="calendar-container">
+            <div class="calendar-grid" id="daysGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calendarSection').addEventListener('scroll', function() {
+            document.getElementById('stickyWeekdaysWrapper').scrollLeft = this.scrollLeft;
+        });
+    </script>
+
+    <div class="ui-summary-box hover-card" style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee;"><span data-i18n="workDays">အလုပ်ဆင်းရက် / နာရီ</span> <b id="workCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #fd7e14;"><span data-i18n="otDays">OT ဆင်းသော ရက် / နာရီ</span> <b id="otDaysCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #0d6efd;"><span data-i18n="doubleDays">နှစ်ဆရက်</span> <b id="doubleCount">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="otTotal">OT စုစုပေါင်း</span> <b id="otTotalCombine">0</b></div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px; color:#6610f2;">
+          <span><span data-i18n="foodOt">OT ထမင်းဖိုး</span> (<span id="foodOtDays">0</span>)</span> <b id="foodOtTotal">0</b>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:#6610f2; border-bottom:1px solid #eee; padding-bottom: 4px;">
+          <span><span data-i18n="foodNoOt">နေ့လည်စာ ထမင်းဖိုး</span> (<span id="foodNoOtDays">0</span>)</span> <b id="foodNoOtTotal">0</b>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b></div>
+
+      <div id="rowNightShift" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightShift">ညဆိုင်း (Night Shift)</span> <b id="nightShiftDisplay">0</b></div>
+      <div id="rowNightAllowance" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #17a2b8;"><span data-i18n="nightAllowance">စုစုပေါင်း ညကြေး</span> <b id="nightAllowanceDisplay">0</b></div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #6c757d;"><span data-i18n="absent">ပျက်ရက် (x)</span> <b id="absentCount">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d4a017;"><span data-i18n="holiday">ပိတ်ရက် (-)</span> <b id="holidayCount">0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #d35400;"><span data-i18n="medLeavePay">ဆေးခွင့် ရငွေ</span> <b id="medLeaveDisplay">0 / 0</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:2px solid #ccc; color: #8e44ad; padding-bottom: 8px;"><span data-i18n="pubHolPay">အစိုးရရုံးပိတ်ရက် ရငွေ</span> <b id="pubHolidayDisplay">0 / 0</b></div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:bold; color: #333;"><span data-i18n="totalIncome">စုစုပေါင်း ဝင်ငွေ (Gross)</span> <b id="grossTotalDisplay">0 ฿</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:bold; color: #dc3545;"><span data-i18n="ssoDeduct">ပကန်စံခွန်း (SSO 5%)</span> <b id="ssoDisplay">- 0 ฿</b></div>
+      <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:2px solid #333; font-size:18px; color:#198754;"><b data-i18n="netSalary">အသားတင် လစာ</b> <b id="grandTotal" style="color:#198754;">0 ฿</b></div>
+
+      <button class="btn-generate interactive-btn" onclick="openSalarySlip()" style="background:#0d6efd; margin-top:15px; width: 100%;">🧾 <span data-i18n="salarySlipBtn">လစာစလစ် ကြည့်မည်</span></button>
+      
+      <div style="display:flex; justify-content:space-between; margin-top:12px; gap: 10px;">
+          <button class="btn-generate interactive-btn" onclick="navigateMonth(-1)" style="background:#6c757d; margin-top:0; font-size: 13px; padding: 10px;"><span data-i18n="prevMonth">⬅️ ယခင်လ</span></button>
+          <button class="btn-generate interactive-btn" onclick="navigateMonth(1)" style="background:#198754; margin-top:0; font-size: 13px; padding: 10px;"><span data-i18n="nextMonth">နောက်လ ➡️</span></button>
+      </div>
+    </div>
+
+    <div class="developer-footer hover-card">
+      <div class="dev-name">👨‍💻 Developed by THET AUNG</div>
+      <div class="dev-subtitle">Contact for Support & Updates</div>
+      <div class="social-btn-group">
+        <a href="http://line.me/ti/p/~678777705" target="_blank" class="social-btn line interactive-btn">
+          <i class="fab fa-line" style="font-size: 16px;"></i> LINE
+        </a>
+        <a href="https://t.me/ThetAung7777" target="_blank" class="social-btn telegram interactive-btn">
+          <i class="fab fa-telegram" style="font-size: 16px;"></i> Telegram
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div id="tickerBar" class="ticker-wrap" style="display:none;">
+      <span id="tickerString" class="ticker-text"></span>
+  </div>
+
+</div>
+
+<!-- ★ Profile Viewer Modal ★ -->
+<div class="modal-overlay" id="profileViewerModal" style="z-index:10001; background:rgba(0,0,0,0.93); display:none;" onclick="closeProfileViewer()">
+  <div style="position:relative; width:92%; max-width:360px; margin:auto;" onclick="event.stopPropagation()">
+
+    <!-- Close X -->
+    <button onclick="closeProfileViewer()" style="position:absolute; top:-48px; right:0; background:rgba(255,255,255,0.18); border:none; color:white; width:38px; height:38px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold;">✕</button>
+
+    <!-- Photo -->
+    <div style="border-radius:18px; overflow:hidden; background:#1a1a2e; box-shadow:0 8px 30px rgba(0,0,0,0.5);">
+      <img id="profileViewerImg" src="" alt="Profile" style="width:100%; aspect-ratio:1; object-fit:cover; display:none;">
+      <div id="profileViewerPlaceholder" style="width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:110px; background:linear-gradient(135deg,#c8d8f0,#e8edf5);">👤</div>
+    </div>
+
+    <!-- Name -->
+    <div id="profileViewerName" style="color:white; text-align:center; font-size:17px; font-weight:bold; margin:14px 0 14px; text-shadow:0 1px 4px rgba(0,0,0,0.5);"></div>
+
+    <!-- 3 action buttons -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:24px;">
+      <!-- Upload new photo -->
+      <button onclick="triggerProfilePhotoInputFromViewer()" style="background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);">
+        <span style="font-size:24px;">📸</span>တင်မည်
+      </button>
+      <!-- Edit / re-crop -->
+      <button onclick="triggerEditCrop()" id="profileViewerEditBtn" style="background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);">
+        <span style="font-size:24px;">✏️</span>ပြင်မည်
+      </button>
+      <!-- Delete -->
+      <button onclick="removeProfilePhotoFromViewer()" id="profileViewerDeleteBtn" style="background:rgba(220,53,69,0.55); border:1px solid rgba(220,53,69,0.4); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);">
+        <span style="font-size:24px;">🗑️</span>ဖျက်မည်
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="cropModal" style="z-index: 10002;">
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #0d6efd;" class="logo-main">✂️ ပုံဖြတ်ပြီး Upload</h3>
+        <button class="close-modal interactive-btn" onclick="closeCropModal()">×</button>
+    </div>
+    <div class="modal-body" style="text-align: center; padding: 15px;">
+        <div style="max-height: 400px; width: 100%; overflow: hidden; background: #eee; border-radius: 8px;">
+            <img id="cropImage" style="max-width: 100%; display: block;">
+        </div>
+        <div style="display:flex; gap:8px; margin-top: 15px; justify-content:center;">
+          <button onclick="if(cropper)cropper.rotate(-90)" style="background:#6c757d; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:18px; cursor:pointer;">↺</button>
+          <button onclick="if(cropper)cropper.rotate(90)" style="background:#6c757d; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:18px; cursor:pointer;">↻</button>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 10px;">
+          <button class="btn-generate interactive-btn" onclick="closeCropModal()" style="background:#6c757d; margin-top:0; flex:1;">❌ ပိတ်မည်</button>
+          <button class="btn-generate interactive-btn" onclick="saveCroppedPhoto()" style="background:#0d6efd; margin-top:0; flex: 2;">⬆️ Upload လုပ်မည်</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="customAlertModal" style="z-index: 10000;">
+  <div class="modal-content pop-in" style="text-align: center; max-width: 350px; padding: 0;">
+    <div class="modal-header">
+       <h3 style="color: #007bff; font-family: 'Bungee Inline', cursive; letter-spacing: 1px;">💬 Chicony</h3>
+       <button class="close-modal interactive-btn" onclick="closeCustomAlert()">×</button>
+    </div>
+    <div class="modal-body" style="padding: 25px;">
+        <p id="customAlertText" style="font-size: 15px; color: #333; white-space: pre-wrap; line-height: 1.6; margin: 0; font-weight: 500;"></p>
+        <button class="btn-generate interactive-btn" onclick="closeCustomAlert()" style="background: #0d6efd; margin-top: 20px; width: 120px; padding: 10px; font-size: 14px;">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="tickerModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #e67e22;" class="logo-main">📜 စာရွေ့ကြော်ငြာ (Ticker)</h3>
+        <button class="close-modal interactive-btn" onclick="closeTickerModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="setup-box" style="margin-top: 5px;">
+          <div class="full-width">
+            <label>ကြော်ငြာစာသား ထည့်ပါ (အောက်ဆုံးတွင် ရွေ့နေမည်)</label>
+            <textarea id="adminTickerText" rows="3" placeholder="ဥပမာ - မနက်ဖြန် စက်ရုံပိတ်ပါမည်။"></textarea>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveTickerText()">💾 Save Text</button>
+          <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="deleteTickerText()">🗑️ Delete</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ssoSettingsModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #007bff;" class="logo-main">🛡️ SSO Settings</h3>
+        <button class="close-modal interactive-btn" onclick="closeSsoSettingsModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 12px;">ပကန်စံခွန်း (SSO) ၅% တွက်ချက်ရာတွင် ထည့်သွင်းပေါင်းမည့် အရာများကို ရွေးချယ်ပါ။ (Admin သာ ပြင်ဆင်နိုင်သည်)</p>
+
+        <!-- လရွေးချယ်ရန် -->
+        <div style="background:#f8f9fa; border-radius:8px; padding:12px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <span style="font-size:13px; font-weight:bold; color:#333; white-space:nowrap;">📅 SSO လ ရွေးချယ်ပါ</span>
+          <input type="month" id="ssoMonthSelect" style="border:1px solid #ccc; border-radius:6px; padding:6px 10px; font-size:13px; outline:none; flex:1; max-width:180px;" onchange="loadSsoForMonth()">
+        </div>
+        <div id="ssoCurrentLabel" style="font-size:12px; color:#007bff; margin-bottom:12px; font-weight:bold;"></div>
+
+        <div class="setup-box" style="display: flex; flex-direction: column; gap: 15px; margin-top:0;">
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="ssoOptBasic" style="width: 20px; height: 20px; cursor: pointer;"> အခြေခံလစာ (Basic Salary)
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="ssoOptPubHol" style="width: 20px; height: 20px; cursor: pointer;"> အစိုးရရုံးပိတ်ရက် ရငွေ (Public Holiday)
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="ssoOptNight" style="width: 20px; height: 20px; cursor: pointer;"> ညဆိုင်းကြေး (Night Allowance)
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="ssoOptFood" style="width: 20px; height: 20px; cursor: pointer;"> နေ့လည်စာ ထမင်းဖိုး (Food Allowance)
+          </label>
+        </div>
+        <button class="btn-generate interactive-btn" style="background:#198754; margin-top:25px; width: 100%;" onclick="saveSsoSettings()">💾 Save SSO Settings</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="alertSettingsModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 500px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #6f42c1;" class="logo-main">🔔 Alert Settings</h3>
+        <button class="close-modal interactive-btn" onclick="closeAlertSettingsModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="admin-manage-section">
+          <h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4>
+          <select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()">
+            <option value="work">✓ အလုပ်ဆင်းသည် (Present)</option>
+            <option value="absent">x အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option>
+            <option value="holiday">- အလုပ်ပိတ်ရက် (Holiday)</option>
+            <option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option>
+          </select>
+
+          <h4 style="margin:0 0 10px 0; font-size:13px; color:#666;">📅 ရက်အလိုက် ပေါ်မည့်စာများ ထည့်သွင်းရန်</h4>
+          <div class="setup-box" style="margin-top:0;">
+            <div class="full-width"><label>တနင်္ဂနွေ (Sunday)</label><input type="text" id="alertInputSun" oninput="updateTempAlert('Sun', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>တနင်္လာ (Monday)</label><input type="text" id="alertInputMon" oninput="updateTempAlert('Mon', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>အင်္ဂါ (Tuesday)</label><input type="text" id="alertInputTue" oninput="updateTempAlert('Tue', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>ဗုဒ္ဓဟူး (Wednesday)</label><input type="text" id="alertInputWed" oninput="updateTempAlert('Wed', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>ကြာသပတေး (Thursday)</label><input type="text" id="alertInputThu" oninput="updateTempAlert('Thu', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>သောကြာ (Friday)</label><input type="text" id="alertInputFri" oninput="updateTempAlert('Fri', this.value)" placeholder="Leave empty for no alert"></div>
+            <div class="full-width"><label>စနေ (Saturday)</label><input type="text" id="alertInputSat" oninput="updateTempAlert('Sat', this.value)" placeholder="Leave empty for no alert"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAlertSettings()">Save Alerts</button>
+          <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="clearAlertSettings()">Clear All</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="slipModal" style="z-index: 500;">
+  <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff;">
+  </div>
+</div>
+
+<div class="modal-overlay" id="calendarModal">
+  <div class="modal-content pop-in" style="max-width: 650px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #17a2b8;" class="logo-main">📅 <span id="calYearDisplay">2026</span> <span data-i18n="factoryCalendar">စက်ရုံ ပြက္ခဒိန်</span></h3>
+        <button class="close-modal interactive-btn" onclick="closeCalendarModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+            <span style="display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:bold;">
+                <span style="background:#ffc107; width:22px; height:22px; border-radius:50%; display:inline-block;"></span>
+                <span data-i18n="holidayLbl">ပိတ်ရက်</span>
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:bold;">
+                <span style="background:#0d6efd; width:22px; height:22px; border-radius:50%; display:inline-block; outline:2px solid #dc3545; outline-offset:1px;"></span>
+                <span data-i18n="doubleLbl">နှစ်ဆရက်</span>
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:bold;">
+                <span style="color:#dc3545; font-size:16px;">●</span>
+                <span>တနင်္ဂနွေ</span>
+            </span>
+        </div>
+
+        <div id="adminCalendarControls" style="display:none;">
+            <div class="admin-manage-section">
+                <h4 style="margin:0 0 10px 0; font-size:14px; color:#dc3545;">🔧 Calendar Controls</h4>
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <select id="adminDateType" style="padding:6px; border-radius:4px; font-weight:bold;">
+                        <option value="holiday">🟨 Holiday</option>
+                        <option value="double">🟦 Double Day</option>
+                    </select>
+                    <input type="date" id="adminNewDate" style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc;">
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="adminNewDesc" placeholder="..." style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc;">
+                    <button class="interactive-btn" onclick="addAdminDate()" style="background:#17a2b8; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">Save</button>
+                </div>
+            </div>
+            <div class="admin-manage-section" style="max-height: 200px; overflow-y:auto;">
+                <div id="adminManageList"></div>
+            </div>
+        </div>
+        <div id="yearCalendarContainer" class="year-calendar-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-content pop-in" style="padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #333;" class="logo-main" data-i18n="settings">⚙️ Settings</h3>
+        <button class="close-modal interactive-btn" onclick="closeSettings()">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="setup-box">
+          <div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div>
+          <div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div>
+          <div class="full-width"><label data-i18n="deptLbl">ဌာန (Department)</label><input type="text" id="empDept" placeholder="Department" value="MKB MFG FA(LH)" oninput="saveToFirebase()"></div>
+          
+          <div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth"></div>
+          <div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div>
+          <div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div>
+          <div class="full-width">
+            <label data-i18n="bonusLbl">ရက်မှန်ကြေး (Bonus)</label>
+            <select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;">
+              </select>
+          </div>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px; flex: 2;" data-i18n="saveBtn">💾 သိမ်းမည်</button>
+          <button id="settingsCancelBtn" class="btn-generate interactive-btn" onclick="closeSettings()" style="background:#6c757d; margin-top:0; padding:10px; flex: 1;">❌ <span data-i18n="cancelBtn">ပိတ်မည်</span></button>
+          <button id="settingsLogoutBtn" class="btn-generate interactive-btn" onclick="logout()" style="background:#dc3545; margin-top:0; padding:10px; flex: 1; display:none;">🚪 <span data-i18n="logout">Logout</span></button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="themeModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #198754;" class="logo-main">🎨 Theme Settings</h3>
+        <button class="close-modal interactive-btn" onclick="closeThemeModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="setup-box" style="margin-top: 5px;">
+          <div>
+            <label>Header Color</label>
+            <input type="color" id="adminHeaderColor" style="height: 40px; padding: 2px; cursor: pointer;">
+          </div>
+          <div>
+            <label>Background Color</label>
+            <input type="color" id="adminBodyColor" style="height: 40px; padding: 2px; cursor: pointer;">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAppTheme()">Save Colors</button>
+          <button class="btn-generate interactive-btn" style="background:#6c757d; margin-top:0; flex: 1; font-size: 13px;" onclick="resetAppTheme()">Restore Default</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="annManageModal" style="z-index: 400;">
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #d35400;" class="logo-main">📢 Announcement</h3>
+        <button class="close-modal interactive-btn" onclick="closeAnnManageModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="setup-box" style="margin-top: 5px;">
+          <div class="full-width">
+            <label>Date (Show on this date)</label>
+            <input type="date" id="adminAnnDate">
+          </div>
+          <div class="full-width">
+            <label>Upload Photo (Optional)</label>
+            <input type="file" id="adminAnnImgFile" accept="image/*" style="font-size: 12px; padding: 5px;" onchange="handleAdminAnnImage(event)">
+            <small id="adminAnnImgStatus" style="color: #198754; display: none; font-weight: bold; margin-top: 5px;">✓ Image loaded.</small>
+          </div>
+          <div class="full-width">
+            <label>Message (Optional)</label>
+            <textarea id="adminAnnText" rows="3" placeholder="Enter alert message..."></textarea>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" style="background:#d35400; margin-top:0; flex: 2;" onclick="saveAppAnnouncement()">Save Alert</button>
+          <button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="deleteAppAnnouncement()">Delete Alert</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="exportModal">
+  <div class="modal-content pop-in" style="padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #000080;" class="logo-main" data-i18n="exportBtn">📤 Export</h3>
+        <button class="close-modal interactive-btn" onclick="closeExportModal()">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="setup-box" style="margin-top: 0;">
+          <div class="full-width"><label data-i18n="startDate">စတင်မည့်ရက်</label><input type="date" id="exportStartDate"></div>
+          <div class="full-width"><label data-i18n="endDate">အဆုံးသတ်ရက်</label><input type="date" id="exportEndDate"></div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 20px;">
+          <button class="btn-generate interactive-btn" onclick="exportExcel()" style="background:#198754; margin-top:0;">📊 Excel</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-content pop-in" style="max-width: 600px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #000080;" class="logo-main">👨‍💼 Admin Panel</h3>
+        <button class="close-modal interactive-btn" onclick="closeAdminPanel()">×</button>
+    </div>
+    
+    <div class="modal-body">
+        <div style="display:flex; gap:10px; margin-bottom: 10px;">
+          <input type="month" id="adminMonthSelect" class="admin-search-box" style="margin-bottom: 0; flex:1;" onchange="openAdminPanel(false)">
+          <input type="text" id="adminSearchInput" class="admin-search-box" style="margin-bottom: 0; flex:1;" placeholder="🔍 Search ID / Name" onkeyup="filterAdminUsers()">
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-bottom: 15px;">
+          <button class="btn-generate interactive-btn" onclick="exportAdminAll()" style="background:#198754; margin-top:0; padding:8px;">📊 Export All (Excel)</button>
+        </div>
+        
+        <div id="adminUserList" style="margin-top: 10px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminUserDetailModal" style="z-index: 600;">
+  <div class="modal-content pop-in" style="max-width: 500px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #000080;" class="logo-main" id="detailModalName">Detail</h3>
+        <button class="close-modal interactive-btn" onclick="closeAdminUserDetail()">×</button>
+    </div>
+    <div class="modal-body">
+        <div id="adminDetailContent"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtE7JKTk0HhlLSYuj-8MiEkUPw4EnsmpU",
+    authDomain: "chicony-app.firebaseapp.com",
+    databaseURL: "https://chicony-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "chicony-app",
+    storageBucket: "chicony-app.firebasestorage.app",
+    messagingSenderId: "769429938968",
+    appId: "1:769429938968:web:aeb2228ab137f888ceb46d"
+  };
+
+  // ★ Typewriter splash animation ★
+  function startTypewriter() {
+      const word = "CHICONY";
+      const el = document.getElementById('typewriterText');
+      const bar = document.getElementById('splashBar');
+      if (!el) return;
+      let i = 0;
+      const interval = setInterval(() => {
+          if (i <= word.length) {
+              el.textContent = word.slice(0, i);
+              if (bar) bar.style.width = (i / word.length * 100) + '%';
+              i++;
+          } else {
+              clearInterval(interval);
+          }
+      }, 120);
+  }
+  // DOM ready ဖြစ်မှ run မည်
+  if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startTypewriter);
+  } else {
+      startTypewriter();
+  }
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const provider = new GoogleAuthProvider();
+
+  let currentUser = null;
+  const ADMIN_EMAIL = "thetaung1998@gmail.com"; 
+  let appData = { settings: {}, attendance: {} };
+  let globalCalendar = {}; 
+  window.allUsersData = {}; 
+  window.currentViewUid = null;
+  window.currentSlipData = {}; 
+  window.adminCalculated = {}; 
+  const CALENDAR_YEAR = 2026; 
+  let isDataLoaded = false; 
+
+  window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
+
+  // ★ Profile Photo Functions with Cropper.js ★
+  let cropper = null;
+
+  window.triggerProfilePhotoInput = () => {
+      toggleMenu(null);
+      setTimeout(() => { document.getElementById('profilePhotoInput').click(); }, 150);
+  };
+
+  window.handleProfilePhotoUpload = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // ★ ပြင်ဆင်ချက် - 5MB ထိ ခွင့်ပြုပေးမည် ★
+      if (file.size > 5 * 1024 * 1024) { 
+          showCustomAlert("⚠️ ပုံအရွယ်အစားက 5MB ထက် ကြီးနေပါတယ်။ \nအနည်းငယ် သေးတဲ့ပုံကို ရွေးပေးပါ။");
+          return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+          // Open crop modal
+          document.getElementById('cropModal').style.display = 'flex';
+          const image = document.getElementById('cropImage');
+          image.src = event.target.result;
+          
+          // Destroy old cropper if exists
+          if(cropper) { cropper.destroy(); }
+          
+          // Initialize new cropper with 1:1 Aspect Ratio (အဝိုင်းဖြတ်ရန် Square ယူမည်)
+          cropper = new Cropper(image, {
+              aspectRatio: 1, 
+              viewMode: 1,
+              autoCropArea: 1,
+              background: false
+          });
+          
+          // Reset input to allow choosing the same file again if needed
+          document.getElementById('profilePhotoInput').value = '';
+      };
+      reader.readAsDataURL(file);
+  };
+
+  window.closeCropModal = () => {
+      document.getElementById('cropModal').style.display = 'none';
+      if(cropper) { cropper.destroy(); cropper = null; }
+  };
+
+  window.saveCroppedPhoto = () => {
+      if (!cropper) return;
+      
+      showLoadingSpinner("Uploading Photo...");
+      
+      // Get cropped canvas (300x300)
+      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+      
+      // Update UI immediately
+      window.updateProfilePhotoView(compressedBase64);
+      // Also update settings object
+      if(appData.settings) appData.settings.profilePhoto = compressedBase64;
+      window.currentProfilePhoto = compressedBase64;
+      
+      if(currentUser) {
+          set(ref(db, `users/${currentUser.uid}/settings/profilePhoto`), compressedBase64)
+          .then(() => {
+              hideLoadingSpinner();
+              closeCropModal();
+              showCustomAlert("✅ Profile ပုံ Upload ပြီးပါပြီ!");
+          })
+          .catch(err => {
+              hideLoadingSpinner();
+              showCustomAlert("❌ Upload Error: " + err.message);
+          });
+      } else {
+          hideLoadingSpinner();
+          closeCropModal();
+      }
+  };
+
+  window.removeProfilePhoto = () => {
+      if(!confirm("Profile ပုံကို ဖျက်ရန် သေချာပါသလား?")) return;
+      
+      showLoadingSpinner("Removing...");
+      window.updateProfilePhotoView(null);
+      toggleMenu(null);
+      
+      if(currentUser) {
+          remove(ref(db, `users/${currentUser.uid}/settings/profilePhoto`))
+          .then(() => {
+              hideLoadingSpinner();
+          })
+          .catch(err => {
+              hideLoadingSpinner();
+              showCustomAlert("❌ Remove Error: " + err.message);
+          });
+      } else {
+          hideLoadingSpinner();
+      }
+  };
+
+  // ★ Profile Viewer open/close ★
+  window.openProfileViewer = () => {
+      toggleMenu(null);
+      // Set viewer name
+      let nameEl = document.getElementById('profileViewerName');
+      let empName = document.getElementById('empName') ? document.getElementById('empName').value : '';
+      if(nameEl) nameEl.innerText = empName || currentUser?.displayName || '';
+      document.getElementById('profileViewerModal').style.display = 'flex';
+  };
+
+  window.closeProfileViewer = () => {
+      document.getElementById('profileViewerModal').style.display = 'none';
+  };
+
+  // Upload from viewer
+  window.triggerProfilePhotoInputFromViewer = () => {
+      closeProfileViewer();
+      setTimeout(() => {
+          document.getElementById('profilePhotoInput').click();
+      }, 250);
+  };
+
+  // Edit/re-crop current photo from viewer
+  window.triggerEditCrop = () => {
+      if (!window.currentProfilePhoto) return;
+      closeProfileViewer();
+      // Load existing photo into cropper
+      const image = document.getElementById('cropImage');
+      image.src = window.currentProfilePhoto;
+      document.getElementById('cropModal').style.display = 'flex';
+      if(cropper) { cropper.destroy(); }
+      cropper = new Cropper(image, { aspectRatio: 1, viewMode: 1, autoCropArea: 1, background: false });
+  };
+
+  // Delete from viewer
+  window.removeProfilePhotoFromViewer = () => {
+      if(!confirm("Profile ပုံကို ဖျက်ရန် သေချာပါသလား?")) return;
+      closeProfileViewer();
+      showLoadingSpinner("Removing...");
+      window.updateProfilePhotoView(null);
+      if(currentUser) {
+          remove(ref(db, `users/${currentUser.uid}/settings/profilePhoto`))
+          .then(() => hideLoadingSpinner())
+          .catch(err => { hideLoadingSpinner(); showCustomAlert("❌ Error: " + err.message); });
+      } else { hideLoadingSpinner(); }
+  };
+
+  window.updateProfilePhotoView = (base64Data) => {
+      const iconSlot = document.getElementById('profileIconSlot');
+      const imgSlot = document.getElementById('profileImgSlot');
+      const btnContainer = document.getElementById('profileBtnContainer');
+      const removeBtn = document.getElementById('removePhotoBtn');
+      // viewer (optional — still present)
+      const viewerImg = document.getElementById('profileViewerImg');
+      const viewerPlaceholder = document.getElementById('profileViewerPlaceholder');
+      const viewerEditBtn = document.getElementById('profileViewerEditBtn');
+      const viewerDeleteBtn = document.getElementById('profileViewerDeleteBtn');
+
+      window.currentProfilePhoto = base64Data || null;
+
+      if (base64Data && (base64Data.startsWith('data:image') || base64Data.startsWith('http'))) {
+          if(iconSlot) iconSlot.style.display = 'none';
+          if(imgSlot) { imgSlot.src = base64Data; imgSlot.style.display = 'block'; }
+          if(btnContainer) btnContainer.style.border = '2px solid #007bff';
+          if(removeBtn) removeBtn.style.display = 'flex';
+          if(viewerImg) { viewerImg.src = base64Data; viewerImg.style.display = 'block'; }
+          if(viewerPlaceholder) viewerPlaceholder.style.display = 'none';
+          if(viewerEditBtn) viewerEditBtn.style.display = 'flex';
+          if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'flex';
+      } else {
+          if(iconSlot) iconSlot.style.display = 'block';
+          if(imgSlot) { imgSlot.style.display = 'none'; imgSlot.src = ''; }
+          if(btnContainer) btnContainer.style.border = '1px solid #ccc';
+          if(removeBtn) removeBtn.style.display = 'none';
+          if(viewerImg) { viewerImg.style.display = 'none'; viewerImg.src = ''; }
+          if(viewerPlaceholder) viewerPlaceholder.style.display = 'flex';
+          if(viewerEditBtn) viewerEditBtn.style.display = 'none';
+          if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'none';
+      }
+  };
+
+  function createOTModal() {
+      if(document.getElementById('otSelectionModal')) return;
+      let d = document.createElement('div');
+      d.id = 'otSelectionModal';
+      d.className = 'modal-overlay';
+      d.style.zIndex = '10001';
+      d.innerHTML = `
+        <div class="modal-content pop-in" style="text-align: center; max-width: 320px; padding: 20px; position: relative;">
+          <button class="close-modal interactive-btn" onclick="cancelOTSelection()" style="position: absolute; right: 15px; top: 15px; font-size: 28px; color: #dc3545; background: none; border: none; padding: 0; line-height: 1;">×</button>
+          <h3 id="otModalTitle" style="margin-top: 0; color: #0d6efd; font-size: 16px; font-weight:bold; padding-top: 5px;">⏱️ OT နာရီ ရွေးချယ်ပါ</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
              <button class="btn-generate interactive-btn" onclick="setOTHours(1)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">1 <span class="ot-btn-txt">နာရီ</span></button>
              <button class="btn-generate interactive-btn" onclick="setOTHours(2)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">2 <span class="ot-btn-txt">နာရီ</span></button>
              <button class="btn-generate interactive-btn" onclick="setOTHours(3)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">3 <span class="ot-btn-txt">နာရီ</span></button>
