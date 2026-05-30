@@ -1339,10 +1339,10 @@
 
       window.generateGrid(false); 
   };
+
   window.navigateMonth = (step) => {
       let currentMonthVal = document.getElementById('selectedMonth').value;
       if (!currentMonthVal) return;
-
       let [y, m] = currentMonthVal.split('-').map(Number);
       m += step; 
       
@@ -1840,24 +1840,32 @@
 
       calculateAll();
 
-      // ★ ဖြည့်ပြီးနောက် ကျော်ထားတဲ့ ရက်တွေ စစ်မည် ★
+      // ★ ဖြည့်ပြီးနောက် ဒီနေ့မတိုင်မီ ကျော်ထားတဲ့ ရက်တွေ စစ်မည် ★
       if (val !== '') {
           setTimeout(() => {
-              let allCards = Array.from(document.querySelectorAll('.day-card:not(.blank-card)'));
-              let filledIdx = allCards.indexOf(card);
+              let now = new Date();
+              let todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+              let curCardDate = card.getAttribute('data-real-date') || '';
 
-              // ဒီ card မတိုင်မီ empty card တွေ ရှာမည်
+              // ဒီနေ့ date နဲ့ ဖြည့်လိုက်တဲ့ card date တိုက်စစ် — မဖြည့်ကျော်ထားတဲ့ logic
+              // ဒီနေ့ date ထက် မကြီးသော card date တွေကိုသာ စစ်မည်
+              let allCards = Array.from(document.querySelectorAll('.day-card:not(.blank-card)'));
+              let myanmarDays = ['တနင်္ဂနွေ','တနင်္လာ','အင်္ဂါ','ဗုဒ္ဓဟူး','ကြာသပတေး','သောကြာ','စနေ'];
               let skippedDates = [];
-              for (let i = 0; i < filledIdx; i++) {
-                  let c = allCards[i];
+
+              for (let c of allCards) {
+                  let d = c.getAttribute('data-real-date');
+                  if (!d) continue;
+                  // ဒီနေ့ မတိုင်မီ ရက်များသာ (ဒီနေ့ မပါ)
+                  if (d >= todayKey) continue;
+                  // ဖြည့်လိုက်တဲ့ card ကိုယ်တိုင် မစစ်
+                  if (d === curCardDate) continue;
+
                   let st = c.querySelector('.status-select');
+                  // status select value '' (ဘာမှမရွေး) ဆိုမှ — '-' auto holidays မပါ
                   if (st && st.value === '') {
-                      let d = c.getAttribute('data-real-date');
-                      if (d) {
-                          let dObj = new Date(d);
-                          // month/day format (မြန်မာ style)
-                          skippedDates.push(`${dObj.getDate()} ရက် (${['တနင်္ဂနွေ','တနင်္လာ','အင်္ဂါ','ဗုဒ္ဓဟူး','ကြာသပတေး','သောကြာ','စနေ'][dObj.getDay()]})`);
-                      }
+                      let dObj = new Date(d);
+                      skippedDates.push(`${dObj.getDate()} ရက် (${myanmarDays[dObj.getDay()]})`);
                   }
               }
 
@@ -1869,7 +1877,7 @@
 ');
                   msg += '
 
-ကျေးဇူးပြု၍ ဖြည့်သွင်းပါ။';
+ကျေးဇူးပြု၍ ပြန်ဖြည့်သွင်းပါ။';
                   showCustomAlert(msg);
               }
           }, 400);
