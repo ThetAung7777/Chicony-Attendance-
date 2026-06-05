@@ -1356,7 +1356,8 @@
       let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
       document.getElementById('selectedMonth').value = newMonthStr;
       
-      // ★ Bug Fix 1: navigate ပြန်သွားရင် bonusHistory မှ bonus ကိုယူမည် ★      if (step < 0) {
+      // ★ Bug Fix 1: navigate ပြန်သွားရင် bonusHistory မှ bonus ကိုယူမည် ★
+      if (step < 0) {
           // ယခင်လ (back) သွားရင် saved history မှ ယူမည်
           let savedHistoryBonus = appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr]
               ? parseInt(appData.settings.bonusHistory[newMonthStr])
@@ -1821,7 +1822,7 @@
       let dayIndex = new Date(dateStr).getDay();
       let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       let dayKey = daysMap[dayIndex];
-
+      
       let type = '';
       if (val === '✓') type = 'work';
       else if (val === 'x') type = 'absent';
@@ -1830,36 +1831,8 @@
       if (type && window.customAlertMsgs && window.customAlertMsgs[type] && window.customAlertMsgs[type][dayKey]) {
           showCustomAlert(window.customAlertMsgs[type][dayKey]);
       }
-
+      
       calculateAll();
-
-      // ★ ဖြည့်ပြီးနောက် ကျော်ထားတဲ့ ရက်တွေ စစ်မည် (ဒီနေ့မတိုင်မီ empty card) ★
-      if (val !== '') {
-          setTimeout(() => {
-              let now = new Date();
-              let todayKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
-              let curDate = card.getAttribute('data-real-date') || '';
-              let mDays = ['တနင်္ဂနွေ','တနင်္လာ','အင်္ဂါ','ဗုဒ္ဓဟူး','ကြာသပတေး','သောကြာ','စနေ'];
-              let skipped = [];
-              document.querySelectorAll('.day-card:not(.blank-card)').forEach(c => {
-                  let d = c.getAttribute('data-real-date');
-                  if (!d || d >= todayKey || d === curDate) return; // ဒီနေ့နဲ့ နောက်ပိုင်း မစစ်
-                  let st = c.querySelector('.status-select');
-                  if (st && st.value === '') {
-                      let dObj = new Date(d);
-                      skipped.push(dObj.getDate() + ' ရက် (' + mDays[dObj.getDay()] + ')');
-                  }
-              });
-              if (skipped.length > 0) {
-                  showCustomAlert('⚠️ အောက်ပါ ရက်များ မဖြည့်ရသေးပါ —
-
-' + skipped.join('
-') + '
-
-ကျေးဇူးပြု၍ ပြန်ဖြည့်သွင်းပါ။');
-              }
-          }, 400);
-      }
   };
 
   window.currentOTSelectElement = null;
@@ -2259,64 +2232,15 @@
 
   window.downloadSlipImage = () => {
       let printArea = document.getElementById('slipPrintArea');
-      if (!printArea) { showCustomAlert('❌ Slip area not found.'); return; }
-      let originalBg = printArea.style.background;
-      printArea.style.background = 'white';
-      // Show spinner
-      let spinner = document.getElementById('loadingSpinner');
-      if (spinner) { spinner.style.display = 'flex'; spinner.innerText = 'Saving image...'; }
-
-      html2canvas(printArea, {
-          scale: 4,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-      }).then(canvas => {
-          // ── CHICONY watermark (ပုံထဲကအတိုင်း diagonal repeat) ──
-          let ctx = canvas.getContext('2d');
-          let cw = canvas.width, ch = canvas.height;
-          ctx.save();
-          ctx.globalAlpha = 0.10;
-          ctx.fillStyle = '#21409A';
-          let fs = Math.round(cw * 0.055);
-          ctx.font = 'bold ' + fs + 'px Arial, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          let sx = cw * 0.40, sy = ch * 0.18;
-          for (let y = sy / 2; y < ch + sy; y += sy) {
-              for (let x = sx / 2; x < cw + sx; x += sx) {
-                  ctx.save();
-                  ctx.translate(x, y);
-                  ctx.rotate(-Math.PI / 7);
-                  ctx.fillText('CHICONY', 0, 0);
-                  ctx.restore();
-              }
-          }
-          ctx.restore();
-
-          // PNG lossless — high quality
-          canvas.toBlob(blob => {
-              let url = URL.createObjectURL(blob);
-              let link = document.createElement('a');
-              let d = window.currentSlipData;
-              let p = d && d.period ? d.period : 'slip';
-              link.href = url;
-              link.download = 'Chicony_Slip_' + p + '.png';
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-              printArea.style.background = originalBg;
-              if (spinner) spinner.style.display = 'none';
-          }, 'image/png');
-
-      }).catch(err => {
-          console.error('Slip save error:', err);
-          printArea.style.background = originalBg;
-          if (spinner) spinner.style.display = 'none';
-          showCustomAlert('❌ Save failed: ' + err.message);
-      });
+      let originalBackground = printArea.style.background;
+      printArea.style.background = 'white'; 
+      html2canvas(printArea, { scale: 2, useCORS: true }).then(canvas => {
+          let imgData = canvas.toDataURL('image/jpeg', 1.0);
+          let link = document.createElement('a'); link.href = imgData;
+          let d = window.currentSlipData; let p = d && d.period ? d.period : 'slip';
+          link.download = `Chicony_Slip_${p}.jpg`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+          printArea.style.background = originalBackground;
+      }).catch(err => { console.error("Error generating image: ", err); showCustomAlert("Failed to save image."); });
   };
 
   window.openSalarySlip = () => {
