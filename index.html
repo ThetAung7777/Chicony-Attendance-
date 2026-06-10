@@ -758,13 +758,15 @@
       <button class="close-modal interactive-btn" onclick="closeExcelPreview()">×</button>
     </div>
     <div class="modal-body" style="padding:12px 16px;">
-      <div id="excelPreviewInfo" style="margin-bottom:12px; font-size:13px; color:#555;"></div>
-      <div style="overflow-x:auto; max-height:55vh;">
+      <div id="excelPreviewInfo" style="margin-bottom:10px; font-size:12px; color:#666;"></div>
+      <div style="overflow-x:auto; max-height:45vh;">
         <table id="excelPreviewTable" style="width:100%; border-collapse:collapse; font-size:12px;">
           <thead id="excelPreviewHead"></thead>
           <tbody id="excelPreviewBody"></tbody>
         </table>
       </div>
+      <!-- Summary cards — table အောက်မှာ ပြမည် -->
+      <div id="excelPreviewSummary" style="margin-top:12px;"></div>
       <div style="display:flex; gap:10px; margin-top:14px;">
         <button class="btn-generate interactive-btn" onclick="closeExcelPreview()" style="background:#6c757d; margin-top:0; flex:1;">❌ ပိတ်မည်</button>
         <button class="btn-generate interactive-btn" onclick="confirmDownloadExcel()" style="background:#198754; margin-top:0; flex:2;">📥 Download Excel</button>
@@ -1384,7 +1386,8 @@
           // ယခင်လ (back) သွားရင် saved history မှ ယူမည်
           let savedHistoryBonus = appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr]
               ? parseInt(appData.settings.bonusHistory[newMonthStr])
-              : null;          
+              : null;
+          
           if (savedHistoryBonus !== null) {
               document.getElementById('attBonusSetting').value = savedHistoryBonus;
               window.generateGrid(false);
@@ -1393,8 +1396,7 @@
           }
       } else {
           window.handleMonthChange();
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      }      window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   document.getElementById('selectedMonth').addEventListener('change', window.handleMonthChange);
@@ -2555,10 +2557,32 @@
       let tbody = document.getElementById('excelPreviewBody');
       let info  = document.getElementById('excelPreviewInfo');
 
-      info.innerHTML = '<b>Period:</b> ' + sDate + ' → ' + eDate +
-          ' &nbsp;|&nbsp; <b>Work:</b> ' + expWork + ' days' +
-          ' &nbsp;|&nbsp; <b>OT:</b> ' + expOtHrs + ' hrs' +
-          ' &nbsp;|&nbsp; <b>Net:</b> <span style="color:#198754;font-weight:bold;">' + expTotal.toLocaleString() + ' ฿</span>';
+      // ── ထိပ်မှာ period သာ ──
+      info.innerHTML = '📅 <b>' + sDate + '</b> မှ <b>' + eDate + '</b> ကာလ';
+
+      // ── Table အောက်မှာ summary grid ──
+      let sumDiv = document.getElementById('excelPreviewSummary');
+      let sc = (k,v,c) => '<div style="background:' + c + '22;border:1px solid ' + c + '44;border-radius:8px;padding:8px 10px;text-align:center;min-width:80px;">' +
+          '<div style="font-size:11px;color:#666;margin-bottom:2px;">' + k + '</div>' +
+          '<div style="font-size:15px;font-weight:bold;color:' + c + ';">' + v + '</div></div>';
+      sumDiv.innerHTML =
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">' +
+              sc('အလုပ်ဆင်းရက်', expWork + ' ရက်', '#0d6efd') +
+              sc('OT နာရီ', expOtHrs + ' hr', '#fd7e14') +
+              sc('နှစ်ဆရက်', expDouble + ' ရက်', '#6610f2') +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">' +
+              sc('ပျက်ရက်', expAbsent + ' ရက်', '#dc3545') +
+              sc('ဆေးခွင့်', expMedCount + ' ရက်', '#fd7e14') +
+              sc('ပိတ်ရက်ရငွေ', expPubHolPay.toLocaleString() + '฿', '#0891b2') +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' +
+              sc('ရက်မှန်ကြေး', expBonus.toLocaleString() + '฿', '#20c997') +
+              '<div style="background:#19875422;border:1px solid #19875444;border-radius:8px;padding:8px 10px;text-align:center;">' +
+                  '<div style="font-size:11px;color:#666;margin-bottom:2px;">💰 Net Salary</div>' +
+                  '<div style="font-size:17px;font-weight:bold;color:#198754;">' + expTotal.toLocaleString() + ' ฿</div>' +
+              '</div>' +
+          '</div>';
 
       let thStyle = 'background:#198754;color:white;padding:6px 8px;text-align:left;font-size:11px;white-space:nowrap;';
       let headers = ['Date','Shift','Status','OT Hrs','Total (฿)'];
