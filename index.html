@@ -750,6 +750,29 @@
   </div>
 </div>
 
+<!-- ★ Excel Preview Modal ★ -->
+<div class="modal-overlay" id="excelPreviewModal" style="z-index:600;">
+  <div class="modal-content pop-in" style="max-width:480px; max-height:90vh;">
+    <div class="modal-header">
+      <h3 class="logo-main" style="color:#198754; font-size:16px;">📊 Export Preview</h3>
+      <button class="close-modal interactive-btn" onclick="closeExcelPreview()">×</button>
+    </div>
+    <div class="modal-body" style="padding:12px 16px;">
+      <div id="excelPreviewInfo" style="margin-bottom:12px; font-size:13px; color:#555;"></div>
+      <div style="overflow-x:auto; max-height:55vh;">
+        <table id="excelPreviewTable" style="width:100%; border-collapse:collapse; font-size:12px;">
+          <thead id="excelPreviewHead"></thead>
+          <tbody id="excelPreviewBody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:14px;">
+        <button class="btn-generate interactive-btn" onclick="closeExcelPreview()" style="background:#6c757d; margin-top:0; flex:1;">❌ ပိတ်မည်</button>
+        <button class="btn-generate interactive-btn" onclick="confirmDownloadExcel()" style="background:#198754; margin-top:0; flex:2;">📥 Download Excel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="exportModal">
   <div class="modal-content pop-in" style="padding: 0;">
     <div class="modal-header">
@@ -762,7 +785,7 @@
           <div class="full-width"><label data-i18n="endDate">အဆုံးသတ်ရက်</label><input type="date" id="exportEndDate"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top: 20px;">
-          <button class="btn-generate interactive-btn" onclick="exportExcel()" style="background:#198754; margin-top:0;">📊 Excel</button>
+          <button class="btn-generate interactive-btn" onclick="showExcelPreview()" style="background:#198754; margin-top:0;">📊 Excel Preview & Download</button>
         </div>
     </div>
   </div>
@@ -1361,8 +1384,7 @@
           // ယခင်လ (back) သွားရင် saved history မှ ယူမည်
           let savedHistoryBonus = appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr]
               ? parseInt(appData.settings.bonusHistory[newMonthStr])
-              : null;
-          
+              : null;          
           if (savedHistoryBonus !== null) {
               document.getElementById('attBonusSetting').value = savedHistoryBonus;
               window.generateGrid(false);
@@ -2471,6 +2493,116 @@
 
   window.openExportModal = () => { let cards = document.querySelectorAll('.day-card'); if(cards.length > 0) { document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date'); let lastFilledDate = cards[0].getAttribute('data-real-date'); cards.forEach(c => { let status = c.querySelector('.status-select').value; if(status === '✓' || status === 'x') lastFilledDate = c.getAttribute('data-real-date'); }); let todayObj = new Date(); let tzOffset = 7 * 60 * 60000; let localISOTime = (new Date(todayObj - tzOffset)).toISOString().slice(0, -1); let todayStr = localISOTime.split('T')[0]; let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate; document.getElementById('exportEndDate').value = finalEndDate; } document.getElementById('exportModal').style.display = 'flex'; toggleMenu(null); };
   window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
+
+  // ── Excel Preview global data store ──
+  window._excelPreviewData = null;
+
+  window.closeExcelPreview = () => { document.getElementById('excelPreviewModal').style.display = 'none'; };
+
+  window.showExcelPreview = () => {
+      let sDate = document.getElementById('exportStartDate').value;
+      let eDate = document.getElementById('exportEndDate').value;
+      if (!sDate || !eDate) return;
+
+      let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
+      let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
+      let rows = []; // preview rows only (not summary)
+      let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0;
+
+      document.querySelectorAll('.day-card').forEach(card => {
+          let rDate = card.getAttribute('data-real-date');
+          if (rDate >= sDate && rDate <= eDate) {
+              let date = card.getAttribute('data-date');
+              let shiftVal = card.querySelector('.shift-select').value;
+              let statusVal = card.querySelector('.status-select').value;
+              let leaveVal = card.querySelector('.leave-select').value;
+              let ot = card.getAttribute('data-ot') || '0';
+              let total = parseFloat(card.getAttribute('data-total') || '0');
+              let calData = globalCalendar[rDate];
+              let isAdminDouble = calData?.type === 'double';
+              let isAdminHoliday = calData?.type === 'holiday';
+              let displayShift = shiftVal === 'day' ? 'Day' : 'Night';
+              let displayStatus = statusVal;
+
+              if (statusVal === '-') {
+                  displayShift = 'All'; displayStatus = 'Holiday';
+                  if (isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; }
+              } else if (statusVal === '✓') displayStatus = 'Present';
+              else if (statusVal === 'x') displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent';
+              else displayStatus = '-';
+
+              let isWorking = (statusVal === '✓');
+              let displayOt = (ot === '0' || ot === 0 || ot === '' || !isWorking) ? '-' : ot;
+              let displayTotal = (total === 0) ? '-' : total.toLocaleString();
+              rows.push([date, displayShift, displayStatus, displayOt, displayTotal]);
+
+              let rDateObj = new Date(rDate); let isSun = rDateObj.getDay() === 0;
+              if (statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot||0); if(isAdminHoliday||isAdminDouble||isSun) expDouble++; }
+              else if (statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else expAbsent++; }
+              expTotal += total;
+          }
+      });
+
+      let totalAbs = expAbsent + expMedCount;
+      let expBonus = bonusSetting; if (totalAbs > 0) expBonus = 200;
+      expTotal += expBonus;
+
+      // Store for download
+      window._excelPreviewData = { sDate, eDate, rows, expWork, expDouble, expAbsent, expMedCount, expMedPay, expOtHrs, expTotal, expPubHolCount, expPubHolPay, expBonus, bonusSetting };
+
+      // Build preview table
+      let thead = document.getElementById('excelPreviewHead');
+      let tbody = document.getElementById('excelPreviewBody');
+      let info  = document.getElementById('excelPreviewInfo');
+
+      info.innerHTML = '<b>Period:</b> ' + sDate + ' → ' + eDate +
+          ' &nbsp;|&nbsp; <b>Work:</b> ' + expWork + ' days' +
+          ' &nbsp;|&nbsp; <b>OT:</b> ' + expOtHrs + ' hrs' +
+          ' &nbsp;|&nbsp; <b>Net:</b> <span style="color:#198754;font-weight:bold;">' + expTotal.toLocaleString() + ' ฿</span>';
+
+      let thStyle = 'background:#198754;color:white;padding:6px 8px;text-align:left;font-size:11px;white-space:nowrap;';
+      let headers = ['Date','Shift','Status','OT Hrs','Total (฿)'];
+      thead.innerHTML = '<tr>' + headers.map(h => '<th style="' + thStyle + '">' + h + '</th>').join('') + '</tr>';
+
+      let statusColor = { 'Present':'#198754','Absent':'#dc3545','Medical Leave':'#fd7e14','Holiday':'#0d6efd','-':'#999' };
+      tbody.innerHTML = rows.map(r => {
+          let sc = statusColor[r[2]] || '#333';
+          return '<tr>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[0] + '</td>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[1] + '</td>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;color:' + sc + ';font-weight:bold;">' + r[2] + '</td>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:center;">' + r[3] + '</td>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">' + r[4] + '</td>' +
+          '</tr>';
+      }).join('');
+
+      closeExportModal();
+      document.getElementById('excelPreviewModal').style.display = 'flex';
+  };
+
+  window.confirmDownloadExcel = () => {
+      let p = window._excelPreviewData;
+      if (!p) return;
+      let excelData = [['Date','Shift','Status','OT Hours','Daily Total (Baht)']];
+      p.rows.forEach(r => excelData.push(r));
+      excelData.push([]);
+      excelData.push(['','','','Attendance Bonus', p.expBonus + ' Baht']);
+      excelData.push(['','','','Public Holiday Pay', p.expPubHolCount + ' Days / ' + p.expPubHolPay + ' Baht']);
+      excelData.push(['','','','Medical Leave Pay', p.expMedCount + ' Days / ' + p.expMedPay + ' Baht']);
+      excelData.push(['','','','Total Work Hours', (p.expWork * 8) + ' hrs']);
+      excelData.push(['','','','Total Normal OT Hours', p.expOtHrs + ' hrs']);
+      if (p.expDouble > 0) excelData.push(['','','','2X Days Work Hours', (p.expDouble * 8) + ' hrs']);
+      excelData.push(['','','','Absent (Unpaid)', p.expAbsent + ' Days']);
+      excelData.push(['','','','Net Salary', p.expTotal + ' Baht']);
+      excelData.push([]); excelData.push(['','','','Developed by','THET AUNG']);
+
+      let wb = XLSX.utils.book_new();
+      let ws = XLSX.utils.aoa_to_sheet(excelData);
+      XLSX.utils.book_append_sheet(wb, ws, 'Salary_Report');
+      let name = document.getElementById('empName').value || 'Employee';
+      XLSX.writeFile(wb, name + '_Salary_' + p.sDate + '_to_' + p.eDate + '.xlsx');
+      closeExcelPreview();
+  };
 
   window.exportExcel = () => { 
       let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; 
