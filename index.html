@@ -36,9 +36,11 @@
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
+  /* Navbar Sticky Top */
   .navbar { background-color: var(--app-header-color); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 60px; box-sizing: border-box; transition: background 0.4s ease; }
   .menu-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
+  /* Profile Photo Button အဝိုင်းပုံစံ CSS */
   .profile-btn {
       background: #f1f1f1; border: 1px solid #ccc; width: 36px; height: 36px; border-radius: 50%; 
       cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; 
@@ -57,13 +59,15 @@
   .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
   .dropdown a:hover { background-color: #f4f7f6; }
   
-  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 500; backdrop-filter: blur(3px); }
-  .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; z-index: 5001; }
+  /* Modal များ z-index ချိန်ညှိခြင်း */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 5000; backdrop-filter: blur(3px); }
+  .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; z-index: 5001; }
   .modal-header { padding: 15px 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; z-index: 10; }
   .modal-header h3 { margin: 0; }
   .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
   .close-modal { font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; padding: 0; }
 
+  /* Login Screen & Loading Spinners */
   #splashScreen, #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 20000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
   .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
@@ -241,7 +245,13 @@
   <div class="login-box pop-in">
     <h2 style="margin-bottom: 5px;" class="logo-main">CHICONY</h2>
     <p style="margin-top: 0;" class="logo-tag">ATTENDANCE SYSTEM</p>
-    <button class="google-btn interactive-btn" onclick="signIn()">
+    
+    <div id="loginLoadingState" style="display: block;">
+        <div class="spinner"></div>
+        <p style="color: #666; font-size: 13px; margin: 0;">Checking login status...</p>
+    </div>
+
+    <button id="loginGoogleBtn" class="google-btn interactive-btn" onclick="signIn()" style="display: none;">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFF" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#FFF" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FFF" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FFF" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Login with Google
     </button>
@@ -278,7 +288,7 @@
     
     <div style="display:flex; align-items: center; gap:5px; position: relative;">
       <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)">
-      <button class="profile-btn interactive-btn" onclick="openProfileViewer()" id="profileBtnContainer">
+      <button class="profile-btn interactive-btn" onclick="toggleMenu('rightMenu')" id="profileBtnContainer">
         <span id="profileIconSlot">👤</span>
         <img id="profileImgSlot" style="display:none;" alt="Profile">
       </button>
@@ -351,22 +361,6 @@
   <div id="tickerBar" class="ticker-wrap" style="display:none;"><span id="tickerString" class="ticker-text"></span></div>
 </div>
 
-<div class="modal-overlay" id="profileViewerModal" style="z-index:10001; background:rgba(0,0,0,0.93); display:none;" onclick="closeProfileViewer()">
-  <div style="position:relative; width:92%; max-width:360px; margin:auto;" onclick="event.stopPropagation()">
-    <button onclick="closeProfileViewer()" style="position:absolute; top:-48px; right:0; background:rgba(255,255,255,0.18); border:none; color:white; width:38px; height:38px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold;">✕</button>
-    <div style="border-radius:18px; overflow:hidden; background:#1a1a2e; box-shadow:0 8px 30px rgba(0,0,0,0.5);">
-      <img id="profileViewerImg" src="" alt="Profile" style="width:100%; aspect-ratio:1; object-fit:cover; display:none;">
-      <div id="profileViewerPlaceholder" style="width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:110px; background:linear-gradient(135deg,#c8d8f0,#e8edf5);">👤</div>
-    </div>
-    <div id="profileViewerName" style="color:white; text-align:center; font-size:17px; font-weight:bold; margin:14px 0 14px; text-shadow:0 1px 4px rgba(0,0,0,0.5);"></div>
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:24px;">
-      <button onclick="triggerProfilePhotoInputFromViewer()" style="background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);"><span style="font-size:24px;">📸</span>တင်မည်</button>
-      <button onclick="triggerEditCrop()" id="profileViewerEditBtn" style="background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);"><span style="font-size:24px;">✏️</span>ပြင်မည်</button>
-      <button onclick="removeProfilePhotoFromViewer()" id="profileViewerDeleteBtn" style="background:rgba(220,53,69,0.55); border:1px solid rgba(220,53,69,0.4); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);"><span style="font-size:24px;">🗑️</span>ဖျက်မည်</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="cropModal" style="z-index: 10002;">
   <div class="modal-content pop-in" style="max-width: 400px; padding: 0;">
     <div class="modal-header">
@@ -407,7 +401,7 @@
 </div>
 
 <div class="modal-overlay" id="ssoSettingsModal" style="z-index: 400;">
-  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;"><div class="modal-header"><h3 style="color: #007bff;" class="logo-main">🛡️ SSO Settings</h3><button class="close-modal interactive-btn" onclick="closeSsoSettingsModal()">×</button></div><div class="modal-body"><p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 12px;">ပကန်စံခွန်း (SSO) ၅% တွက်ချက်ရာတွင် ထည့်သွင်းပေါင်းမည့် အရာများကို ရွေးချယ်ပါ။ (Admin သာ ပြင်ဆင်နိုင်သည်)</p><div style="background:#f0f7ff; border:1px solid #b6d4fe; border-radius:8px; padding:12px; margin-bottom:14px;"><label style="font-size:13px; font-weight:bold; color:#0d6efd; display:block; margin-bottom:6px;">📅 SSO သိမ်းမည့်လ ရွေးပါ</label><input type="month" id="ssoMonthSelect" style="width:100%; padding:8px; border:1px solid #b6d4fe; border-radius:6px; font-size:14px; outline:none; background:white;" onchange="loadSsoForMonth()"><div id="ssoCurrentLabel" style="font-size:12px; margin-top:6px; font-weight:bold; min-height:18px;"></div></div><div class="setup-box" style="display: flex; flex-direction: column; gap: 15px; margin-top:0;"><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptBasic" style="width: 20px; height: 20px; cursor: pointer;"> အခြေခံလစာ (Basic Salary)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptPubHol" style="width: 20px; height: 20px; cursor: pointer;"> အစိုးရရုံးပိတ်ရက် ရငွေ (Public Holiday)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptNight" style="width: 20px; height: 20px; cursor: pointer;"> ညဆိုင်းကြေး (Night Allowance)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptFood" style="width: 20px; height: 20px; cursor: pointer;"> နေ့လည်စာ ထမင်းဖိုး (Food Allowance)</label></div><button class="btn-generate interactive-btn" style="background:#198754; margin-top:25px; width: 100%;" onclick="saveSsoSettings()">💾 SSO Save လုပ်မည်</button></div></div>
+  <div class="modal-content pop-in" style="max-width: 400px; padding: 0;"><div class="modal-header"><h3 style="color: #007bff;" class="logo-main">🛡️ SSO Settings</h3><button class="close-modal interactive-btn" onclick="closeSsoSettingsModal()">×</button></div><div class="modal-body"><p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 12px;">ပကန်စံခွန်း (SSO) ၅% တွက်ချက်ရာတွင် ထည့်သွင်းပေါင်းမည့် အရာများကို ရွေးချယ်ပါ။</p><div style="background:#f0f7ff; border:1px solid #b6d4fe; border-radius:8px; padding:12px; margin-bottom:14px;"><label style="font-size:13px; font-weight:bold; color:#0d6efd; display:block; margin-bottom:6px;">📅 SSO သိမ်းမည့်လ ရွေးပါ</label><input type="month" id="ssoMonthSelect" style="width:100%; padding:8px; border:1px solid #b6d4fe; border-radius:6px; font-size:14px; outline:none; background:white;" onchange="loadSsoForMonth()"><div id="ssoCurrentLabel" style="font-size:12px; margin-top:6px; font-weight:bold; min-height:18px;"></div></div><div class="setup-box" style="display: flex; flex-direction: column; gap: 15px; margin-top:0;"><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptBasic" style="width: 20px; height: 20px; cursor: pointer;"> အခြေခံလစာ (Basic Salary)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptPubHol" style="width: 20px; height: 20px; cursor: pointer;"> အစိုးရရုံးပိတ်ရက် ရငွေ (Public Holiday)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptNight" style="width: 20px; height: 20px; cursor: pointer;"> ညဆိုင်းကြေး (Night Allowance)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptFood" style="width: 20px; height: 20px; cursor: pointer;"> နေ့လည်စာ ထမင်းဖိုး (Food Allowance)</label></div><button class="btn-generate interactive-btn" style="background:#198754; margin-top:25px; width: 100%;" onclick="saveSsoSettings()">💾 SSO Save လုပ်မည်</button></div></div>
 </div>
 
 <div class="modal-overlay" id="alertSettingsModal" style="z-index: 400;">
@@ -557,12 +551,13 @@
           rowContainer.style.display = 'none';
       }
       
-      calculateAll(); // Update calculations automatically
-      toggleMenu(null); // Close the dropdown menu
+      calculateAll(); 
+      toggleMenu(null); 
   };
 
-  // ★ Profile Photo Functions (Bug Fixed) ★
+  // ★ Profile Photo Functions with Cropper.js ★
   let cropper = null;
+  window.currentProfilePhoto = null;
 
   window.triggerProfilePhotoInput = () => {
       toggleMenu(null);
@@ -586,7 +581,6 @@
           
           if(cropper) { cropper.destroy(); }
           
-          // Delay for crop initialization to prevent bug
           setTimeout(() => {
               cropper = new Cropper(image, {
                   aspectRatio: 1, 
@@ -659,11 +653,15 @@
       document.getElementById('profileViewerModal').style.display = 'flex';
   };
 
-  window.closeProfileViewer = () => { document.getElementById('profileViewerModal').style.display = 'none'; };
+  window.closeProfileViewer = () => {
+      document.getElementById('profileViewerModal').style.display = 'none';
+  };
 
   window.triggerProfilePhotoInputFromViewer = () => {
       closeProfileViewer();
-      setTimeout(() => { document.getElementById('profilePhotoInput').click(); }, 250);
+      setTimeout(() => {
+          document.getElementById('profilePhotoInput').click();
+      }, 250);
   };
 
   window.triggerEditCrop = () => {
@@ -721,6 +719,29 @@
       }
   };
 
+  function createOTModal() {
+      if(document.getElementById('otSelectionModal')) return;
+      let d = document.createElement('div');
+      d.id = 'otSelectionModal';
+      d.className = 'modal-overlay';
+      d.style.zIndex = '10001';
+      d.innerHTML = `
+        <div class="modal-content pop-in" style="text-align: center; max-width: 320px; padding: 20px; position: relative;">
+          <button class="close-modal interactive-btn" onclick="cancelOTSelection()" style="position: absolute; right: 15px; top: 15px; font-size: 28px; color: #dc3545; background: none; border: none; padding: 0; line-height: 1;">×</button>
+          <h3 id="otModalTitle" style="margin-top: 0; color: #0d6efd; font-size: 16px; font-weight:bold; padding-top: 5px;">⏱️ OT နာရီ ရွေးချယ်ပါ</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+             <button class="btn-generate interactive-btn" onclick="setOTHours(1)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">1 <span class="ot-btn-txt">နာရီ</span></button>
+             <button class="btn-generate interactive-btn" onclick="setOTHours(2)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">2 <span class="ot-btn-txt">နာရီ</span></button>
+             <button class="btn-generate interactive-btn" onclick="setOTHours(3)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">3 <span class="ot-btn-txt">နာရီ</span></button>
+             <button class="btn-generate interactive-btn" onclick="setOTHours(4)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">4 <span class="ot-btn-txt">နာရီ</span></button>
+          </div>
+          <button id="otModalCancelBtn" class="btn-generate interactive-btn" onclick="closeOTModalForManual()" style="background: #6c757d; margin-top: 10px; padding: 10px; font-size:14px;">✍️ ကိုယ်တိုင်ရေးမည်</button>
+        </div>
+      `;
+      document.body.appendChild(d);
+  }
+  createOTModal();
+
   let currentLang = localStorage.getItem('appLang') || 'my';
   document.getElementById('langSelector').value = currentLang;
 
@@ -763,29 +784,6 @@
       if (splash) splash.style.display = 'none';
       document.getElementById('loginScreen').style.display = 'flex';
   });
-
-  window.signIn = () => { 
-      document.getElementById('loginGoogleBtn').style.display = 'none';
-      document.getElementById('loginLoadingState').style.display = 'block';
-      signInWithPopup(auth, provider).catch((error) => {
-          console.error(error);
-          document.getElementById('loginLoadingState').style.display = 'none';
-          document.getElementById('loginGoogleBtn').style.display = 'flex';
-          showCustomAlert("Login Error: " + error.message);
-      });
-  };
-
-  window.logout = () => { signOut(auth).then(() => { location.reload(); }); };
-
-  window.confirmLogout = () => {
-      toggleMenu(null);
-      setTimeout(() => {
-          if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
-              document.getElementById('loadingSpinner').style.display = 'flex';
-              signOut(auth).then(() => { location.reload(); }).catch((err) => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Logout Error: " + err.message); });
-          }
-      }, 100);
-  };
 
   let bSelect = document.getElementById('attBonusSetting');
   if(bSelect && !bSelect.innerHTML.includes('200')) {
@@ -830,17 +828,27 @@
 
   window.showCustomAlert = async (textMsg) => {
       if(!textMsg || textMsg.trim() === '') return;
+      
       let displayText = textMsg;
       if (currentLang !== 'my') {
           try {
               let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(textMsg)}`;
-              let res = await fetch(url); let data = await res.json(); displayText = data[0].map(x => x[0]).join('');
-          } catch(e) { console.log("Translation failed", e); }
+              let res = await fetch(url);
+              let data = await res.json();
+              displayText = data[0].map(x => x[0]).join('');
+          } catch(e) {
+              console.log("Translation failed", e);
+          }
       }
+      
       document.getElementById('customAlertText').innerText = displayText;
+      document.getElementById('customAlertModal').style.zIndex = '10005'; 
       document.getElementById('customAlertModal').style.display = 'flex';
   };
-  window.closeCustomAlert = () => { document.getElementById('customAlertModal').style.display = 'none'; };
+
+  window.closeCustomAlert = () => {
+      document.getElementById('customAlertModal').style.display = 'none';
+  };
 
   function updateWeekdaysHeader() {
       let days = weekdaysText[currentLang];
@@ -849,12 +857,23 @@
 
   function getPeriodDates(yyyy_mm) {
       let [y, m] = yyyy_mm.split('-').map(Number);
-      return { startD: new Date(y, m - 2, 21), endD: new Date(y, m - 1, 20) };
+      let startD = new Date(y, m - 2, 21);
+      let endD = new Date(y, m - 1, 20);
+      return { startD, endD };
   }
 
   window.getRealCurrentMonth = () => {
-      let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1; 
-      if (d.getDate() >= 21) { realM++; if (realM > 12) { realM = 1; realY++; } }
+      let d = new Date(); 
+      let realY = d.getFullYear(); 
+      let realM = d.getMonth() + 1; 
+      
+      if (d.getDate() >= 21) {
+          realM++; 
+          if (realM > 12) { 
+              realM = 1; 
+              realY++; 
+          }
+      }
       return `${realY}-${String(realM).padStart(2,'0')}`;
   };
 
@@ -863,6 +882,7 @@
       document.querySelectorAll('[data-i18n]').forEach(el => {
           let key = el.getAttribute('data-i18n'); if(translations[lang][key]) el.innerText = translations[lang][key];
       });
+      
       let om = otModalText[lang] || otModalText.my;
       let titleEl = document.getElementById('otModalTitle');
       if(titleEl) {
@@ -870,29 +890,66 @@
           document.getElementById('otModalCancelBtn').innerText = om.cancel;
           document.querySelectorAll('.ot-btn-txt').forEach(el => el.innerText = om.hr);
       }
+
       updateWeekdaysHeader();
       if(isDataLoaded && document.getElementById('selectedMonth').value) window.generateGrid(false); 
       if(Object.keys(globalCalendar).length >= 0) renderYearCalendar();
   };
+
   changeLanguage(currentLang);
 
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
+
+  window.signIn = () => { 
+      let loadingSpinner = document.getElementById('loadingSpinner');
+      if (loadingSpinner) {
+          loadingSpinner.style.display = 'flex';
+          loadingSpinner.innerText = 'Connecting to Google...';
+      }
+
+      signInWithPopup(auth, provider).then(() => {
+          if (loadingSpinner) loadingSpinner.style.display = 'none';
+      }).catch((error) => {
+          if (loadingSpinner) loadingSpinner.style.display = 'none';
+          showCustomAlert("Login Error: " + error.message);
+      });
+  };
+
+  window.logout = () => { 
+      signOut(auth).then(() => { location.reload(); }); 
+  };
+
+  window.confirmLogout = () => {
+      toggleMenu(null);
+      setTimeout(() => {
+          if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
+              document.getElementById('loadingSpinner').style.display = 'flex';
+              signOut(auth)
+                  .then(() => { location.reload(); })
+                  .catch((err) => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Logout Error: " + err.message); });
+          }
+      }, 100);
+  };
 
   window.saveToFirebase = () => {
       if (!currentUser || !isDataLoaded) return;
       
       let existingBonusHistory = appData.settings && appData.settings.bonusHistory ? appData.settings.bonusHistory : {};
       let existingProfilePhoto = appData.settings && appData.settings.profilePhoto ? appData.settings.profilePhoto : null;
+      let currentMonth = document.getElementById('selectedMonth').value;
+      let currentBonus = parseInt(document.getElementById('attBonusSetting').value);
       
+      existingBonusHistory[currentMonth] = currentBonus;
+
       appData.settings = {
           empName: document.getElementById('empName').value, 
           empId: document.getElementById('empId').value,
           empDept: document.getElementById('empDept').value,
-          selectedMonth: document.getElementById('selectedMonth').value, 
+          selectedMonth: currentMonth, 
           dailyWage: document.getElementById('dailyWage').value,
           otRate: document.getElementById('otRate').value, 
-          attBonusSetting: document.getElementById('attBonusSetting').value,
+          attBonusSetting: currentBonus,
           bonusHistory: existingBonusHistory,
       }; 
       if (!appData.attendance) appData.attendance = {};
@@ -919,14 +976,18 @@
       if (!appData.attendance) return false;
       let { startD, endD } = getPeriodDates(yyyy_mm);
       let cur = new Date(startD); let hasAbsence = false;
+      
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
-          if (appData.attendance[key] && appData.attendance[key].status === 'x') { hasAbsence = true; break; }
+          if (appData.attendance[key] && appData.attendance[key].status === 'x') {
+              hasAbsence = true; break;          
+          }
           cur.setDate(cur.getDate() + 1);
-      }
+      }      
       return hasAbsence;  
   };
 
+  // ★ ရက်မှန်ကြေး (Bonus) မှန်ကန်စွာ လုပ်ဆောင်မည့်စနစ် ★
   window.handleMonthChange = () => {
       let newMonthStr = document.getElementById('selectedMonth').value;
       if (!newMonthStr) return;
@@ -936,24 +997,35 @@
       if (prevM < 1) { prevM = 12; prevY--; }
       let prevMonthStr = `${prevY}-${String(prevM).padStart(2, '0')}`;
 
+      // History ထဲမှာရှိရင် အရင်ကရခဲ့တဲ့/သိမ်းခဲ့တဲ့ အတိုင်း ပြန်ပြမည်
+      let currentSavedBonus = null;
       if (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr] !== undefined) {
-           document.getElementById('attBonusSetting').value = appData.settings.bonusHistory[newMonthStr];
-      } else {
-           let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
-           let savedPrevBonus = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[prevMonthStr] !== undefined) ? parseInt(appData.settings.bonusHistory[prevMonthStr]) : 500;
-           
-           let newBonus = 500;
-           if (!hasAbsence) {
-               if (savedPrevBonus === 500) newBonus = 800;
-               else if (savedPrevBonus >= 800) newBonus = 1000;
-           }
-           
-           document.getElementById('attBonusSetting').value = newBonus;
-           
-           if (!appData.settings) appData.settings = {};
-           if (!appData.settings.bonusHistory) appData.settings.bonusHistory = {};
-           appData.settings.bonusHistory[newMonthStr] = newBonus;
+          currentSavedBonus = parseInt(appData.settings.bonusHistory[newMonthStr]);
       }
+
+      if (currentSavedBonus !== null) {
+          document.getElementById('attBonusSetting').value = currentSavedBonus;
+      } else {
+          // History မှာ မရှိသေးဘူးဆိုရင် (လအသစ်ဆိုရင်) အရင်လက ပျက်ရက်ကို ကြည့်ပြီး တွက်ချက်မည်
+          let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
+          let savedPrevBonus = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[prevMonthStr] !== undefined) 
+              ? parseInt(appData.settings.bonusHistory[prevMonthStr]) 
+              : (appData.settings && appData.settings.attBonusSetting !== undefined ? parseInt(appData.settings.attBonusSetting) : 500);
+          
+          let newBonus = 500;
+          if (!hasAbsence) {
+              if (savedPrevBonus === 500) newBonus = 800;
+              else if (savedPrevBonus >= 800) newBonus = 1000;
+          }
+          
+          document.getElementById('attBonusSetting').value = newBonus;
+          
+          // Local မှာ ခဏသိမ်းထားမည်
+          if (!appData.settings) appData.settings = {};
+          if (!appData.settings.bonusHistory) appData.settings.bonusHistory = {};
+          appData.settings.bonusHistory[newMonthStr] = newBonus;
+      }
+
       window.generateGrid(false); 
   };
 
@@ -963,19 +1035,14 @@
 
       let [y, m] = currentMonthVal.split('-').map(Number);
       m += step; 
-      if (m > 12) { m = 1; y++; } else if (m < 1) { m = 12; y--; }
+      
+      if (m > 12) { m = 1; y++; } 
+      else if (m < 1) { m = 12; y--; }
+
       let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
       document.getElementById('selectedMonth').value = newMonthStr;
       
-      if (step < 0) {
-          let savedHistoryBonus = appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr]
-              ? parseInt(appData.settings.bonusHistory[newMonthStr]) : null;
-          
-          if (savedHistoryBonus !== null) {
-              document.getElementById('attBonusSetting').value = savedHistoryBonus;
-              window.generateGrid(false);
-          } else { window.handleMonthChange(); }
-      } else { window.handleMonthChange(); }      
+      window.handleMonthChange();
       window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -983,49 +1050,42 @@
 
   function loadFromFirebase() {
       document.getElementById('loadingSpinner').style.display = 'flex';
+      document.getElementById('loadingSpinner').innerText = 'Loading Data...';
       
       onValue(ref(db, 'users/' + currentUser.uid), (snapshot) => {
-          document.getElementById('loadingSpinner').style.display = 'none'; 
-          const data = snapshot.val();
+          document.getElementById('loadingSpinner').style.display = 'none'; const data = snapshot.val();
+          
           let realCurrentMonthStr = window.getRealCurrentMonth();
           
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
-              let savedBonus = appData.settings.attBonusSetting !== undefined ? parseInt(appData.settings.attBonusSetting) : 500;
               
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
               document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75; 
-              
+
               if(appData.settings.profilePhoto) {
                   window.currentProfilePhoto = appData.settings.profilePhoto;
                   window.updateProfilePhotoView(window.currentProfilePhoto);
               }
 
               let lastSavedMonth = appData.settings.selectedMonth || "";
-              let currentMonthBonus = (appData.settings.bonusHistory && appData.settings.bonusHistory[realCurrentMonthStr])
-                  ? parseInt(appData.settings.bonusHistory[realCurrentMonthStr])
-                  : savedBonus;
               
-              document.getElementById('attBonusSetting').value = currentMonthBonus;
-
-              if (lastSavedMonth && lastSavedMonth !== realCurrentMonthStr) {
-                  document.getElementById('selectedMonth').value = realCurrentMonthStr;
-                  isDataLoaded = true;
-                  window.handleMonthChange();
-              } else {
-                  document.getElementById('selectedMonth').value = realCurrentMonthStr; 
-                  appData.settings.selectedMonth = realCurrentMonthStr;
-                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
-                  isDataLoaded = true; window.generateGrid(false); 
-              }
+              document.getElementById('selectedMonth').value = realCurrentMonthStr;
+              isDataLoaded = true;
+              
+              window.handleMonthChange();
+              
+              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
+              
           } else {
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
               document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">New User</div><div class="profile-email-text">${currentUser.email}</div>`;
               isDataLoaded = true; window.generateGrid(true); 
+              
               setTimeout(() => {
                   document.getElementById('settingsModal').style.display = 'flex';
                   document.querySelector('#settingsModal .close-modal').style.display = 'none'; 
@@ -1048,6 +1108,7 @@
   function loadAppConfig() {
       onValue(ref(db, 'appConfig'), (snapshot) => {
           let config = snapshot.val() || {};
+          
           let headerColor = config.headerColor || 'white';
           let bodyColor = config.bodyColor || 'skyblue';
           document.documentElement.style.setProperty('--app-header-color', headerColor);
@@ -1062,33 +1123,55 @@
           if(currentUser && currentUser.email === ADMIN_EMAIL) {
               document.getElementById('adminHeaderColor').value = headerColor === 'white' ? '#ffffff' : headerColor;
               document.getElementById('adminBodyColor').value = bodyColor === 'skyblue' ? '#87ceeb' : bodyColor;
-              if(config.annDate) document.getElementById('adminAnnDate').value = config.annDate; else document.getElementById('adminAnnDate').value = '';
-              if(config.annText) document.getElementById('adminAnnText').value = config.annText; else document.getElementById('adminAnnText').value = '';
+              
+              if(config.annDate) document.getElementById('adminAnnDate').value = config.annDate;
+              else document.getElementById('adminAnnDate').value = '';
+              
+              if(config.annText) document.getElementById('adminAnnText').value = config.annText;
+              else document.getElementById('adminAnnText').value = '';
+              
               if(annImgData) {
                   window.tempAnnImageBase64 = annImgData;
                   document.getElementById('adminAnnImgStatus').innerText = "✓ Image loaded.";
                   document.getElementById('adminAnnImgStatus').style.color = "#198754";
                   document.getElementById('adminAnnImgStatus').style.display = 'block';
-              } else { window.tempAnnImageBase64 = null; document.getElementById('adminAnnImgStatus').style.display = 'none'; }
+              } else {
+                  window.tempAnnImageBase64 = null;
+                  document.getElementById('adminAnnImgStatus').style.display = 'none';
+              }
+              
               changeAlertType();
-              if(config.tickerText) { document.getElementById('adminTickerText').value = config.tickerText; } else { document.getElementById('adminTickerText').value = ""; }
+              
+              if(config.tickerText) {
+                  document.getElementById('adminTickerText').value = config.tickerText;
+              } else {
+                  document.getElementById('adminTickerText').value = "";
+              }
           }
           
           if(config.tickerText && config.tickerText.trim() !== "") {
-              document.getElementById('tickerBar').style.display = 'flex'; document.getElementById('tickerString').innerText = config.tickerText;
-          } else { document.getElementById('tickerBar').style.display = 'none'; document.getElementById('tickerString').innerText = ""; }
+              document.getElementById('tickerBar').style.display = 'flex';
+              document.getElementById('tickerString').innerText = config.tickerText;
+          } else {
+              document.getElementById('tickerBar').style.display = 'none';
+              document.getElementById('tickerString').innerText = "";
+          }
 
           let annDate = config.annDate;
           if (annDate) {
-              let today = new Date(); let tzOffset = today.getTimezoneOffset() * 60000; 
+              let today = new Date();
+              let tzOffset = today.getTimezoneOffset() * 60000; 
               let localISOTime = (new Date(today.getTime() - tzOffset)).toISOString().slice(0, -1);
               let todayStr = localISOTime.split('T')[0];
 
               if (annDate === todayStr) {
                   let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0);
                   let lastShownId = localStorage.getItem('lastAnnShownId');
+                  
                   if (lastShownId !== currentAnnId) {
-                      setTimeout(() => { showAnnouncement(annImgData, config.annText); }, 500);
+                      setTimeout(() => {
+                          showAnnouncement(annImgData, config.annText);
+                      }, 500);
                       localStorage.setItem('lastAnnShownId', currentAnnId); 
                   }
               }
@@ -1111,81 +1194,297 @@
           document.getElementById('ssoSettingsModal').style.display = 'flex';
       }, 100);
   };
+
   window.closeSsoSettingsModal = () => { document.getElementById('ssoSettingsModal').style.display = 'none'; };
-  
+
   window.loadSsoForMonth = () => {
       let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
       let labelEl = document.getElementById('ssoCurrentLabel');
-      let cfg = window.ssoHistory && monthKey && window.ssoHistory[monthKey] ? window.ssoHistory[monthKey] : { basic: true, pubHol: true, night: true, food: true };
+      let cfg = window.ssoHistory && monthKey && window.ssoHistory[monthKey]
+          ? window.ssoHistory[monthKey]
+          : { basic: true, pubHol: true, night: true, food: true };
       document.getElementById('ssoOptBasic').checked = cfg.basic;
       document.getElementById('ssoOptPubHol').checked = cfg.pubHol;
       document.getElementById('ssoOptNight').checked = cfg.night;
       document.getElementById('ssoOptFood').checked = cfg.food;
       if (labelEl) {
-          if (window.ssoHistory && monthKey && window.ssoHistory[monthKey]) { labelEl.innerText = '✅ ' + monthKey + ' — SSO setting ရှိပြီးသား'; labelEl.style.color = '#198754'; } 
-          else if (monthKey) { labelEl.innerText = '⚠️ ' + monthKey + ' — မရှိသေး (default သုံးမည်)'; labelEl.style.color = '#fd7e14'; } 
-          else { labelEl.innerText = ''; }
+          if (window.ssoHistory && monthKey && window.ssoHistory[monthKey]) {
+              labelEl.innerText = '✅ ' + monthKey + ' — SSO setting ရှိပြီးသား';
+              labelEl.style.color = '#198754';
+          } else if (monthKey) {
+              labelEl.innerText = '⚠️ ' + monthKey + ' — မရှိသေး (default သုံးမည်)';
+              labelEl.style.color = '#fd7e14';
+          } else {
+              labelEl.innerText = '';
+          }
       }
   };
 
   window.saveSsoSettings = () => {
       let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
       if (!monthKey) { showCustomAlert('❌ ကျေးဇူးပြု၍ လကို ရွေးပါ'); return; }
-      let newSso = { basic: document.getElementById('ssoOptBasic').checked, pubHol: document.getElementById('ssoOptPubHol').checked, night: document.getElementById('ssoOptNight').checked, food: document.getElementById('ssoOptFood').checked };
+      let newSso = {
+          basic: document.getElementById('ssoOptBasic').checked,
+          pubHol: document.getElementById('ssoOptPubHol').checked,
+          night: document.getElementById('ssoOptNight').checked,
+          food: document.getElementById('ssoOptFood').checked
+      };
       if (!window.ssoHistory) window.ssoHistory = {};
       window.ssoHistory[monthKey] = newSso;
       set(ref(db, 'appConfig/ssoHistory'), window.ssoHistory).then(() => {
           let curMonth = document.getElementById('selectedMonth').value || '';
           if (monthKey === curMonth) window.ssoConfig = newSso;
           showCustomAlert('✅ ' + monthKey + ' SSO Settings Saved!');
-          loadSsoForMonth(); calculateAll(); closeSsoSettingsModal();
+          loadSsoForMonth();
+          calculateAll();
+          closeSsoSettingsModal();
       });
   };
 
   window.changeAlertType = () => {
-      window.currentAlertType = document.getElementById('alertTypeSelector').value; let data = window.customAlertMsgs[window.currentAlertType] || {};
-      document.getElementById('alertInputSun').value = data.Sun || ''; document.getElementById('alertInputMon').value = data.Mon || ''; document.getElementById('alertInputTue').value = data.Tue || ''; document.getElementById('alertInputWed').value = data.Wed || ''; document.getElementById('alertInputThu').value = data.Thu || ''; document.getElementById('alertInputFri').value = data.Fri || ''; document.getElementById('alertInputSat').value = data.Sat || '';
+      window.currentAlertType = document.getElementById('alertTypeSelector').value;
+      let data = window.customAlertMsgs[window.currentAlertType] || {};
+      
+      document.getElementById('alertInputSun').value = data.Sun || '';
+      document.getElementById('alertInputMon').value = data.Mon || '';
+      document.getElementById('alertInputTue').value = data.Tue || '';
+      document.getElementById('alertInputWed').value = data.Wed || '';
+      document.getElementById('alertInputThu').value = data.Thu || '';
+      document.getElementById('alertInputFri').value = data.Fri || '';
+      document.getElementById('alertInputSat').value = data.Sat || '';
   };
-  window.updateTempAlert = (dayKey, value) => { if(!window.customAlertMsgs[window.currentAlertType]) { window.customAlertMsgs[window.currentAlertType] = {}; } window.customAlertMsgs[window.currentAlertType][dayKey] = value; };
-  window.openAlertSettingsModal = () => { toggleMenu(null); setTimeout(() => { document.getElementById('alertSettingsModal').style.display = 'flex'; changeAlertType(); }, 100); };
+
+  window.updateTempAlert = (dayKey, value) => {
+      if(!window.customAlertMsgs[window.currentAlertType]) {
+          window.customAlertMsgs[window.currentAlertType] = {};
+      }
+      window.customAlertMsgs[window.currentAlertType][dayKey] = value;
+  };
+
+  window.openAlertSettingsModal = () => { 
+      toggleMenu(null);
+      setTimeout(() => { document.getElementById('alertSettingsModal').style.display = 'flex'; changeAlertType(); }, 100);
+  };
   window.closeAlertSettingsModal = () => document.getElementById('alertSettingsModal').style.display = 'none';
-  window.saveAlertSettings = () => { update(ref(db, 'appConfig/alerts'), window.customAlertMsgs).then(() => { showCustomAlert('✅ Alert Settings Saved!'); closeAlertSettingsModal(); }); };
-  window.clearAlertSettings = () => { if(confirm('Are you sure you want to clear all alerts?')) { let emptyAlerts = { work: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }, absent: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }, holiday: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }, ot: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' } }; window.customAlertMsgs = emptyAlerts; update(ref(db, 'appConfig/alerts'), emptyAlerts).then(() => { showCustomAlert('🗑️ All alerts cleared!'); closeAlertSettingsModal(); changeAlertType(); }); } };
+  
+  window.saveAlertSettings = () => {
+      update(ref(db, 'appConfig/alerts'), window.customAlertMsgs)
+      .then(() => { showCustomAlert('✅ Alert Settings Saved!'); closeAlertSettingsModal(); });
+  };
+  
+  window.clearAlertSettings = () => {
+      if(confirm('Are you sure you want to clear all alerts?')) {
+          let emptyAlerts = {
+              work: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+              absent: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+              holiday: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
+              ot: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }
+          };
+          window.customAlertMsgs = emptyAlerts;
+          update(ref(db, 'appConfig/alerts'), emptyAlerts)
+          .then(() => { showCustomAlert('🗑️ All alerts cleared!'); closeAlertSettingsModal(); changeAlertType(); });
+      }
+  };
 
   window.openThemeModal = () => { toggleMenu(null); setTimeout(() => { document.getElementById('themeModal').style.display = 'flex'; }, 100); };
   window.closeThemeModal = () => document.getElementById('themeModal').style.display = 'none';
-  window.saveAppTheme = () => { let hColor = document.getElementById('adminHeaderColor').value; let bColor = document.getElementById('adminBodyColor').value; update(ref(db, 'appConfig'), { headerColor: hColor, bodyColor: bColor }).then(() => { showCustomAlert('✅ Theme Colors Saved!'); closeThemeModal(); }); };
-  window.resetAppTheme = () => { if(confirm('Reset to Default Colors (White & Skyblue)?')) { update(ref(db, 'appConfig'), { headerColor: 'white', bodyColor: 'skyblue' }).then(() => { showCustomAlert('✅ Theme Reset to Default!'); closeThemeModal(); }); } };
 
-  window.openAnnManageModal = () => { toggleMenu(null); setTimeout(() => { document.getElementById('annManageModal').style.display = 'flex'; }, 100); };
+  window.saveAppTheme = () => {
+      let hColor = document.getElementById('adminHeaderColor').value;
+      let bColor = document.getElementById('adminBodyColor').value;
+      update(ref(db, 'appConfig'), { headerColor: hColor, bodyColor: bColor })
+      .then(() => { showCustomAlert('✅ Theme Colors Saved!'); closeThemeModal(); });
+  };
+
+  window.resetAppTheme = () => {
+      if(confirm('Reset to Default Colors (White & Skyblue)?')) {
+          update(ref(db, 'appConfig'), { headerColor: 'white', bodyColor: 'skyblue' })
+          .then(() => { showCustomAlert('✅ Theme Reset to Default!'); closeThemeModal(); });
+      }
+  };
+
+  window.openAnnManageModal = () => { 
+      toggleMenu(null);
+      setTimeout(() => { document.getElementById('annManageModal').style.display = 'flex'; }, 100);
+  };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
-  window.handleAdminAnnImage = (e) => { let file = e.target.files[0]; if (!file) return; let statusEl = document.getElementById('adminAnnImgStatus'); statusEl.innerText = "⏳ Compressing image for fast loading..."; statusEl.style.color = "#0d6efd"; statusEl.style.display = 'block'; let reader = new FileReader(); reader.onload = function(event) { let img = new Image(); img.onload = function() { let canvas = document.createElement('canvas'); let MAX_WIDTH = 400; let MAX_HEIGHT = 400; let width = img.width; let height = img.height; if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } } canvas.width = width; canvas.height = height; let ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5); statusEl.innerText = "✓ Image processed and ready to save."; statusEl.style.color = "#198754"; }; img.src = event.target.result; }; reader.readAsDataURL(file); };
-  window.saveAppAnnouncement = () => { let aDate = document.getElementById('adminAnnDate').value; let aText = document.getElementById('adminAnnText').value; let aImgData = window.tempAnnImageBase64 || null; if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!'); let updateData = { annDate: aDate, annText: aText }; if(aImgData) updateData.annImg = aImgData; updateData.annImgUrl = null; update(ref(db, 'appConfig'), updateData).then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); }); };
-  window.deleteAppAnnouncement = () => { if(confirm('Are you sure you want to delete the current announcement?')) { update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null, annImgUrl: null }).then(() => { showCustomAlert('🗑️ Announcement Deleted!'); document.getElementById('adminAnnDate').value = ''; document.getElementById('adminAnnText').value = ''; document.getElementById('adminAnnImgFile').value = ''; window.tempAnnImageBase64 = null; document.getElementById('adminAnnImgStatus').style.display = 'none'; closeAnnManageModal(); }); } };
-  window.showAnnouncement = async (imgData, textMsg) => { let imgEl = document.getElementById('annDisplayImg'); let textEl = document.getElementById('annDisplayText'); if (imgData && (imgData.startsWith('http') || imgData.startsWith('data:image'))) { imgEl.src = imgData; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; } let displayText = textMsg || ''; if (displayText && currentLang !== 'my') { try { let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(displayText)}`; let res = await fetch(url); let data = await res.json(); displayText = data[0].map(x => x[0]).join(''); } catch(e) { console.log("Translation failed", e); } } textEl.innerText = displayText; document.getElementById('announcementModal').style.display = 'flex'; };
+
+  window.handleAdminAnnImage = (e) => {
+      let file = e.target.files[0];
+      if (!file) return;
+      
+      let statusEl = document.getElementById('adminAnnImgStatus');
+      statusEl.innerText = "⏳ Compressing image for fast loading...";
+      statusEl.style.color = "#0d6efd";
+      statusEl.style.display = 'block';
+
+      let reader = new FileReader();
+      reader.onload = function(event) {
+          let img = new Image();
+          img.onload = function() {
+              let canvas = document.createElement('canvas');
+              let MAX_WIDTH = 400; 
+              let MAX_HEIGHT = 400; 
+              let width = img.width;
+              let height = img.height;
+
+              if (width > height) {
+                  if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+              } else {
+                  if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+              }
+              canvas.width = width; canvas.height = height;
+              let ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+              window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5);
+              statusEl.innerText = "✓ Image processed and ready to save.";
+              statusEl.style.color = "#198754";
+          };
+          img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+  };
+
+  window.saveAppAnnouncement = () => {
+      let aDate = document.getElementById('adminAnnDate').value;
+      let aText = document.getElementById('adminAnnText').value;
+      let aImgData = window.tempAnnImageBase64 || null; 
+      
+      if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!');
+      
+      let updateData = { annDate: aDate, annText: aText };
+      if(aImgData) updateData.annImg = aImgData; 
+      updateData.annImgUrl = null;
+
+      update(ref(db, 'appConfig'), updateData)
+      .then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
+  };
+
+  window.deleteAppAnnouncement = () => {
+      if(confirm('Are you sure you want to delete the current announcement?')) {
+          update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null, annImgUrl: null })
+          .then(() => { 
+              showCustomAlert('🗑️ Announcement Deleted!'); 
+              document.getElementById('adminAnnDate').value = '';
+              document.getElementById('adminAnnText').value = '';
+              document.getElementById('adminAnnImgFile').value = '';
+              window.tempAnnImageBase64 = null;
+              document.getElementById('adminAnnImgStatus').style.display = 'none';
+              closeAnnManageModal(); 
+          });
+      }
+  };
+
+  window.showAnnouncement = async (imgData, textMsg) => {
+      let imgEl = document.getElementById('annDisplayImg');
+      let textEl = document.getElementById('annDisplayText');
+      
+      if (imgData && (imgData.startsWith('http') || imgData.startsWith('data:image'))) {
+          imgEl.src = imgData; imgEl.style.display = 'block';
+      } else { imgEl.style.display = 'none'; }
+      
+      let displayText = textMsg || '';
+      if (displayText && currentLang !== 'my') {
+          try {
+              let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(displayText)}`;
+              let res = await fetch(url); let data = await res.json(); displayText = data[0].map(x => x[0]).join('');
+          } catch(e) { console.log("Translation failed", e); }
+      }
+      
+      textEl.innerText = displayText;
+      document.getElementById('announcementModal').style.display = 'flex';
+  };
+
   window.closeAnnouncement = () => { document.getElementById('announcementModal').style.display = 'none'; };
 
   window.addAdminDate = () => { let date = document.getElementById('adminNewDate').value; let type = document.getElementById('adminDateType').value; let desc = document.getElementById('adminNewDesc').value; if(!date) return showCustomAlert("Select Date!"); if(type === 'holiday' && !desc) return showCustomAlert("Enter holiday description!"); let dataToSave = type === 'holiday' ? { type: 'holiday', desc: desc } : { type: 'double', desc: desc || 'Double' }; set(ref(db, 'globalCalendar/' + date), dataToSave).then(() => { document.getElementById('adminNewDate').value = ''; document.getElementById('adminNewDesc').value = ''; }); };
   window.deleteAdminDate = (dateKey) => { if(confirm("Are you sure?")) remove(ref(db, 'globalCalendar/' + dateKey)); };
   window.editAdminDate = (dateKey) => { let currentData = globalCalendar[dateKey]; let newDesc = prompt("Edit Description:", currentData.desc || ""); if(newDesc !== null && newDesc.trim() !== "") set(ref(db, 'globalCalendar/' + dateKey), { type: currentData.type, desc: newDesc }); };
 
-  function renderAdminManageList() { let html = ''; let dates = Object.keys(globalCalendar).sort(); if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } else { dates.forEach(d => { let data = globalCalendar[d]; let dObj = new Date(d); let displayDate = `${dObj.getDate()}/${dObj.getMonth()+1}/${dObj.getFullYear()}`; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; let desc = data.desc ? ` - ${data.desc}` : ''; html += `<div class="manage-list-item"><div><b style="color:#007bff;">${displayDate}</b> <span style="font-size:11px; margin-left:5px;">(${badge}${desc})</span></div><div class="manage-btn-group"><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; }); } document.getElementById('adminManageList').innerHTML = html; }
+  function renderAdminManageList() {
+      let html = ''; let dates = Object.keys(globalCalendar).sort();
+      if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } 
+      else {
+          dates.forEach(d => { let data = globalCalendar[d]; let dObj = new Date(d); let displayDate = `${dObj.getDate()}/${dObj.getMonth()+1}/${dObj.getFullYear()}`; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; let desc = data.desc ? ` - ${data.desc}` : ''; html += `<div class="manage-list-item"><div><b style="color:#007bff;">${displayDate}</b> <span style="font-size:11px; margin-left:5px;">(${badge}${desc})</span></div><div class="manage-btn-group"><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; });
+      }
+      document.getElementById('adminManageList').innerHTML = html;
+  }
 
-  window.handleStatusChange = (el) => { let val = el.value; let card = el.closest('.day-card'); let dateStr = card.getAttribute('data-real-date'); let dayIndex = new Date(dateStr).getDay(); let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; let dayKey = daysMap[dayIndex]; let type = ''; if (val === '✓') type = 'work'; else if (val === 'x') type = 'absent'; else if (val === '-') type = 'holiday'; if (type && window.customAlertMsgs && window.customAlertMsgs[type] && window.customAlertMsgs[type][dayKey]) { showCustomAlert(window.customAlertMsgs[type][dayKey]); } calculateAll(); };
+  window.handleStatusChange = (el) => {
+      let val = el.value;
+      let card = el.closest('.day-card');
+      let dateStr = card.getAttribute('data-real-date');
+      let dayIndex = new Date(dateStr).getDay();
+      let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let dayKey = daysMap[dayIndex];
+      
+      let type = '';
+      if (val === '✓') type = 'work';
+      else if (val === 'x') type = 'absent';
+      else if (val === '-') type = 'holiday';
 
-  window.currentOTSelectElement = null; window.currentOTInputTarget = null;
+      if (type && window.customAlertMsgs && window.customAlertMsgs[type] && window.customAlertMsgs[type][dayKey]) {
+          showCustomAlert(window.customAlertMsgs[type][dayKey]);
+      }
+      
+      calculateAll();
+  };
+
+  window.currentOTSelectElement = null;
+  window.currentOTInputTarget = null;
+  
   window.toggleOTInput = (el) => { 
-      let input = el.parentElement.querySelector('.ot-hours'); let card = el.closest('.day-card'); let dateStr = card.getAttribute('data-real-date'); let dayIndex = new Date(dateStr).getDay(); let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; let dayKey = daysMap[dayIndex];
+      let input = el.parentElement.querySelector('.ot-hours'); 
+      let card = el.closest('.day-card'); 
+      let dateStr = card.getAttribute('data-real-date'); 
+      let dayIndex = new Date(dateStr).getDay();
+      let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let dayKey = daysMap[dayIndex];
+      
       if(el.value === 'yes') { 
-          input.style.display = 'block'; window.currentOTInputTarget = input; window.currentOTSelectElement = el; document.getElementById('otSelectionModal').style.display = 'flex';
-          if(!card.hasAttribute('data-alerted')) { if (window.customAlertMsgs && window.customAlertMsgs.ot && window.customAlertMsgs.ot[dayKey]) { showCustomAlert(window.customAlertMsgs.ot[dayKey]); card.setAttribute('data-alerted', 'true'); } } 
-      } else { input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); } 
+          input.style.display = 'block'; 
+          window.currentOTInputTarget = input;
+          window.currentOTSelectElement = el;
+          document.getElementById('otSelectionModal').style.display = 'flex';
+      } else { 
+          input.style.display = 'none'; 
+          input.value = ''; 
+          card.removeAttribute('data-alerted'); 
+      } 
       calculateAll(); 
   };
-  window.cancelOTSelection = () => { if(window.currentOTSelectElement) { window.currentOTSelectElement.value = 'no'; } if(window.currentOTInputTarget) { window.currentOTInputTarget.style.display = 'none'; window.currentOTInputTarget.value = ''; let card = window.currentOTInputTarget.closest('.day-card'); if (card) card.removeAttribute('data-alerted'); } document.getElementById('otSelectionModal').style.display = 'none'; calculateAll(); };
-  window.setOTHours = (hrs) => { if(window.currentOTInputTarget) { window.currentOTInputTarget.value = hrs; calculateAll(); } document.getElementById('otSelectionModal').style.display = 'none'; };
-  window.closeOTModalForManual = () => { document.getElementById('otSelectionModal').style.display = 'none'; if(window.currentOTInputTarget) { window.currentOTInputTarget.focus(); } };
 
+  window.cancelOTSelection = () => {
+      if(window.currentOTSelectElement) { window.currentOTSelectElement.value = 'no'; }
+      if(window.currentOTInputTarget) {
+          window.currentOTInputTarget.style.display = 'none';
+          window.currentOTInputTarget.value = '';
+          let card = window.currentOTInputTarget.closest('.day-card');
+          if (card) card.removeAttribute('data-alerted');
+      }
+      document.getElementById('otSelectionModal').style.display = 'none';
+      calculateAll();
+  };
+
+  window.setOTHours = (hrs) => {
+      if(window.currentOTInputTarget) {
+          window.currentOTInputTarget.value = hrs;
+          let card = window.currentOTInputTarget.closest('.day-card');
+          let dayKey = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(card.getAttribute('data-real-date')).getDay()];
+          if(!card.hasAttribute('data-alerted') && window.customAlertMsgs?.ot?.[dayKey]) {
+              showCustomAlert(window.customAlertMsgs.ot[dayKey]);
+              card.setAttribute('data-alerted', 'true');
+          }
+          calculateAll();
+      }
+      document.getElementById('otSelectionModal').style.display = 'none';
+  };
+
+  window.closeOTModalForManual = () => {
+      document.getElementById('otSelectionModal').style.display = 'none';
+      if(window.currentOTInputTarget) { window.currentOTInputTarget.focus(); }
+  };
+
+  // ★ ပြက္ခဒိန် အဝါရောင်ပိတ်ရက် အလုပ်လုပ်စေမည့်စနစ် (Bug Fixed) ★
   function renderYearCalendar() {
       document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR;
       const container = document.getElementById('yearCalendarContainer'); container.innerHTML = '';
@@ -1210,8 +1509,11 @@
                   if(calData.type === 'holiday') { 
                       classes += ' cal-holiday';
                       if(isSun) classes += ' cal-sun';
+                      
                       let descText = (calData.desc && calData.desc.trim() !== '') ? calData.desc : 'ပိတ်ရက် (Holiday)';
-                      let safeDesc = descText.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                      // အကြောင်းပြချက်စာသားထဲမှာ Enter ခေါက်ထားတာ (New line) ပါရင် Click နှိပ်မရတဲ့ Error ဖြေရှင်းချက်
+                      let safeDesc = descText.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ').replace(/\r/g, '');
+                      
                       onClick = `onclick="window.showHolidayInfo('${safeDesc}', '${dateKey}')"`;
                   }
                   else if(calData.type === 'double') { 
@@ -1219,7 +1521,11 @@
                       if(isSat) classes += ' double-saturday'; 
                       if(isSun) classes += ' cal-sun';
                   }
-              } else if(isSun) { classes += ' cal-sun'; } else if(isSat) { classes += ' cal-sat'; }
+              } else if(isSun) { 
+                  classes += ' cal-sun'; 
+              } else if(isSat) { 
+                  classes += ' cal-sat'; 
+              }
               gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`;
           }
           gridHtml += `</div>`; monthDiv.innerHTML = title + header + gridHtml; container.appendChild(monthDiv);
@@ -1240,53 +1546,101 @@
       document.getElementById('holidayInfoModal').style.display = 'flex';
   };
 
-  window.closeHolidayInfo = () => { document.getElementById('holidayInfoModal').style.display = 'none'; };
+  window.closeHolidayInfo = () => {
+      document.getElementById('holidayInfoModal').style.display = 'none';
+  };
 
   window.openCalendarModal = () => {
-      document.getElementById('calendarModal').style.display = 'flex'; toggleMenu(null);
+      document.getElementById('calendarModal').style.display = 'flex';
+      toggleMenu(null);
       setTimeout(() => {
-          let now = new Date(); let currentMonthIndex = now.getMonth(); 
+          let now = new Date();
+          let currentMonthIndex = now.getMonth();
           let monthBoxes = document.querySelectorAll('#yearCalendarContainer .month-box');
-          if (monthBoxes && monthBoxes[currentMonthIndex]) { monthBoxes[currentMonthIndex].scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+          if (monthBoxes && monthBoxes[currentMonthIndex]) {
+              monthBoxes[currentMonthIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
       }, 120);
   };
   window.closeCalendarModal = () => document.getElementById('calendarModal').style.display = 'none';
-  window.toggleMenu = (id) => { let el = document.getElementById(id); let isVisible = el && el.style.display === 'flex'; document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; if(id && !isVisible) el.style.display='flex'; };
-  window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
   
-  window.openSettings = () => { document.getElementById('settingsCancelBtn').style.display = 'block'; document.getElementById('settingsLogoutBtn').style.display = 'none'; document.querySelector('#settingsModal .close-modal').style.display = 'block'; document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
+  window.toggleMenu = (id) => { 
+      let el = document.getElementById(id); 
+      let isVisible = el && el.style.display === 'flex'; 
+      document.getElementById('leftMenu').style.display='none'; 
+      document.getElementById('rightMenu').style.display='none'; 
+      if(id && !isVisible) el.style.display='flex'; 
+  };
+  
+  window.closeMenusOnClickOutside = (e) => { 
+      if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { 
+          document.getElementById('leftMenu').style.display='none'; 
+          document.getElementById('rightMenu').style.display='none'; 
+      } 
+  };
+  
+  window.openSettings = () => { 
+      document.getElementById('settingsCancelBtn').style.display = 'block'; 
+      document.getElementById('settingsLogoutBtn').style.display = 'none'; 
+      document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
+      document.getElementById('settingsModal').style.display = 'flex'; 
+      toggleMenu(null); 
+  };
+
   window.closeSettings = () => { document.getElementById('settingsModal').style.display = 'none'; };
   
   window.updateSettings = () => { 
-      let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim();
+      let nameInput = document.getElementById('empName').value.trim(); 
+      let idInput = document.getElementById('empId').value.trim();
       if(nameInput === "") { showCustomAlert(translations[currentLang].reqName); return; }
       if(idInput === "") { showCustomAlert(translations[currentLang].reqId); return; }
       saveToFirebase(); calculateAll(); 
-      document.getElementById('settingsModal').style.display = 'none'; document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
+      document.getElementById('settingsModal').style.display = 'none'; 
+      document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
       document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
   };
 
   window.generateGrid = (isNew = true) => {
       if(!isDataLoaded) return; 
-      const mVal = document.getElementById('selectedMonth').value; if (!mVal) return;
-      let _now = new Date(); let _todayKey = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
-      let pDisplay = document.getElementById('dynamicPeriodContainer'); let [pY, pM] = mVal.split('-'); let endMIdx = parseInt(pM) - 1; let startMIdx = endMIdx - 1; if (startMIdx < 0) startMIdx = 11;
+      const mVal = document.getElementById('selectedMonth').value;
+      if (!mVal) return;
+
+      let _now = new Date();
+      let _todayKey = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
+      
+      let pDisplay = document.getElementById('dynamicPeriodContainer');
+      let [pY, pM] = mVal.split('-');
+      let endMIdx = parseInt(pM) - 1; 
+      let startMIdx = endMIdx - 1; 
+      if (startMIdx < 0) startMIdx = 11;
+      
       let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
       let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
       
-      if(pDisplay) { pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`; }
+      if(pDisplay) {
+          pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`;
+      }
 
-      let { startD, endD } = getPeriodDates(mVal); const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
+      let { startD, endD } = getPeriodDates(mVal);
+      const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
       for(let i=0; i < startD.getDay(); i++) grid.innerHTML += `<div class="blank-card"></div>`;
       
-      let cur = new Date(startD); let dd = dropdowns[currentLang]; let daysArray = weekdaysText[currentLang];
+      let cur = new Date(startD);
+      let dd = dropdowns[currentLang]; 
+      let daysArray = weekdaysText[currentLang];
 
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
-          let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6; let displayDate = `${cur.getDate()} ${monthsArray[cur.getMonth()]}`; let exportDate = `${cur.getDate()} ${monthsArray[cur.getMonth()]} (${daysArray[cur.getDay()]})`;
-          let calData = globalCalendar[key]; let isAdminHoliday = calData && calData.type === 'holiday'; let isHolidayOrSun = isSun || isAdminHoliday; 
+          let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6;
+          let displayDate = `${cur.getDate()} ${monthsArray[cur.getMonth()]}`; 
+          let exportDate = `${cur.getDate()} ${monthsArray[cur.getMonth()]} (${daysArray[cur.getDay()]})`;
           
-          let div = document.createElement('div'); div.className = 'day-card'; if (key === _todayKey) div.classList.add('today-card');
+          let calData = globalCalendar[key];
+          let isAdminHoliday = calData && calData.type === 'holiday';
+          let isHolidayOrSun = isSun || isAdminHoliday; 
+          
+          let div = document.createElement('div'); div.className = 'day-card';
+          if (key === _todayKey) div.classList.add('today-card');
           div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); div.setAttribute('data-is-sun', isSun); div.setAttribute('data-is-sat', isSat);
           
           div.innerHTML = `
@@ -1313,11 +1667,15 @@
           document.querySelectorAll('.day-card').forEach(card => {
               let dKey = card.getAttribute('data-real-date'); let d = appData.attendance[dKey]; let cData = globalCalendar[dKey]; let isAdminHoliday = cData && cData.type === 'holiday';
               if (d) { 
-                  card.querySelector('.shift-select').value = d.shift || 'day'; let savedStatus = d.status || '';
+                  card.querySelector('.shift-select').value = d.shift || 'day'; 
+                  let savedStatus = d.status || '';
                   if(savedStatus === '' && isAdminHoliday) savedStatus = '-';
                   card.querySelector('.status-select').value = savedStatus; 
-                  let leaveSelect = card.querySelector('.leave-select'); leaveSelect.value = d.leaveType || 'unpaid';
+                  
+                  let leaveSelect = card.querySelector('.leave-select');
+                  leaveSelect.value = d.leaveType || 'unpaid';
                   if(savedStatus === 'x') leaveSelect.style.display = 'block';
+
                   card.querySelector('.ot-select').value = d.ot || 'no'; 
                   let otInput = card.querySelector('.ot-hours'); otInput.value = d.otHours || ''; 
                   if(d.ot === 'yes') { otInput.style.display = 'block'; card.setAttribute('data-alerted', 'true'); } 
@@ -1327,23 +1685,45 @@
       calculateAll();
 
       setTimeout(() => {
-          let allCards = document.querySelectorAll('.day-card'); let todayCard = document.querySelector('.day-card.today-card'); let scrollTarget = null;
-          for (let card of allCards) { let cardDate = card.getAttribute('data-real-date'); if (cardDate && cardDate < _todayKey) { let st = card.querySelector('.status-select'); if (st && st.value === '') { scrollTarget = card; break; } } }
+          let allCards = document.querySelectorAll('.day-card');
+          let todayCard = document.querySelector('.day-card.today-card');
+          let scrollTarget = null;
+
+          for (let card of allCards) {
+              let cardDate = card.getAttribute('data-real-date');
+              if (cardDate && cardDate < _todayKey) {
+                  let st = card.querySelector('.status-select');
+                  if (st && st.value === '') { scrollTarget = card; break; }
+              }
+          }
           if (!scrollTarget) scrollTarget = todayCard;
-          if (!scrollTarget) { for (let card of allCards) { let st = card.querySelector('.status-select'); if (st && st.value === '') { scrollTarget = card; break; } } }
-          if (scrollTarget) { let navH = (document.querySelector('.navbar') || {offsetHeight:60}).offsetHeight; let stickyH = (document.getElementById('unifiedStickyHeader') || {offsetHeight:80}).offsetHeight; let top = scrollTarget.getBoundingClientRect().top + window.scrollY - navH - stickyH - 10; window.scrollTo({ top, behavior: 'smooth' }); }
+          if (!scrollTarget) {
+              for (let card of allCards) {
+                  let st = card.querySelector('.status-select');
+                  if (st && st.value === '') { scrollTarget = card; break; }
+              }
+          }
+          if (scrollTarget) {
+              let navH = (document.querySelector('.navbar') || {offsetHeight:60}).offsetHeight;
+              let stickyH = (document.getElementById('unifiedStickyHeader') || {offsetHeight:80}).offsetHeight;
+              let top = scrollTarget.getBoundingClientRect().top + window.scrollY - navH - stickyH - 10;
+              window.scrollTo({ top, behavior: 'smooth' });
+          }
       }, 200);
   };
 
   window.calculateAll = () => {
       let _selMonth = document.getElementById('selectedMonth').value || '';
-      if (_selMonth && window.ssoHistory && window.ssoHistory[_selMonth]) { window.ssoConfig = window.ssoHistory[_selMonth]; }
+      if (_selMonth && window.ssoHistory && window.ssoHistory[_selMonth]) {
+          window.ssoConfig = window.ssoHistory[_selMonth];
+      }
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
       
       let work=0, normalWorkDays=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, normalOtDays=0, total=0, transport=0, nightPay=0; 
-      let lastFilledShift = 'day'; let slipBasicSalary = 0; let ot15Hrs = 0, ot20Hrs = 0; let ot15Pay = 0, ot20Pay = 0;
+      let lastFilledShift = 'day'; let slipBasicSalary = 0; 
+      let ot15Hrs = 0, ot20Hrs = 0; let ot15Pay = 0, ot20Pay = 0;
       let baseHourRate = rate / 1.5; let rate20 = baseHourRate * 2;
 
       document.querySelectorAll('.day-card').forEach(c => {
@@ -1365,8 +1745,12 @@
               else { holiday++; info.innerHTML = "-"; c.classList.add(isSun ? 'bg-red' : 'bg-yellow'); doubleLbl.innerText = ''; }
           } else if (status === '✓') {
               work++; lastFilledShift = shift; 
-              if (isSpecialDay) { double++; doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue'); if(isSat) c.classList.add('double-saturday'); ot20Hrs += 8; let base20Pay = 8 * rate20; dPay += base20Pay; ot20Pay += base20Pay; } 
-              else { normalWorkDays++; dPay += wage; doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green'); }
+              if (isSpecialDay) { 
+                  double++; doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue'); if(isSat) c.classList.add('double-saturday'); 
+                  ot20Hrs += 8; let base20Pay = 8 * rate20; dPay += base20Pay; ot20Pay += base20Pay; 
+              } else { 
+                  normalWorkDays++; dPay += wage; doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green'); 
+              }
               
               // ★ Transport Logic based on Toggle ★
               if (window.isTransportEnabled) {
@@ -1376,16 +1760,31 @@
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
               
               if (otStatus === 'yes') { 
-                  if(otVal > 0) { fPay = 60; otDays++; if (isSpecialDay) { ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; } else { normalOtDays++; ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; } } 
-                  else { fPay = 30; }
-              } else { fPay = 30; }
+                  if(otVal > 0) { 
+                      fPay = 60; 
+                      otDays++; 
+                      if (isSpecialDay) { 
+                          ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
+                      } else { 
+                          normalOtDays++; 
+                          ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
+                      } 
+                  } else {
+                      fPay = 30; 
+                  }
+              } else { 
+                  fPay = 30; 
+              }
               
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
           } else if (status === 'x') {
               if(leaveSelect.value === 'medical') { medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay; doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave'); info.innerHTML = `${dPay}฿`; } 
               else { absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = ''; }
               c.classList.add('bg-gray');
-          } else { dPay = 0; otVal = 0; info.innerHTML = "-"; if (isAdminDouble) { c.classList.add('bg-blue'); doubleLbl.innerText = '★ 2X'; if (isSat) c.classList.add('double-saturday'); } else { doubleLbl.innerText = ''; } }
+          } else { 
+              dPay = 0; otVal = 0; info.innerHTML = "-"; 
+              if (isAdminDouble) { c.classList.add('bg-blue'); doubleLbl.innerText = '★ 2X'; if (isSat) c.classList.add('double-saturday'); } else { doubleLbl.innerText = ''; }
+          }
           c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
       });
 
@@ -1393,13 +1792,17 @@
       let rowNS = document.getElementById('rowNightShift'); let rowNA = document.getElementById('rowNightAllowance');
       if (night > 0) { rowNS.style.display = 'flex'; rowNA.style.display = 'flex'; } else { rowNS.style.display = 'none'; rowNA.style.display = 'none'; }
       
-      let lunchAllowance = work * 30; let otFoodAllowance = otDays * 30; let nonOtDays = work - otDays;
+      let lunchAllowance = work * 30;
+      let otFoodAllowance = otDays * 30;
+      let nonOtDays = work - otDays;
+      
       let totalAbsent = absentUnpaid + medLeaveCount; 
       let finalBonus = bonusSetting;
       if (totalAbsent > 0) { finalBonus = 200; }
       total += finalBonus; 
       
       let otHrs = ot15Hrs + ot20Hrs;
+
       let combinedBasicSalary = (work + medLeaveCount) * wage;
       
       let ssoBaseAmount = 0;
@@ -1579,7 +1982,11 @@
 
                   let wage = parseFloat(uData.settings.dailyWage) || 0;
                   let otRate = parseFloat(uData.settings.otRate) || 0;
-                  let bonusSetting = parseFloat(uData.settings.attBonusSetting) || 0;
+                  
+                  // Admin panel တွက်ရန်အတွက် 해당လ၏ bonus history ကိုယူမည်
+                  let uSavedBonus = (uData.settings.bonusHistory && uData.settings.bonusHistory[selectedMonthVal]) 
+                      ? parseInt(uData.settings.bonusHistory[selectedMonthVal]) 
+                      : (uData.settings.attBonusSetting ? parseInt(uData.settings.attBonusSetting) : 0);
 
                   let baseHourRate = otRate / 1.5; let rate20 = baseHourRate * 2;
                   let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0;
@@ -1610,10 +2017,8 @@
                               if (isSpecialDay) { uDouble++; dPay += (8 * rate20); uOt20Hrs += 8; }
                               else { normalWorkDays++; dPay += wage; slipBasicSalary += wage; }
 
-                              // ★ Admin Panel အတွက် Transport Toggle စစ်ဆေးခြင်း ★
-                              if (window.isTransportEnabled) {
-                                  dPay += 40;
-                              }
+                              // ★ Admin Panel တွက်ချက်မှု - Transport Toggle ပါဝင်ခြင်း ★
+                              if (window.isTransportEnabled) { dPay += 40; }
 
                               if (shift === 'night') { dPay += 100; uNightPay += 100; }
 
@@ -1636,18 +2041,24 @@
                   let uOtHrs = uOt15Hrs + uOt20Hrs;
                   totalEmployees++;
 
-                  let totalAbs = uAbsent + uMedCount; let uBonus = bonusSetting;
-                  if (totalAbs > 0) uBonus = 200;
-                  uTotalPay += uBonus;
+                  let totalAbs = uAbsent + uMedCount; 
+                  let uFinalBonus = uSavedBonus;
+                  if (totalAbs > 0) uFinalBonus = 200;
+                  uTotalPay += uFinalBonus;
 
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
                   let regularFoodAllowance = uWork * 30;
 
+                  // Admin လအတွက် သက်ဆိုင်ရာလ၏ ssoHistory ကိုယူမည်
+                  let uSsoCfg = (window.ssoHistory && window.ssoHistory[selectedMonthVal]) 
+                      ? window.ssoHistory[selectedMonthVal] 
+                      : window.ssoConfig;
+
                   let ssoBaseAmount = 0;
-                  if (window.ssoConfig.basic) ssoBaseAmount += combinedBasicSalary;
-                  if (window.ssoConfig.pubHol) ssoBaseAmount += pubHolPay;
-                  if (window.ssoConfig.night) ssoBaseAmount += uNightPay;
-                  if (window.ssoConfig.food) ssoBaseAmount += regularFoodAllowance;
+                  if (uSsoCfg.basic) ssoBaseAmount += combinedBasicSalary;
+                  if (uSsoCfg.pubHol) ssoBaseAmount += pubHolPay;
+                  if (uSsoCfg.night) ssoBaseAmount += uNightPay;
+                  if (uSsoCfg.food) ssoBaseAmount += regularFoodAllowance;
 
                   let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
                   let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
@@ -1671,13 +2082,9 @@
               }
 
               tempUsersArray.sort((a, b) => {
-                  let idA = String(a.empId).trim();
-                  let idB = String(b.empId).trim();
-                  let numA = parseInt(idA, 10);
-                  let numB = parseInt(idB, 10);
-                  if (!isNaN(numA) && !isNaN(numB) && numA !== numB) {
-                      return numA - numB;
-                  }
+                  let idA = String(a.empId).trim(); let idB = String(b.empId).trim();
+                  let numA = parseInt(idA, 10); let numB = parseInt(idB, 10);
+                  if (!isNaN(numA) && !isNaN(numB) && numA !== numB) { return numA - numB; }
                   return idA.localeCompare(idB);
               });
 
@@ -1698,7 +2105,9 @@
   window.openExportModal = () => { let cards = document.querySelectorAll('.day-card'); if(cards.length > 0) { document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date'); let lastFilledDate = cards[0].getAttribute('data-real-date'); cards.forEach(c => { let status = c.querySelector('.status-select').value; if(status === '✓' || status === 'x') lastFilledDate = c.getAttribute('data-real-date'); }); let todayObj = new Date(); let tzOffset = 7 * 60 * 60000; let localISOTime = (new Date(todayObj - tzOffset)).toISOString().slice(0, -1); let todayStr = localISOTime.split('T')[0]; let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate; document.getElementById('exportEndDate').value = finalEndDate; } document.getElementById('exportModal').style.display = 'flex'; toggleMenu(null); };
   window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
 
+  // ── Excel Preview global data store ──
   window._excelPreviewData = null;
+
   window.closeExcelPreview = () => { document.getElementById('excelPreviewModal').style.display = 'none'; };
 
   window.showExcelPreview = () => {
@@ -1707,7 +2116,7 @@
       if (!sDate || !eDate) return;
 
       let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
-      let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
+      
       let rows = []; 
       let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0;
 
@@ -1745,8 +2154,15 @@
           }
       });
 
+      // Preview တွင်ပြသရန် လက်ရှိလ၏ bonus ကို ယူမည်
+      let currentMonthStr = document.getElementById('selectedMonth').value;
+      let bonusSetting = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[currentMonthStr]) 
+                         ? parseInt(appData.settings.bonusHistory[currentMonthStr]) 
+                         : (appData.settings && appData.settings.attBonusSetting ? parseInt(appData.settings.attBonusSetting) : 500);
+
       let totalAbs = expAbsent + expMedCount;
-      let expBonus = bonusSetting; if (totalAbs > 0) expBonus = 200;
+      let expBonus = bonusSetting; 
+      if (totalAbs > 0) expBonus = 200;
       expTotal += expBonus;
 
       window._excelPreviewData = { sDate, eDate, rows, expWork, expDouble, expAbsent, expMedCount, expMedPay, expOtHrs, expTotal, expPubHolCount, expPubHolPay, expBonus, bonusSetting };
@@ -1829,7 +2245,12 @@
       if(!sDate || !eDate) return; 
       let excelData = [ ["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"] ]; 
       let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
-      let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; let bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0; 
+      let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; 
+      
+      let currentMonthStr = document.getElementById('selectedMonth').value;
+      let bonusSetting = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[currentMonthStr]) 
+                         ? parseInt(appData.settings.bonusHistory[currentMonthStr]) 
+                         : (appData.settings && appData.settings.attBonusSetting ? parseInt(appData.settings.attBonusSetting) : 500);
       
       document.querySelectorAll('.day-card').forEach(card => { 
           let rDate = card.getAttribute('data-real-date'); 
@@ -1939,7 +2360,10 @@
           html += `<div style="text-align:right; margin-top:10px; font-weight:bold; color:#dc3545;">Total Net: ${calc.total.toLocaleString()} ฿</div>`;
       }
       
-      document.getElementById('adminDetailContent').innerHTML = html; document.getElementById('adminUserDetailModal').style.display = 'flex'; 
+      document.getElementById('adminDetailContent').innerHTML = html; 
+      // Z-index သေချာတင်ပေးပြီး ပေါ်စေမည်
+      document.getElementById('adminUserDetailModal').style.zIndex = '20000';
+      document.getElementById('adminUserDetailModal').style.display = 'flex'; 
   };
   
   window.closeAdminUserDetail = () => { document.getElementById('adminUserDetailModal').style.display = 'none'; };
