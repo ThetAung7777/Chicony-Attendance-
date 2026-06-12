@@ -768,8 +768,8 @@
       <!-- Summary cards — table အောက်မှာ ပြမည် -->
       <div id="excelPreviewSummary" style="margin-top:12px;"></div>
       <div style="display:flex; gap:10px; margin-top:14px;">
-        <button class="btn-generate interactive-btn" id="excelPreviewCloseBtn" onclick="closeExcelPreview()" style="background:#6c757d; margin-top:0; flex:1;">❌ ပိတ်မည်</button>
-        <button class="btn-generate interactive-btn" id="excelPreviewDownBtn" onclick="confirmDownloadExcel()" style="background:#198754; margin-top:0; flex:2;">📥 Download Excel</button>
+        <button class="btn-generate interactive-btn" onclick="closeExcelPreview()" style="background:#6c757d; margin-top:0; flex:1;">❌ ပိတ်မည်</button>
+        <button class="btn-generate interactive-btn" onclick="confirmDownloadExcel()" style="background:#198754; margin-top:0; flex:2;">📥 Download Excel</button>
       </div>
     </div>
   </div>
@@ -1396,8 +1396,7 @@
           }
       } else {
           window.handleMonthChange();
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      }      window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   document.getElementById('selectedMonth').addEventListener('change', window.handleMonthChange);
@@ -1433,7 +1432,8 @@
               let lastSavedMonth = appData.settings.selectedMonth || "";
               
               // ★ Bug Fix 1: လမ်ကြောင်း load ဖြစ်ရင် saved bonus ကို ထားပြီး handleMonthChange မလုပ်ရ ★
-              // လက်ရှိလ ၏ bonus ကို bonusHistory မှ ရယူမည်              let currentMonthBonus = (appData.settings.bonusHistory && appData.settings.bonusHistory[realCurrentMonthStr])
+              // လက်ရှိလ ၏ bonus ကို bonusHistory မှ ရယူမည်
+              let currentMonthBonus = (appData.settings.bonusHistory && appData.settings.bonusHistory[realCurrentMonthStr])
                   ? parseInt(appData.settings.bonusHistory[realCurrentMonthStr])
                   : savedBonus;
               document.getElementById('attBonusSetting').value = currentMonthBonus;
@@ -2552,127 +2552,53 @@
       // Store for download
       window._excelPreviewData = { sDate, eDate, rows, expWork, expDouble, expAbsent, expMedCount, expMedPay, expOtHrs, expTotal, expPubHolCount, expPubHolPay, expBonus, bonusSetting };
 
-      // Build preview table — currentLang နဲ့ translate ──
+      // Build preview table
       let thead = document.getElementById('excelPreviewHead');
       let tbody = document.getElementById('excelPreviewBody');
       let info  = document.getElementById('excelPreviewInfo');
 
-      // Language labels
-      let _toLbl = currentLang === 'th' ? ' ถึง ' : (currentLang === 'en' ? ' to ' : ' မှ ');
-      let _periodLbl = currentLang === 'th' ? 'ช่วงเวลา' : (currentLang === 'en' ? 'Period' : 'ကာလ');
-      info.innerHTML = '📅 <b>' + sDate + '</b>' + _toLbl + '<b>' + eDate + '</b> ' + _periodLbl;
+      // ── ထိပ်မှာ period သာ ──
+      info.innerHTML = '📅 <b>' + sDate + '</b> မှ <b>' + eDate + '</b> ကာလ';
 
-      // Months & days arrays for date display
-      let _months = currentLang === 'th' ? thaiMonths : (currentLang === 'en' ? englishMonths : myanmarMonths);
-      let _days   = weekdaysText[currentLang];
-
-      // Status labels per language
-      let _statusLabel = {
-          my: { present:'ဆင်းရက်', absent:'ပျက်ရက်', medical:'ဆေးခွင့်', holiday:'ပိတ်ရက်', dash:'-' },
-          en: { present:'Present', absent:'Absent',   medical:'Medical Leave', holiday:'Holiday', dash:'-' },
-          th: { present:'ทำงาน',   absent:'ขาดงาน',   medical:'ลาป่วย',    holiday:'วันหยุด', dash:'-' }
-      }[currentLang];
-
-      // Shift labels
-      let _shiftDay   = currentLang === 'th' ? 'กลางวัน' : (currentLang === 'en' ? 'Day'   : 'နေ့ဆိုင်း');
-      let _shiftNight = currentLang === 'th' ? 'กะดึก'   : (currentLang === 'en' ? 'Night' : 'ညဆိုင်း');
-      let _shiftAll   = 'All';
-
-      // Table headers
-      let _hDate   = currentLang === 'th' ? 'วันที่'   : (currentLang === 'en' ? 'Date'    : 'ရက်စွဲ');
-      let _hShift  = currentLang === 'th' ? 'กะ'       : (currentLang === 'en' ? 'Shift'   : 'ဆိုင်း');
-      let _hStatus = currentLang === 'th' ? 'สถานะ'    : (currentLang === 'en' ? 'Status'  : 'အခြေအနေ');
-      let _hOt     = currentLang === 'th' ? 'ชม.โอที'  : (currentLang === 'en' ? 'OT Hrs'  : 'OT နာရီ');
-      let _hTotal  = 'Total (฿)';
-
-      let thStyle = 'background:#198754;color:white;padding:6px 8px;text-align:left;font-size:11px;white-space:nowrap;';
-      thead.innerHTML = '<tr>' + [_hDate,_hShift,_hStatus,_hOt,_hTotal].map(h => '<th style="' + thStyle + '">' + h + '</th>').join('') + '</tr>';
-
-      // Re-translate rows using raw data
-      let _uDay = currentLang === 'th' ? 'วัน' : (currentLang === 'en' ? ' days' : ' ရက်');
-      let _uHr  = currentLang === 'th' ? ' ชม.' : (currentLang === 'en' ? ' hrs' : ' hr');
-      let statusColor = {};
-      statusColor[_statusLabel.present] = '#198754';
-      statusColor[_statusLabel.absent]  = '#dc3545';
-      statusColor[_statusLabel.medical] = '#fd7e14';
-      statusColor[_statusLabel.holiday] = '#0d6efd';
-
-      // Rebuild rows with translated labels using raw card data
-      let translatedRows = [];
-      document.querySelectorAll('.day-card').forEach(card => {
-          let rDate = card.getAttribute('data-real-date');
-          if (!rDate || rDate < sDate || rDate > eDate) return;
-          let dObj = new Date(rDate);
-          let displayDate = dObj.getDate() + ' ' + _months[dObj.getMonth()] + ' (' + _days[dObj.getDay()] + ')';
-          let shiftVal  = card.querySelector('.shift-select').value;
-          let statusVal = card.querySelector('.status-select').value;
-          let leaveVal  = card.querySelector('.leave-select').value;
-          let ot        = card.getAttribute('data-ot') || '0';
-          let total     = parseFloat(card.getAttribute('data-total') || '0');
-
-          let displayShift  = shiftVal === 'night' ? _shiftNight : (statusVal === '-' ? _shiftAll : _shiftDay);
-          let displayStatus = _statusLabel.dash;
-          if (statusVal === '✓') displayStatus = _statusLabel.present;
-          else if (statusVal === 'x') displayStatus = (leaveVal === 'medical') ? _statusLabel.medical : _statusLabel.absent;
-          else if (statusVal === '-') displayStatus = _statusLabel.holiday;
-
-          let isWorking   = (statusVal === '✓');
-          let displayOt   = (!isWorking || ot === '0' || ot === '') ? '-' : ot;
-          let displayTot  = total === 0 ? '-' : total.toLocaleString();
-          translatedRows.push([displayDate, displayShift, displayStatus, displayOt, displayTot]);
-      });
-
-      tbody.innerHTML = translatedRows.map(r => {
-          let clr = statusColor[r[2]] || '#333';
-          return '<tr>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[0] + '</td>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[1] + '</td>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;color:' + clr + ';font-weight:bold;">' + r[2] + '</td>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:center;">' + r[3] + '</td>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">' + r[4] + '</td>' +
-          '</tr>';
-      }).join('');
-
-      // Summary cards — translated
+      // ── Table အောက်မှာ summary grid ──
       let sumDiv = document.getElementById('excelPreviewSummary');
-      let _workLbl  = currentLang === 'th' ? 'วันทำงาน'   : (currentLang === 'en' ? 'Work Days'    : 'အလုပ်ဆင်းရက်');
-      let _otLbl    = currentLang === 'th' ? 'ชม.โอที'    : (currentLang === 'en' ? 'OT Hours'     : 'OT နာရီ');
-      let _dblLbl   = currentLang === 'th' ? 'วันสองเท่า' : (currentLang === 'en' ? 'Double Days'  : 'နှစ်ဆရက်');
-      let _absLbl   = currentLang === 'th' ? 'ขาดงาน'     : (currentLang === 'en' ? 'Absent'       : 'ပျက်ရက်');
-      let _medLbl   = currentLang === 'th' ? 'ลาป่วย'     : (currentLang === 'en' ? 'Medical'      : 'ဆေးခွင့်');
-      let _pubLbl   = currentLang === 'th' ? 'ค่าวันหยุด' : (currentLang === 'en' ? 'Holiday Pay'  : 'ပိတ်ရက်ရငွေ');
-      let _bonLbl   = currentLang === 'th' ? 'เบี้ยขยัน'  : (currentLang === 'en' ? 'Att. Bonus'   : 'ရက်မှန်ကြေး');
-      let _netLbl   = currentLang === 'th' ? 'เงินเดือนสุทธิ' : (currentLang === 'en' ? 'Net Salary' : 'အသားတင်လစာ');
-      let _dayU     = currentLang === 'th' ? ' วัน' : (currentLang === 'en' ? ' days' : ' ရက်');
-      let _hrU      = currentLang === 'th' ? ' ชม.' : (currentLang === 'en' ? ' hrs'  : ' hr');
-
-      let sc2 = (k,v,c) => '<div style="background:' + c + '22;border:1px solid ' + c + '44;border-radius:8px;padding:8px 10px;text-align:center;">' +
+      let sc = (k,v,c) => '<div style="background:' + c + '22;border:1px solid ' + c + '44;border-radius:8px;padding:8px 10px;text-align:center;min-width:80px;">' +
           '<div style="font-size:11px;color:#666;margin-bottom:2px;">' + k + '</div>' +
           '<div style="font-size:15px;font-weight:bold;color:' + c + ';">' + v + '</div></div>';
       sumDiv.innerHTML =
           '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">' +
-              sc2(_workLbl, expWork + _dayU, '#0d6efd') +
-              sc2(_otLbl,   expOtHrs + _hrU, '#fd7e14') +
-              sc2(_dblLbl,  expDouble + _dayU, '#6610f2') +
+              sc('အလုပ်ဆင်းရက်', expWork + ' ရက်', '#0d6efd') +
+              sc('OT နာရီ', expOtHrs + ' hr', '#fd7e14') +
+              sc('နှစ်ဆရက်', expDouble + ' ရက်', '#6610f2') +
           '</div>' +
           '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">' +
-              sc2(_absLbl, expAbsent + _dayU, '#dc3545') +
-              sc2(_medLbl, expMedCount + _dayU, '#fd7e14') +
-              sc2(_pubLbl, expPubHolPay.toLocaleString() + '฿', '#0891b2') +
+              sc('ပျက်ရက်', expAbsent + ' ရက်', '#dc3545') +
+              sc('ဆေးခွင့်', expMedCount + ' ရက်', '#fd7e14') +
+              sc('ပိတ်ရက်ရငွေ', expPubHolPay.toLocaleString() + '฿', '#0891b2') +
           '</div>' +
           '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' +
-              sc2(_bonLbl, expBonus.toLocaleString() + '฿', '#20c997') +
+              sc('ရက်မှန်ကြေး', expBonus.toLocaleString() + '฿', '#20c997') +
               '<div style="background:#19875422;border:1px solid #19875444;border-radius:8px;padding:8px 10px;text-align:center;">' +
-                  '<div style="font-size:11px;color:#666;margin-bottom:2px;">💰 ' + _netLbl + '</div>' +
+                  '<div style="font-size:11px;color:#666;margin-bottom:2px;">💰 Net Salary</div>' +
                   '<div style="font-size:17px;font-weight:bold;color:#198754;">' + expTotal.toLocaleString() + ' ฿</div>' +
               '</div>' +
           '</div>';
 
-      // Translate modal buttons
-      let _closeBtn = document.getElementById('excelPreviewCloseBtn');
-      let _downBtn  = document.getElementById('excelPreviewDownBtn');
-      if (_closeBtn) _closeBtn.innerHTML = currentLang === 'th' ? '❌ ปิด' : (currentLang === 'en' ? '❌ Close' : '❌ ပိတ်မည်');
-      if (_downBtn)  _downBtn.innerHTML  = currentLang === 'th' ? '📥 ดาวน์โหลด Excel' : (currentLang === 'en' ? '📥 Download Excel' : '📥 Excel ဒေါင်းယူမည်');
+      let thStyle = 'background:#198754;color:white;padding:6px 8px;text-align:left;font-size:11px;white-space:nowrap;';
+      let headers = ['Date','Shift','Status','OT Hrs','Total (฿)'];
+      thead.innerHTML = '<tr>' + headers.map(h => '<th style="' + thStyle + '">' + h + '</th>').join('') + '</tr>';
+
+      let statusColor = { 'Present':'#198754','Absent':'#dc3545','Medical Leave':'#fd7e14','Holiday':'#0d6efd','-':'#999' };
+      tbody.innerHTML = rows.map(r => {
+          let sc = statusColor[r[2]] || '#333';
+          return '<tr>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[0] + '</td>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[1] + '</td>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;color:' + sc + ';font-weight:bold;">' + r[2] + '</td>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:center;">' + r[3] + '</td>' +
+              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">' + r[4] + '</td>' +
+          '</tr>';
+      }).join('');
 
       closeExportModal();
       document.getElementById('excelPreviewModal').style.display = 'flex';
