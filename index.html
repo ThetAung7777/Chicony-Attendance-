@@ -76,6 +76,7 @@
   
   .container { padding: 0 15px 15px 15px; max-width: 800px; margin: auto; position: relative;}
   
+  /* Unified Sticky Header */
   #unifiedStickyHeader { position: sticky; top: 60px; z-index: 150; background: var(--app-bg-color); margin: 0 -15px; padding: 15px; transition: background 0.4s ease; }
   .weekdays-static-box { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #ddd; overflow: hidden; width: 100%; box-sizing: border-box; }
   #stickyWeekdaysWrapper { width: 100%; overflow-x: hidden; }
@@ -288,7 +289,7 @@
     
     <div style="display:flex; align-items: center; gap:5px; position: relative;">
       <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)">
-      <button class="profile-btn interactive-btn" onclick="toggleMenu('rightMenu')" id="profileBtnContainer">
+      <button class="profile-btn interactive-btn" onclick="openProfileViewer()" id="profileBtnContainer">
         <span id="profileIconSlot">👤</span>
         <img id="profileImgSlot" style="display:none;" alt="Profile">
       </button>
@@ -359,6 +360,22 @@
     </div>
   </div>
   <div id="tickerBar" class="ticker-wrap" style="display:none;"><span id="tickerString" class="ticker-text"></span></div>
+</div>
+
+<div class="modal-overlay" id="profileViewerModal" style="z-index:10001; background:rgba(0,0,0,0.93); display:none;" onclick="closeProfileViewer()">
+  <div style="position:relative; width:92%; max-width:360px; margin:auto;" onclick="event.stopPropagation()">
+    <button onclick="closeProfileViewer()" style="position:absolute; top:-48px; right:0; background:rgba(255,255,255,0.18); border:none; color:white; width:38px; height:38px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold;">✕</button>
+    <div style="border-radius:18px; overflow:hidden; background:#1a1a2e; box-shadow:0 8px 30px rgba(0,0,0,0.5);">
+      <img id="profileViewerImg" src="" alt="Profile" style="width:100%; aspect-ratio:1; object-fit:cover; display:none;">
+      <div id="profileViewerPlaceholder" style="width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:110px; background:linear-gradient(135deg,#c8d8f0,#e8edf5);">👤</div>
+    </div>
+    <div id="profileViewerName" style="color:white; text-align:center; font-size:17px; font-weight:bold; margin:14px 0 14px; text-shadow:0 1px 4px rgba(0,0,0,0.5);"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:24px;">
+      <button onclick="triggerProfilePhotoInputFromViewer()" style="background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);"><span style="font-size:24px;">📸</span>တင်မည်</button>
+      <button onclick="triggerEditCrop()" id="profileViewerEditBtn" style="background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);"><span style="font-size:24px;">✏️</span>ပြင်မည်</button>
+      <button onclick="removeProfilePhotoFromViewer()" id="profileViewerDeleteBtn" style="background:rgba(220,53,69,0.55); border:1px solid rgba(220,53,69,0.4); color:white; padding:14px 4px 10px; border-radius:14px; font-size:11px; font-weight:bold; cursor:pointer; display:none; flex-direction:column; align-items:center; gap:6px; backdrop-filter:blur(6px);"><span style="font-size:24px;">🗑️</span>ဖျက်မည်</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="cropModal" style="z-index: 10002;">
@@ -481,7 +498,17 @@
 
 <div class="modal-overlay" id="adminModal"><div class="modal-content pop-in" style="max-width: 600px; padding: 0;"><div class="modal-header"><h3 style="color: #000080;" class="logo-main">👨‍💼 Admin Panel</h3><button class="close-modal interactive-btn" onclick="closeAdminPanel()">×</button></div><div class="modal-body"><div style="display:flex; gap:10px; margin-bottom: 10px;"><input type="month" id="adminMonthSelect" class="admin-search-box" style="margin-bottom: 0; flex:1;" onchange="openAdminPanel(false)"><input type="text" id="adminSearchInput" class="admin-search-box" style="margin-bottom: 0; flex:1;" placeholder="🔍 Search ID / Name" onkeyup="filterAdminUsers()"></div><div style="display:flex; gap:10px; margin-bottom: 15px;"><button class="btn-generate interactive-btn" onclick="exportAdminAll()" style="background:#198754; margin-top:0; padding:8px;">📊 Export All (Excel)</button></div><div id="adminUserList" style="margin-top: 10px;"></div></div></div></div>
 
-<div class="modal-overlay" id="adminUserDetailModal" style="z-index: 10003;"><div class="modal-content pop-in" style="max-width: 500px; padding: 0;"><div class="modal-header"><h3 style="color: #000080;" class="logo-main" id="detailModalName">Detail</h3><button class="close-modal interactive-btn" onclick="closeAdminUserDetail()">×</button></div><div class="modal-body"><div id="adminDetailContent"></div></div></div></div>
+<div class="modal-overlay" id="adminUserDetailModal" style="z-index: 20000;">
+  <div class="modal-content pop-in" style="max-width: 500px; padding: 0;">
+    <div class="modal-header">
+        <h3 style="color: #000080;" class="logo-main" id="detailModalName">Detail</h3>
+        <button class="close-modal interactive-btn" onclick="closeAdminUserDetail()">×</button>
+    </div>
+    <div class="modal-body">
+        <div id="adminDetailContent"></div>
+    </div>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -544,11 +571,11 @@
       let rowContainer = document.getElementById('transportRowContainer');
       
       if (window.isTransportEnabled) {
-          btnText.innerText = "ကားခ ဖျောက်မည်";
-          rowContainer.style.display = 'flex';
+          if(btnText) btnText.innerText = "ကားခ ဖျောက်မည်";
+          if(rowContainer) rowContainer.style.display = 'flex';
       } else {
-          btnText.innerText = "ကားခ ပြမည်";
-          rowContainer.style.display = 'none';
+          if(btnText) btnText.innerText = "ကားခ ပြမည်";
+          if(rowContainer) rowContainer.style.display = 'none';
       }
       
       calculateAll(); 
@@ -581,6 +608,7 @@
           
           if(cropper) { cropper.destroy(); }
           
+          // Delay for crop initialization
           setTimeout(() => {
               cropper = new Cropper(image, {
                   aspectRatio: 1, 
@@ -659,9 +687,7 @@
 
   window.triggerProfilePhotoInputFromViewer = () => {
       closeProfileViewer();
-      setTimeout(() => {
-          document.getElementById('profilePhotoInput').click();
-      }, 250);
+      setTimeout(() => { document.getElementById('profilePhotoInput').click(); }, 250);
   };
 
   window.triggerEditCrop = () => {
@@ -719,71 +745,89 @@
       }
   };
 
-  function createOTModal() {
-      if(document.getElementById('otSelectionModal')) return;
-      let d = document.createElement('div');
-      d.id = 'otSelectionModal';
-      d.className = 'modal-overlay';
-      d.style.zIndex = '10001';
-      d.innerHTML = `
-        <div class="modal-content pop-in" style="text-align: center; max-width: 320px; padding: 20px; position: relative;">
-          <button class="close-modal interactive-btn" onclick="cancelOTSelection()" style="position: absolute; right: 15px; top: 15px; font-size: 28px; color: #dc3545; background: none; border: none; padding: 0; line-height: 1;">×</button>
-          <h3 id="otModalTitle" style="margin-top: 0; color: #0d6efd; font-size: 16px; font-weight:bold; padding-top: 5px;">⏱️ OT နာရီ ရွေးချယ်ပါ</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
-             <button class="btn-generate interactive-btn" onclick="setOTHours(1)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">1 <span class="ot-btn-txt">နာရီ</span></button>
-             <button class="btn-generate interactive-btn" onclick="setOTHours(2)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">2 <span class="ot-btn-txt">နာရီ</span></button>
-             <button class="btn-generate interactive-btn" onclick="setOTHours(3)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">3 <span class="ot-btn-txt">နာရီ</span></button>
-             <button class="btn-generate interactive-btn" onclick="setOTHours(4)" style="margin-top:0; background:#198754; padding: 12px; font-size: 15px;">4 <span class="ot-btn-txt">နာရီ</span></button>
-          </div>
-          <button id="otModalCancelBtn" class="btn-generate interactive-btn" onclick="closeOTModalForManual()" style="background: #6c757d; margin-top: 10px; padding: 10px; font-size:14px;">✍️ ကိုယ်တိုင်ရေးမည်</button>
-        </div>
-      `;
-      document.body.appendChild(d);
-  }
-  createOTModal();
-
-  let currentLang = localStorage.getItem('appLang') || 'my';
-  document.getElementById('langSelector').value = currentLang;
-
+  // ★ Authentication Setup & Login Loop Fix ★
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
           let splash = document.getElementById('splashScreen');
-          let loadingSpinner = document.getElementById('loadingSpinner');
+          if (splash) splash.style.display = 'none';
+
+          let loginScreen = document.getElementById('loginScreen');
+          let mainApp = document.getElementById('mainApp');
+          let loginLoadingState = document.getElementById('loginLoadingState');
+          let loginGoogleBtn = document.getElementById('loginGoogleBtn');
 
           if (user) {
-              currentUser = user;
-              if (splash) splash.style.display = 'none';
-              if (loadingSpinner) loadingSpinner.style.display = 'none';
-              document.getElementById('loginScreen').style.display = 'none';
-              document.getElementById('mainApp').style.display = 'block';
-              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
+              currentUser = user; 
+              if (loginScreen) loginScreen.style.display = 'none'; 
+              if (mainApp) mainApp.style.display = 'block';
+              let emailDisp = document.getElementById('userEmailDisplay');
+              if (emailDisp) emailDisp.innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
               
               if(user.email === ADMIN_EMAIL) { 
-                  document.getElementById('adminPanelBtn').style.display = 'flex'; 
-                  document.getElementById('tickerMenuBtn').style.display = 'flex';
-                  document.getElementById('ssoMenuBtn').style.display = 'flex'; 
-                  document.getElementById('themeBtn').style.display = 'flex'; 
-                  document.getElementById('annBtn').style.display = 'flex'; 
-                  document.getElementById('alertMenuBtn').style.display = 'flex'; 
-                  document.getElementById('adminCalendarControls').style.display = 'block'; 
+                  let adminBtns = ['adminPanelBtn', 'tickerMenuBtn', 'ssoMenuBtn', 'themeBtn', 'annBtn', 'alertMenuBtn', 'adminCalendarControls'];
+                  adminBtns.forEach(id => {
+                      let el = document.getElementById(id);
+                      if (el) el.style.display = (id === 'adminCalendarControls') ? 'block' : 'flex';
+                  });
               }
               
               loadAppConfig(); 
               loadGlobalCalendar(); 
               loadFromFirebase();
-          } else {
-              if (splash) splash.style.display = 'none';
-              if (loadingSpinner) loadingSpinner.style.display = 'none';
-              document.getElementById('loginScreen').style.display = 'flex';
-              document.getElementById('mainApp').style.display = 'none'; 
+          } else { 
+              // UI Reset to force showing the login button if not authenticated
+              if (loginScreen) loginScreen.style.display = 'flex'; 
+              if (mainApp) mainApp.style.display = 'none'; 
+              if (loginLoadingState) loginLoadingState.style.display = 'none'; 
+              if (loginGoogleBtn) loginGoogleBtn.style.display = 'flex'; 
           }
       });
-  }).catch((error) => {
-      console.error("Persistence error:", error);
+  }).catch((error) => { 
+      console.error("Persistence error:", error); 
       let splash = document.getElementById('splashScreen');
       if (splash) splash.style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
+      
+      let loginScreen = document.getElementById('loginScreen');
+      let loginLoadingState = document.getElementById('loginLoadingState');
+      let loginGoogleBtn = document.getElementById('loginGoogleBtn');
+      
+      if (loginScreen) loginScreen.style.display = 'flex';
+      if (loginLoadingState) loginLoadingState.style.display = 'none';
+      if (loginGoogleBtn) loginGoogleBtn.style.display = 'flex';
   });
+
+  window.signIn = () => { 
+      let loginGoogleBtn = document.getElementById('loginGoogleBtn');
+      let loginLoadingState = document.getElementById('loginLoadingState');
+      if (loginGoogleBtn) loginGoogleBtn.style.display = 'none';
+      if (loginLoadingState) loginLoadingState.style.display = 'block';
+      
+      signInWithPopup(auth, provider).catch((error) => {
+          console.error(error);
+          if (loginLoadingState) loginLoadingState.style.display = 'none';
+          if (loginGoogleBtn) loginGoogleBtn.style.display = 'flex';
+          showCustomAlert("Login Error: " + error.message);
+      });
+  };
+
+  window.logout = () => { 
+      signOut(auth).then(() => { location.reload(); }); 
+  };
+
+  window.confirmLogout = () => {
+      toggleMenu(null);
+      setTimeout(() => {
+          if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
+              document.getElementById('loadingSpinner').style.display = 'flex';
+              signOut(auth)
+                  .then(() => { location.reload(); })
+                  .catch((err) => { 
+                      document.getElementById('loadingSpinner').style.display = 'none'; 
+                      showCustomAlert("❌ Logout Error: " + err.message); 
+                  });
+          }
+      }, 100);
+  };
 
   let bSelect = document.getElementById('attBonusSetting');
   if(bSelect && !bSelect.innerHTML.includes('200')) {
@@ -836,9 +880,7 @@
               let res = await fetch(url);
               let data = await res.json();
               displayText = data[0].map(x => x[0]).join('');
-          } catch(e) {
-              console.log("Translation failed", e);
-          }
+          } catch(e) { console.log("Translation failed", e); }
       }
       
       document.getElementById('customAlertText').innerText = displayText;
@@ -846,9 +888,7 @@
       document.getElementById('customAlertModal').style.display = 'flex';
   };
 
-  window.closeCustomAlert = () => {
-      document.getElementById('customAlertModal').style.display = 'none';
-  };
+  window.closeCustomAlert = () => { document.getElementById('customAlertModal').style.display = 'none'; };
 
   function updateWeekdaysHeader() {
       let days = weekdaysText[currentLang];
@@ -857,23 +897,12 @@
 
   function getPeriodDates(yyyy_mm) {
       let [y, m] = yyyy_mm.split('-').map(Number);
-      let startD = new Date(y, m - 2, 21);
-      let endD = new Date(y, m - 1, 20);
-      return { startD, endD };
+      return { startD: new Date(y, m - 2, 21), endD: new Date(y, m - 1, 20) };
   }
 
   window.getRealCurrentMonth = () => {
-      let d = new Date(); 
-      let realY = d.getFullYear(); 
-      let realM = d.getMonth() + 1; 
-      
-      if (d.getDate() >= 21) {
-          realM++; 
-          if (realM > 12) { 
-              realM = 1; 
-              realY++; 
-          }
-      }
+      let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1; 
+      if (d.getDate() >= 21) { realM++; if (realM > 12) { realM = 1; realY++; } }
       return `${realY}-${String(realM).padStart(2,'0')}`;
   };
 
@@ -882,7 +911,6 @@
       document.querySelectorAll('[data-i18n]').forEach(el => {
           let key = el.getAttribute('data-i18n'); if(translations[lang][key]) el.innerText = translations[lang][key];
       });
-      
       let om = otModalText[lang] || otModalText.my;
       let titleEl = document.getElementById('otModalTitle');
       if(titleEl) {
@@ -890,47 +918,14 @@
           document.getElementById('otModalCancelBtn').innerText = om.cancel;
           document.querySelectorAll('.ot-btn-txt').forEach(el => el.innerText = om.hr);
       }
-
       updateWeekdaysHeader();
       if(isDataLoaded && document.getElementById('selectedMonth').value) window.generateGrid(false); 
       if(Object.keys(globalCalendar).length >= 0) renderYearCalendar();
   };
-
   changeLanguage(currentLang);
 
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
-
-  window.signIn = () => { 
-      let loadingSpinner = document.getElementById('loadingSpinner');
-      if (loadingSpinner) {
-          loadingSpinner.style.display = 'flex';
-          loadingSpinner.innerText = 'Connecting to Google...';
-      }
-
-      signInWithPopup(auth, provider).then(() => {
-          if (loadingSpinner) loadingSpinner.style.display = 'none';
-      }).catch((error) => {
-          if (loadingSpinner) loadingSpinner.style.display = 'none';
-          showCustomAlert("Login Error: " + error.message);
-      });
-  };
-
-  window.logout = () => { 
-      signOut(auth).then(() => { location.reload(); }); 
-  };
-
-  window.confirmLogout = () => {
-      toggleMenu(null);
-      setTimeout(() => {
-          if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
-              document.getElementById('loadingSpinner').style.display = 'flex';
-              signOut(auth)
-                  .then(() => { location.reload(); })
-                  .catch((err) => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Logout Error: " + err.message); });
-          }
-      }, 100);
-  };
 
   window.saveToFirebase = () => {
       if (!currentUser || !isDataLoaded) return;
@@ -976,18 +971,14 @@
       if (!appData.attendance) return false;
       let { startD, endD } = getPeriodDates(yyyy_mm);
       let cur = new Date(startD); let hasAbsence = false;
-      
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
-          if (appData.attendance[key] && appData.attendance[key].status === 'x') {
-              hasAbsence = true; break;          
-          }
+          if (appData.attendance[key] && appData.attendance[key].status === 'x') { hasAbsence = true; break; }
           cur.setDate(cur.getDate() + 1);
       }      
       return hasAbsence;  
   };
 
-  // ★ ရက်မှန်ကြေး (Bonus) မှန်ကန်စွာ လုပ်ဆောင်မည့်စနစ် ★
   window.handleMonthChange = () => {
       let newMonthStr = document.getElementById('selectedMonth').value;
       if (!newMonthStr) return;
@@ -997,7 +988,6 @@
       if (prevM < 1) { prevM = 12; prevY--; }
       let prevMonthStr = `${prevY}-${String(prevM).padStart(2, '0')}`;
 
-      // History ထဲမှာရှိရင် အရင်ကရခဲ့တဲ့/သိမ်းခဲ့တဲ့ အတိုင်း ပြန်ပြမည်
       let currentSavedBonus = null;
       if (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr] !== undefined) {
           currentSavedBonus = parseInt(appData.settings.bonusHistory[newMonthStr]);
@@ -1006,7 +996,6 @@
       if (currentSavedBonus !== null) {
           document.getElementById('attBonusSetting').value = currentSavedBonus;
       } else {
-          // History မှာ မရှိသေးဘူးဆိုရင် (လအသစ်ဆိုရင်) အရင်လက ပျက်ရက်ကို ကြည့်ပြီး တွက်ချက်မည်
           let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
           let savedPrevBonus = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[prevMonthStr] !== undefined) 
               ? parseInt(appData.settings.bonusHistory[prevMonthStr]) 
@@ -1019,26 +1008,19 @@
           }
           
           document.getElementById('attBonusSetting').value = newBonus;
-          
-          // Local မှာ ခဏသိမ်းထားမည်
           if (!appData.settings) appData.settings = {};
           if (!appData.settings.bonusHistory) appData.settings.bonusHistory = {};
           appData.settings.bonusHistory[newMonthStr] = newBonus;
       }
-
       window.generateGrid(false); 
   };
 
   window.navigateMonth = (step) => {
       let currentMonthVal = document.getElementById('selectedMonth').value;
       if (!currentMonthVal) return;
-
       let [y, m] = currentMonthVal.split('-').map(Number);
       m += step; 
-      
-      if (m > 12) { m = 1; y++; } 
-      else if (m < 1) { m = 12; y--; }
-
+      if (m > 12) { m = 1; y++; } else if (m < 1) { m = 12; y--; }
       let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
       document.getElementById('selectedMonth').value = newMonthStr;
       
@@ -1054,11 +1036,11 @@
       
       onValue(ref(db, 'users/' + currentUser.uid), (snapshot) => {
           document.getElementById('loadingSpinner').style.display = 'none'; const data = snapshot.val();
-          
           let realCurrentMonthStr = window.getRealCurrentMonth();
           
           if (data && data.settings && data.settings.empName && data.settings.empId) {
               appData = data;
+              let savedBonus = appData.settings.attBonusSetting !== undefined ? parseInt(appData.settings.attBonusSetting) : 500;
               
               document.getElementById('empName').value = appData.settings.empName || ""; 
               document.getElementById('empId').value = appData.settings.empId || "";
@@ -1072,14 +1054,21 @@
               }
 
               let lastSavedMonth = appData.settings.selectedMonth || "";
+              let currentMonthBonus = (appData.settings.bonusHistory && appData.settings.bonusHistory[realCurrentMonthStr])
+                  ? parseInt(appData.settings.bonusHistory[realCurrentMonthStr]) : savedBonus;
               
-              document.getElementById('selectedMonth').value = realCurrentMonthStr;
-              isDataLoaded = true;
-              
-              window.handleMonthChange();
-              
-              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
-              
+              document.getElementById('attBonusSetting').value = currentMonthBonus;
+
+              if (lastSavedMonth && lastSavedMonth !== realCurrentMonthStr) {
+                  document.getElementById('selectedMonth').value = realCurrentMonthStr;
+                  isDataLoaded = true;
+                  window.handleMonthChange();
+              } else {
+                  document.getElementById('selectedMonth').value = realCurrentMonthStr; 
+                  appData.settings.selectedMonth = realCurrentMonthStr;
+                  document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${appData.settings.empName}</div><div class="profile-email-text">${currentUser.email}</div>`;
+                  isDataLoaded = true; window.generateGrid(false); 
+              }
           } else {
               document.getElementById('selectedMonth').value = realCurrentMonthStr; 
               document.getElementById('empDept').value = "MKB MFG FA(LH)"; 
@@ -1108,70 +1097,46 @@
   function loadAppConfig() {
       onValue(ref(db, 'appConfig'), (snapshot) => {
           let config = snapshot.val() || {};
-          
-          let headerColor = config.headerColor || 'white';
-          let bodyColor = config.bodyColor || 'skyblue';
-          document.documentElement.style.setProperty('--app-header-color', headerColor);
-          document.documentElement.style.setProperty('--app-bg-color', bodyColor);
+          let headerColor = config.headerColor || 'white'; let bodyColor = config.bodyColor || 'skyblue';
+          document.documentElement.style.setProperty('--app-header-color', headerColor); document.documentElement.style.setProperty('--app-bg-color', bodyColor);
           
           if(config.ssoHistory) { window.ssoHistory = config.ssoHistory; }
           if(config.ssoSettings) { window.ssoConfig = config.ssoSettings; }
           if (config.alerts) { window.customAlertMsgs = Object.assign(window.customAlertMsgs, config.alerts); }
-          
           let annImgData = config.annImg || config.annImgUrl;
 
           if(currentUser && currentUser.email === ADMIN_EMAIL) {
               document.getElementById('adminHeaderColor').value = headerColor === 'white' ? '#ffffff' : headerColor;
               document.getElementById('adminBodyColor').value = bodyColor === 'skyblue' ? '#87ceeb' : bodyColor;
               
-              if(config.annDate) document.getElementById('adminAnnDate').value = config.annDate;
-              else document.getElementById('adminAnnDate').value = '';
-              
-              if(config.annText) document.getElementById('adminAnnText').value = config.annText;
-              else document.getElementById('adminAnnText').value = '';
+              if(config.annDate) document.getElementById('adminAnnDate').value = config.annDate; else document.getElementById('adminAnnDate').value = '';
+              if(config.annText) document.getElementById('adminAnnText').value = config.annText; else document.getElementById('adminAnnText').value = '';
               
               if(annImgData) {
                   window.tempAnnImageBase64 = annImgData;
                   document.getElementById('adminAnnImgStatus').innerText = "✓ Image loaded.";
                   document.getElementById('adminAnnImgStatus').style.color = "#198754";
                   document.getElementById('adminAnnImgStatus').style.display = 'block';
-              } else {
-                  window.tempAnnImageBase64 = null;
-                  document.getElementById('adminAnnImgStatus').style.display = 'none';
-              }
+              } else { window.tempAnnImageBase64 = null; document.getElementById('adminAnnImgStatus').style.display = 'none'; }
               
               changeAlertType();
-              
-              if(config.tickerText) {
-                  document.getElementById('adminTickerText').value = config.tickerText;
-              } else {
-                  document.getElementById('adminTickerText').value = "";
-              }
+              if(config.tickerText) { document.getElementById('adminTickerText').value = config.tickerText; } else { document.getElementById('adminTickerText').value = ""; }
           }
           
           if(config.tickerText && config.tickerText.trim() !== "") {
-              document.getElementById('tickerBar').style.display = 'flex';
-              document.getElementById('tickerString').innerText = config.tickerText;
-          } else {
-              document.getElementById('tickerBar').style.display = 'none';
-              document.getElementById('tickerString').innerText = "";
-          }
+              document.getElementById('tickerBar').style.display = 'flex'; document.getElementById('tickerString').innerText = config.tickerText;
+          } else { document.getElementById('tickerBar').style.display = 'none'; document.getElementById('tickerString').innerText = ""; }
 
           let annDate = config.annDate;
           if (annDate) {
-              let today = new Date();
-              let tzOffset = today.getTimezoneOffset() * 60000; 
+              let today = new Date(); let tzOffset = today.getTimezoneOffset() * 60000; 
               let localISOTime = (new Date(today.getTime() - tzOffset)).toISOString().slice(0, -1);
               let todayStr = localISOTime.split('T')[0];
-
               if (annDate === todayStr) {
                   let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0);
                   let lastShownId = localStorage.getItem('lastAnnShownId');
-                  
                   if (lastShownId !== currentAnnId) {
-                      setTimeout(() => {
-                          showAnnouncement(annImgData, config.annText);
-                      }, 500);
+                      setTimeout(() => { showAnnouncement(annImgData, config.annText); }, 500);
                       localStorage.setItem('lastAnnShownId', currentAnnId); 
                   }
               }
@@ -1190,8 +1155,7 @@
           let curMonth = document.getElementById('selectedMonth').value || '';
           let sel = document.getElementById('ssoMonthSelect');
           if (sel) sel.value = curMonth;
-          loadSsoForMonth();
-          document.getElementById('ssoSettingsModal').style.display = 'flex';
+          loadSsoForMonth(); document.getElementById('ssoSettingsModal').style.display = 'flex';
       }, 100);
   };
 
@@ -1200,291 +1164,103 @@
   window.loadSsoForMonth = () => {
       let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
       let labelEl = document.getElementById('ssoCurrentLabel');
-      let cfg = window.ssoHistory && monthKey && window.ssoHistory[monthKey]
-          ? window.ssoHistory[monthKey]
-          : { basic: true, pubHol: true, night: true, food: true };
-      document.getElementById('ssoOptBasic').checked = cfg.basic;
-      document.getElementById('ssoOptPubHol').checked = cfg.pubHol;
-      document.getElementById('ssoOptNight').checked = cfg.night;
-      document.getElementById('ssoOptFood').checked = cfg.food;
+      let cfg = window.ssoHistory && monthKey && window.ssoHistory[monthKey] ? window.ssoHistory[monthKey] : { basic: true, pubHol: true, night: true, food: true };
+      document.getElementById('ssoOptBasic').checked = cfg.basic; document.getElementById('ssoOptPubHol').checked = cfg.pubHol; document.getElementById('ssoOptNight').checked = cfg.night; document.getElementById('ssoOptFood').checked = cfg.food;
       if (labelEl) {
-          if (window.ssoHistory && monthKey && window.ssoHistory[monthKey]) {
-              labelEl.innerText = '✅ ' + monthKey + ' — SSO setting ရှိပြီးသား';
-              labelEl.style.color = '#198754';
-          } else if (monthKey) {
-              labelEl.innerText = '⚠️ ' + monthKey + ' — မရှိသေး (default သုံးမည်)';
-              labelEl.style.color = '#fd7e14';
-          } else {
-              labelEl.innerText = '';
-          }
+          if (window.ssoHistory && monthKey && window.ssoHistory[monthKey]) { labelEl.innerText = '✅ ' + monthKey + ' — SSO setting ရှိပြီးသား'; labelEl.style.color = '#198754'; } 
+          else if (monthKey) { labelEl.innerText = '⚠️ ' + monthKey + ' — မရှိသေး (default သုံးမည်)'; labelEl.style.color = '#fd7e14'; } else { labelEl.innerText = ''; }
       }
   };
 
   window.saveSsoSettings = () => {
       let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
       if (!monthKey) { showCustomAlert('❌ ကျေးဇူးပြု၍ လကို ရွေးပါ'); return; }
-      let newSso = {
-          basic: document.getElementById('ssoOptBasic').checked,
-          pubHol: document.getElementById('ssoOptPubHol').checked,
-          night: document.getElementById('ssoOptNight').checked,
-          food: document.getElementById('ssoOptFood').checked
-      };
-      if (!window.ssoHistory) window.ssoHistory = {};
-      window.ssoHistory[monthKey] = newSso;
+      let newSso = { basic: document.getElementById('ssoOptBasic').checked, pubHol: document.getElementById('ssoOptPubHol').checked, night: document.getElementById('ssoOptNight').checked, food: document.getElementById('ssoOptFood').checked };
+      if (!window.ssoHistory) window.ssoHistory = {}; window.ssoHistory[monthKey] = newSso;
       set(ref(db, 'appConfig/ssoHistory'), window.ssoHistory).then(() => {
-          let curMonth = document.getElementById('selectedMonth').value || '';
-          if (monthKey === curMonth) window.ssoConfig = newSso;
-          showCustomAlert('✅ ' + monthKey + ' SSO Settings Saved!');
-          loadSsoForMonth();
-          calculateAll();
-          closeSsoSettingsModal();
+          let curMonth = document.getElementById('selectedMonth').value || ''; if (monthKey === curMonth) window.ssoConfig = newSso;
+          showCustomAlert('✅ ' + monthKey + ' SSO Settings Saved!'); loadSsoForMonth(); calculateAll(); closeSsoSettingsModal();
       });
   };
 
   window.changeAlertType = () => {
-      window.currentAlertType = document.getElementById('alertTypeSelector').value;
-      let data = window.customAlertMsgs[window.currentAlertType] || {};
-      
-      document.getElementById('alertInputSun').value = data.Sun || '';
-      document.getElementById('alertInputMon').value = data.Mon || '';
-      document.getElementById('alertInputTue').value = data.Tue || '';
-      document.getElementById('alertInputWed').value = data.Wed || '';
-      document.getElementById('alertInputThu').value = data.Thu || '';
-      document.getElementById('alertInputFri').value = data.Fri || '';
-      document.getElementById('alertInputSat').value = data.Sat || '';
+      window.currentAlertType = document.getElementById('alertTypeSelector').value; let data = window.customAlertMsgs[window.currentAlertType] || {};
+      document.getElementById('alertInputSun').value = data.Sun || ''; document.getElementById('alertInputMon').value = data.Mon || ''; document.getElementById('alertInputTue').value = data.Tue || ''; document.getElementById('alertInputWed').value = data.Wed || ''; document.getElementById('alertInputThu').value = data.Thu || ''; document.getElementById('alertInputFri').value = data.Fri || ''; document.getElementById('alertInputSat').value = data.Sat || '';
   };
-
-  window.updateTempAlert = (dayKey, value) => {
-      if(!window.customAlertMsgs[window.currentAlertType]) {
-          window.customAlertMsgs[window.currentAlertType] = {};
-      }
-      window.customAlertMsgs[window.currentAlertType][dayKey] = value;
-  };
-
-  window.openAlertSettingsModal = () => { 
-      toggleMenu(null);
-      setTimeout(() => { document.getElementById('alertSettingsModal').style.display = 'flex'; changeAlertType(); }, 100);
-  };
+  window.updateTempAlert = (dayKey, value) => { if(!window.customAlertMsgs[window.currentAlertType]) { window.customAlertMsgs[window.currentAlertType] = {}; } window.customAlertMsgs[window.currentAlertType][dayKey] = value; };
+  window.openAlertSettingsModal = () => { toggleMenu(null); setTimeout(() => { document.getElementById('alertSettingsModal').style.display = 'flex'; changeAlertType(); }, 100); };
   window.closeAlertSettingsModal = () => document.getElementById('alertSettingsModal').style.display = 'none';
-  
-  window.saveAlertSettings = () => {
-      update(ref(db, 'appConfig/alerts'), window.customAlertMsgs)
-      .then(() => { showCustomAlert('✅ Alert Settings Saved!'); closeAlertSettingsModal(); });
-  };
-  
-  window.clearAlertSettings = () => {
-      if(confirm('Are you sure you want to clear all alerts?')) {
-          let emptyAlerts = {
-              work: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
-              absent: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
-              holiday: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' },
-              ot: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }
-          };
-          window.customAlertMsgs = emptyAlerts;
-          update(ref(db, 'appConfig/alerts'), emptyAlerts)
-          .then(() => { showCustomAlert('🗑️ All alerts cleared!'); closeAlertSettingsModal(); changeAlertType(); });
-      }
-  };
+  window.saveAlertSettings = () => { update(ref(db, 'appConfig/alerts'), window.customAlertMsgs).then(() => { showCustomAlert('✅ Alert Settings Saved!'); closeAlertSettingsModal(); }); };
+  window.clearAlertSettings = () => { if(confirm('Are you sure you want to clear all alerts?')) { let emptyAlerts = { work: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }, absent: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }, holiday: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' }, ot: { Sun:'', Mon:'', Tue:'', Wed:'', Thu:'', Fri:'', Sat:'' } }; window.customAlertMsgs = emptyAlerts; update(ref(db, 'appConfig/alerts'), emptyAlerts).then(() => { showCustomAlert('🗑️ All alerts cleared!'); closeAlertSettingsModal(); changeAlertType(); }); } };
 
   window.openThemeModal = () => { toggleMenu(null); setTimeout(() => { document.getElementById('themeModal').style.display = 'flex'; }, 100); };
   window.closeThemeModal = () => document.getElementById('themeModal').style.display = 'none';
+  window.saveAppTheme = () => { let hColor = document.getElementById('adminHeaderColor').value; let bColor = document.getElementById('adminBodyColor').value; update(ref(db, 'appConfig'), { headerColor: hColor, bodyColor: bColor }).then(() => { showCustomAlert('✅ Theme Colors Saved!'); closeThemeModal(); }); };
+  window.resetAppTheme = () => { if(confirm('Reset to Default Colors (White & Skyblue)?')) { update(ref(db, 'appConfig'), { headerColor: 'white', bodyColor: 'skyblue' }).then(() => { showCustomAlert('✅ Theme Reset to Default!'); closeThemeModal(); }); } };
 
-  window.saveAppTheme = () => {
-      let hColor = document.getElementById('adminHeaderColor').value;
-      let bColor = document.getElementById('adminBodyColor').value;
-      update(ref(db, 'appConfig'), { headerColor: hColor, bodyColor: bColor })
-      .then(() => { showCustomAlert('✅ Theme Colors Saved!'); closeThemeModal(); });
-  };
-
-  window.resetAppTheme = () => {
-      if(confirm('Reset to Default Colors (White & Skyblue)?')) {
-          update(ref(db, 'appConfig'), { headerColor: 'white', bodyColor: 'skyblue' })
-          .then(() => { showCustomAlert('✅ Theme Reset to Default!'); closeThemeModal(); });
-      }
-  };
-
-  window.openAnnManageModal = () => { 
-      toggleMenu(null);
-      setTimeout(() => { document.getElementById('annManageModal').style.display = 'flex'; }, 100);
-  };
+  window.openAnnManageModal = () => { toggleMenu(null); setTimeout(() => { document.getElementById('annManageModal').style.display = 'flex'; }, 100); };
   window.closeAnnManageModal = () => document.getElementById('annManageModal').style.display = 'none';
-
   window.handleAdminAnnImage = (e) => {
-      let file = e.target.files[0];
-      if (!file) return;
-      
-      let statusEl = document.getElementById('adminAnnImgStatus');
-      statusEl.innerText = "⏳ Compressing image for fast loading...";
-      statusEl.style.color = "#0d6efd";
-      statusEl.style.display = 'block';
-
+      let file = e.target.files[0]; if (!file) return;
+      let statusEl = document.getElementById('adminAnnImgStatus'); statusEl.innerText = "⏳ Compressing image for fast loading..."; statusEl.style.color = "#0d6efd"; statusEl.style.display = 'block';
       let reader = new FileReader();
       reader.onload = function(event) {
           let img = new Image();
           img.onload = function() {
-              let canvas = document.createElement('canvas');
-              let MAX_WIDTH = 400; 
-              let MAX_HEIGHT = 400; 
-              let width = img.width;
-              let height = img.height;
-
-              if (width > height) {
-                  if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-              } else {
-                  if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-              }
-              canvas.width = width; canvas.height = height;
-              let ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-              window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5);
-              statusEl.innerText = "✓ Image processed and ready to save.";
-              statusEl.style.color = "#198754";
-          };
-          img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+              let canvas = document.createElement('canvas'); let MAX_WIDTH = 400; let MAX_HEIGHT = 400; let width = img.width; let height = img.height;
+              if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+              canvas.width = width; canvas.height = height; let ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); window.tempAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.5); statusEl.innerText = "✓ Image processed and ready to save."; statusEl.style.color = "#198754";
+          }; img.src = event.target.result;
+      }; reader.readAsDataURL(file);
   };
 
-  window.saveAppAnnouncement = () => {
-      let aDate = document.getElementById('adminAnnDate').value;
-      let aText = document.getElementById('adminAnnText').value;
-      let aImgData = window.tempAnnImageBase64 || null; 
-      
-      if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!');
-      
-      let updateData = { annDate: aDate, annText: aText };
-      if(aImgData) updateData.annImg = aImgData; 
-      updateData.annImgUrl = null;
-
-      update(ref(db, 'appConfig'), updateData)
-      .then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); });
-  };
-
-  window.deleteAppAnnouncement = () => {
-      if(confirm('Are you sure you want to delete the current announcement?')) {
-          update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null, annImgUrl: null })
-          .then(() => { 
-              showCustomAlert('🗑️ Announcement Deleted!'); 
-              document.getElementById('adminAnnDate').value = '';
-              document.getElementById('adminAnnText').value = '';
-              document.getElementById('adminAnnImgFile').value = '';
-              window.tempAnnImageBase64 = null;
-              document.getElementById('adminAnnImgStatus').style.display = 'none';
-              closeAnnManageModal(); 
-          });
-      }
-  };
-
+  window.saveAppAnnouncement = () => { let aDate = document.getElementById('adminAnnDate').value; let aText = document.getElementById('adminAnnText').value; let aImgData = window.tempAnnImageBase64 || null; if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!'); let updateData = { annDate: aDate, annText: aText }; if(aImgData) updateData.annImg = aImgData; updateData.annImgUrl = null; update(ref(db, 'appConfig'), updateData).then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); }); };
+  window.deleteAppAnnouncement = () => { if(confirm('Are you sure you want to delete the current announcement?')) { update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null, annImgUrl: null }).then(() => { showCustomAlert('🗑️ Announcement Deleted!'); document.getElementById('adminAnnDate').value = ''; document.getElementById('adminAnnText').value = ''; document.getElementById('adminAnnImgFile').value = ''; window.tempAnnImageBase64 = null; document.getElementById('adminAnnImgStatus').style.display = 'none'; closeAnnManageModal(); }); } };
+  
   window.showAnnouncement = async (imgData, textMsg) => {
-      let imgEl = document.getElementById('annDisplayImg');
-      let textEl = document.getElementById('annDisplayText');
-      
-      if (imgData && (imgData.startsWith('http') || imgData.startsWith('data:image'))) {
-          imgEl.src = imgData; imgEl.style.display = 'block';
-      } else { imgEl.style.display = 'none'; }
-      
+      let imgEl = document.getElementById('annDisplayImg'); let textEl = document.getElementById('annDisplayText');
+      if (imgData && (imgData.startsWith('http') || imgData.startsWith('data:image'))) { imgEl.src = imgData; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; }
       let displayText = textMsg || '';
-      if (displayText && currentLang !== 'my') {
-          try {
-              let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(displayText)}`;
-              let res = await fetch(url); let data = await res.json(); displayText = data[0].map(x => x[0]).join('');
-          } catch(e) { console.log("Translation failed", e); }
-      }
-      
-      textEl.innerText = displayText;
-      document.getElementById('announcementModal').style.display = 'flex';
+      if (displayText && currentLang !== 'my') { try { let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(displayText)}`; let res = await fetch(url); let data = await res.json(); displayText = data[0].map(x => x[0]).join(''); } catch(e) { console.log("Translation failed", e); } }
+      textEl.innerText = displayText; document.getElementById('announcementModal').style.display = 'flex';
   };
-
   window.closeAnnouncement = () => { document.getElementById('announcementModal').style.display = 'none'; };
 
   window.addAdminDate = () => { let date = document.getElementById('adminNewDate').value; let type = document.getElementById('adminDateType').value; let desc = document.getElementById('adminNewDesc').value; if(!date) return showCustomAlert("Select Date!"); if(type === 'holiday' && !desc) return showCustomAlert("Enter holiday description!"); let dataToSave = type === 'holiday' ? { type: 'holiday', desc: desc } : { type: 'double', desc: desc || 'Double' }; set(ref(db, 'globalCalendar/' + date), dataToSave).then(() => { document.getElementById('adminNewDate').value = ''; document.getElementById('adminNewDesc').value = ''; }); };
   window.deleteAdminDate = (dateKey) => { if(confirm("Are you sure?")) remove(ref(db, 'globalCalendar/' + dateKey)); };
   window.editAdminDate = (dateKey) => { let currentData = globalCalendar[dateKey]; let newDesc = prompt("Edit Description:", currentData.desc || ""); if(newDesc !== null && newDesc.trim() !== "") set(ref(db, 'globalCalendar/' + dateKey), { type: currentData.type, desc: newDesc }); };
 
-  function renderAdminManageList() {
-      let html = ''; let dates = Object.keys(globalCalendar).sort();
-      if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } 
-      else {
-          dates.forEach(d => { let data = globalCalendar[d]; let dObj = new Date(d); let displayDate = `${dObj.getDate()}/${dObj.getMonth()+1}/${dObj.getFullYear()}`; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; let desc = data.desc ? ` - ${data.desc}` : ''; html += `<div class="manage-list-item"><div><b style="color:#007bff;">${displayDate}</b> <span style="font-size:11px; margin-left:5px;">(${badge}${desc})</span></div><div class="manage-btn-group"><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; });
-      }
-      document.getElementById('adminManageList').innerHTML = html;
-  }
+  function renderAdminManageList() { let html = ''; let dates = Object.keys(globalCalendar).sort(); if(dates.length === 0) { html = '<div style="padding:10px; text-align:center; font-size:12px; color:#666;">No Records.</div>'; } else { dates.forEach(d => { let data = globalCalendar[d]; let dObj = new Date(d); let displayDate = `${dObj.getDate()}/${dObj.getMonth()+1}/${dObj.getFullYear()}`; let badge = data.type === 'holiday' ? '🟨 Holiday' : '🟦 Double'; let desc = data.desc ? ` - ${data.desc}` : ''; html += `<div class="manage-list-item"><div><b style="color:#007bff;">${displayDate}</b> <span style="font-size:11px; margin-left:5px;">(${badge}${desc})</span></div><div class="manage-btn-group"><button class="btn-sm-edit interactive-btn" onclick="editAdminDate('${d}')">Edit</button><button class="btn-sm-del interactive-btn" onclick="deleteAdminDate('${d}')">Del</button></div></div>`; }); } document.getElementById('adminManageList').innerHTML = html; }
 
   window.handleStatusChange = (el) => {
-      let val = el.value;
-      let card = el.closest('.day-card');
-      let dateStr = card.getAttribute('data-real-date');
-      let dayIndex = new Date(dateStr).getDay();
-      let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      let dayKey = daysMap[dayIndex];
-      
-      let type = '';
-      if (val === '✓') type = 'work';
-      else if (val === 'x') type = 'absent';
-      else if (val === '-') type = 'holiday';
-
-      if (type && window.customAlertMsgs && window.customAlertMsgs[type] && window.customAlertMsgs[type][dayKey]) {
-          showCustomAlert(window.customAlertMsgs[type][dayKey]);
-      }
-      
+      let val = el.value; let card = el.closest('.day-card'); let dateStr = card.getAttribute('data-real-date'); let dayIndex = new Date(dateStr).getDay(); let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; let dayKey = daysMap[dayIndex];
+      let type = ''; if (val === '✓') type = 'work'; else if (val === 'x') type = 'absent'; else if (val === '-') type = 'holiday';
+      if (type && window.customAlertMsgs && window.customAlertMsgs[type] && window.customAlertMsgs[type][dayKey]) { showCustomAlert(window.customAlertMsgs[type][dayKey]); }
       calculateAll();
   };
 
-  window.currentOTSelectElement = null;
-  window.currentOTInputTarget = null;
-  
+  window.currentOTSelectElement = null; window.currentOTInputTarget = null;
   window.toggleOTInput = (el) => { 
-      let input = el.parentElement.querySelector('.ot-hours'); 
-      let card = el.closest('.day-card'); 
-      let dateStr = card.getAttribute('data-real-date'); 
-      let dayIndex = new Date(dateStr).getDay();
-      let daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      let dayKey = daysMap[dayIndex];
-      
+      let input = el.parentElement.querySelector('.ot-hours'); let card = el.closest('.day-card'); 
       if(el.value === 'yes') { 
-          input.style.display = 'block'; 
-          window.currentOTInputTarget = input;
-          window.currentOTSelectElement = el;
-          document.getElementById('otSelectionModal').style.display = 'flex';
+          input.style.display = 'block'; window.currentOTInputTarget = input; window.currentOTSelectElement = el; document.getElementById('otSelectionModal').style.display = 'flex';
       } else { 
-          input.style.display = 'none'; 
-          input.value = ''; 
-          card.removeAttribute('data-alerted'); 
+          input.style.display = 'none'; input.value = ''; card.removeAttribute('data-alerted'); 
       } 
       calculateAll(); 
   };
-
-  window.cancelOTSelection = () => {
-      if(window.currentOTSelectElement) { window.currentOTSelectElement.value = 'no'; }
-      if(window.currentOTInputTarget) {
-          window.currentOTInputTarget.style.display = 'none';
-          window.currentOTInputTarget.value = '';
-          let card = window.currentOTInputTarget.closest('.day-card');
-          if (card) card.removeAttribute('data-alerted');
-      }
-      document.getElementById('otSelectionModal').style.display = 'none';
-      calculateAll();
-  };
-
+  window.cancelOTSelection = () => { if(window.currentOTSelectElement) { window.currentOTSelectElement.value = 'no'; } if(window.currentOTInputTarget) { window.currentOTInputTarget.style.display = 'none'; window.currentOTInputTarget.value = ''; let card = window.currentOTInputTarget.closest('.day-card'); if (card) card.removeAttribute('data-alerted'); } document.getElementById('otSelectionModal').style.display = 'none'; calculateAll(); };
   window.setOTHours = (hrs) => {
       if(window.currentOTInputTarget) {
-          window.currentOTInputTarget.value = hrs;
-          let card = window.currentOTInputTarget.closest('.day-card');
-          let dayKey = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(card.getAttribute('data-real-date')).getDay()];
-          if(!card.hasAttribute('data-alerted') && window.customAlertMsgs?.ot?.[dayKey]) {
-              showCustomAlert(window.customAlertMsgs.ot[dayKey]);
-              card.setAttribute('data-alerted', 'true');
-          }
+          window.currentOTInputTarget.value = hrs; let card = window.currentOTInputTarget.closest('.day-card'); let dayKey = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(card.getAttribute('data-real-date')).getDay()];
+          if(!card.hasAttribute('data-alerted') && window.customAlertMsgs?.ot?.[dayKey]) { showCustomAlert(window.customAlertMsgs.ot[dayKey]); card.setAttribute('data-alerted', 'true'); }
           calculateAll();
       }
       document.getElementById('otSelectionModal').style.display = 'none';
   };
+  window.closeOTModalForManual = () => { document.getElementById('otSelectionModal').style.display = 'none'; if(window.currentOTInputTarget) { window.currentOTInputTarget.focus(); } };
 
-  window.closeOTModalForManual = () => {
-      document.getElementById('otSelectionModal').style.display = 'none';
-      if(window.currentOTInputTarget) { window.currentOTInputTarget.focus(); }
-  };
-
-  // ★ ပြက္ခဒိန် အဝါရောင်ပိတ်ရက် အလုပ်လုပ်စေမည့်စနစ် (Bug Fixed) ★
+  // ★ ပြက္ခဒိန် အဝါရောင်ပိတ်ရက် အလုပ်လုပ်စေမည့်စနစ် (Bug Fixed for Newlines) ★
   function renderYearCalendar() {
       document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR;
       const container = document.getElementById('yearCalendarContainer'); container.innerHTML = '';
@@ -1507,25 +1283,14 @@
               
               if(calData) {
                   if(calData.type === 'holiday') { 
-                      classes += ' cal-holiday';
-                      if(isSun) classes += ' cal-sun';
-                      
+                      classes += ' cal-holiday'; if(isSun) classes += ' cal-sun';
                       let descText = (calData.desc && calData.desc.trim() !== '') ? calData.desc : 'ပိတ်ရက် (Holiday)';
-                      // အကြောင်းပြချက်စာသားထဲမှာ Enter ခေါက်ထားတာ (New line) ပါရင် Click နှိပ်မရတဲ့ Error ဖြေရှင်းချက်
+                      // Fix newlines escaping
                       let safeDesc = descText.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ').replace(/\r/g, '');
-                      
                       onClick = `onclick="window.showHolidayInfo('${safeDesc}', '${dateKey}')"`;
                   }
-                  else if(calData.type === 'double') { 
-                      classes += ' cal-double'; 
-                      if(isSat) classes += ' double-saturday'; 
-                      if(isSun) classes += ' cal-sun';
-                  }
-              } else if(isSun) { 
-                  classes += ' cal-sun'; 
-              } else if(isSat) { 
-                  classes += ' cal-sat'; 
-              }
+                  else if(calData.type === 'double') { classes += ' cal-double'; if(isSat) classes += ' double-saturday'; if(isSun) classes += ' cal-sun'; }
+              } else if(isSun) { classes += ' cal-sun'; } else if(isSat) { classes += ' cal-sat'; }
               gridHtml += `<div class="${classes}" ${onClick}>${d}</div>`;
           }
           gridHtml += `</div>`; monthDiv.innerHTML = title + header + gridHtml; container.appendChild(monthDiv);
@@ -1536,113 +1301,38 @@
   const myanmarDaysFull = ["တနင်္ဂနွေ","တနင်္လာ","အင်္ဂါ","ဗုဒ္ဓဟူး","ကြာသပတေး","သောကြာ","စနေ"];
 
   window.showHolidayInfo = (desc, dateKey) => {
-      let dateObj = new Date(dateKey);
-      let dayName = myanmarDaysFull[dateObj.getDay()];
-      let monthName = myanmarMonthsFull[dateObj.getMonth()];
+      let dateObj = new Date(dateKey); let dayName = myanmarDaysFull[dateObj.getDay()]; let monthName = myanmarMonthsFull[dateObj.getMonth()];
       let dateStr = `${dateObj.getDate()} ${monthName} ${dateObj.getFullYear()} (${dayName})`;
-      
-      document.getElementById('holidayPopupDate').innerText = dateStr;
-      document.getElementById('holidayPopupDesc').innerText = desc;
+      document.getElementById('holidayPopupDate').innerText = dateStr; document.getElementById('holidayPopupDesc').innerText = desc;
       document.getElementById('holidayInfoModal').style.display = 'flex';
   };
+  window.closeHolidayInfo = () => { document.getElementById('holidayInfoModal').style.display = 'none'; };
 
-  window.closeHolidayInfo = () => {
-      document.getElementById('holidayInfoModal').style.display = 'none';
-  };
-
-  window.openCalendarModal = () => {
-      document.getElementById('calendarModal').style.display = 'flex';
-      toggleMenu(null);
-      setTimeout(() => {
-          let now = new Date();
-          let currentMonthIndex = now.getMonth();
-          let monthBoxes = document.querySelectorAll('#yearCalendarContainer .month-box');
-          if (monthBoxes && monthBoxes[currentMonthIndex]) {
-              monthBoxes[currentMonthIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-      }, 120);
-  };
+  window.openCalendarModal = () => { document.getElementById('calendarModal').style.display = 'flex'; toggleMenu(null); setTimeout(() => { let now = new Date(); let currentMonthIndex = now.getMonth(); let monthBoxes = document.querySelectorAll('#yearCalendarContainer .month-box'); if (monthBoxes && monthBoxes[currentMonthIndex]) { monthBoxes[currentMonthIndex].scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 120); };
   window.closeCalendarModal = () => document.getElementById('calendarModal').style.display = 'none';
-  
-  window.toggleMenu = (id) => { 
-      let el = document.getElementById(id); 
-      let isVisible = el && el.style.display === 'flex'; 
-      document.getElementById('leftMenu').style.display='none'; 
-      document.getElementById('rightMenu').style.display='none'; 
-      if(id && !isVisible) el.style.display='flex'; 
-  };
-  
-  window.closeMenusOnClickOutside = (e) => { 
-      if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { 
-          document.getElementById('leftMenu').style.display='none'; 
-          document.getElementById('rightMenu').style.display='none'; 
-      } 
-  };
-  
-  window.openSettings = () => { 
-      document.getElementById('settingsCancelBtn').style.display = 'block'; 
-      document.getElementById('settingsLogoutBtn').style.display = 'none'; 
-      document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
-      document.getElementById('settingsModal').style.display = 'flex'; 
-      toggleMenu(null); 
-  };
-
+  window.toggleMenu = (id) => { let el = document.getElementById(id); let isVisible = el && el.style.display === 'flex'; document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; if(id && !isVisible) el.style.display='flex'; };
+  window.closeMenusOnClickOutside = (e) => { if(!e.target.closest('.navbar') && !e.target.closest('.modal-content')) { document.getElementById('leftMenu').style.display='none'; document.getElementById('rightMenu').style.display='none'; } };
+  window.openSettings = () => { document.getElementById('settingsCancelBtn').style.display = 'block'; document.getElementById('settingsLogoutBtn').style.display = 'none'; document.querySelector('#settingsModal .close-modal').style.display = 'block'; document.getElementById('settingsModal').style.display = 'flex'; toggleMenu(null); };
   window.closeSettings = () => { document.getElementById('settingsModal').style.display = 'none'; };
-  
-  window.updateSettings = () => { 
-      let nameInput = document.getElementById('empName').value.trim(); 
-      let idInput = document.getElementById('empId').value.trim();
-      if(nameInput === "") { showCustomAlert(translations[currentLang].reqName); return; }
-      if(idInput === "") { showCustomAlert(translations[currentLang].reqId); return; }
-      saveToFirebase(); calculateAll(); 
-      document.getElementById('settingsModal').style.display = 'none'; 
-      document.querySelector('#settingsModal .close-modal').style.display = 'block'; 
-      document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`;
-  };
+  window.updateSettings = () => { let nameInput = document.getElementById('empName').value.trim(); let idInput = document.getElementById('empId').value.trim(); if(nameInput === "") { showCustomAlert(translations[currentLang].reqName); return; } if(idInput === "") { showCustomAlert(translations[currentLang].reqId); return; } saveToFirebase(); calculateAll(); document.getElementById('settingsModal').style.display = 'none'; document.querySelector('#settingsModal .close-modal').style.display = 'block'; document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">${nameInput}</div><div class="profile-email-text">${currentUser.email}</div>`; };
 
   window.generateGrid = (isNew = true) => {
-      if(!isDataLoaded) return; 
-      const mVal = document.getElementById('selectedMonth').value;
-      if (!mVal) return;
+      if(!isDataLoaded) return; const mVal = document.getElementById('selectedMonth').value; if (!mVal) return;
+      let _now = new Date(); let _todayKey = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
+      let pDisplay = document.getElementById('dynamicPeriodContainer'); let [pY, pM] = mVal.split('-'); let endMIdx = parseInt(pM) - 1; let startMIdx = endMIdx - 1; if (startMIdx < 0) startMIdx = 11;
+      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths); let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
+      if(pDisplay) { pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`; }
 
-      let _now = new Date();
-      let _todayKey = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
-      
-      let pDisplay = document.getElementById('dynamicPeriodContainer');
-      let [pY, pM] = mVal.split('-');
-      let endMIdx = parseInt(pM) - 1; 
-      let startMIdx = endMIdx - 1; 
-      if (startMIdx < 0) startMIdx = 11;
-      
-      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
-      let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
-      
-      if(pDisplay) {
-          pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`;
-      }
-
-      let { startD, endD } = getPeriodDates(mVal);
-      const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
+      let { startD, endD } = getPeriodDates(mVal); const grid = document.getElementById('daysGrid'); grid.innerHTML = ''; 
       for(let i=0; i < startD.getDay(); i++) grid.innerHTML += `<div class="blank-card"></div>`;
-      
-      let cur = new Date(startD);
-      let dd = dropdowns[currentLang]; 
-      let daysArray = weekdaysText[currentLang];
+      let cur = new Date(startD); let dd = dropdowns[currentLang]; let daysArray = weekdaysText[currentLang];
 
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
-          let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6;
-          let displayDate = `${cur.getDate()} ${monthsArray[cur.getMonth()]}`; 
-          let exportDate = `${cur.getDate()} ${monthsArray[cur.getMonth()]} (${daysArray[cur.getDay()]})`;
-          
-          let calData = globalCalendar[key];
-          let isAdminHoliday = calData && calData.type === 'holiday';
-          let isHolidayOrSun = isSun || isAdminHoliday; 
-          
-          let div = document.createElement('div'); div.className = 'day-card';
-          if (key === _todayKey) div.classList.add('today-card');
+          let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6; let displayDate = `${cur.getDate()} ${monthsArray[cur.getMonth()]}`; let exportDate = `${cur.getDate()} ${monthsArray[cur.getMonth()]} (${daysArray[cur.getDay()]})`;
+          let calData = globalCalendar[key]; let isAdminHoliday = calData && calData.type === 'holiday'; let isHolidayOrSun = isSun || isAdminHoliday; 
+          let div = document.createElement('div'); div.className = 'day-card'; if (key === _todayKey) div.classList.add('today-card');
           div.setAttribute('data-date', exportDate); div.setAttribute('data-real-date', key); div.setAttribute('data-is-sun', isSun); div.setAttribute('data-is-sat', isSat);
-          
           div.innerHTML = `
             <label class="date-label">${displayDate}</label>
             <div class="double-label" style="font-size: 10px; color: #0d6efd; font-weight: bold; margin-bottom: 2px; height: 12px;"></div>
@@ -1654,8 +1344,7 @@
               <option value="-" ${isHolidayOrSun ? 'selected' : ''}>${dd.statusHoliday}</option>
             </select>
             <select class="leave-select" onchange="calculateAll()" style="display:none; margin-top:3px; background:#fff3cd; border:1px solid #ffecb5; color:#664d03; border-radius:4px;">
-              <option value="unpaid">${dd.leaveUnpaid}</option>
-              <option value="medical">${dd.leaveMed}</option>
+              <option value="unpaid">${dd.leaveUnpaid}</option><option value="medical">${dd.leaveMed}</option>
             </select>
             <select class="ot-select" onchange="toggleOTInput(this)"><option value="no">${dd.otNo}</option><option value="yes">${dd.otYes}</option></select>
             <input type="number" class="ot-hours" placeholder="${dd.otHr}" oninput="calculateAll()" style="display: none;" min="0" step="0.5">
@@ -1667,17 +1356,11 @@
           document.querySelectorAll('.day-card').forEach(card => {
               let dKey = card.getAttribute('data-real-date'); let d = appData.attendance[dKey]; let cData = globalCalendar[dKey]; let isAdminHoliday = cData && cData.type === 'holiday';
               if (d) { 
-                  card.querySelector('.shift-select').value = d.shift || 'day'; 
-                  let savedStatus = d.status || '';
+                  card.querySelector('.shift-select').value = d.shift || 'day'; let savedStatus = d.status || '';
                   if(savedStatus === '' && isAdminHoliday) savedStatus = '-';
-                  card.querySelector('.status-select').value = savedStatus; 
-                  
-                  let leaveSelect = card.querySelector('.leave-select');
-                  leaveSelect.value = d.leaveType || 'unpaid';
+                  card.querySelector('.status-select').value = savedStatus; let leaveSelect = card.querySelector('.leave-select'); leaveSelect.value = d.leaveType || 'unpaid';
                   if(savedStatus === 'x') leaveSelect.style.display = 'block';
-
-                  card.querySelector('.ot-select').value = d.ot || 'no'; 
-                  let otInput = card.querySelector('.ot-hours'); otInput.value = d.otHours || ''; 
+                  card.querySelector('.ot-select').value = d.ot || 'no'; let otInput = card.querySelector('.ot-hours'); otInput.value = d.otHours || ''; 
                   if(d.ot === 'yes') { otInput.style.display = 'block'; card.setAttribute('data-alerted', 'true'); } 
               } else if (isAdminHoliday) { card.querySelector('.status-select').value = '-'; }
           });
@@ -1685,45 +1368,23 @@
       calculateAll();
 
       setTimeout(() => {
-          let allCards = document.querySelectorAll('.day-card');
-          let todayCard = document.querySelector('.day-card.today-card');
-          let scrollTarget = null;
-
-          for (let card of allCards) {
-              let cardDate = card.getAttribute('data-real-date');
-              if (cardDate && cardDate < _todayKey) {
-                  let st = card.querySelector('.status-select');
-                  if (st && st.value === '') { scrollTarget = card; break; }
-              }
-          }
+          let allCards = document.querySelectorAll('.day-card'); let todayCard = document.querySelector('.day-card.today-card'); let scrollTarget = null;
+          for (let card of allCards) { let cardDate = card.getAttribute('data-real-date'); if (cardDate && cardDate < _todayKey) { let st = card.querySelector('.status-select'); if (st && st.value === '') { scrollTarget = card; break; } } }
           if (!scrollTarget) scrollTarget = todayCard;
-          if (!scrollTarget) {
-              for (let card of allCards) {
-                  let st = card.querySelector('.status-select');
-                  if (st && st.value === '') { scrollTarget = card; break; }
-              }
-          }
-          if (scrollTarget) {
-              let navH = (document.querySelector('.navbar') || {offsetHeight:60}).offsetHeight;
-              let stickyH = (document.getElementById('unifiedStickyHeader') || {offsetHeight:80}).offsetHeight;
-              let top = scrollTarget.getBoundingClientRect().top + window.scrollY - navH - stickyH - 10;
-              window.scrollTo({ top, behavior: 'smooth' });
-          }
+          if (!scrollTarget) { for (let card of allCards) { let st = card.querySelector('.status-select'); if (st && st.value === '') { scrollTarget = card; break; } } }
+          if (scrollTarget) { let navH = (document.querySelector('.navbar') || {offsetHeight:60}).offsetHeight; let stickyH = (document.getElementById('unifiedStickyHeader') || {offsetHeight:80}).offsetHeight; let top = scrollTarget.getBoundingClientRect().top + window.scrollY - navH - stickyH - 10; window.scrollTo({ top, behavior: 'smooth' }); }
       }, 200);
   };
 
   window.calculateAll = () => {
       let _selMonth = document.getElementById('selectedMonth').value || '';
-      if (_selMonth && window.ssoHistory && window.ssoHistory[_selMonth]) {
-          window.ssoConfig = window.ssoHistory[_selMonth];
-      }
+      if (_selMonth && window.ssoHistory && window.ssoHistory[_selMonth]) { window.ssoConfig = window.ssoHistory[_selMonth]; }
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
       
       let work=0, normalWorkDays=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, normalOtDays=0, total=0, transport=0, nightPay=0; 
-      let lastFilledShift = 'day'; let slipBasicSalary = 0; 
-      let ot15Hrs = 0, ot20Hrs = 0; let ot15Pay = 0, ot20Pay = 0;
+      let lastFilledShift = 'day'; let slipBasicSalary = 0; let ot15Hrs = 0, ot20Hrs = 0; let ot15Pay = 0, ot20Pay = 0;
       let baseHourRate = rate / 1.5; let rate20 = baseHourRate * 2;
 
       document.querySelectorAll('.day-card').forEach(c => {
@@ -1745,46 +1406,22 @@
               else { holiday++; info.innerHTML = "-"; c.classList.add(isSun ? 'bg-red' : 'bg-yellow'); doubleLbl.innerText = ''; }
           } else if (status === '✓') {
               work++; lastFilledShift = shift; 
-              if (isSpecialDay) { 
-                  double++; doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue'); if(isSat) c.classList.add('double-saturday'); 
-                  ot20Hrs += 8; let base20Pay = 8 * rate20; dPay += base20Pay; ot20Pay += base20Pay; 
-              } else { 
-                  normalWorkDays++; dPay += wage; doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green'); 
-              }
+              if (isSpecialDay) { double++; doubleLbl.innerText = '★ 2X'; c.classList.add('bg-blue'); if(isSat) c.classList.add('double-saturday'); ot20Hrs += 8; let base20Pay = 8 * rate20; dPay += base20Pay; ot20Pay += base20Pay; } 
+              else { normalWorkDays++; dPay += wage; doubleLbl.innerText = ''; c.classList.add(shift === 'night' ? 'bg-dark-gray' : 'bg-green'); }
               
-              // ★ Transport Logic based on Toggle ★
-              if (window.isTransportEnabled) {
-                  dPay += 40; transport += 40; 
-              }
-
+              if (window.isTransportEnabled) { dPay += 40; transport += 40; }
               if (shift === 'night') { night++; dPay += 100; nightPay += 100; }
-              
               if (otStatus === 'yes') { 
-                  if(otVal > 0) { 
-                      fPay = 60; 
-                      otDays++; 
-                      if (isSpecialDay) { 
-                          ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; 
-                      } else { 
-                          normalOtDays++; 
-                          ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; 
-                      } 
-                  } else {
-                      fPay = 30; 
-                  }
-              } else { 
-                  fPay = 30; 
-              }
+                  if(otVal > 0) { fPay = 60; otDays++; if (isSpecialDay) { ot20Hrs += otVal; let p = otVal * rate20; dPay += p; ot20Pay += p; } else { normalOtDays++; ot15Hrs += otVal; let p = otVal * rate; dPay += p; ot15Pay += p; } } 
+                  else { fPay = 30; }
+              } else { fPay = 30; }
               
               dPay += fPay; total += dPay; info.innerHTML = (otVal>0) ? `${otVal}hr | ${dPay}฿` : `${dPay}฿`;
           } else if (status === 'x') {
               if(leaveSelect.value === 'medical') { medLeaveCount++; medLeavePay += wage; dPay = wage; total += dPay; doubleLbl.innerText = currentLang==='my'?'ဆေးခွင့်':(currentLang==='th'?'ลาป่วย':'Med Leave'); info.innerHTML = `${dPay}฿`; } 
               else { absentUnpaid++; info.innerHTML = "-"; doubleLbl.innerText = ''; }
               c.classList.add('bg-gray');
-          } else { 
-              dPay = 0; otVal = 0; info.innerHTML = "-"; 
-              if (isAdminDouble) { c.classList.add('bg-blue'); doubleLbl.innerText = '★ 2X'; if (isSat) c.classList.add('double-saturday'); } else { doubleLbl.innerText = ''; }
-          }
+          } else { dPay = 0; otVal = 0; info.innerHTML = "-"; if (isAdminDouble) { c.classList.add('bg-blue'); doubleLbl.innerText = '★ 2X'; if (isSat) c.classList.add('double-saturday'); } else { doubleLbl.innerText = ''; } }
           c.setAttribute('data-total', dPay); c.setAttribute('data-ot', otVal);
       });
 
@@ -1792,17 +1429,13 @@
       let rowNS = document.getElementById('rowNightShift'); let rowNA = document.getElementById('rowNightAllowance');
       if (night > 0) { rowNS.style.display = 'flex'; rowNA.style.display = 'flex'; } else { rowNS.style.display = 'none'; rowNA.style.display = 'none'; }
       
-      let lunchAllowance = work * 30;
-      let otFoodAllowance = otDays * 30;
-      let nonOtDays = work - otDays;
-      
+      let lunchAllowance = work * 30; let otFoodAllowance = otDays * 30; let nonOtDays = work - otDays;
       let totalAbsent = absentUnpaid + medLeaveCount; 
       let finalBonus = bonusSetting;
       if (totalAbsent > 0) { finalBonus = 200; }
       total += finalBonus; 
       
       let otHrs = ot15Hrs + ot20Hrs;
-
       let combinedBasicSalary = (work + medLeaveCount) * wage;
       
       let ssoBaseAmount = 0;
@@ -1811,20 +1444,13 @@
       if (window.ssoConfig.night) ssoBaseAmount += nightPay;
       if (window.ssoConfig.food) ssoBaseAmount += lunchAllowance;
 
-      let rawSso = ssoBaseAmount * 0.05; 
-      let ssoDeduction = Math.round(rawSso); 
-      ssoDeduction = Math.min(ssoDeduction, 750); 
+      let rawSso = ssoBaseAmount * 0.05; let ssoDeduction = Math.round(rawSso); ssoDeduction = Math.min(ssoDeduction, 750); 
       let netSalary = total - ssoDeduction;
 
       window.currentSlipData = { combinedBasicSalary: combinedBasicSalary, lunchFood: lunchAllowance, transport: transport, bonus: finalBonus, doubleDayExtraPay: doubleExtraPay, otFood: otFoodAllowance, ot15Hrs: ot15Hrs, ot15Pay: ot15Pay, ot20Hrs: ot20Hrs, ot20Pay: ot20Pay, nightAll: nightPay, pubHolPay: pubHolPay, medLeavePay: medLeavePay, gross: total, sso: ssoDeduction, net: netSalary, workDays: work, period: document.getElementById('selectedMonth').value };
 
       let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days'); let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
-      document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; 
-      document.getElementById('otDaysCount').innerText = `${normalOtDays} ${uDay} / ${ot15Hrs} ${uHr}`; 
-      document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
-      document.getElementById('otTotalCombine').innerText = `${otHrs} ${uHr}`; 
-      document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; document.getElementById('foodOtTotal').innerText = `${otFoodAllowance.toLocaleString()} ฿`; document.getElementById('foodNoOtDays').innerText = `${work} ${uDay}`; document.getElementById('foodNoOtTotal').innerText = `${lunchAllowance.toLocaleString()} ฿`; document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; 
-      
+      document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; document.getElementById('otDaysCount').innerText = `${normalOtDays} ${uDay} / ${ot15Hrs} ${uHr}`; document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; document.getElementById('otTotalCombine').innerText = `${otHrs} ${uHr}`; document.getElementById('foodOtDays').innerText = `${otDays} ${uDay}`; document.getElementById('foodOtTotal').innerText = `${otFoodAllowance.toLocaleString()} ฿`; document.getElementById('foodNoOtDays').innerText = `${work} ${uDay}`; document.getElementById('foodNoOtTotal').innerText = `${lunchAllowance.toLocaleString()} ฿`; document.getElementById('attBonusDisplay').innerText = `${finalBonus.toLocaleString()} ฿`; 
       document.getElementById('transportDisplay').innerText = `${transport.toLocaleString()} ฿`; 
       document.getElementById('absentCount').innerText = `${absentUnpaid} ${uDay}`; document.getElementById('holidayCount').innerText = `${holiday} ${uDay}`; document.getElementById('medLeaveDisplay').innerText = `${medLeaveCount} ${uDay} / ${medLeavePay.toLocaleString()} ฿`; document.getElementById('pubHolidayDisplay').innerText = `${pubHolCount} ${uDay} / ${pubHolPay.toLocaleString()} ฿`; document.getElementById('nightShiftDisplay').innerText = `${night} ${uDay}`; document.getElementById('nightAllowanceDisplay').innerText = `${nightPay.toLocaleString()} ฿`; document.getElementById('grossTotalDisplay').innerText = `${total.toLocaleString()} ฿`; document.getElementById('ssoDisplay').innerText = `- ${ssoDeduction.toLocaleString()} ฿`; document.getElementById('grandTotal').innerText = `${netSalary.toLocaleString()} ฿`;
       
@@ -1836,7 +1462,6 @@
       let printArea = document.getElementById('slipPrintArea');
       if (!printArea) return;
       
-      // Add Watermark Element
       let wm = document.createElement('div');
       wm.className = 'watermark';
       wm.innerText = 'CHICONY';
@@ -1847,22 +1472,12 @@
       if(btn) { btn.innerHTML = "⏳ Saving..."; btn.disabled = true; }
 
       setTimeout(() => {
-          html2canvas(printArea, { 
-              scale: 3, 
-              useCORS: true, 
-              backgroundColor: '#ffffff',
-              imageTimeout: 0,
-              logging: false 
-          }).then(canvas => {
+          html2canvas(printArea, { scale: 3, useCORS: true, backgroundColor: '#ffffff', imageTimeout: 0, logging: false }).then(canvas => {
               let imgData = canvas.toDataURL('image/jpeg', 0.9);
-              let link = document.createElement('a'); 
-              link.href = imgData;
+              let link = document.createElement('a'); link.href = imgData;
               let p = window.currentSlipData.period || 'slip';
               link.download = `Chicony_Slip_${p}.jpg`; 
-              document.body.appendChild(link); 
-              link.click(); 
-              document.body.removeChild(link);
-              
+              document.body.appendChild(link); link.click(); document.body.removeChild(link);
               if (printArea.contains(wm)) printArea.removeChild(wm);
               if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
               showCustomAlert("✅ လစာစလစ်ကို အရည်အသွေးမြင့်စွာ သိမ်းဆည်းပြီးပါပြီ။");
@@ -1879,34 +1494,23 @@
       let l = translations[currentLang]; let d = window.currentSlipData;
       let name = document.getElementById('empName').value || '-'; let empId = document.getElementById('empId').value || '-';
       let rawDept = document.getElementById('empDept').value; let displayDept = rawDept && rawDept.trim() !== "" ? rawDept.trim() : "-";
-      
       let [pY, pM] = d.period.split('-'); let pMonthNum = parseInt(pM); let pYearNum = parseInt(pY);
       let endMIdx = pMonthNum - 1; let endYear = pYearNum; let startMIdx = endMIdx - 1; let startYear = pYearNum;
       if (startMIdx < 0) { startMIdx = 11; startYear--; }
       let engMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       let periodHeaderStr = `${engMonths[startMIdx]} 21, ${startYear} - ${engMonths[endMIdx]} 20, ${endYear}`;
 
-      // ★ Transport Hide Logic in Slip ★
-      let transRowHtml = window.isTransportEnabled 
-          ? `<tr><td style="padding: 4px 6px;">${l.slipTrans}</td><td style="padding: 4px 6px; text-align:right;">${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>` 
-          : '';
+      let transRowHtml = window.isTransportEnabled ? `<tr><td style="padding: 4px 6px;">${l.slipTrans}</td><td style="padding: 4px 6px; text-align:right;">${d.transport.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>` : '';
 
       let html = `
         <style> @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Orbitron:wght@700&display=swap'); .custom-logo-font { font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: normal; color: #21409A; letter-spacing: 1px;} </style>
         <div style="font-family: Arial, sans-serif; color: #333; background: #fff; width: 100%;">
             <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                <table style="width: 100%; border: none;">
-                    <tr>
-                        <td style="border: none; text-align: left; vertical-align: bottom;"><h1 class="custom-logo-font" style="margin: 0; font-size: 34px;">Chicony<span style="font-size:12px; vertical-align:top; font-family: Arial, sans-serif; font-weight: bold;">®</span></h1></td>
-                        <td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br><b>Salary Period: ${periodHeaderStr}</b></td>
-                    </tr>
-                </table>
+                <table style="width: 100%; border: none;"><tr><td style="border: none; text-align: left; vertical-align: bottom;"><h1 class="custom-logo-font" style="margin: 0; font-size: 34px;">Chicony<span style="font-size:12px; vertical-align:top; font-family: Arial, sans-serif; font-weight: bold;">®</span></h1></td><td style="border: none; text-align: right; font-size: 9px; line-height: 1.4; color: #555;">บริษัท ซิโคนี่ อีเลคทรอนิคส์ (ประเทศไทย) จำกัด (สำนักงานใหญ่)<br>82 หมู่ 4 ต.ท่าข้าม อ.บางปะกง จ.ฉะเชิงเทรา 24130<br><b>Salary Period: ${periodHeaderStr}</b></td></tr></table>
             </div>
             <div style="text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 14px;">${l.slipTitle}</div>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
-                <tr style="background: #f8f9fa;">
-                    <th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.idLbl}</th><th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.nameLbl}</th><th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.deptLbl}</th><th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.netSalary}</th>
-                </tr>
+                <tr style="background: #f8f9fa;"><th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.idLbl}</th><th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.nameLbl}</th><th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.deptLbl}</th><th style="border: 1px solid #ccc; padding: 6px; text-align: center;">${l.netSalary}</th></tr>
                 <tr><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${empId}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${name}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${displayDept}</td><td style="border: 1px solid #ccc; padding: 6px; text-align: center; font-weight:bold; font-size: 12px; color: #198754;">${d.net.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>
             </table>
             <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
@@ -1948,7 +1552,6 @@
             </div>
         </div>
       `;
-      
       document.querySelector('#slipModal .modal-content').innerHTML = slipHeader + `<div id="slipPrintArea" style="width: 100%; box-sizing: border-box; padding: 15px; background: white;">${html}</div>`;
       document.getElementById('slipModal').style.display = 'flex';
   };
@@ -1957,140 +1560,59 @@
 
   window.openAdminPanel = (isInit = true) => {
       document.getElementById('adminModal').style.display = 'flex';
-      if (isInit) {
-          document.getElementById('adminSearchInput').value = '';
-          document.getElementById('adminMonthSelect').value = window.getRealCurrentMonth();
-      }
-      document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>';
-      toggleMenu(null);
-
-      let selectedMonthVal = document.getElementById('adminMonthSelect').value;
-      if (!selectedMonthVal) return;
-
+      if (isInit) { document.getElementById('adminSearchInput').value = ''; document.getElementById('adminMonthSelect').value = window.getRealCurrentMonth(); }
+      document.getElementById('adminUserList').innerHTML = '<div style="text-align:center; padding: 20px;">... ⏳</div>'; toggleMenu(null);
+      let selectedMonthVal = document.getElementById('adminMonthSelect').value; if (!selectedMonthVal) return;
       let { startD, endD } = getPeriodDates(selectedMonthVal);
 
       get(ref(db, 'users')).then((snapshot) => {
           if (snapshot.exists()) {
-              let allUsers = snapshot.val(); window.allUsersData = allUsers;
-              let totalEmployees = 0; let grandTotalSalary = 0;
-              window.adminCalculated = {};
-              let tempUsersArray = [];
-
+              let allUsers = snapshot.val(); window.allUsersData = allUsers; let totalEmployees = 0; let grandTotalSalary = 0; window.adminCalculated = {}; let tempUsersArray = [];
               for (let uid in allUsers) {
-                  let uData = allUsers[uid];
-                  if (!uData.settings || !uData.settings.empName) continue;
-
-                  let wage = parseFloat(uData.settings.dailyWage) || 0;
-                  let otRate = parseFloat(uData.settings.otRate) || 0;
-                  
-                  // Admin panel တွက်ရန်အတွက် 해당လ၏ bonus history ကိုယူမည်
-                  let uSavedBonus = (uData.settings.bonusHistory && uData.settings.bonusHistory[selectedMonthVal]) 
-                      ? parseInt(uData.settings.bonusHistory[selectedMonthVal]) 
-                      : (uData.settings.attBonusSetting ? parseInt(uData.settings.attBonusSetting) : 0);
-
-                  let baseHourRate = otRate / 1.5; let rate20 = baseHourRate * 2;
-                  let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0;
-                  let uOt15Hrs = 0, uOt20Hrs = 0;
-                  let uNightPay = 0;
+                  let uData = allUsers[uid]; if (!uData.settings || !uData.settings.empName) continue;
+                  let wage = parseFloat(uData.settings.dailyWage) || 0; let otRate = parseFloat(uData.settings.otRate) || 0;
+                  let uSavedBonus = (uData.settings.bonusHistory && uData.settings.bonusHistory[selectedMonthVal]) ? parseInt(uData.settings.bonusHistory[selectedMonthVal]) : (uData.settings.attBonusSetting ? parseInt(uData.settings.attBonusSetting) : 0);
+                  let baseHourRate = otRate / 1.5; let rate20 = baseHourRate * 2; let uWork = 0, normalWorkDays = 0, uAbsent = 0, uMedCount=0, uDouble = 0, uTotalPay = 0, slipBasicSalary=0, pubHolPay=0, medLeavePay=0; let uOt15Hrs = 0, uOt20Hrs = 0; let uNightPay = 0;
 
                   if (uData.attendance) {
                       let cur = new Date(startD);
                       while(cur <= endD) {
                           let dateKey = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
                           let record = uData.attendance[dateKey]; let calData = globalCalendar[dateKey];
-                          let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
-                          let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6;
-                          let isSpecialDay = isSun || isAdminDouble || isAdminHoliday;
-
+                          let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let isSun = cur.getDay() === 0; let isSat = cur.getDay() === 6; let isSpecialDay = isSun || isAdminDouble || isAdminHoliday;
                           let status = record ? record.status : ''; if(status === '' && isAdminHoliday) status = '-';
-                          let shift = record ? (record.shift || 'day') : 'day';
-                          let leaveType = record ? (record.leaveType || 'unpaid') : 'unpaid';
-                          let otStatus = record ? (record.ot || 'no') : 'no';
-                          let otVal = record ? (parseFloat(record.otHours) || 0) : 0;
-
+                          let shift = record ? (record.shift || 'day') : 'day'; let leaveType = record ? (record.leaveType || 'unpaid') : 'unpaid'; let otStatus = record ? (record.ot || 'no') : 'no'; let otVal = record ? (parseFloat(record.otHours) || 0) : 0;
                           let dPay = 0, fPay = 0;
-
-                          if (status === '-') {
-                              if (isAdminHoliday) { uTotalPay += wage; pubHolPay += wage; }
-                          } else if (status === '✓') {
-                              uWork++;
-                              if (isSpecialDay) { uDouble++; dPay += (8 * rate20); uOt20Hrs += 8; }
-                              else { normalWorkDays++; dPay += wage; slipBasicSalary += wage; }
-
-                              // ★ Admin Panel တွက်ချက်မှု - Transport Toggle ပါဝင်ခြင်း ★
+                          if (status === '-') { if (isAdminHoliday) { uTotalPay += wage; pubHolPay += wage; } } 
+                          else if (status === '✓') {
+                              uWork++; if (isSpecialDay) { uDouble++; dPay += (8 * rate20); uOt20Hrs += 8; } else { normalWorkDays++; dPay += wage; slipBasicSalary += wage; }
                               if (window.isTransportEnabled) { dPay += 40; }
-
                               if (shift === 'night') { dPay += 100; uNightPay += 100; }
-
-                              if (otStatus === 'yes') {
-                                  fPay = 60;
-                                  if(otVal>0) {
-                                      if (isSpecialDay) { dPay += (otVal * rate20); uOt20Hrs += otVal; }
-                                      else { dPay += (otVal * otRate); uOt15Hrs += otVal; }
-                                  }
-                              } else { fPay = 30; }
+                              if (otStatus === 'yes') { fPay = 60; if(otVal>0) { if (isSpecialDay) { dPay += (otVal * rate20); uOt20Hrs += otVal; } else { dPay += (otVal * otRate); uOt15Hrs += otVal; } } } else { fPay = 30; }
                               dPay += fPay; uTotalPay += dPay;
-                          } else if (status === 'x') {
-                              if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; medLeavePay += wage; }
-                              else { uAbsent++; }
-                          }
+                          } else if (status === 'x') { if(leaveType === 'medical') { uMedCount++; uTotalPay += wage; medLeavePay += wage; } else { uAbsent++; } }
                           cur.setDate(cur.getDate()+1);
                       }
                   }
-
-                  let uOtHrs = uOt15Hrs + uOt20Hrs;
-                  totalEmployees++;
-
-                  let totalAbs = uAbsent + uMedCount; 
-                  let uFinalBonus = uSavedBonus;
-                  if (totalAbs > 0) uFinalBonus = 200;
-                  uTotalPay += uFinalBonus;
-
-                  let combinedBasicSalary = (uWork + uMedCount) * wage;
-                  let regularFoodAllowance = uWork * 30;
-
-                  // Admin လအတွက် သက်ဆိုင်ရာလ၏ ssoHistory ကိုယူမည်
-                  let uSsoCfg = (window.ssoHistory && window.ssoHistory[selectedMonthVal]) 
-                      ? window.ssoHistory[selectedMonthVal] 
-                      : window.ssoConfig;
-
+                  let uOtHrs = uOt15Hrs + uOt20Hrs; totalEmployees++;
+                  let totalAbs = uAbsent + uMedCount; let uFinalBonus = uSavedBonus; if (totalAbs > 0) uFinalBonus = 200; uTotalPay += uFinalBonus;
+                  let combinedBasicSalary = (uWork + uMedCount) * wage; let regularFoodAllowance = uWork * 30;
+                  let uSsoCfg = (window.ssoHistory && window.ssoHistory[selectedMonthVal]) ? window.ssoHistory[selectedMonthVal] : window.ssoConfig;
                   let ssoBaseAmount = 0;
-                  if (uSsoCfg.basic) ssoBaseAmount += combinedBasicSalary;
-                  if (uSsoCfg.pubHol) ssoBaseAmount += pubHolPay;
-                  if (uSsoCfg.night) ssoBaseAmount += uNightPay;
-                  if (uSsoCfg.food) ssoBaseAmount += regularFoodAllowance;
-
-                  let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750);
-                  let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
-
-                  window.adminCalculated[uid] = { work: uWork, absent: uAbsent, med: uMedCount, ot: uOtHrs, double: uDouble, total: netSalary, gross: uTotalPay, sso: ssoDeduction };
-                  grandTotalSalary += netSalary;
-
-                  let name = uData.settings.empName; let empId = uData.settings.empId || '-';
-
-                  let isInactive = (uWork === 0 && uAbsent === 0 && uMedCount === 0);
-                  let inactiveBadge = isInactive ? `<span class="inactive-badge">⚠️ In-Active</span>` : '';
-
+                  if (uSsoCfg.basic) ssoBaseAmount += combinedBasicSalary; if (uSsoCfg.pubHol) ssoBaseAmount += pubHolPay; if (uSsoCfg.night) ssoBaseAmount += uNightPay; if (uSsoCfg.food) ssoBaseAmount += regularFoodAllowance;
+                  let ssoDeduction = Math.min(Math.round(ssoBaseAmount * 0.05), 750); let netSalary = uTotalPay - ssoDeduction; if(netSalary < 0) netSalary = 0;
+                  window.adminCalculated[uid] = { work: uWork, absent: uAbsent, med: uMedCount, ot: uOtHrs, double: uDouble, total: netSalary, gross: uTotalPay, sso: ssoDeduction }; grandTotalSalary += netSalary;
+                  let name = uData.settings.empName; let empId = uData.settings.empId || '-'; let isInactive = (uWork === 0 && uAbsent === 0 && uMedCount === 0); let inactiveBadge = isInactive ? `<span class="inactive-badge">⚠️ In-Active</span>` : '';
                   let cardHtml = `<div class="admin-user-card" data-name="${name.toLowerCase()}" data-empid="${empId.toLowerCase()}">
                       <div class="admin-user-name"><span>👤 ${name} <span style="font-size:12px; color:#666;">(ID: ${empId})</span></span> ${inactiveBadge}</div>
                       <div class="admin-user-details" style="margin-top: 5px; line-height: 1.5;">Work: <b>${uWork}</b> | Absent: <b>${uAbsent}</b> | Med: <b>${uMedCount}</b><br>Total OT: <b>${uOtHrs}</b> Hrs | Double: <b>${uDouble}</b></div>
                       <div class="admin-user-salary" style="color:#198754; margin-top:8px; padding-top:8px; border-top:1px dashed #ccc; font-weight:bold;">💰 Net Salary: ${netSalary.toLocaleString()} ฿</div>
                       <div class="admin-btn-group"><button class="admin-action-btn btn-view interactive-btn" onclick="viewUserDetail('${uid}')">👁️ Detail</button><button class="admin-action-btn btn-edit interactive-btn" onclick="editAdminUser('${uid}')">✏️ Edit</button><button class="admin-action-btn btn-delete interactive-btn" onclick="deleteAdminUser('${uid}', '${name}')">🗑️ Del</button></div>
                   </div>`;
-
                   tempUsersArray.push({ empId: empId, html: cardHtml });
               }
-
-              tempUsersArray.sort((a, b) => {
-                  let idA = String(a.empId).trim(); let idB = String(b.empId).trim();
-                  let numA = parseInt(idA, 10); let numB = parseInt(idB, 10);
-                  if (!isNaN(numA) && !isNaN(numB) && numA !== numB) { return numA - numB; }
-                  return idA.localeCompare(idB);
-              });
-
-              let userCardsHTML = '';
-              tempUsersArray.forEach(item => { userCardsHTML += item.html; });
-
+              tempUsersArray.sort((a, b) => { let idA = String(a.empId).trim(); let idB = String(b.empId).trim(); let numA = parseInt(idA, 10); let numB = parseInt(idB, 10); if (!isNaN(numA) && !isNaN(numB) && numA !== numB) { return numA - numB; } return idA.localeCompare(idB); });
+              let userCardsHTML = ''; tempUsersArray.forEach(item => { userCardsHTML += item.html; });
               let summaryHTML = `<div style="background:#e8f4fd; border: 2px solid #007bff; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;"><div style="font-weight:bold; color:#333; font-size: 14px;">Total Employees: <span style="color:#007bff; font-size: 16px;">${totalEmployees}</span></div><div style="font-weight:bold; color:#198754; font-size:16px; margin-top:8px;">Total Net Salary: <br><span style="font-size: 20px;">${grandTotalSalary.toLocaleString()} ฿</span></div></div>`;
               document.getElementById('adminUserList').innerHTML = summaryHTML + (userCardsHTML || '<div style="text-align:center;">No Data</div>');
           } else { document.getElementById('adminUserList').innerHTML = '<div style="text-align:center;">No Data</div>'; }
@@ -2105,152 +1627,58 @@
   window.openExportModal = () => { let cards = document.querySelectorAll('.day-card'); if(cards.length > 0) { document.getElementById('exportStartDate').value = cards[0].getAttribute('data-real-date'); let lastFilledDate = cards[0].getAttribute('data-real-date'); cards.forEach(c => { let status = c.querySelector('.status-select').value; if(status === '✓' || status === 'x') lastFilledDate = c.getAttribute('data-real-date'); }); let todayObj = new Date(); let tzOffset = 7 * 60 * 60000; let localISOTime = (new Date(todayObj - tzOffset)).toISOString().slice(0, -1); let todayStr = localISOTime.split('T')[0]; let finalEndDate = (todayStr > lastFilledDate && todayStr <= cards[cards.length-1].getAttribute('data-real-date')) ? todayStr : lastFilledDate; document.getElementById('exportEndDate').value = finalEndDate; } document.getElementById('exportModal').style.display = 'flex'; toggleMenu(null); };
   window.closeExportModal = () => document.getElementById('exportModal').style.display = 'none';
 
-  // ── Excel Preview global data store ──
   window._excelPreviewData = null;
-
   window.closeExcelPreview = () => { document.getElementById('excelPreviewModal').style.display = 'none'; };
 
   window.showExcelPreview = () => {
-      let sDate = document.getElementById('exportStartDate').value;
-      let eDate = document.getElementById('exportEndDate').value;
-      if (!sDate || !eDate) return;
-
+      let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; if (!sDate || !eDate) return;
       let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
-      
-      let rows = []; 
-      let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0;
+      let rows = []; let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0;
 
       document.querySelectorAll('.day-card').forEach(card => {
           let rDate = card.getAttribute('data-real-date');
           if (rDate >= sDate && rDate <= eDate) {
-              let date = card.getAttribute('data-date');
-              let shiftVal = card.querySelector('.shift-select').value;
-              let statusVal = card.querySelector('.status-select').value;
-              let leaveVal = card.querySelector('.leave-select').value;
-              let ot = card.getAttribute('data-ot') || '0';
-              let total = parseFloat(card.getAttribute('data-total') || '0');
-              let calData = globalCalendar[rDate];
-              let isAdminDouble = calData?.type === 'double';
-              let isAdminHoliday = calData?.type === 'holiday';
-              let displayShift = shiftVal === 'day' ? 'Day' : 'Night';
-              let displayStatus = statusVal;
-
-              if (statusVal === '-') {
-                  displayShift = 'All'; displayStatus = 'Holiday';
-                  if (isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; }
-              } else if (statusVal === '✓') displayStatus = 'Present';
-              else if (statusVal === 'x') displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent';
-              else displayStatus = '-';
-
-              let isWorking = (statusVal === '✓');
-              let displayOt = (ot === '0' || ot === 0 || ot === '' || !isWorking) ? '-' : ot;
-              let displayTotal = (total === 0) ? '-' : total.toLocaleString();
+              let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let leaveVal = card.querySelector('.leave-select').value; let ot = card.getAttribute('data-ot') || '0'; let total = parseFloat(card.getAttribute('data-total') || '0'); let calData = globalCalendar[rDate]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday'; let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal;
+              if (statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; if (isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; } } else if (statusVal === '✓') displayStatus = 'Present'; else if (statusVal === 'x') displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent'; else displayStatus = '-';
+              let isWorking = (statusVal === '✓'); let displayOt = (ot === '0' || ot === 0 || ot === '' || !isWorking) ? '-' : ot; let displayTotal = (total === 0) ? '-' : total.toLocaleString();
               rows.push([date, displayShift, displayStatus, displayOt, displayTotal]);
-
               let rDateObj = new Date(rDate); let isSun = rDateObj.getDay() === 0;
-              if (statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot||0); if(isAdminHoliday||isAdminDouble||isSun) expDouble++; }
-              else if (statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else expAbsent++; }
+              if (statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot||0); if(isAdminHoliday||isAdminDouble||isSun) expDouble++; } else if (statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else expAbsent++; }
               expTotal += total;
           }
       });
 
-      // Preview တွင်ပြသရန် လက်ရှိလ၏ bonus ကို ယူမည်
       let currentMonthStr = document.getElementById('selectedMonth').value;
-      let bonusSetting = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[currentMonthStr]) 
-                         ? parseInt(appData.settings.bonusHistory[currentMonthStr]) 
-                         : (appData.settings && appData.settings.attBonusSetting ? parseInt(appData.settings.attBonusSetting) : 500);
-
-      let totalAbs = expAbsent + expMedCount;
-      let expBonus = bonusSetting; 
-      if (totalAbs > 0) expBonus = 200;
-      expTotal += expBonus;
+      let bonusSetting = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[currentMonthStr]) ? parseInt(appData.settings.bonusHistory[currentMonthStr]) : (appData.settings && appData.settings.attBonusSetting ? parseInt(appData.settings.attBonusSetting) : 500);
+      let totalAbs = expAbsent + expMedCount; let expBonus = bonusSetting; if (totalAbs > 0) expBonus = 200; expTotal += expBonus;
 
       window._excelPreviewData = { sDate, eDate, rows, expWork, expDouble, expAbsent, expMedCount, expMedPay, expOtHrs, expTotal, expPubHolCount, expPubHolPay, expBonus, bonusSetting };
 
-      let thead = document.getElementById('excelPreviewHead');
-      let tbody = document.getElementById('excelPreviewBody');
-      let info  = document.getElementById('excelPreviewInfo');
-
+      let thead = document.getElementById('excelPreviewHead'); let tbody = document.getElementById('excelPreviewBody'); let info = document.getElementById('excelPreviewInfo');
       info.innerHTML = '📅 <b>' + sDate + '</b> မှ <b>' + eDate + '</b> ကာလ';
-
       let sumDiv = document.getElementById('excelPreviewSummary');
-      let sc = (k,v,c) => '<div style="background:' + c + '22;border:1px solid ' + c + '44;border-radius:8px;padding:8px 10px;text-align:center;min-width:80px;">' +
-          '<div style="font-size:11px;color:#666;margin-bottom:2px;">' + k + '</div>' +
-          '<div style="font-size:15px;font-weight:bold;color:' + c + ';">' + v + '</div></div>';
-      sumDiv.innerHTML =
-          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">' +
-              sc('အလုပ်ဆင်းရက်', expWork + ' ရက်', '#0d6efd') +
-              sc('OT နာရီ', expOtHrs + ' hr', '#fd7e14') +
-              sc('နှစ်ဆရက်', expDouble + ' ရက်', '#6610f2') +
-          '</div>' +
-          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">' +
-              sc('ပျက်ရက်', expAbsent + ' ရက်', '#dc3545') +
-              sc('ဆေးခွင့်', expMedCount + ' ရက်', '#fd7e14') +
-              sc('ပိတ်ရက်ရငွေ', expPubHolPay.toLocaleString() + '฿', '#0891b2') +
-          '</div>' +
-          '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' +
-              sc('ရက်မှန်ကြေး', expBonus.toLocaleString() + '฿', '#20c997') +
-              '<div style="background:#19875422;border:1px solid #19875444;border-radius:8px;padding:8px 10px;text-align:center;">' +
-                  '<div style="font-size:11px;color:#666;margin-bottom:2px;">💰 Net Salary</div>' +
-                  '<div style="font-size:17px;font-weight:bold;color:#198754;">' + expTotal.toLocaleString() + ' ฿</div>' +
-              '</div>' +
-          '</div>';
-
-      let thStyle = 'background:#198754;color:white;padding:6px 8px;text-align:left;font-size:11px;white-space:nowrap;';
-      let headers = ['Date','Shift','Status','OT Hrs','Total (฿)'];
+      let sc = (k,v,c) => '<div style="background:' + c + '22;border:1px solid ' + c + '44;border-radius:8px;padding:8px 10px;text-align:center;min-width:80px;"><div style="font-size:11px;color:#666;margin-bottom:2px;">' + k + '</div><div style="font-size:15px;font-weight:bold;color:' + c + ';">' + v + '</div></div>';
+      sumDiv.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">' + sc('အလုပ်ဆင်းရက်', expWork + ' ရက်', '#0d6efd') + sc('OT နာရီ', expOtHrs + ' hr', '#fd7e14') + sc('နှစ်ဆရက်', expDouble + ' ရက်', '#6610f2') + '</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">' + sc('ပျက်ရက်', expAbsent + ' ရက်', '#dc3545') + sc('ဆေးခွင့်', expMedCount + ' ရက်', '#fd7e14') + sc('ပိတ်ရက်ရငွေ', expPubHolPay.toLocaleString() + '฿', '#0891b2') + '</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + sc('ရက်မှန်ကြေး', expBonus.toLocaleString() + '฿', '#20c997') + '<div style="background:#19875422;border:1px solid #19875444;border-radius:8px;padding:8px 10px;text-align:center;"><div style="font-size:11px;color:#666;margin-bottom:2px;">💰 Net Salary</div><div style="font-size:17px;font-weight:bold;color:#198754;">' + expTotal.toLocaleString() + ' ฿</div></div></div>';
+      let thStyle = 'background:#198754;color:white;padding:6px 8px;text-align:left;font-size:11px;white-space:nowrap;'; let headers = ['Date','Shift','Status','OT Hrs','Total (฿)'];
       thead.innerHTML = '<tr>' + headers.map(h => '<th style="' + thStyle + '">' + h + '</th>').join('') + '</tr>';
-
       let statusColor = { 'Present':'#198754','Absent':'#dc3545','Medical Leave':'#fd7e14','Holiday':'#0d6efd','-':'#999' };
-      tbody.innerHTML = rows.map(r => {
-          let sc = statusColor[r[2]] || '#333';
-          return '<tr>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[0] + '</td>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[1] + '</td>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;color:' + sc + ';font-weight:bold;">' + r[2] + '</td>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:center;">' + r[3] + '</td>' +
-              '<td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">' + r[4] + '</td>' +
-          '</tr>';
-      }).join('');
-
-      closeExportModal();
-      document.getElementById('excelPreviewModal').style.display = 'flex';
+      tbody.innerHTML = rows.map(r => { let sc = statusColor[r[2]] || '#333'; return '<tr><td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[0] + '</td><td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;">' + r[1] + '</td><td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;color:' + sc + ';font-weight:bold;">' + r[2] + '</td><td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:center;">' + r[3] + '</td><td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">' + r[4] + '</td></tr>'; }).join('');
+      closeExportModal(); document.getElementById('excelPreviewModal').style.display = 'flex';
   };
 
   window.confirmDownloadExcel = () => {
-      let p = window._excelPreviewData;
-      if (!p) return;
-      let excelData = [['Date','Shift','Status','OT Hours','Daily Total (Baht)']];
-      p.rows.forEach(r => excelData.push(r));
-      excelData.push([]);
-      excelData.push(['','','','Attendance Bonus', p.expBonus + ' Baht']);
-      excelData.push(['','','','Public Holiday Pay', p.expPubHolCount + ' Days / ' + p.expPubHolPay + ' Baht']);
-      excelData.push(['','','','Medical Leave Pay', p.expMedCount + ' Days / ' + p.expMedPay + ' Baht']);
-      excelData.push(['','','','Total Work Hours', (p.expWork * 8) + ' hrs']);
-      excelData.push(['','','','Total Normal OT Hours', p.expOtHrs + ' hrs']);
-      if (p.expDouble > 0) excelData.push(['','','','2X Days Work Hours', (p.expDouble * 8) + ' hrs']);
-      excelData.push(['','','','Absent (Unpaid)', p.expAbsent + ' Days']);
-      excelData.push(['','','','Net Salary', p.expTotal + ' Baht']);
-      excelData.push([]); excelData.push(['','','','Developed by','THET AUNG']);
-
-      let wb = XLSX.utils.book_new();
-      let ws = XLSX.utils.aoa_to_sheet(excelData);
-      XLSX.utils.book_append_sheet(wb, ws, 'Salary_Report');
-      let name = document.getElementById('empName').value || 'Employee';
-      XLSX.writeFile(wb, name + '_Salary_' + p.sDate + '_to_' + p.eDate + '.xlsx');
-      closeExcelPreview();
+      let p = window._excelPreviewData; if (!p) return;
+      let excelData = [['Date','Shift','Status','OT Hours','Daily Total (Baht)']]; p.rows.forEach(r => excelData.push(r));
+      excelData.push([]); excelData.push(['','','','Attendance Bonus', p.expBonus + ' Baht']); excelData.push(['','','','Public Holiday Pay', p.expPubHolCount + ' Days / ' + p.expPubHolPay + ' Baht']); excelData.push(['','','','Medical Leave Pay', p.expMedCount + ' Days / ' + p.expMedPay + ' Baht']); excelData.push(['','','','Total Work Hours', (p.expWork * 8) + ' hrs']); excelData.push(['','','','Total Normal OT Hours', p.expOtHrs + ' hrs']); if (p.expDouble > 0) excelData.push(['','','','2X Days Work Hours', (p.expDouble * 8) + ' hrs']); excelData.push(['','','','Absent (Unpaid)', p.expAbsent + ' Days']); excelData.push(['','','','Net Salary', p.expTotal + ' Baht']); excelData.push([]); excelData.push(['','','','Developed by','THET AUNG']);
+      let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, 'Salary_Report'); let name = document.getElementById('empName').value || 'Employee'; XLSX.writeFile(wb, name + '_Salary_' + p.sDate + '_to_' + p.eDate + '.xlsx'); closeExcelPreview();
   };
 
   window.exportExcel = () => { 
-      let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; 
-      if(!sDate || !eDate) return; 
-      let excelData = [ ["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"] ]; 
-      let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
+      let sDate = document.getElementById('exportStartDate').value; let eDate = document.getElementById('exportEndDate').value; if(!sDate || !eDate) return; 
+      let excelData = [ ["Date", "Shift", "Status", "OT Hours", "Daily Total (Baht)"] ]; let wage = parseFloat(document.getElementById('dailyWage').value) || 0;
       let expWork=0, expDouble=0, expAbsent=0, expMedCount=0, expMedPay=0, expOtHrs=0, expTotal=0, expPubHolCount=0, expPubHolPay=0; 
-      
       let currentMonthStr = document.getElementById('selectedMonth').value;
-      let bonusSetting = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[currentMonthStr]) 
-                         ? parseInt(appData.settings.bonusHistory[currentMonthStr]) 
-                         : (appData.settings && appData.settings.attBonusSetting ? parseInt(appData.settings.attBonusSetting) : 500);
+      let bonusSetting = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[currentMonthStr]) ? parseInt(appData.settings.bonusHistory[currentMonthStr]) : (appData.settings && appData.settings.attBonusSetting ? parseInt(appData.settings.attBonusSetting) : 500);
       
       document.querySelectorAll('.day-card').forEach(card => { 
           let rDate = card.getAttribute('data-real-date'); 
@@ -2258,95 +1686,51 @@
               let date = card.getAttribute('data-date'); let shiftVal = card.querySelector('.shift-select').value; let statusVal = card.querySelector('.status-select').value; let leaveVal = card.querySelector('.leave-select').value; let ot = card.getAttribute('data-ot') || "0"; let total = parseFloat(card.getAttribute('data-total') || "0"); 
               let calData = globalCalendar[rDate]; let isAdminDouble = calData?.type === 'double'; let isAdminHoliday = calData?.type === 'holiday';
               let displayShift = shiftVal === 'day' ? 'Day' : 'Night'; let displayStatus = statusVal; 
-              
-              if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; } } 
-              else if (statusVal === '✓') displayStatus = 'Present'; 
-              else if (statusVal === 'x') displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent'; 
-              else displayStatus = '-'; 
-              
+              if(statusVal === '-') { displayShift = 'All'; displayStatus = 'Holiday'; if(isAdminHoliday) { expPubHolCount++; expPubHolPay += wage; } } else if (statusVal === '✓') displayStatus = 'Present'; else if (statusVal === 'x') displayStatus = leaveVal === 'medical' ? 'Medical Leave' : 'Absent'; else displayStatus = '-'; 
               let isWorking = (statusVal === '✓'); let displayOt = (ot === "0" || ot === 0 || ot === "" || !isWorking) ? "-" : ot; let displayTotal = (total === 0 || total === "0") ? "-" : total;
               excelData.push([date, displayShift, displayStatus, displayOt, displayTotal]); 
-              
               let rDateObj = new Date(rDate); let isSun = rDateObj.getDay() === 0;
-              if(statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot); if(isAdminHoliday || isAdminDouble || isSun) expDouble++; } 
-              else if(statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else { expAbsent++; } } 
+              if(statusVal === '✓') { expWork++; expOtHrs += parseFloat(ot); if(isAdminHoliday || isAdminDouble || isSun) expDouble++; } else if(statusVal === 'x') { if(leaveVal === 'medical') { expMedCount++; expMedPay += wage; } else { expAbsent++; } } 
               expTotal += total; 
           } 
       }); 
       
       let totalAbs = expAbsent + expMedCount; let expBonus = bonusSetting; if(totalAbs > 0) expBonus = 200; expTotal += expBonus; 
-      
-      excelData.push([]); 
-      excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]); 
-      excelData.push(["", "", "", "Public Holiday Pay", expPubHolCount + " Days / " + expPubHolPay + " Baht"]); 
-      excelData.push(["", "", "", "Medical Leave Pay", expMedCount + " Days / " + expMedPay + " Baht"]); 
-      excelData.push(["", "", "", "Total Work Hours", (expWork * 8) + " hrs"]); 
-      excelData.push(["", "", "", "Total Normal OT Hours", expOtHrs + " hrs"]); 
-      if(expDouble > 0) excelData.push(["", "", "", "2X Days Work Hours", (expDouble * 8) + " hrs"]); 
-      excelData.push(["", "", "", "Absent (Unpaid)", expAbsent + " Days"]); 
-      excelData.push(["", "", "", "Net Salary", expTotal + " Baht"]); 
-      excelData.push([]); excelData.push(["", "", "", "Developed by", "THET AUNG"]); 
-      
-      let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); 
-      XLSX.utils.book_append_sheet(wb, ws, "Salary_Report"); let name = document.getElementById('empName').value || 'Employee'; 
-      XLSX.writeFile(wb, `${name}_Salary_${sDate}_to_${eDate}.xlsx`); closeExportModal(); 
+      excelData.push([]); excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]); excelData.push(["", "", "", "Public Holiday Pay", expPubHolCount + " Days / " + expPubHolPay + " Baht"]); excelData.push(["", "", "", "Medical Leave Pay", expMedCount + " Days / " + expMedPay + " Baht"]); excelData.push(["", "", "", "Total Work Hours", (expWork * 8) + " hrs"]); excelData.push(["", "", "", "Total Normal OT Hours", expOtHrs + " hrs"]); if(expDouble > 0) excelData.push(["", "", "", "2X Days Work Hours", (expDouble * 8) + " hrs"]); excelData.push(["", "", "", "Absent (Unpaid)", expAbsent + " Days"]); excelData.push(["", "", "", "Net Salary", expTotal + " Baht"]); excelData.push([]); excelData.push(["", "", "", "Developed by", "THET AUNG"]); 
+      let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, "Salary_Report"); let name = document.getElementById('empName').value || 'Employee'; XLSX.writeFile(wb, `${name}_Salary_${sDate}_to_${eDate}.xlsx`); closeExportModal(); 
   };
 
   window.exportAdminAll = () => {
-      let selectedMonthVal = document.getElementById('adminMonthSelect').value;
-      if (!selectedMonthVal) return;
-      if (!window.allUsersData) return alert("No data loaded");
-
+      let selectedMonthVal = document.getElementById('adminMonthSelect').value; if (!selectedMonthVal) return; if (!window.allUsersData) return alert("No data loaded");
       let excelData = [ ["Emp ID", "Name", "Department", "Work Days", "Total OT Hrs", "Absent", "Medical Leave", "Double Days", "Gross Salary", "SSO Deduction", "Net Salary"] ];
-      
       for (let uid in window.allUsersData) {
-          let u = window.allUsersData[uid];
-          let calc = window.adminCalculated[uid];
-          if(u && u.settings && calc) {
-              excelData.push([
-                  u.settings.empId || "-", u.settings.empName || "-", u.settings.empDept || "-",
-                  calc.work, calc.ot, calc.absent, calc.med, calc.double,
-                  calc.gross, calc.sso, calc.total
-              ]);
-          }
+          let u = window.allUsersData[uid]; let calc = window.adminCalculated[uid];
+          if(u && u.settings && calc) { excelData.push([ u.settings.empId || "-", u.settings.empName || "-", u.settings.empDept || "-", calc.work, calc.ot, calc.absent, calc.med, calc.double, calc.gross, calc.sso, calc.total ]); }
       }
-      let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData);
-      XLSX.utils.book_append_sheet(wb, ws, "Salary_" + selectedMonthVal);
-      XLSX.writeFile(wb, `All_Employees_Salary_${selectedMonthVal}.xlsx`);
+      let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, "Salary_" + selectedMonthVal); XLSX.writeFile(wb, `All_Employees_Salary_${selectedMonthVal}.xlsx`);
   };
 
   window.viewUserDetail = (uid) => { 
       window.currentViewUid = uid; let uData = window.allUsersData[uid]; if(!uData) return; 
-      let selectedMonthVal = document.getElementById('adminMonthSelect').value;
-      let { startD, endD } = getPeriodDates(selectedMonthVal);
-      
-      let name = uData.settings?.empName || 'Unknown'; 
-      document.getElementById('detailModalName').innerText = `${name} (${selectedMonthVal})`; 
-      
+      let selectedMonthVal = document.getElementById('adminMonthSelect').value; let { startD, endD } = getPeriodDates(selectedMonthVal);
+      let name = uData.settings?.empName || 'Unknown'; document.getElementById('detailModalName').innerText = `${name} (${selectedMonthVal})`; 
       let html = `<div style="display:flex; gap:10px; margin-bottom: 15px;"><button class="admin-action-btn btn-exp-excel interactive-btn" onclick="exportAdminIndividual('excel')">📊 Excel</button></div><table class="admin-detail-table"><thead><tr><th>Date</th><th>Shift</th><th>Status</th><th>OT</th></tr></thead><tbody>`; 
-      
       let hasRecords = false; 
       if(uData.attendance) { 
           let cur = new Date(startD);
           while(cur <= endD) {
               let d = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
-              let rec = uData.attendance[d]; 
-              let calData = globalCalendar[d];
-              let isAdminHoliday = calData && calData.type === 'holiday';
-              
+              let rec = uData.attendance[d]; let calData = globalCalendar[d]; let isAdminHoliday = calData && calData.type === 'holiday';
               if(rec && rec.status) { 
-                  hasRecords = true; 
-                  let displayDate = `${cur.getDate()}/${cur.getMonth()+1}/${cur.getFullYear()}`; 
+                  hasRecords = true; let displayDate = `${cur.getDate()}/${cur.getMonth()+1}/${cur.getFullYear()}`; 
                   let shiftStr = rec.shift === 'day' ? '☀️ နေ့' : '🌙 ည'; let statusStr = rec.status; 
                   if(rec.status === '✓') statusStr = '<span style="color:#198754; font-weight:bold;">✓ ဆင်း</span>'; 
                   else if(rec.status === 'x') statusStr = rec.leaveType === 'medical' ? '<span style="color:#fd7e14; font-weight:bold;">+ ဆေးခွင့်</span>' : '<span style="color:#dc3545; font-weight:bold;">x ပျက်</span>'; 
                   else if(rec.status === '-') { statusStr = 'ပိတ်ရက်'; shiftStr = '-'; } 
-                  
                   let ot = rec.ot === 'yes' ? (rec.otHours || "0") : "0"; let isWorking = (rec.status === '✓'); let displayOt = (ot === "0" || ot === 0 || !isWorking) ? "-" : (ot + " နာရီ");
                   html += `<tr><td>${displayDate}</td><td>${shiftStr}</td><td>${statusStr}</td><td>${displayOt}</td></tr>`; 
               } else if (isAdminHoliday) {
-                  hasRecords = true;
-                  let displayDate = `${cur.getDate()}/${cur.getMonth()+1}/${cur.getFullYear()}`;
+                  hasRecords = true; let displayDate = `${cur.getDate()}/${cur.getMonth()+1}/${cur.getFullYear()}`;
                   html += `<tr><td>${displayDate}</td><td>-</td><td>ပိတ်ရက်</td><td>-</td></tr>`;
               }
               cur.setDate(cur.getDate()+1);
@@ -2354,14 +1738,11 @@
       } 
       if(!hasRecords) html += '<tr><td colspan="4">No Data</td></tr>'; 
       html += `</tbody></table>`;
-      
       let calc = window.adminCalculated[uid];
-      if(calc) {
-          html += `<div style="text-align:right; margin-top:10px; font-weight:bold; color:#dc3545;">Total Net: ${calc.total.toLocaleString()} ฿</div>`;
-      }
-      
+      if(calc) { html += `<div style="text-align:right; margin-top:10px; font-weight:bold; color:#dc3545;">Total Net: ${calc.total.toLocaleString()} ฿</div>`; }
       document.getElementById('adminDetailContent').innerHTML = html; 
-      // Z-index သေချာတင်ပေးပြီး ပေါ်စေမည်
+      
+      // ★ Admin User Detail Modal Z-index ပိုမြင့်အောင် တွန်းတင်ထားသည် ★
       document.getElementById('adminUserDetailModal').style.zIndex = '20000';
       document.getElementById('adminUserDetailModal').style.display = 'flex'; 
   };
@@ -2371,11 +1752,7 @@
   window.exportAdminIndividual = (type) => { 
       let uid = window.currentViewUid; let uData = window.allUsersData[uid]; if(!uData || !uData.attendance) return; 
       let name = uData.settings?.empName || 'Unknown'; let empId = uData.settings?.empId || '-'; 
-      
-      let selectedMonthVal = document.getElementById('adminMonthSelect').value;
-      let { startD, endD } = getPeriodDates(selectedMonthVal);
-      let exportArr = []; 
-      
+      let selectedMonthVal = document.getElementById('adminMonthSelect').value; let { startD, endD } = getPeriodDates(selectedMonthVal); let exportArr = []; 
       let cur = new Date(startD);
       while(cur <= endD) {
           let d = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
@@ -2389,7 +1766,6 @@
           } 
           cur.setDate(cur.getDate()+1);
       }
-      
       if(type === 'excel') { 
           let excelData = [ ["Date", "Shift", "Status", "OT Hours"] ]; exportArr.forEach(r => excelData.push(r)); 
           excelData.push([]); 
@@ -2401,3 +1777,5 @@
   
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => { console.log('Service worker registered.'); }).catch(err => { console.log('Service worker registration failed:', err); }); }); }
 </script>
+</body>
+</html>
