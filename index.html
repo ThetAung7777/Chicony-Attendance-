@@ -901,48 +901,33 @@
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
 
-  window.signIn = () => {
+  window.signIn = () => { 
       let loadingSpinner = document.getElementById('loadingSpinner');
       if (loadingSpinner) {
           loadingSpinner.style.display = 'flex';
           loadingSpinner.innerText = 'Connecting to Google...';
       }
-      signInWithPopup(auth, provider).then((result) => {
+
+      signInWithPopup(auth, provider).then(() => {
           if (loadingSpinner) loadingSpinner.style.display = 'none';
-          // onAuthStateChanged will handle showing mainApp
       }).catch((error) => {
           if (loadingSpinner) loadingSpinner.style.display = 'none';
-          // popup-closed-by-user မဟုတ်ရင်သာ error ပြ
-          if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-              showCustomAlert("Login Error: " + error.code + "
-" + error.message);
-          }
+          showCustomAlert("Login Error: " + error.message);
       });
   };
 
-  window.logout = () => {
-      signOut(auth).then(() => {
-          // ★ reload မလုပ်ဘဲ UI ကို reset လုပ်မည် — signIn ပြန်အလုပ်ဖြစ်မည် ★
-          currentUser = null;
-          isDataLoaded = false;
-          appData = { settings: {}, attendance: {} };
-          document.getElementById('mainApp').style.display = 'none';
-          document.getElementById('loginScreen').style.display = 'flex';
-          // Menu/admin buttons reset
-          ['adminPanelBtn','tickerMenuBtn','ssoMenuBtn','themeBtn','annBtn','alertMenuBtn'].forEach(id => {
-              let el = document.getElementById(id);
-              if (el) el.style.display = 'none';
-          });
-          let ac = document.getElementById('adminCalendarControls');
-          if (ac) ac.style.display = 'none';
-      }).catch(err => { showCustomAlert("❌ Logout Error: " + err.message); });
+  window.logout = () => { 
+      signOut(auth).then(() => { location.reload(); }); 
   };
 
   window.confirmLogout = () => {
       toggleMenu(null);
       setTimeout(() => {
           if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
-              window.logout();
+              document.getElementById('loadingSpinner').style.display = 'flex';
+              signOut(auth)
+                  .then(() => { location.reload(); })
+                  .catch((err) => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Logout Error: " + err.message); });
           }
       }, 100);
   };
@@ -1207,7 +1192,8 @@
           if (sel) sel.value = curMonth;
           loadSsoForMonth();
           document.getElementById('ssoSettingsModal').style.display = 'flex';
-      }, 100);  };
+      }, 100);
+  };
 
   window.closeSsoSettingsModal = () => { document.getElementById('ssoSettingsModal').style.display = 'none'; };
 
