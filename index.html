@@ -513,7 +513,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -526,6 +526,7 @@
     appId: "1:769429938968:web:aeb2228ab137f888ceb46d"
   };
 
+  // ★ Typewriter splash animation ★
   (function startTypewriter() {
       const word = "CHICONY";
       const el = document.getElementById('typewriterText');
@@ -537,7 +538,9 @@
               el.textContent = word.slice(0, i);
               if (bar) bar.style.width = (i / word.length * 100) + '%';
               i++;
-          } else { clearInterval(interval); }
+          } else {
+              clearInterval(interval);
+          }
       }, 120);
   })();
 
@@ -559,12 +562,14 @@
 
   window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
   window.ssoHistory = {}; 
+
   window.isTransportEnabled = true;
 
   window.toggleTransportSetting = () => {
       window.isTransportEnabled = !window.isTransportEnabled;
       let btnText = document.getElementById('transportToggleBtnText');
       let rowContainer = document.getElementById('transportRowContainer');
+      
       if (window.isTransportEnabled) {
           if(btnText) btnText.innerText = "ကားခ ဖျောက်မည်";
           if(rowContainer) rowContainer.style.display = 'flex';
@@ -572,6 +577,7 @@
           if(btnText) btnText.innerText = "ကားခ ပြမည်";
           if(rowContainer) rowContainer.style.display = 'none';
       }
+      
       calculateAll(); 
       toggleMenu(null); 
   };
@@ -587,14 +593,29 @@
   window.handleProfilePhotoUpload = (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      if (file.size > 5 * 1024 * 1024) { showCustomAlert("⚠️ ပုံအရွယ်အစားက 5MB ထက် ကြီးနေပါတယ်။ \nအနည်းငယ် သေးတဲ့ပုံကို ရွေးပေးပါ။"); return; }
+
+      if (file.size > 5 * 1024 * 1024) { 
+          showCustomAlert("⚠️ ပုံအရွယ်အစားက 5MB ထက် ကြီးနေပါတယ်။ \nအနည်းငယ် သေးတဲ့ပုံကို ရွေးပေးပါ။");
+          return;
+      }
+
       const reader = new FileReader();
       reader.onload = function(event) {
           document.getElementById('cropModal').style.display = 'flex';
           const image = document.getElementById('cropImage');
           image.src = event.target.result;
+          
           if(cropper) { cropper.destroy(); }
-          setTimeout(() => { cropper = new Cropper(image, { aspectRatio: 1, viewMode: 1, autoCropArea: 1, background: false }); }, 250);
+          
+          setTimeout(() => {
+              cropper = new Cropper(image, {
+                  aspectRatio: 1, 
+                  viewMode: 1,
+                  autoCropArea: 1,
+                  background: false
+              });
+          }, 250);
+          
           document.getElementById('profilePhotoInput').value = '';
       };
       reader.readAsDataURL(file);
@@ -608,8 +629,10 @@
   window.saveCroppedPhoto = () => {
       if (!cropper) return;
       document.getElementById('loadingSpinner').style.display = 'flex';
+      
       const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
       const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+      
       window.updateProfilePhotoView(compressedBase64);
       if(!appData.settings) appData.settings = {};
       appData.settings.profilePhoto = compressedBase64;
@@ -617,21 +640,35 @@
       
       if(currentUser) {
           set(ref(db, `users/${currentUser.uid}/settings/profilePhoto`), compressedBase64)
-          .then(() => { document.getElementById('loadingSpinner').style.display = 'none'; closeCropModal(); showCustomAlert("✅ Profile ပုံ Upload ပြီးပါပြီ!"); })
-          .catch(err => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Upload Error: " + err.message); });
-      } else { document.getElementById('loadingSpinner').style.display = 'none'; closeCropModal(); }
+          .then(() => {
+              document.getElementById('loadingSpinner').style.display = 'none';
+              closeCropModal();
+              showCustomAlert("✅ Profile ပုံ Upload ပြီးပါပြီ!");
+          })
+          .catch(err => {
+              document.getElementById('loadingSpinner').style.display = 'none';
+              showCustomAlert("❌ Upload Error: " + err.message);
+          });
+      } else {
+          document.getElementById('loadingSpinner').style.display = 'none';
+          closeCropModal();
+      }
   };
 
   window.removeProfilePhoto = () => {
       if(!confirm("Profile ပုံကို ဖျက်ရန် သေချာပါသလား?")) return;
+      
       document.getElementById('loadingSpinner').style.display = 'flex';
       window.updateProfilePhotoView(null);
       toggleMenu(null);
+      
       if(currentUser) {
           remove(ref(db, `users/${currentUser.uid}/settings/profilePhoto`))
           .then(() => { document.getElementById('loadingSpinner').style.display = 'none'; })
           .catch(err => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Remove Error: " + err.message); });
-      } else { document.getElementById('loadingSpinner').style.display = 'none'; }
+      } else {
+          document.getElementById('loadingSpinner').style.display = 'none';
+      }
   };
 
   window.openProfileViewer = () => {
@@ -643,95 +680,151 @@
   };
 
   window.closeProfileViewer = () => { document.getElementById('profileViewerModal').style.display = 'none'; };
-  window.triggerProfilePhotoInputFromViewer = () => { closeProfileViewer(); setTimeout(() => { document.getElementById('profilePhotoInput').click(); }, 250); };
+
+  window.triggerProfilePhotoInputFromViewer = () => {
+      closeProfileViewer();
+      setTimeout(() => { document.getElementById('profilePhotoInput').click(); }, 250);
+  };
+
   window.triggerEditCrop = () => {
       if (!window.currentProfilePhoto) return;
       closeProfileViewer();
-      const image = document.getElementById('cropImage'); image.src = window.currentProfilePhoto;
+      const image = document.getElementById('cropImage');
+      image.src = window.currentProfilePhoto;
       document.getElementById('cropModal').style.display = 'flex';
       if(cropper) { cropper.destroy(); }
       setTimeout(() => { cropper = new Cropper(image, { aspectRatio: 1, viewMode: 1, autoCropArea: 1, background: false }); }, 200);
   };
+
   window.removeProfilePhotoFromViewer = () => {
       if(!confirm("Profile ပုံကို ဖျက်ရန် သေချာပါသလား?")) return;
       closeProfileViewer();
       document.getElementById('loadingSpinner').style.display = 'flex';
       window.updateProfilePhotoView(null);
-      if(currentUser) { remove(ref(db, `users/${currentUser.uid}/settings/profilePhoto`)).then(() => document.getElementById('loadingSpinner').style.display = 'none').catch(err => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Error: " + err.message); });
+      if(currentUser) {
+          remove(ref(db, `users/${currentUser.uid}/settings/profilePhoto`))
+          .then(() => document.getElementById('loadingSpinner').style.display = 'none')
+          .catch(err => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Error: " + err.message); });
       } else { document.getElementById('loadingSpinner').style.display = 'none'; }
   };
 
   window.updateProfilePhotoView = (base64Data) => {
-      const iconSlot = document.getElementById('profileIconSlot'); const imgSlot = document.getElementById('profileImgSlot');
-      const btnContainer = document.getElementById('profileBtnContainer'); const removeBtn = document.getElementById('removePhotoBtn');
-      const viewerImg = document.getElementById('profileViewerImg'); const viewerPlaceholder = document.getElementById('profileViewerPlaceholder');
-      const viewerEditBtn = document.getElementById('profileViewerEditBtn'); const viewerDeleteBtn = document.getElementById('profileViewerDeleteBtn');
+      const iconSlot = document.getElementById('profileIconSlot');
+      const imgSlot = document.getElementById('profileImgSlot');
+      const btnContainer = document.getElementById('profileBtnContainer');
+      const removeBtn = document.getElementById('removePhotoBtn');
+      const viewerImg = document.getElementById('profileViewerImg');
+      const viewerPlaceholder = document.getElementById('profileViewerPlaceholder');
+      const viewerEditBtn = document.getElementById('profileViewerEditBtn');
+      const viewerDeleteBtn = document.getElementById('profileViewerDeleteBtn');
+
       window.currentProfilePhoto = base64Data || null;
 
       if (base64Data && (base64Data.startsWith('data:image') || base64Data.startsWith('http'))) {
-          if(iconSlot) iconSlot.style.display = 'none'; if(imgSlot) { imgSlot.src = base64Data; imgSlot.style.display = 'block'; }
-          if(btnContainer) btnContainer.style.border = '2px solid #007bff'; if(removeBtn) removeBtn.style.display = 'flex';
-          if(viewerImg) { viewerImg.src = base64Data; viewerImg.style.display = 'block'; } if(viewerPlaceholder) viewerPlaceholder.style.display = 'none';
-          if(viewerEditBtn) viewerEditBtn.style.display = 'flex'; if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'flex';
+          if(iconSlot) iconSlot.style.display = 'none';
+          if(imgSlot) { imgSlot.src = base64Data; imgSlot.style.display = 'block'; }
+          if(btnContainer) btnContainer.style.border = '2px solid #007bff';
+          if(removeBtn) removeBtn.style.display = 'flex';
+          if(viewerImg) { viewerImg.src = base64Data; viewerImg.style.display = 'block'; }
+          if(viewerPlaceholder) viewerPlaceholder.style.display = 'none';
+          if(viewerEditBtn) viewerEditBtn.style.display = 'flex';
+          if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'flex';
       } else {
-          if(iconSlot) iconSlot.style.display = 'block'; if(imgSlot) { imgSlot.style.display = 'none'; imgSlot.src = ''; }
-          if(btnContainer) btnContainer.style.border = '1px solid #ccc'; if(removeBtn) removeBtn.style.display = 'none';
-          if(viewerImg) { viewerImg.style.display = 'none'; viewerImg.src = ''; } if(viewerPlaceholder) viewerPlaceholder.style.display = 'flex';
-          if(viewerEditBtn) viewerEditBtn.style.display = 'none'; if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'none';
+          if(iconSlot) iconSlot.style.display = 'block';
+          if(imgSlot) { imgSlot.style.display = 'none'; imgSlot.src = ''; }
+          if(btnContainer) btnContainer.style.border = '1px solid #ccc';
+          if(removeBtn) removeBtn.style.display = 'none';
+          if(viewerImg) { viewerImg.style.display = 'none'; viewerImg.src = ''; }
+          if(viewerPlaceholder) viewerPlaceholder.style.display = 'flex';
+          if(viewerEditBtn) viewerEditBtn.style.display = 'none';
+          if(viewerDeleteBtn) viewerDeleteBtn.style.display = 'none';
       }
   };
 
   // ★ Login Status Checker and Loop Fix ★
   setPersistence(auth, browserLocalPersistence).then(() => {
       onAuthStateChanged(auth, (user) => {
-          let splash = document.getElementById('splashScreen');
-          let loadingSpinner = document.getElementById('loadingSpinner');
+          let splashes = document.querySelectorAll('#splashScreen');
+          splashes.forEach(s => s.style.display = 'none');
+
+          let loginScreens = document.querySelectorAll('#loginScreen');
+          let mainApps = document.querySelectorAll('#mainApp');
+          let loadingStates = document.querySelectorAll('#loginLoadingState');
+          let googleBtns = document.querySelectorAll('.google-btn');
 
           if (user) {
               currentUser = user;
-              if (splash) splash.style.display = 'none';
-              if (loadingSpinner) loadingSpinner.style.display = 'none';
-              document.getElementById('loginScreen').style.display = 'none';
-              document.getElementById('mainApp').style.display = 'block';
-              document.getElementById('userEmailDisplay').innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
+              loginScreens.forEach(ls => ls.style.display = 'none');
+              mainApps.forEach(ma => ma.style.display = 'none');
+              if (mainApps.length > 0) mainApps[0].style.display = 'block';
+              
+              let emailDisp = document.getElementById('userEmailDisplay');
+              if (emailDisp) emailDisp.innerHTML = `<div class="profile-name-text">Loading...</div><div class="profile-email-text">${user.email}</div>`;
               
               if(user.email === ADMIN_EMAIL) { 
-                  document.getElementById('adminPanelBtn').style.display = 'flex'; 
-                  document.getElementById('tickerMenuBtn').style.display = 'flex';
-                  document.getElementById('ssoMenuBtn').style.display = 'flex'; 
-                  document.getElementById('themeBtn').style.display = 'flex'; 
-                  document.getElementById('annBtn').style.display = 'flex'; 
-                  document.getElementById('alertMenuBtn').style.display = 'flex'; 
-                  document.getElementById('adminCalendarControls').style.display = 'block'; 
+                  let adminBtns = ['adminPanelBtn', 'tickerMenuBtn', 'ssoMenuBtn', 'themeBtn', 'annBtn', 'alertMenuBtn', 'adminCalendarControls'];
+                  adminBtns.forEach(id => {
+                      document.querySelectorAll('#' + id).forEach(el => {
+                          el.style.display = (id === 'adminCalendarControls') ? 'block' : 'flex';
+                      });
+                  });
               }
               
               loadAppConfig(); 
               loadGlobalCalendar(); 
               loadFromFirebase();
           } else {
-              if (splash) splash.style.display = 'none';
-              if (loadingSpinner) loadingSpinner.style.display = 'none';
-              document.getElementById('loginScreen').style.display = 'flex';
-              document.getElementById('mainApp').style.display = 'none'; 
+              // Hide App, Show Login
+              loginScreens.forEach(ls => ls.style.display = 'flex');
+              mainApps.forEach(ma => ma.style.display = 'none');
               
               // ★ ဒီနေရာမှာ Loading အဝိုင်းကို ဖျောက်ပြီး Login ခလုတ်ကို ပြန်ဖော်ပေးခြင်းဖြစ်ပါသည် ★
-              let loginLoadingState = document.getElementById('loginLoadingState');
-              let loginGoogleBtn = document.getElementById('loginGoogleBtn');
-              if(loginLoadingState) loginLoadingState.style.display = 'none';
-              if(loginGoogleBtn) loginGoogleBtn.style.display = 'flex';
+              loadingStates.forEach(ls => ls.style.display = 'none');
+              googleBtns.forEach(btn => btn.style.display = 'flex');
           }
       });
   }).catch((error) => {
       console.error("Persistence error:", error);
-      let splash = document.getElementById('splashScreen');
-      if (splash) splash.style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
-      
-      let loginLoadingState = document.getElementById('loginLoadingState');
-      let loginGoogleBtn = document.getElementById('loginGoogleBtn');
-      if(loginLoadingState) loginLoadingState.style.display = 'none';
-      if(loginGoogleBtn) loginGoogleBtn.style.display = 'flex';
+      document.querySelectorAll('#splashScreen').forEach(s => s.style.display = 'none');
+      document.querySelectorAll('#loginScreen').forEach(ls => ls.style.display = 'flex');
+      document.querySelectorAll('#loginLoadingState').forEach(ls => ls.style.display = 'none');
+      document.querySelectorAll('.google-btn').forEach(btn => btn.style.display = 'flex');
   });
+
+  // ★ Mobile in-app browser များအတွက် popup အစား redirect ကိုသုံးပြီး ပြင်ဆင်ထားသည် ★
+  window.signIn = () => { 
+      let googleBtns = document.querySelectorAll('.google-btn');
+      let loadingStates = document.querySelectorAll('#loginLoadingState');
+      
+      googleBtns.forEach(btn => btn.style.display = 'none');
+      loadingStates.forEach(ls => ls.style.display = 'block');
+      
+      signInWithRedirect(auth, provider).catch((error) => {
+          console.error(error);
+          loadingStates.forEach(ls => ls.style.display = 'none');
+          googleBtns.forEach(btn => btn.style.display = 'flex');
+          showCustomAlert("Login Error: " + error.message);
+      });
+  };
+
+  window.logout = () => { 
+      signOut(auth).then(() => { location.reload(); }); 
+  };
+
+  window.confirmLogout = () => {
+      toggleMenu(null);
+      setTimeout(() => {
+          if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
+              document.getElementById('loadingSpinner').style.display = 'flex';
+              signOut(auth)
+                  .then(() => { location.reload(); })
+                  .catch((err) => { 
+                      document.getElementById('loadingSpinner').style.display = 'none'; 
+                      showCustomAlert("❌ Logout Error: " + err.message); 
+                  });
+          }
+      }, 100);
+  };
 
   let bSelect = document.getElementById('attBonusSetting');
   if(bSelect && !bSelect.innerHTML.includes('200')) {
@@ -784,9 +877,7 @@
               let res = await fetch(url);
               let data = await res.json();
               displayText = data[0].map(x => x[0]).join('');
-          } catch(e) {
-              console.log("Translation failed", e);
-          }
+          } catch(e) { console.log("Translation failed", e); }
       }
       
       document.getElementById('customAlertText').innerText = displayText;
@@ -794,9 +885,7 @@
       document.getElementById('customAlertModal').style.display = 'flex';
   };
 
-  window.closeCustomAlert = () => {
-      document.getElementById('customAlertModal').style.display = 'none';
-  };
+  window.closeCustomAlert = () => { document.getElementById('customAlertModal').style.display = 'none'; };
 
   function updateWeekdaysHeader() {
       let days = weekdaysText[currentLang];
@@ -805,23 +894,12 @@
 
   function getPeriodDates(yyyy_mm) {
       let [y, m] = yyyy_mm.split('-').map(Number);
-      let startD = new Date(y, m - 2, 21);
-      let endD = new Date(y, m - 1, 20);
-      return { startD, endD };
+      return { startD: new Date(y, m - 2, 21), endD: new Date(y, m - 1, 20) };
   }
 
   window.getRealCurrentMonth = () => {
-      let d = new Date(); 
-      let realY = d.getFullYear(); 
-      let realM = d.getMonth() + 1; 
-      
-      if (d.getDate() >= 21) {
-          realM++; 
-          if (realM > 12) { 
-              realM = 1; 
-              realY++; 
-          }
-      }
+      let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1; 
+      if (d.getDate() >= 21) { realM++; if (realM > 12) { realM = 1; realY++; } }
       return `${realY}-${String(realM).padStart(2,'0')}`;
   };
 
@@ -830,7 +908,6 @@
       document.querySelectorAll('[data-i18n]').forEach(el => {
           let key = el.getAttribute('data-i18n'); if(translations[lang][key]) el.innerText = translations[lang][key];
       });
-      
       let om = otModalText[lang] || otModalText.my;
       let titleEl = document.getElementById('otModalTitle');
       if(titleEl) {
@@ -838,47 +915,14 @@
           document.getElementById('otModalCancelBtn').innerText = om.cancel;
           document.querySelectorAll('.ot-btn-txt').forEach(el => el.innerText = om.hr);
       }
-
       updateWeekdaysHeader();
       if(isDataLoaded && document.getElementById('selectedMonth').value) window.generateGrid(false); 
       if(Object.keys(globalCalendar).length >= 0) renderYearCalendar();
   };
-
   changeLanguage(currentLang);
 
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
   window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); let isDark = document.body.classList.contains('dark-mode'); document.getElementById('darkModeIcon').innerText = isDark ? '☀️' : '🌓'; localStorage.setItem('darkMode', isDark); };
-
-  window.signIn = () => { 
-      let loadingSpinner = document.getElementById('loadingSpinner');
-      if (loadingSpinner) {
-          loadingSpinner.style.display = 'flex';
-          loadingSpinner.innerText = 'Connecting to Google...';
-      }
-
-      signInWithPopup(auth, provider).then(() => {
-          if (loadingSpinner) loadingSpinner.style.display = 'none';
-      }).catch((error) => {
-          if (loadingSpinner) loadingSpinner.style.display = 'none';
-          showCustomAlert("Login Error: " + error.message);
-      });
-  };
-
-  window.logout = () => { 
-      signOut(auth).then(() => { location.reload(); }); 
-  };
-
-  window.confirmLogout = () => {
-      toggleMenu(null);
-      setTimeout(() => {
-          if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
-              document.getElementById('loadingSpinner').style.display = 'flex';
-              signOut(auth)
-                  .then(() => { location.reload(); })
-                  .catch((err) => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Logout Error: " + err.message); });
-          }
-      }, 100);
-  };
 
   window.saveToFirebase = () => {
       if (!currentUser || !isDataLoaded) return;
@@ -924,12 +968,9 @@
       if (!appData.attendance) return false;
       let { startD, endD } = getPeriodDates(yyyy_mm);
       let cur = new Date(startD); let hasAbsence = false;
-      
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
-          if (appData.attendance[key] && appData.attendance[key].status === 'x') {
-              hasAbsence = true; break;          
-          }
+          if (appData.attendance[key] && appData.attendance[key].status === 'x') { hasAbsence = true; break; }
           cur.setDate(cur.getDate() + 1);
       }      
       return hasAbsence;  
@@ -944,7 +985,6 @@
       if (prevM < 1) { prevM = 12; prevY--; }
       let prevMonthStr = `${prevY}-${String(prevM).padStart(2, '0')}`;
 
-      // History ထဲမှာရှိရင် အရင်ကရခဲ့တဲ့/သိမ်းခဲ့တဲ့ အတိုင်း ပြန်ပြမည်
       let currentSavedBonus = null;
       if (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr] !== undefined) {
           currentSavedBonus = parseInt(appData.settings.bonusHistory[newMonthStr]);
@@ -953,7 +993,6 @@
       if (currentSavedBonus !== null) {
           document.getElementById('attBonusSetting').value = currentSavedBonus;
       } else {
-          // History မှာ မရှိသေးဘူးဆိုရင် (လအသစ်ဆိုရင်) အရင်လက ပျက်ရက်ကို ကြည့်ပြီး တွက်ချက်မည်
           let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
           let savedPrevBonus = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[prevMonthStr] !== undefined) 
               ? parseInt(appData.settings.bonusHistory[prevMonthStr]) 
@@ -966,26 +1005,19 @@
           }
           
           document.getElementById('attBonusSetting').value = newBonus;
-          
-          // Local မှာ ခဏသိမ်းထားမည်
           if (!appData.settings) appData.settings = {};
           if (!appData.settings.bonusHistory) appData.settings.bonusHistory = {};
           appData.settings.bonusHistory[newMonthStr] = newBonus;
       }
-
       window.generateGrid(false); 
   };
 
   window.navigateMonth = (step) => {
       let currentMonthVal = document.getElementById('selectedMonth').value;
       if (!currentMonthVal) return;
-
       let [y, m] = currentMonthVal.split('-').map(Number);
       m += step; 
-      
-      if (m > 12) { m = 1; y++; } 
-      else if (m < 1) { m = 12; y--; }
-
+      if (m > 12) { m = 1; y++; } else if (m < 1) { m = 12; y--; }
       let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
       document.getElementById('selectedMonth').value = newMonthStr;
       
@@ -998,10 +1030,8 @@
   function loadFromFirebase() {
       document.getElementById('loadingSpinner').style.display = 'flex';
       document.getElementById('loadingSpinner').innerText = 'Loading Data...';
-      
       onValue(ref(db, 'users/' + currentUser.uid), (snapshot) => {
           document.getElementById('loadingSpinner').style.display = 'none'; const data = snapshot.val();
-          
           let realCurrentMonthStr = window.getRealCurrentMonth();
           
           if (data && data.settings && data.settings.empName && data.settings.empId) {
@@ -1124,9 +1154,7 @@
           loadSsoForMonth(); document.getElementById('ssoSettingsModal').style.display = 'flex';
       }, 100);
   };
-
   window.closeSsoSettingsModal = () => { document.getElementById('ssoSettingsModal').style.display = 'none'; };
-
   window.loadSsoForMonth = () => {
       let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
       let labelEl = document.getElementById('ssoCurrentLabel');
@@ -1137,7 +1165,6 @@
           else if (monthKey) { labelEl.innerText = '⚠️ ' + monthKey + ' — မရှိသေး (default သုံးမည်)'; labelEl.style.color = '#fd7e14'; } else { labelEl.innerText = ''; }
       }
   };
-
   window.saveSsoSettings = () => {
       let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
       if (!monthKey) { showCustomAlert('❌ ကျေးဇူးပြု၍ လကို ရွေးပါ'); return; }
@@ -1179,7 +1206,6 @@
           }; img.src = event.target.result;
       }; reader.readAsDataURL(file);
   };
-
   window.saveAppAnnouncement = () => { let aDate = document.getElementById('adminAnnDate').value; let aText = document.getElementById('adminAnnText').value; let aImgData = window.tempAnnImageBase64 || null; if(!aDate) return showCustomAlert('⚠️ Please select a Date for the announcement!'); let updateData = { annDate: aDate, annText: aText }; if(aImgData) updateData.annImg = aImgData; updateData.annImgUrl = null; update(ref(db, 'appConfig'), updateData).then(() => { showCustomAlert('📢 Announcement Set successfully!'); closeAnnManageModal(); }); };
   window.deleteAppAnnouncement = () => { if(confirm('Are you sure you want to delete the current announcement?')) { update(ref(db, 'appConfig'), { annDate: null, annText: null, annImg: null, annImgUrl: null }).then(() => { showCustomAlert('🗑️ Announcement Deleted!'); document.getElementById('adminAnnDate').value = ''; document.getElementById('adminAnnText').value = ''; document.getElementById('adminAnnImgFile').value = ''; window.tempAnnImageBase64 = null; document.getElementById('adminAnnImgStatus').style.display = 'none'; closeAnnManageModal(); }); } };
   
