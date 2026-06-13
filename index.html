@@ -36,11 +36,9 @@
   .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .hover-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-  /* Navbar Sticky Top */
   .navbar { background-color: var(--app-header-color); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; height: 60px; box-sizing: border-box; transition: background 0.4s ease; }
   .menu-btn, .dark-mode-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; outline: none; }
   
-  /* Profile Photo Button အဝိုင်းပုံစံ CSS */
   .profile-btn {
       background: #f1f1f1; border: 1px solid #ccc; width: 36px; height: 36px; border-radius: 50%; 
       cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; 
@@ -59,19 +57,13 @@
   .dropdown a { padding: 12px 15px; text-decoration: none; color: #333; font-size: 14px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;}
   .dropdown a:hover { background-color: #f4f7f6; }
   
-  /* Modal များ z-index ချိန်ညှိခြင်း */
   .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 5000; backdrop-filter: blur(3px); }
   .modal-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; z-index: 5001; }
-  
-  /* ★ Admin Detail Modal ကို အပေါ်ဆုံးမှာ ပေါ်စေရန် ★ */
-  #adminUserDetailModal { z-index: 25000 !important; }
-  
   .modal-header { padding: 15px 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; z-index: 10; }
   .modal-header h3 { margin: 0; }
   .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
   .close-modal { font-size: 24px; color: #dc3545; border: none; background: none; font-weight: bold; padding: 0; }
 
-  /* Login Screen & Loading Spinners */
   #splashScreen, #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--app-bg-color); z-index: 20000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
   .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 300px; }
   .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 20px;}
@@ -80,7 +72,6 @@
   
   .container { padding: 0 15px 15px 15px; max-width: 800px; margin: auto; position: relative;}
   
-  /* Unified Sticky Header */
   #unifiedStickyHeader { position: sticky; top: 60px; z-index: 150; background: var(--app-bg-color); margin: 0 -15px; padding: 15px; transition: background 0.4s ease; }
   .weekdays-static-box { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #ddd; overflow: hidden; width: 100%; box-sizing: border-box; }
   #stickyWeekdaysWrapper { width: 100%; overflow-x: hidden; }
@@ -158,21 +149,8 @@
   .cal-day.cal-double.double-saturday { outline: 2px solid #dc3545; outline-offset: 1px; }
   .cal-day.cal-sun.cal-holiday { color: #000 !important; }
 
-  /* ★ Watermark Class (လစာစလစ်အတွက်) ★ */
-  .watermark {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-30deg);
-      font-size: 70px;
-      font-family: 'Bungee Inline', 'Orbitron', cursive;
-      font-weight: bold;
-      color: rgba(0, 0, 128, 0.06);
-      pointer-events: none;
-      z-index: 1000;
-      white-space: nowrap;
-      user-select: none;
-  }
+  /* Watermark Class */
+  .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 70px; font-family: 'Bungee Inline', 'Orbitron', cursive; font-weight: bold; color: rgba(0, 0, 128, 0.06); pointer-events: none; z-index: 1000; white-space: nowrap; user-select: none; }
 
   /* Dark Mode Adjustments */
   body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
@@ -513,7 +491,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -563,6 +541,7 @@
   window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
   window.ssoHistory = {}; 
 
+  // ★ ကားခ (Transport) အဖွင့်/အပိတ် State ★
   window.isTransportEnabled = true;
 
   window.toggleTransportSetting = () => {
@@ -582,6 +561,7 @@
       toggleMenu(null); 
   };
 
+  // ★ Profile Photo Functions with Cropper.js ★
   let cropper = null;
   window.currentProfilePhoto = null;
 
@@ -607,6 +587,7 @@
           
           if(cropper) { cropper.destroy(); }
           
+          // Delay for crop initialization to prevent bug
           setTimeout(() => {
               cropper = new Cropper(image, {
                   aspectRatio: 1, 
@@ -679,7 +660,9 @@
       document.getElementById('profileViewerModal').style.display = 'flex';
   };
 
-  window.closeProfileViewer = () => { document.getElementById('profileViewerModal').style.display = 'none'; };
+  window.closeProfileViewer = () => {
+      document.getElementById('profileViewerModal').style.display = 'none';
+  };
 
   window.triggerProfilePhotoInputFromViewer = () => {
       closeProfileViewer();
@@ -787,11 +770,11 @@
       console.error("Persistence error:", error);
       document.querySelectorAll('#splashScreen').forEach(s => s.style.display = 'none');
       document.querySelectorAll('#loginScreen').forEach(ls => ls.style.display = 'flex');
+      
       document.querySelectorAll('#loginLoadingState').forEach(ls => ls.style.display = 'none');
       document.querySelectorAll('.google-btn').forEach(btn => btn.style.display = 'flex');
   });
 
-  // ★ Mobile in-app browser များအတွက် popup အစား redirect ကိုသုံးပြီး ပြင်ဆင်ထားသည် ★
   window.signIn = () => { 
       let googleBtns = document.querySelectorAll('.google-btn');
       let loadingStates = document.querySelectorAll('#loginLoadingState');
@@ -799,7 +782,7 @@
       googleBtns.forEach(btn => btn.style.display = 'none');
       loadingStates.forEach(ls => ls.style.display = 'block');
       
-      signInWithRedirect(auth, provider).catch((error) => {
+      signInWithPopup(auth, provider).catch((error) => {
           console.error(error);
           loadingStates.forEach(ls => ls.style.display = 'none');
           googleBtns.forEach(btn => btn.style.display = 'flex');
@@ -877,7 +860,9 @@
               let res = await fetch(url);
               let data = await res.json();
               displayText = data[0].map(x => x[0]).join('');
-          } catch(e) { console.log("Translation failed", e); }
+          } catch(e) {
+              console.log("Translation failed", e);
+          }
       }
       
       document.getElementById('customAlertText').innerText = displayText;
@@ -885,7 +870,9 @@
       document.getElementById('customAlertModal').style.display = 'flex';
   };
 
-  window.closeCustomAlert = () => { document.getElementById('customAlertModal').style.display = 'none'; };
+  window.closeCustomAlert = () => {
+      document.getElementById('customAlertModal').style.display = 'none';
+  };
 
   function updateWeekdaysHeader() {
       let days = weekdaysText[currentLang];
@@ -894,12 +881,23 @@
 
   function getPeriodDates(yyyy_mm) {
       let [y, m] = yyyy_mm.split('-').map(Number);
-      return { startD: new Date(y, m - 2, 21), endD: new Date(y, m - 1, 20) };
+      let startD = new Date(y, m - 2, 21);
+      let endD = new Date(y, m - 1, 20);
+      return { startD, endD };
   }
 
   window.getRealCurrentMonth = () => {
-      let d = new Date(); let realY = d.getFullYear(); let realM = d.getMonth() + 1; 
-      if (d.getDate() >= 21) { realM++; if (realM > 12) { realM = 1; realY++; } }
+      let d = new Date(); 
+      let realY = d.getFullYear(); 
+      let realM = d.getMonth() + 1; 
+      
+      if (d.getDate() >= 21) {
+          realM++; 
+          if (realM > 12) { 
+              realM = 1; 
+              realY++; 
+          }
+      }
       return `${realY}-${String(realM).padStart(2,'0')}`;
   };
 
@@ -908,6 +906,7 @@
       document.querySelectorAll('[data-i18n]').forEach(el => {
           let key = el.getAttribute('data-i18n'); if(translations[lang][key]) el.innerText = translations[lang][key];
       });
+      
       let om = otModalText[lang] || otModalText.my;
       let titleEl = document.getElementById('otModalTitle');
       if(titleEl) {
@@ -915,10 +914,12 @@
           document.getElementById('otModalCancelBtn').innerText = om.cancel;
           document.querySelectorAll('.ot-btn-txt').forEach(el => el.innerText = om.hr);
       }
+
       updateWeekdaysHeader();
       if(isDataLoaded && document.getElementById('selectedMonth').value) window.generateGrid(false); 
       if(Object.keys(globalCalendar).length >= 0) renderYearCalendar();
   };
+
   changeLanguage(currentLang);
 
   if(localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); document.getElementById('darkModeIcon').innerText = '☀️'; }
@@ -968,9 +969,12 @@
       if (!appData.attendance) return false;
       let { startD, endD } = getPeriodDates(yyyy_mm);
       let cur = new Date(startD); let hasAbsence = false;
+      
       while (cur <= endD) {
           let key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
-          if (appData.attendance[key] && appData.attendance[key].status === 'x') { hasAbsence = true; break; }
+          if (appData.attendance[key] && appData.attendance[key].status === 'x') {
+              hasAbsence = true; break;          
+          }
           cur.setDate(cur.getDate() + 1);
       }      
       return hasAbsence;  
@@ -985,6 +989,7 @@
       if (prevM < 1) { prevM = 12; prevY--; }
       let prevMonthStr = `${prevY}-${String(prevM).padStart(2, '0')}`;
 
+      // History ထဲမှာရှိရင် အရင်ကရခဲ့တဲ့/သိမ်းခဲ့တဲ့ အတိုင်း ပြန်ပြမည်
       let currentSavedBonus = null;
       if (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[newMonthStr] !== undefined) {
           currentSavedBonus = parseInt(appData.settings.bonusHistory[newMonthStr]);
@@ -993,6 +998,7 @@
       if (currentSavedBonus !== null) {
           document.getElementById('attBonusSetting').value = currentSavedBonus;
       } else {
+          // History မှာ မရှိသေးဘူးဆိုရင် (လအသစ်ဆိုရင်) အရင်လက ပျက်ရက်ကို ကြည့်ပြီး တွက်ချက်မည်
           let hasAbsence = window.checkAbsencesForMonth(prevMonthStr);
           let savedPrevBonus = (appData.settings && appData.settings.bonusHistory && appData.settings.bonusHistory[prevMonthStr] !== undefined) 
               ? parseInt(appData.settings.bonusHistory[prevMonthStr]) 
@@ -1005,19 +1011,26 @@
           }
           
           document.getElementById('attBonusSetting').value = newBonus;
+          
+          // Local မှာ ခဏသိမ်းထားမည်
           if (!appData.settings) appData.settings = {};
           if (!appData.settings.bonusHistory) appData.settings.bonusHistory = {};
           appData.settings.bonusHistory[newMonthStr] = newBonus;
       }
+
       window.generateGrid(false); 
   };
 
   window.navigateMonth = (step) => {
       let currentMonthVal = document.getElementById('selectedMonth').value;
       if (!currentMonthVal) return;
+
       let [y, m] = currentMonthVal.split('-').map(Number);
       m += step; 
-      if (m > 12) { m = 1; y++; } else if (m < 1) { m = 12; y--; }
+      
+      if (m > 12) { m = 1; y++; } 
+      else if (m < 1) { m = 12; y--; }
+
       let newMonthStr = `${y}-${String(m).padStart(2, '0')}`;
       document.getElementById('selectedMonth').value = newMonthStr;
       
@@ -1030,8 +1043,10 @@
   function loadFromFirebase() {
       document.getElementById('loadingSpinner').style.display = 'flex';
       document.getElementById('loadingSpinner').innerText = 'Loading Data...';
+      
       onValue(ref(db, 'users/' + currentUser.uid), (snapshot) => {
           document.getElementById('loadingSpinner').style.display = 'none'; const data = snapshot.val();
+          
           let realCurrentMonthStr = window.getRealCurrentMonth();
           
           if (data && data.settings && data.settings.empName && data.settings.empId) {
@@ -1154,7 +1169,9 @@
           loadSsoForMonth(); document.getElementById('ssoSettingsModal').style.display = 'flex';
       }, 100);
   };
+
   window.closeSsoSettingsModal = () => { document.getElementById('ssoSettingsModal').style.display = 'none'; };
+
   window.loadSsoForMonth = () => {
       let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
       let labelEl = document.getElementById('ssoCurrentLabel');
@@ -1165,6 +1182,7 @@
           else if (monthKey) { labelEl.innerText = '⚠️ ' + monthKey + ' — မရှိသေး (default သုံးမည်)'; labelEl.style.color = '#fd7e14'; } else { labelEl.innerText = ''; }
       }
   };
+
   window.saveSsoSettings = () => {
       let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
       if (!monthKey) { showCustomAlert('❌ ကျေးဇူးပြု၍ လကို ရွေးပါ'); return; }
