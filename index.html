@@ -774,6 +774,11 @@
           } else {
               if (splash) splash.style.display = 'none';
               if (loadingSpinner) loadingSpinner.style.display = 'none';
+              // ★ loading state ဖျောက်ပြီး login button ပြမည် ★
+              let loginLoading = document.getElementById('loginLoadingState');
+              let loginBtn = document.getElementById('loginGoogleBtn');
+              if (loginLoading) loginLoading.style.display = 'none';
+              if (loginBtn) loginBtn.style.display = 'flex';
               document.getElementById('loginScreen').style.display = 'flex';
               document.getElementById('mainApp').style.display = 'none'; 
           }
@@ -782,6 +787,10 @@
       console.error("Persistence error:", error);
       let splash = document.getElementById('splashScreen');
       if (splash) splash.style.display = 'none';
+      let loginLoading = document.getElementById('loginLoadingState');
+      let loginBtn = document.getElementById('loginGoogleBtn');
+      if (loginLoading) loginLoading.style.display = 'none';
+      if (loginBtn) loginBtn.style.display = 'flex';
       document.getElementById('loginScreen').style.display = 'flex';
   });
 
@@ -916,18 +925,37 @@
       });
   };
 
-  window.logout = () => { 
-      signOut(auth).then(() => { location.reload(); }); 
+  // ★ Login screen ကို ပြသည့် helper ★
+  function showLoginScreen() {
+      currentUser = null;
+      isDataLoaded = false;
+      appData = { settings: {}, attendance: {} };
+      document.getElementById('mainApp').style.display = 'none';
+      // Loading spinner ဖျောက်ပြီး Login button ပြမည်
+      let loginLoading = document.getElementById('loginLoadingState');
+      let loginBtn = document.getElementById('loginGoogleBtn');
+      if (loginLoading) loginLoading.style.display = 'none';
+      if (loginBtn) loginBtn.style.display = 'flex';
+      document.getElementById('loginScreen').style.display = 'flex';
+      // Admin buttons reset
+      ['adminPanelBtn','tickerMenuBtn','ssoMenuBtn','themeBtn','annBtn','alertMenuBtn'].forEach(id => {
+          let el = document.getElementById(id); if (el) el.style.display = 'none';
+      });
+      let ac = document.getElementById('adminCalendarControls');
+      if (ac) ac.style.display = 'none';
+  }
+
+  window.logout = () => {
+      signOut(auth).then(() => { showLoginScreen(); })
+                   .catch(err => { showCustomAlert("❌ Logout Error: " + err.message); });
   };
 
   window.confirmLogout = () => {
       toggleMenu(null);
       setTimeout(() => {
-          if(confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
-              document.getElementById('loadingSpinner').style.display = 'flex';
-              signOut(auth)
-                  .then(() => { location.reload(); })
-                  .catch((err) => { document.getElementById('loadingSpinner').style.display = 'none'; showCustomAlert("❌ Logout Error: " + err.message); });
+          if (confirm("Logout လုပ်ရန် သေချာပါသလား?")) {
+              signOut(auth).then(() => { showLoginScreen(); })
+                           .catch(err => { showCustomAlert("❌ Logout Error: " + err.message); });
           }
       }, 100);
   };
@@ -1185,8 +1213,7 @@
   window.deleteTickerText = () => { if(confirm('စာရွေ့ကြော်ငြာကို ဖျက်ပစ်မှာ သေချာပါသလား?')) { update(ref(db, 'appConfig'), { tickerText: null }).then(() => { showCustomAlert('🗑️ ကြော်ငြာဖျက်လိုက်ပါပြီ!'); document.getElementById('adminTickerText').value = ""; closeTickerModal(); }); } };
 
   window.openSsoSettingsModal = () => {
-      toggleMenu(null);
-      setTimeout(() => {
+      toggleMenu(null);      setTimeout(() => {
           let curMonth = document.getElementById('selectedMonth').value || '';
           let sel = document.getElementById('ssoMonthSelect');
           if (sel) sel.value = curMonth;
