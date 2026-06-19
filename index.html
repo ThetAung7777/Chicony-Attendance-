@@ -1213,8 +1213,8 @@
   window.deleteTickerText = () => { if(confirm('စာရွေ့ကြော်ငြာကို ဖျက်ပစ်မှာ သေချာပါသလား?')) { update(ref(db, 'appConfig'), { tickerText: null }).then(() => { showCustomAlert('🗑️ ကြော်ငြာဖျက်လိုက်ပါပြီ!'); document.getElementById('adminTickerText').value = ""; closeTickerModal(); }); } };
 
   window.openSsoSettingsModal = () => {
-      toggleMenu(null);      setTimeout(() => {          let curMonth = document.getElementById('selectedMonth').value || '';
-          let sel = document.getElementById('ssoMonthSelect');
+      toggleMenu(null);      setTimeout(() => {
+          let curMonth = document.getElementById('selectedMonth').value || '';          let sel = document.getElementById('ssoMonthSelect');
           if (sel) sel.value = curMonth;
           loadSsoForMonth();
           document.getElementById('ssoSettingsModal').style.display = 'flex';
@@ -1824,7 +1824,8 @@
       
       let totalAbsent = absentUnpaid + medLeaveCount; 
       let finalBonus = bonusSetting;
-      if (totalAbsent > 0) { finalBonus = 200; }
+      if (totalAbsent === 1) { finalBonus = 200; }
+      else if (totalAbsent >= 2) { finalBonus = 0; }
       total += finalBonus; 
       
       let otHrs = ot15Hrs + ot20Hrs;
@@ -2069,7 +2070,8 @@
 
                   let totalAbs = uAbsent + uMedCount; 
                   let uFinalBonus = uSavedBonus;
-                  if (totalAbs > 0) uFinalBonus = 200;
+                  if (totalAbs === 1) uFinalBonus = 200;
+                  else if (totalAbs >= 2) uFinalBonus = 0;
                   uTotalPay += uFinalBonus;
 
                   let combinedBasicSalary = (uWork + uMedCount) * wage;
@@ -2188,7 +2190,8 @@
 
       let totalAbs = expAbsent + expMedCount;
       let expBonus = bonusSetting; 
-      if (totalAbs > 0) expBonus = 200;
+      if (totalAbs === 1) expBonus = 200;
+      else if (totalAbs >= 2) expBonus = 0;
       expTotal += expBonus;
 
       window._excelPreviewData = { sDate, eDate, rows, expWork, expDouble, expAbsent, expMedCount, expMedPay, expOtHrs, expTotal, expPubHolCount, expPubHolPay, expBonus, bonusSetting };
@@ -2300,7 +2303,7 @@
           } 
       }); 
       
-      let totalAbs = expAbsent + expMedCount; let expBonus = bonusSetting; if(totalAbs > 0) expBonus = 200; expTotal += expBonus; 
+      let totalAbs = expAbsent + expMedCount; let expBonus = bonusSetting; if(totalAbs === 1) expBonus = 200; else if(totalAbs >= 2) expBonus = 0; expTotal += expBonus; 
       
       excelData.push([]); 
       excelData.push(["", "", "", "Attendance Bonus", expBonus + " Baht"]); 
