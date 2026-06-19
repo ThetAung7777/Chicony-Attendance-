@@ -412,7 +412,7 @@
   <div class="modal-content pop-in" style="max-width: 600px; padding:0; background: #fff;"></div>
 </div>
 
-<div class="modal-overlay" id="holidayInfoModal" style="z-index: 9000;" onclick="closeHolidayInfo()">
+<div class="modal-overlay" id="holidayInfoModal" style="z-index: 10010;" onclick="closeHolidayInfo()">
   <div class="modal-content pop-in" style="max-width: 320px; padding: 0; border-radius: 20px; text-align: center;" onclick="event.stopPropagation()">
     <div style="padding: 30px 20px 20px 20px;">
       <div class="holiday-popup-icon">🗓️</div>
@@ -1213,8 +1213,7 @@
   window.deleteTickerText = () => { if(confirm('စာရွေ့ကြော်ငြာကို ဖျက်ပစ်မှာ သေချာပါသလား?')) { update(ref(db, 'appConfig'), { tickerText: null }).then(() => { showCustomAlert('🗑️ ကြော်ငြာဖျက်လိုက်ပါပြီ!'); document.getElementById('adminTickerText').value = ""; closeTickerModal(); }); } };
 
   window.openSsoSettingsModal = () => {
-      toggleMenu(null);      setTimeout(() => {
-          let curMonth = document.getElementById('selectedMonth').value || '';
+      toggleMenu(null);      setTimeout(() => {          let curMonth = document.getElementById('selectedMonth').value || '';
           let sel = document.getElementById('ssoMonthSelect');
           if (sel) sel.value = curMonth;
           loadSsoForMonth();
