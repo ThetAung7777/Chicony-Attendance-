@@ -304,6 +304,7 @@
               <option value="my">🇲🇲 မြန်မာ</option>
               <option value="en">🇬🇧 English</option>
               <option value="th">🇹🇭 ไทย (Thai)</option>
+              <option value="kh">🇰🇭 ខ្មែរ (Khmer)</option>
           </select>
       </div>
 
@@ -802,29 +803,34 @@
   const translations = {
       my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ", prevMonth: "⬅️ ယခင်လ", nextMonth: "နောက်လ ➡️", changePhoto: "Profile ပုံပြောင်းမည်" },
       en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Lunch Allowance", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction", prevMonth: "⬅️ Prev Month", nextMonth: "Next Month ➡️", changePhoto: "Upload New Photo" },
-      th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม", prevMonth: "⬅️ เดือนก่อนหน้า", nextMonth: "เดือนถัดไป ➡️", changePhoto: "อัพโหลดรูปใหม่" }
+      th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม", prevMonth: "⬅️ เดือนก่อนหน้า", nextMonth: "เดือนถัดไป ➡️", changePhoto: "อัพโหลดรูปใหม่" },
+      kh: { exportBtn: "នាំចេញ (Excel / PDF)", factoryCalendar: "ប្រតិទិនរោងចក្រ", adminPanel: "ផ្ទាំងគ្រប់គ្រង", appSubtitle: "វត្តមាន និងប្រាក់ខែ", langMenu: "ភាសា", settings: "ការកំណត់", logout: "ចាកចេញ", workDays: "ថ្ងៃធ្វើការ / ម៉ោង", doubleDays: "ថ្ងៃបង់ពីរដង", otDays: "ថ្ងៃធ្វើ OT / ម៉ោង", otTotal: "OT ធម្មតាសរុប", absent: "អវត្តមាន (x)", medLeavePay: "ប្រាក់ឈប់សម្រាកព្យាបាល", holiday: "ថ្ងៃឈប់សម្រាក (-)", pubHolPay: "ប្រាក់ថ្ងៃបិទរបស់រដ្ឋ", nightShift: "វេនយប់", nightAllowance: "ប្រាក់ឧបត្ថម្ភវេនយប់", transport: "ប្រាក់ឧបត្ថម្ភធ្វើដំណើរ", foodOt: "ប្រាក់អាហារ OT", foodNoOt: "ប្រាក់អាហារថ្ងៃត្រង់", attBonus: "ប្រាក់រង្វាន់វត្តមាន", totalIncome: "ចំណូលសរុប (Gross)", ssoDeduct: "សន្តិសុខសង្គម (SSO 5%)", netSalary: "ប្រាក់ខែសុទ្ធ", holidayLbl: "លឿង (ថ្ងៃឈប់)", doubleLbl: "ខៀវ (បង់ពីរដង)", nameLbl: "ឈ្មោះ", idLbl: "លេខសម្គាល់បុគ្គលិក", deptLbl: "ផ្នែក", monthLbl: "ជ្រើសខែ", dailyWageLbl: "ប្រាក់ឈ្នួលប្រចាំថ្ងៃ", otRateLbl: "តម្លៃ OT/ម៉ោង", bonusLbl: "ប្រាក់រង្វាន់វត្តមាន", saveBtn: "💾 រក្សាទុក", cancelBtn: "បោះបង់", reqName: "សូមបញ្ចូលឈ្មោះរបស់អ្នក!", reqId: "សូមបញ្ចូលលេខសម្គាល់បុគ្គលិករបស់អ្នក!", reqBoth: "សូមបញ្ចូលឈ្មោះ និងលេខសម្គាល់របស់អ្នក!", holAlertPrefix: "📅 ថ្ងៃឈប់សម្រាក -\n\n", salarySlipBtn: "មើលបញ្ជីប្រាក់ខែ", slipTitle: "ប័ណ្ណប្រាក់ខែ (Pay Slip)", slipIncome: "ចំណូល", slipAmount: "ចំនួន", slipDeduct: "ការកាត់ទុក", slipBasic: "ប្រាក់ខែមូលដ្ឋាន", slipPubHol: "ថ្ងៃបិទរបស់រដ្ឋ", slipFood: "ប្រាក់អាហារ", slipTrans: "ប្រាក់ធ្វើដំណើរ", slipAtt: "ប្រាក់រង្វាន់វត្តមាន", slipNight: "ប្រាក់វេនយប់", slipOtFood: "ប្រាក់អាហារ OT", slipGross: "ចំណូលសរុប", slipSso: "សន្តិសុខសង្គម", slipTax: "ពាន់ធនាគារ", slipTotDeduct: "ការកាត់ទុកសរុប", prevMonth: "⬅️ ខែមុន", nextMonth: "ខែបន្ទាប់ ➡️", changePhoto: "ផ្ទុករូបភាពថ្មី" }
   };
 
   const weekdaysText = {
       my: ['တနင်္ဂနွေ', 'တနင်္လာ', 'အင်္ဂါ', 'ဗုဒ္ဓဟူး', 'ကြာသပတေး', 'သောကြာ', 'စနေ'],
       en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      th: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.']
+      th: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'],
+      kh: ['អា.', 'ច.', 'អ.', 'ព.', 'ព្រ.', 'សុ.', 'ស.']
   };
 
   const myanmarMonths = ["ဇန်နဝါရီ", "ဖေဖော်ဝါရီ", "မတ်", "ဧပြီ", "မေ", "ဇွန်", "ဇူလိုင်", "ဩဂုတ်", "စက်တင်ဘာ", "အောက်တိုဘာ", "နိုဝင်ဘာ", "ဒီဇင်ဘာ"];
   const englishMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
 
   const dropdowns = {
       my: { shiftDay: '☀️ နေ့ဆိုင်း', shiftNight: '🌙 ညဆိုင်း', statusWork: '✅ ဆင်းရက်', statusAbsent: '❌ ပျက်ရက်', statusHoliday: '🟨 ပိတ်ရက်', otNo: 'OT မဆင်း', otYes: 'OT ဆင်း', otHr: 'နာရီ', select: 'ရွေးရန်...', leaveUnpaid: 'ခွင့်မဲ့ / မတိုင်ပါ', leaveMed: 'ဆေးစာဖြင့် ခွင့်တိုင်သည်' },
       en: { shiftDay: '☀️ Day Shift', shiftNight: '🌙 Night Shift', statusWork: '✅ Present', statusAbsent: '❌ Absent', statusHoliday: '🟨 Holiday', otNo: 'No OT', otYes: 'Do OT', otHr: 'Hrs', select: 'Select...', leaveUnpaid: 'Unpaid Leave', leaveMed: 'Medical Leave' },
-      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' }
+      th: { shiftDay: '☀️ กะกลางวัน', shiftNight: '🌙 กะดึก', statusWork: '✅ ทำงาน', statusAbsent: '❌ ขาดงาน', statusHoliday: '🟨 วันหยุด', otNo: 'ไม่มีโอที', otYes: 'มีโอที', otHr: 'ชม.', select: 'เลือก...', leaveUnpaid: 'ลากิจ / ขาดงาน', leaveMed: 'ลาป่วย (มีใบรับรอง)' },
+      kh: { shiftDay: '☀️ វេនថ្ងៃ', shiftNight: '🌙 វេនយប់', statusWork: '✅ មកធ្វើការ', statusAbsent: '❌ អវត្តមាន', statusHoliday: '🟨 ថ្ងៃឈប់', otNo: 'គ្មាន OT', otYes: 'ធ្វើ OT', otHr: 'ម៉ោង', select: 'ជ្រើសរើស...', leaveUnpaid: 'ឈប់គ្មានប្រាក់ខែ', leaveMed: 'ឈប់សម្រាកព្យាបាល (មានលិខិតពេទ្យ)' }
   };
 
   let otModalText = {
       my: { title: "⏱️ OT နာရီ ရွေးချယ်ပါ", hr: "နာရီ", cancel: "✍️ ပိတ်မည် / ကိုယ်တိုင်ရေးမည်" },
       en: { title: "⏱️ Select OT Hours", hr: "Hrs", cancel: "✍️ Cancel / Manual Entry" },
-      th: { title: "⏱️ เลือกเวลาทำโอที", hr: "ชม.", cancel: "✍️ ยกเลิก / พิมพ์เอง" }
+      th: { title: "⏱️ เลือกเวลาทำโอที", hr: "ชม.", cancel: "✍️ ยกเลิก / พิมพ์เอง" },
+      kh: { title: "⏱️ ជ្រើសរើសម៉ោង OT", hr: "ម៉ោង", cancel: "✍️ បោះបង់ / បញ្ចូលដោយដៃ" }
   };
 
   window.customAlertMsgs = {
@@ -857,6 +863,40 @@
 
   window.closeCustomAlert = () => {
       document.getElementById('customAlertModal').style.display = 'none';
+  };
+
+  // ★ Ticker text ကို လက်ရှိ language အလိုက် translate ပြီး render မည် ★
+  window._tickerCache = {}; // { lang: translatedText } cache
+  window.renderTickerText = async () => {
+      let raw = window._tickerRawText || "";
+      let tickerEl = document.getElementById('tickerString');
+      if (!tickerEl) return;
+
+      if (raw.trim() === "") { tickerEl.innerText = ""; return; }
+
+      if (currentLang === 'my') {
+          tickerEl.innerText = raw;
+          return;
+      }
+
+      // Cache ထဲမှာ ရှိပြီးသား + raw text မပြောင်းရင် ပြန်မခေါ်တော့ဘဲ သုံးမည်
+      let cacheKey = currentLang + '::' + raw;
+      if (window._tickerCache[cacheKey]) {
+          tickerEl.innerText = window._tickerCache[cacheKey];
+          return;
+      }
+
+      try {
+          let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(raw)}`;
+          let res = await fetch(url);
+          let data = await res.json();
+          let translated = data[0].map(x => x[0]).join('');
+          window._tickerCache[cacheKey] = translated;
+          tickerEl.innerText = translated;
+      } catch(e) {
+          console.log("Ticker translate failed", e);
+          tickerEl.innerText = raw; // fallback to raw text
+      }
   };
 
   function updateWeekdaysHeader() {
@@ -901,6 +941,7 @@
       }
 
       updateWeekdaysHeader();
+      renderTickerText();
       if(isDataLoaded && document.getElementById('selectedMonth').value) window.generateGrid(false); 
       if(Object.keys(globalCalendar).length >= 0) renderYearCalendar();
   };
@@ -1178,9 +1219,11 @@
           }
           
           if(config.tickerText && config.tickerText.trim() !== "") {
+              window._tickerRawText = config.tickerText;
               document.getElementById('tickerBar').style.display = 'flex';
-              document.getElementById('tickerString').innerText = config.tickerText;
+              renderTickerText();
           } else {
+              window._tickerRawText = "";
               document.getElementById('tickerBar').style.display = 'none';
               document.getElementById('tickerString').innerText = "";
           }
@@ -1201,8 +1244,7 @@
                           showAnnouncement(annImgData, config.annText);
                       }, 500);
                       localStorage.setItem('lastAnnShownId', currentAnnId); 
-                  }
-              }
+                  }              }
           }
       });
   }
@@ -1510,11 +1552,19 @@
       if(window.currentOTInputTarget) { window.currentOTInputTarget.focus(); }
   };
 
+  // ★ Lang ပေါ်မူတည်ပြီး Months Array ရွေးမည် ★
+  function getMonthsArray(lang) {
+      if (lang === 'my') return myanmarMonths;
+      if (lang === 'th') return thaiMonths;
+      if (lang === 'kh') return khmerMonths;
+      return englishMonths;
+  }
+
   // ★ ပြက္ခဒိန် အဝါရောင်ပိတ်ရက် အလုပ်လုပ်စေမည့်စနစ် (Bug Fixed) ★
   function renderYearCalendar() {
       document.getElementById('calYearDisplay').innerText = CALENDAR_YEAR;
       const container = document.getElementById('yearCalendarContainer'); container.innerHTML = '';
-      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
+      let monthsArray = getMonthsArray(currentLang);
       let daysHeader = weekdaysText[currentLang];
 
       for(let m = 0; m < 12; m++) {
@@ -1561,14 +1611,24 @@
   const myanmarMonthsFull = ["ဇန်နဝါရီ","ဖေဖော်ဝါရီ","မတ်","ဧပြီ","မေ","ဇွန်","ဇူလိုင်","ဩဂုတ်","စက်တင်ဘာ","အောက်တိုဘာ","နိုဝင်ဘာ","ဒီဇင်ဘာ"];
   const myanmarDaysFull = ["တနင်္ဂနွေ","တနင်္လာ","အင်္ဂါ","ဗုဒ္ဓဟူး","ကြာသပတေး","သောကြာ","စနေ"];
 
-  window.showHolidayInfo = (desc, dateKey) => {
+  window.showHolidayInfo = async (desc, dateKey) => {
       let dateObj = new Date(dateKey);
-      let dayName = myanmarDaysFull[dateObj.getDay()];
-      let monthName = myanmarMonthsFull[dateObj.getMonth()];
+      let dayName = weekdaysText[currentLang][dateObj.getDay()];
+      let monthName = getMonthsArray(currentLang)[dateObj.getMonth()];
       let dateStr = `${dateObj.getDate()} ${monthName} ${dateObj.getFullYear()} (${dayName})`;
-      
+
+      let displayDesc = desc;
+      if (currentLang !== 'my' && desc && desc.trim() !== '') {
+          try {
+              let url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=${currentLang}&dt=t&q=${encodeURIComponent(desc)}`;
+              let res = await fetch(url);
+              let data = await res.json();
+              displayDesc = data[0].map(x => x[0]).join('');
+          } catch(e) { console.log("Holiday desc translate failed", e); }
+      }
+
       document.getElementById('holidayPopupDate').innerText = dateStr;
-      document.getElementById('holidayPopupDesc').innerText = desc;
+      document.getElementById('holidayPopupDesc').innerText = displayDesc;
       document.getElementById('holidayInfoModal').style.display = 'flex';
   };
 
@@ -1640,8 +1700,8 @@
       let startMIdx = endMIdx - 1; 
       if (startMIdx < 0) startMIdx = 11;
       
-      let monthsArray = currentLang === 'my' ? myanmarMonths : (currentLang === 'th' ? thaiMonths : englishMonths);
-      let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : " to ");
+      let monthsArray = getMonthsArray(currentLang);
+      let toText = currentLang === 'my' ? " မှ " : (currentLang === 'th' ? " ถึง " : (currentLang === 'kh' ? " ដល់ " : " to "));
       
       if(pDisplay) {
           pDisplay.innerHTML = `📅 <span style="color:#dc3545;">${monthsArray[startMIdx]}</span> <span style="color:#666; font-size:14px;">${toText}</span> <span style="color:#198754;">${monthsArray[endMIdx]}</span>`;
@@ -1845,7 +1905,7 @@
 
       window.currentSlipData = { combinedBasicSalary: combinedBasicSalary, lunchFood: lunchAllowance, transport: transport, bonus: finalBonus, doubleDayExtraPay: doubleExtraPay, otFood: otFoodAllowance, ot15Hrs: ot15Hrs, ot15Pay: ot15Pay, ot20Hrs: ot20Hrs, ot20Pay: ot20Pay, nightAll: nightPay, pubHolPay: pubHolPay, medLeavePay: medLeavePay, gross: total, sso: ssoDeduction, net: netSalary, workDays: work, period: document.getElementById('selectedMonth').value };
 
-      let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : 'Days'); let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : 'Hrs');
+      let uDay = currentLang === 'my' ? 'ရက်' : (currentLang === 'th' ? 'วัน' : (currentLang === 'kh' ? 'ថ្ងៃ' : 'Days')); let uHr = currentLang === 'my' ? 'နာရီ' : (currentLang === 'th' ? 'ชม.' : (currentLang === 'kh' ? 'ម៉ោង' : 'Hrs'));
       document.getElementById('workCount').innerText = `${work} ${uDay} / ${work*8} ${uHr}`; 
       document.getElementById('otDaysCount').innerText = `${normalOtDays} ${uDay} / ${ot15Hrs} ${uHr}`; 
       document.getElementById('doubleCount').innerText = `${double} ${uDay} / ${double*8} ${uHr}`; 
