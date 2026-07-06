@@ -451,9 +451,31 @@
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-content pop-in" style="padding: 0;"><div class="modal-header"><h3 style="color: #333;" class="logo-main" data-i18n="settings">⚙️ Settings</h3><button class="close-modal interactive-btn" onclick="closeSettings()">×</button></div><div class="modal-body"><div class="setup-box"><div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div><div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div><div class="full-width"><label data-i18n="deptLbl">ဌာန (Department)</label><input type="text" id="empDept" placeholder="Department" value="MKB MFG FA(LH)" oninput="saveToFirebase()"></div><div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth"></div><div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div><div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div><div class="full-width"><label data-i18n="bonusLbl">ရက်မှန်ကြေး (Bonus)</label><select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;"></select></div>
 
-<div class="full-width" style="border-top:1px solid #eee; padding-top:10px; margin-top:2px;"><label style="color:#8e44ad; font-weight:bold;">⭐ စွမ်းဆောင်ရည်ဆု (Performance Bonus) — တစ်ရက်/နှုန်း</label><select id="performanceBonusRate" onchange="saveToFirebase(); calculateAll()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box; font-size:14px; font-weight:bold; color:#8e44ad;"><option value="0">မရွေးချယ်ရသေး (0)</option><option value="10">10 ฿ / ရက်</option><option value="15">15 ฿ / ရက်</option></select></div>
-
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"><div><label style="color:#c0392b; font-weight:bold;">🏅 အထူးဆု (Special Bonus)</label><input type="number" id="specialBonus" value="0" min="0" oninput="saveToFirebase(); calculateAll()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box; font-size:14px;"></div><div><label style="color:#2980b9; font-weight:bold;">🎖️ ရာထူးကြေး (Position Allowance)</label><input type="number" id="positionAllowance" value="0" min="0" oninput="saveToFirebase(); calculateAll()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box; font-size:14px;"></div></div>
+<div class="full-width" style="border-top:2px solid #f0e6ff; padding-top:14px; margin-top:6px;">
+  <!-- Performance Bonus -->
+  <div style="background:#faf5ff; border:1px solid #d8b4fe; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
+    <label style="color:#7c3aed; font-weight:bold; font-size:13px; display:block; margin-bottom:8px;">⭐ စွမ်းဆောင်ရည်ဆု — တစ်ရက် နှုန်း</label>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <select id="performanceBonusPreset" onchange="onPerfPresetChange(this)" style="flex:1; padding:9px 10px; border:1px solid #d8b4fe; border-radius:8px; font-size:13px; font-weight:bold; color:#7c3aed; background:white;">
+        <option value="0">0 ฿ (မရွေးရသေး)</option>
+        <option value="10">10 ฿ / ရက်</option>
+        <option value="15">15 ฿ / ရက်</option>
+        <option value="custom">✏️ ကိုယ်တိုင် ဖြည့်မည်</option>
+      </select>
+      <input type="number" id="performanceBonusRate" min="0" placeholder="နှုန်း" oninput="saveToFirebase(); calculateAll()" style="width:90px; padding:9px; border:1px solid #d8b4fe; border-radius:8px; font-size:13px; font-weight:bold; color:#7c3aed; display:none;">
+    </div>
+  </div>
+  <!-- Special Bonus -->
+  <div style="background:#fff5f5; border:1px solid #fca5a5; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
+    <label style="color:#dc2626; font-weight:bold; font-size:13px; display:block; margin-bottom:8px;">🏅 အထူးဆု (Special Bonus)</label>
+    <input type="number" id="specialBonus" value="0" min="0" oninput="saveToFirebase(); calculateAll()" style="width:100%; padding:9px 10px; border:1px solid #fca5a5; border-radius:8px; font-size:14px; font-weight:bold; color:#dc2626; box-sizing:border-box;">
+  </div>
+  <!-- Position Allowance -->
+  <div style="background:#f0f7ff; border:1px solid #93c5fd; border-radius:10px; padding:12px 14px;">
+    <label style="color:#2563eb; font-weight:bold; font-size:13px; display:block; margin-bottom:8px;">🎖️ ရာထူးကြေး (Position Allowance)</label>
+    <input type="number" id="positionAllowance" value="0" min="0" oninput="saveToFirebase(); calculateAll()" style="width:100%; padding:9px 10px; border:1px solid #93c5fd; border-radius:8px; font-size:14px; font-weight:bold; color:#2563eb; box-sizing:border-box;">
+  </div>
+</div>
 
 </div><div style="display:flex; gap:10px; margin-top: 20px;"><button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px; flex: 2;" data-i18n="saveBtn">💾 သိမ်းမည်</button><button id="settingsCancelBtn" class="btn-generate interactive-btn" onclick="closeSettings()" style="background:#6c757d; margin-top:0; padding:10px; flex: 1;">❌ <span data-i18n="cancelBtn">ပိတ်မည်</span></button><button id="settingsLogoutBtn" class="btn-generate interactive-btn" onclick="logout()" style="background:#dc3545; margin-top:0; padding:10px; flex: 1; display:none;">🚪 <span data-i18n="logout">Logout</span></button></div></div></div>
 </div>
@@ -1028,7 +1050,7 @@
           dailyWage: document.getElementById('dailyWage').value,
           otRate: document.getElementById('otRate').value, 
           attBonusSetting: currentBonus,
-          performanceBonusRate: parseInt(document.getElementById('performanceBonusRate').value) || 0,
+          performanceBonusRate: parseFloat(document.getElementById('performanceBonusRate').value) || 0,
           specialBonus: parseFloat(document.getElementById('specialBonus').value) || 0,
           positionAllowance: parseFloat(document.getElementById('positionAllowance').value) || 0,
           bonusHistory: existingBonusHistory,
@@ -1147,7 +1169,9 @@
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75;
               // ★ New fields load ──
-              document.getElementById('performanceBonusRate').value = appData.settings.performanceBonusRate || 0;
+              let _perfRate = appData.settings.performanceBonusRate || 0;
+              document.getElementById('performanceBonusRate').value = _perfRate;
+              syncPerfPresetUI(_perfRate);
               document.getElementById('specialBonus').value = appData.settings.specialBonus || 0;
               document.getElementById('positionAllowance').value = appData.settings.positionAllowance || 0;
 
@@ -1268,10 +1292,7 @@
   window.openTickerModal = () => { document.getElementById('tickerModal').style.display = 'flex'; toggleMenu(null); };
   window.closeTickerModal = () => { document.getElementById('tickerModal').style.display = 'none'; };
   window.saveTickerText = () => { let txt = document.getElementById('adminTickerText').value.trim(); if(!txt) return showCustomAlert('⚠️ ကျေးဇူးပြု၍ ကြော်ငြာစာသား ထည့်ပါ!'); update(ref(db, 'appConfig'), { tickerText: txt }).then(() => { showCustomAlert('✅ စာရွေ့ကြော်ငြာ သိမ်းဆည်းပြီးပါပြီ!'); closeTickerModal(); }); };
-  window.deleteTickerText = () => { if(confirm('စာရွေ့ကြော်ငြာကို ဖျက်ပစ်မှာ သေချာပါသလား?')) { update(ref(db, 'appConfig'), { tickerText: null }).then(() => { showCustomAlert('🗑️ ကြော်ငြာဖျက်လိုက်ပါပြီ!'); document.getElementById('adminTickerText').value = ""; closeTickerModal(); }); } };
-  window.openSsoSettingsModal = () => {
-      toggleMenu(null);      setTimeout(() => {
-          let curMonth = document.getElementById('selectedMonth').value || '';          let sel = document.getElementById('ssoMonthSelect');
+  window.deleteTickerText = () => {           let curMonth = document.getElementById('selectedMonth').value || '';          let sel = document.getElementById('ssoMonthSelect');
           if (sel) sel.value = curMonth;
           loadSsoForMonth();
           document.getElementById('ssoSettingsModal').style.display = 'flex';
@@ -1812,6 +1833,31 @@
           }
       }, 200);
   };
+
+  // ★ Performance Bonus preset selector ──
+  window.onPerfPresetChange = (sel) => {
+      let input = document.getElementById('performanceBonusRate');
+      if (sel.value === 'custom') {
+          input.style.display = 'block';
+          input.focus();
+      } else {
+          input.style.display = 'none';
+          input.value = sel.value;
+          saveToFirebase(); calculateAll();
+      }
+  };
+
+  // ── Load preset selector state from saved value ──
+  function syncPerfPresetUI(savedRate) {
+      let sel = document.getElementById('performanceBonusPreset');
+      let input = document.getElementById('performanceBonusRate');
+      if (!sel || !input) return;
+      let val = String(parseFloat(savedRate) || 0);
+      if (val === '0') { sel.value = '0'; input.style.display = 'none'; input.value = 0; }
+      else if (val === '10') { sel.value = '10'; input.style.display = 'none'; input.value = 10; }
+      else if (val === '15') { sel.value = '15'; input.style.display = 'none'; input.value = 15; }
+      else { sel.value = 'custom'; input.style.display = 'block'; input.value = savedRate; }
+  }
 
   window.calculateAll = () => {
       let _selMonth = document.getElementById('selectedMonth').value || '';
