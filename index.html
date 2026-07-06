@@ -329,9 +329,9 @@
       <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px; color:#6610f2;"><span><span data-i18n="foodOt">OT ထမင်းဖိုး</span> (<span id="foodOtDays">0</span>)</span> <b id="foodOtTotal">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:#6610f2; border-bottom:1px solid #eee; padding-bottom: 4px;"><span><span data-i18n="foodNoOt">နေ့လည်စာ ထမင်းဖိုး</span> (<span id="foodNoOtDays">0</span>)</span> <b id="foodNoOtTotal">0</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #20c997;"><span data-i18n="attBonus">ရက်မှန်ကြေး (Bonus)</span> <b id="attBonusDisplay">0</b></div>
-      <div id="perfBonusRow" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;"><span>⭐ စွမ်းဆောင်ရည်ဆု</span> <b id="perfBonusDisplay">0 ฿</b></div>
-      <div id="specialBonusRow" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #c0392b;"><span>🏅 အထူးဆု</span> <b id="specialBonusDisplay">0 ฿</b></div>
-      <div id="positionAllowanceRow" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #2980b9;"><span>🎖️ ရာထူးကြေး</span> <b id="positionAllowanceDisplay">0 ฿</b></div>
+      <div id="perfBonusRow" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #8e44ad;"><span data-i18n="perfBonusLbl">⭐ စွမ်းဆောင်ရည်ဆု</span> <b id="perfBonusDisplay">0 ฿</b></div>
+      <div id="specialBonusRow" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #c0392b;"><span data-i18n="specialBonusLbl">🏅 အထူးဆု</span> <b id="specialBonusDisplay">0 ฿</b></div>
+      <div id="positionAllowanceRow" style="display:none; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #2980b9;"><span data-i18n="positionAllowanceLbl">🎖️ ရာထူးကြေး</span> <b id="positionAllowanceDisplay">0 ฿</b></div>
       
       <div id="transportRowContainer" style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; color: #28a745;"><span data-i18n="transport">စုစုပေါင်း ကားခ</span> <b id="transportDisplay">0</b></div>
       
@@ -408,7 +408,50 @@
   <div class="modal-content pop-in" style="max-width: 400px; padding: 0;"><div class="modal-header"><h3 style="color: #007bff;" class="logo-main">🛡️ SSO Settings</h3><button class="close-modal interactive-btn" onclick="closeSsoSettingsModal()">×</button></div><div class="modal-body"><p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 12px;">ပကန်စံခွန်း (SSO) ၅% တွက်ချက်ရာတွင် ထည့်သွင်းပေါင်းမည့် အရာများကို ရွေးချယ်ပါ။</p><div style="background:#f0f7ff; border:1px solid #b6d4fe; border-radius:8px; padding:12px; margin-bottom:14px;"><label style="font-size:13px; font-weight:bold; color:#0d6efd; display:block; margin-bottom:6px;">📅 SSO သိမ်းမည့်လ ရွေးပါ</label><input type="month" id="ssoMonthSelect" style="width:100%; padding:8px; border:1px solid #b6d4fe; border-radius:6px; font-size:14px; outline:none; background:white;" onchange="loadSsoForMonth()"><div id="ssoCurrentLabel" style="font-size:12px; margin-top:6px; font-weight:bold; min-height:18px;"></div></div><div class="setup-box" style="display: flex; flex-direction: column; gap: 15px; margin-top:0;"><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptBasic" style="width: 20px; height: 20px; cursor: pointer;"> အခြေခံလစာ (Basic Salary)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptPubHol" style="width: 20px; height: 20px; cursor: pointer;"> အစိုးရရုံးပိတ်ရက် ရငွေ (Public Holiday)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptNight" style="width: 20px; height: 20px; cursor: pointer;"> ညဆိုင်းကြေး (Night Allowance)</label><label style="display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; color: #333;"><input type="checkbox" id="ssoOptFood" style="width: 20px; height: 20px; cursor: pointer;"> နေ့လည်စာ ထမင်းဖိုး (Food Allowance)</label></div><button class="btn-generate interactive-btn" style="background:#198754; margin-top:25px; width: 100%;" onclick="saveSsoSettings()">💾 SSO Save လုပ်မည်</button></div></div>
 </div>
 
-<div class="modal-overlay" id="alertSettingsModal" style="z-index: 400;">
+<!-- ★ Monthly Bonus Settings Modal (Performance / Special / Position) — SSO ပုံစံအတိုင်း လအလိုက် သီးသန့် သိမ်းမည် ★ -->
+<div class="modal-overlay" id="bonusSettingsModal" style="z-index: 410;">
+  <div class="modal-content pop-in" style="max-width: 420px; padding: 0;">
+    <div class="modal-header"><h3 style="color: #8e44ad;" class="logo-main">⭐ ဆုကြေးများ Settings</h3><button class="close-modal interactive-btn" onclick="closeBonusSettingsModal()">×</button></div>
+    <div class="modal-body">
+      <p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 12px;">လတိုင်းအတွက် သီးခြားစီ ချိန်ညှိနိုင်ပါသည်။ မသတ်မှတ်ထားသောလများတွင် 0 ဖြင့်သာ တွက်ချက်ပါမည်။</p>
+
+      <div style="background:#f8f4fc; border:1px solid #e0c6f2; border-radius:8px; padding:12px; margin-bottom:16px;">
+        <label style="font-size:13px; font-weight:bold; color:#8e44ad; display:block; margin-bottom:6px;" data-i18n="bonusMonthSelect">📅 ဤလအတွက် ချိန်ညှိမည်</label>
+        <input type="month" id="bonusMonthSelect" style="width:100%; padding:8px; border:1px solid #e0c6f2; border-radius:6px; font-size:14px; outline:none; background:white; box-sizing:border-box;" onchange="loadBonusForMonth()">
+        <div id="bonusCurrentLabel" style="font-size:12px; margin-top:6px; font-weight:bold; min-height:18px;"></div>
+      </div>
+
+      <!-- Performance Bonus Card -->
+      <div style="background:#faf5ff; border:1px solid #d8b4fe; border-radius:10px; padding:14px; margin-bottom:12px;">
+        <label style="color:#7c3aed; font-weight:bold; font-size:14px; display:block; margin-bottom:2px;" data-i18n="perfBonusLbl">⭐ စွမ်းဆောင်ရည်ဆု</label>
+        <div style="font-size:11px; color:#9061c9; margin-bottom:10px;" data-i18n="perfBonusSub">(တစ်ရက် နှုန်း)</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="perfBonusPreset" onchange="onPerfPresetChange(this)" style="flex:1; padding:9px 10px; border:1px solid #d8b4fe; border-radius:8px; font-size:13px; font-weight:bold; color:#7c3aed; background:white;">
+            <option value="0" data-i18n="bonusPresetNone">0 ฿ (မရွေးရသေး)</option>
+            <option value="10">10 ฿ / ရက်</option>
+            <option value="15">15 ฿ / ရက်</option>
+            <option value="custom" data-i18n="bonusPresetCustom">✏️ ကိုယ်တိုင် ဖြည့်မည်</option>
+          </select>
+          <input type="number" id="perfBonusCustomRate" min="0" data-i18n-placeholder="bonusRatePlaceholder" placeholder="နှုန်း" style="width:90px; padding:9px; border:1px solid #d8b4fe; border-radius:8px; font-size:13px; font-weight:bold; color:#7c3aed; display:none; box-sizing:border-box;">
+        </div>
+      </div>
+
+      <!-- Special Bonus Card -->
+      <div style="background:#fff5f5; border:1px solid #fca5a5; border-radius:10px; padding:14px; margin-bottom:12px;">
+        <label style="color:#dc2626; font-weight:bold; font-size:14px; display:block; margin-bottom:10px;" data-i18n="specialBonusLbl">🏅 အထူးဆု</label>
+        <input type="number" id="bonusSpecialInput" value="0" min="0" style="width:100%; padding:9px 10px; border:1px solid #fca5a5; border-radius:8px; font-size:14px; font-weight:bold; color:#dc2626; box-sizing:border-box;">
+      </div>
+
+      <!-- Position Allowance Card -->
+      <div style="background:#f0f7ff; border:1px solid #93c5fd; border-radius:10px; padding:14px; margin-bottom:6px;">
+        <label style="color:#2563eb; font-weight:bold; font-size:14px; display:block; margin-bottom:10px;" data-i18n="positionAllowanceLbl">🎖️ ရာထူးကြေး</label>
+        <input type="number" id="bonusPositionInput" value="0" min="0" style="width:100%; padding:9px 10px; border:1px solid #93c5fd; border-radius:8px; font-size:14px; font-weight:bold; color:#2563eb; box-sizing:border-box;">
+      </div>
+
+      <button class="btn-generate interactive-btn" style="background:#8e44ad; margin-top:20px; width: 100%;" onclick="saveBonusSettings()" data-i18n="saveBtn">💾 သိမ်းမည်</button>
+    </div>
+  </div>
+</div>
   <div class="modal-content pop-in" style="max-width: 500px; padding: 0;"><div class="modal-header"><h3 style="color: #6f42c1;" class="logo-main">🔔 Alert Settings</h3><button class="close-modal interactive-btn" onclick="closeAlertSettingsModal()">×</button></div><div class="modal-body"><div class="admin-manage-section"><h4 style="margin:0 0 10px 0; font-size:14px; color:#333;">📌 အခြေအနေ ရွေးချယ်ရန်</h4><select id="alertTypeSelector" class="admin-search-box" style="margin-bottom:15px; font-weight:bold; color:#007bff; cursor:pointer;" onchange="changeAlertType()"><option value="work">✓ အလုပ်ဆင်းသည် (Present)</option><option value="absent">x အလုပ်ပျက်ရက် / ခွင့် (Absent / Leave)</option><option value="holiday">- အလုပ်ပိတ်ရက် (Holiday)</option><option value="ot">⏱️ OT ဆင်းသည် (Overtime)</option></select><h4 style="margin:0 0 10px 0; font-size:13px; color:#666;">📅 ရက်အလိုက် ပေါ်မည့်စာများ ထည့်သွင်းရန်</h4><div class="setup-box" style="margin-top:0;"><div class="full-width"><label>တနင်္ဂနွေ (Sunday)</label><input type="text" id="alertInputSun" oninput="updateTempAlert('Sun', this.value)" placeholder="Leave empty for no alert"></div><div class="full-width"><label>တနင်္လာ (Monday)</label><input type="text" id="alertInputMon" oninput="updateTempAlert('Mon', this.value)" placeholder="Leave empty for no alert"></div><div class="full-width"><label>အင်္ဂါ (Tuesday)</label><input type="text" id="alertInputTue" oninput="updateTempAlert('Tue', this.value)" placeholder="Leave empty for no alert"></div><div class="full-width"><label>ဗုဒ္ဓဟူး (Wednesday)</label><input type="text" id="alertInputWed" oninput="updateTempAlert('Wed', this.value)" placeholder="Leave empty for no alert"></div><div class="full-width"><label>ကြာသပတေး (Thursday)</label><input type="text" id="alertInputThu" oninput="updateTempAlert('Thu', this.value)" placeholder="Leave empty for no alert"></div><div class="full-width"><label>သောကြာ (Friday)</label><input type="text" id="alertInputFri" oninput="updateTempAlert('Fri', this.value)" placeholder="Leave empty for no alert"></div><div class="full-width"><label>စနေ (Saturday)</label><input type="text" id="alertInputSat" oninput="updateTempAlert('Sat', this.value)" placeholder="Leave empty for no alert"></div></div></div><div style="display:flex; gap:10px; margin-top: 20px;"><button class="btn-generate interactive-btn" style="background:#198754; margin-top:0; flex: 2;" onclick="saveAlertSettings()">Save Alerts</button><button class="btn-generate interactive-btn" style="background:#dc3545; margin-top:0; flex: 1; font-size: 13px;" onclick="clearAlertSettings()">Clear All</button></div></div></div>
 </div>
 
@@ -451,9 +494,11 @@
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-content pop-in" style="padding: 0;"><div class="modal-header"><h3 style="color: #333;" class="logo-main" data-i18n="settings">⚙️ Settings</h3><button class="close-modal interactive-btn" onclick="closeSettings()">×</button></div><div class="modal-body"><div class="setup-box"><div class="full-width"><label data-i18n="nameLbl">အမည် (Name)</label><input type="text" id="empName" placeholder="Name" oninput="saveToFirebase()"></div><div class="full-width"><label data-i18n="idLbl">ဝန်ထမ်းနံပါတ် (ID)</label><input type="text" id="empId" placeholder="ID" oninput="saveToFirebase()"></div><div class="full-width"><label data-i18n="deptLbl">ဌာန (Department)</label><input type="text" id="empDept" placeholder="Department" value="MKB MFG FA(LH)" oninput="saveToFirebase()"></div><div class="full-width"><label data-i18n="monthLbl">လရွေးချယ်ရန်</label><input type="month" id="selectedMonth"></div><div><label data-i18n="dailyWageLbl">တစ်ရက် လုပ်အားခ</label><input type="number" id="dailyWage" value="400" oninput="saveToFirebase(); calculateAll()"></div><div><label data-i18n="otRateLbl">OT ကြေး</label><input type="number" id="otRate" value="75" oninput="saveToFirebase(); calculateAll()"></div><div class="full-width"><label data-i18n="bonusLbl">ရက်မှန်ကြေး (Bonus)</label><select id="attBonusSetting" onchange="saveToFirebase(); calculateAll()" style="font-weight:bold; color:#20c997;"></select></div>
 
-<div class="full-width" style="border-top:1px solid #eee; padding-top:10px; margin-top:2px;"><label style="color:#8e44ad; font-weight:bold;">⭐ စွမ်းဆောင်ရည်ဆု (Performance Bonus) — တစ်ရက်/နှုန်း</label><select id="performanceBonusRate" onchange="saveToFirebase(); calculateAll()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box; font-size:14px; font-weight:bold; color:#8e44ad;"><option value="0">မရွေးချယ်ရသေး (0)</option><option value="10">10 ฿ / ရက်</option><option value="15">15 ฿ / ရက်</option></select></div>
-
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"><div><label style="color:#c0392b; font-weight:bold;">🏅 အထူးဆု (Special Bonus)</label><input type="number" id="specialBonus" value="0" min="0" oninput="saveToFirebase(); calculateAll()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box; font-size:14px;"></div><div><label style="color:#2980b9; font-weight:bold;">🎖️ ရာထူးကြေး (Position Allowance)</label><input type="number" id="positionAllowance" value="0" min="0" oninput="saveToFirebase(); calculateAll()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box; font-size:14px;"></div></div>
+<div class="full-width" style="border-top:1px solid #eee; padding-top:14px; margin-top:4px;">
+  <button type="button" class="interactive-btn" onclick="openBonusSettingsModal()" style="width:100%; background:linear-gradient(135deg,#8e44ad,#6c3483); color:white; border:none; border-radius:10px; padding:13px; font-size:14px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 2px 8px rgba(142,68,173,0.3);">
+    ⭐ 🏅 🎖️ <span data-i18n="monthlyBonusBtn">လအလိုက် ဆုကြေးများ ချိန်ညှိမည်</span>
+  </button>
+</div>
 
 </div><div style="display:flex; gap:10px; margin-top: 20px;"><button class="btn-generate interactive-btn" onclick="updateSettings()" style="background:#28a745; margin-top:0; padding:10px; flex: 2;" data-i18n="saveBtn">💾 သိမ်းမည်</button><button id="settingsCancelBtn" class="btn-generate interactive-btn" onclick="closeSettings()" style="background:#6c757d; margin-top:0; padding:10px; flex: 1;">❌ <span data-i18n="cancelBtn">ပိတ်မည်</span></button><button id="settingsLogoutBtn" class="btn-generate interactive-btn" onclick="logout()" style="background:#dc3545; margin-top:0; padding:10px; flex: 1; display:none;">🚪 <span data-i18n="logout">Logout</span></button></div></div></div>
 </div>
@@ -544,6 +589,7 @@
 
   window.ssoConfig = { basic: true, pubHol: true, night: true, food: true };
   window.ssoHistory = {}; 
+  window.bonusExtrasHistory = {}; // { "2026-07": { perfRate: 10, special: 100, position: 200 } }
 
   // ★ ကားခ (Transport) အဖွင့်/အပိတ် State ★
   window.isTransportEnabled = true;
@@ -810,10 +856,10 @@
   }
 
   const translations = {
-      my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ", prevMonth: "⬅️ ယခင်လ", nextMonth: "နောက်လ ➡️", changePhoto: "Profile ပုံပြောင်းမည်" },
-      en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Lunch Allowance", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction", prevMonth: "⬅️ Prev Month", nextMonth: "Next Month ➡️", changePhoto: "Upload New Photo" },
-      th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม", prevMonth: "⬅️ เดือนก่อนหน้า", nextMonth: "เดือนถัดไป ➡️", changePhoto: "อัพโหลดรูปใหม่" },
-      kh: { exportBtn: "នាំចេញ (Excel / PDF)", factoryCalendar: "ប្រតិទិនរោងចក្រ", adminPanel: "ផ្ទាំងគ្រប់គ្រង", appSubtitle: "វត្តមាន និងប្រាក់ខែ", langMenu: "ភាសា", settings: "ការកំណត់", logout: "ចាកចេញ", workDays: "ថ្ងៃធ្វើការ / ម៉ោង", doubleDays: "ថ្ងៃបង់ពីរដង", otDays: "ថ្ងៃធ្វើ OT / ម៉ោង", otTotal: "OT ធម្មតាសរុប", absent: "អវត្តមាន (x)", medLeavePay: "ប្រាក់ឈប់សម្រាកព្យាបាល", holiday: "ថ្ងៃឈប់សម្រាក (-)", pubHolPay: "ប្រាក់ថ្ងៃបិទរបស់រដ្ឋ", nightShift: "វេនយប់", nightAllowance: "ប្រាក់ឧបត្ថម្ភវេនយប់", transport: "ប្រាក់ឧបត្ថម្ភធ្វើដំណើរ", foodOt: "ប្រាក់អាហារ OT", foodNoOt: "ប្រាក់អាហារថ្ងៃត្រង់", attBonus: "ប្រាក់រង្វាន់វត្តមាន", totalIncome: "ចំណូលសរុប (Gross)", ssoDeduct: "សន្តិសុខសង្គម (SSO 5%)", netSalary: "ប្រាក់ខែសុទ្ធ", holidayLbl: "លឿង (ថ្ងៃឈប់)", doubleLbl: "ខៀវ (បង់ពីរដង)", nameLbl: "ឈ្មោះ", idLbl: "លេខសម្គាល់បុគ្គលិក", deptLbl: "ផ្នែក", monthLbl: "ជ្រើសខែ", dailyWageLbl: "ប្រាក់ឈ្នួលប្រចាំថ្ងៃ", otRateLbl: "តម្លៃ OT/ម៉ោង", bonusLbl: "ប្រាក់រង្វាន់វត្តមាន", saveBtn: "💾 រក្សាទុក", cancelBtn: "បោះបង់", reqName: "សូមបញ្ចូលឈ្មោះរបស់អ្នក!", reqId: "សូមបញ្ចូលលេខសម្គាល់បុគ្គលិករបស់អ្នក!", reqBoth: "សូមបញ្ចូលឈ្មោះ និងលេខសម្គាល់របស់អ្នក!", holAlertPrefix: "📅 ថ្ងៃឈប់សម្រាក -\n\n", salarySlipBtn: "មើលបញ្ជីប្រាក់ខែ", slipTitle: "ប័ណ្ណប្រាក់ខែ (Pay Slip)", slipIncome: "ចំណូល", slipAmount: "ចំនួន", slipDeduct: "ការកាត់ទុក", slipBasic: "ប្រាក់ខែមូលដ្ឋាន", slipPubHol: "ថ្ងៃបិទរបស់រដ្ឋ", slipFood: "ប្រាក់អាហារ", slipTrans: "ប្រាក់ធ្វើដំណើរ", slipAtt: "ប្រាក់រង្វាន់វត្តមាន", slipNight: "ប្រាក់វេនយប់", slipOtFood: "ប្រាក់អាហារ OT", slipGross: "ចំណូលសរុប", slipSso: "សន្តិសុខសង្គម", slipTax: "ពាន់ធនាគារ", slipTotDeduct: "ការកាត់ទុកសរុប", prevMonth: "⬅️ ខែមុន", nextMonth: "ខែបន្ទាប់ ➡️", changePhoto: "ផ្ទុករូបភាពថ្មី" }
+      my: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "စက်ရုံ ပြက္ခဒိန်", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "အလုပ်ဆင်းရက် / နာရီ", doubleDays: "နှစ်ဆရက်", otDays: "OT ဆင်းသော ရက် / နာရီ", otTotal: "OT စုစုပေါင်း", absent: "ပျက်ရက် (x)", medLeavePay: "ဆေးခွင့် ရငွေ", holiday: "ပိတ်ရက် (-)", pubHolPay: "အစိုးရရုံးပိတ်ရက် ရငွေ", nightShift: "ညဆိုင်း (Night Shift)", nightAllowance: "ညကြေး (Night Allowance)", transport: "စုစုပေါင်း ကားခ", foodOt: "OT ထမင်းဖိုး", foodNoOt: "နေ့လည်စာ ထမင်းဖိုး", attBonus: "ရက်မှန်ကြေး (Bonus)", totalIncome: "စုစုပေါင်း ဝင်ငွေ (Gross)", ssoDeduct: "ပကန်စံခွန်း (SSO 5%)", netSalary: "အသားတင် လစာ", holidayLbl: "အဝါ (ပိတ်ရက်)", doubleLbl: "အပြာ (နှစ်ဆရက်)", nameLbl: "အမည် (Name)", idLbl: "ဝန်ထမ်းနံပါတ် (ID)", deptLbl: "ဌာန (Department)", monthLbl: "လရွေးချယ်ရန်", dailyWageLbl: "တစ်ရက် လုပ်အားခ", otRateLbl: "OT ကြေး", bonusLbl: "ရက်မှန်ကြေး (Bonus)", saveBtn: "💾 သိမ်းမည်", cancelBtn: "ပိတ်မည်", reqName: "ကျေးဇူးပြု၍ အမည် (Name) ကို ဖြည့်ပါ!", reqId: "ကျေးဇူးပြု၍ ဝန်ထမ်းနံပါတ် (ID) ကို ဖြည့်ပါ!", reqBoth: "ကျေးဇူးပြု၍ အမည်နှင့် ID ကို မဖြစ်မနေ ဖြည့်ပါ!", holAlertPrefix: "📅 ပိတ်ရက် -\n\n", salarySlipBtn: "လစာစလစ် ကြည့်မည်", slipTitle: "လစာစလစ် (Pay Slip)", slipIncome: "ဝင်ငွေ", slipAmount: "ပမာဏ", slipDeduct: "ဖြတ်ငွေ", slipBasic: "အခြေခံလစာ", slipPubHol: "အစိုးရရုံးပိတ်ရက်", slipFood: "ထမင်းဖိုး", slipTrans: "ကားခ", slipAtt: "ရက်မှန်ကြေး", slipNight: "ညကြေး", slipOtFood: "OT ထမင်းဖိုး", slipGross: "စုစုပေါင်း ဝင်ငွေ", slipSso: "ပကန်စံခွန်း", slipTax: "အခွန်", slipTotDeduct: "စုစုပေါင်း ဖြတ်ငွေ", prevMonth: "⬅️ ယခင်လ", nextMonth: "နောက်လ ➡️", changePhoto: "Profile ပုံပြောင်းမည်", perfBonusLbl: "⭐ စွမ်းဆောင်ရည်ဆု", perfBonusSub: "(တစ်ရက် နှုန်း)", specialBonusLbl: "🏅 အထူးဆု", positionAllowanceLbl: "🎖️ ရာထူးကြေး", bonusMonthSelect: "📅 ဤလအတွက် ချိန်ညှိမည်", bonusPresetNone: "0 ฿ (မရွေးရသေး)", bonusPresetCustom: "✏️ ကိုယ်တိုင် ဖြည့်မည်", bonusRatePlaceholder: "နှုန်း", bonusSetLabel: "✅ ဤလအတွက် သတ်မှတ်ပြီး", bonusNotSetLabel: "⚠️ ဤလအတွက် မသတ်မှတ်ရသေး (0 သုံးမည်)", monthlyBonusBtn: "လအလိုက် ဆုကြေးများ ချိန်ညှိမည်" },
+      en: { exportBtn: "Export (Excel / PDF)", factoryCalendar: "Factory Calendar", adminPanel: "Admin Panel", appSubtitle: "Attendance & Salary", langMenu: "Language", settings: "Settings", logout: "Logout", workDays: "Work Days / Hrs", doubleDays: "Double Days", otDays: "OT Days / Hrs", otTotal: "Total Normal OT", absent: "Absent (x)", medLeavePay: "Medical Leave Pay", holiday: "Holiday (-)", pubHolPay: "Public Holiday Pay", nightShift: "Night Shift", nightAllowance: "Night Allowance", transport: "Transport Allowance", foodOt: "OT Food Allowance", foodNoOt: "Lunch Allowance", attBonus: "Attendance Bonus", totalIncome: "Total Income (Gross)", ssoDeduct: "Social Security (SSO 5%)", netSalary: "Net Salary", holidayLbl: "Yellow (Holiday)", doubleLbl: "Blue (Double Day)", nameLbl: "Name", idLbl: "Employee ID", deptLbl: "Department", monthLbl: "Select Month", dailyWageLbl: "Daily Wage", otRateLbl: "OT Rate/Hr", bonusLbl: "Attendance Bonus", saveBtn: "💾 Save Changes", cancelBtn: "Cancel", reqName: "Please enter your Name!", reqId: "Please enter your Employee ID!", reqBoth: "Please enter your Name and ID!", holAlertPrefix: "📅 Holiday -\n\n", salarySlipBtn: "View Salary Slip", slipTitle: "Pay Slip", slipIncome: "Income", slipAmount: "Amount", slipDeduct: "Deduction", slipBasic: "Basic Salary", slipPubHol: "Public Holiday", slipFood: "Food Allowance", slipTrans: "Transport Allowance", slipAtt: "Attendance Bonus", slipNight: "Night Allowance", slipOtFood: "OT Food Allowance", slipGross: "Total Income", slipSso: "SSO", slipTax: "TAX", slipTotDeduct: "Total Deduction", prevMonth: "⬅️ Prev Month", nextMonth: "Next Month ➡️", changePhoto: "Upload New Photo", perfBonusLbl: "⭐ Performance Bonus", perfBonusSub: "(rate per day)", specialBonusLbl: "🏅 Special Bonus", positionAllowanceLbl: "🎖️ Position Allowance", bonusMonthSelect: "📅 Set for this month", bonusPresetNone: "0 ฿ (Not set)", bonusPresetCustom: "✏️ Custom Amount", bonusRatePlaceholder: "Rate", bonusSetLabel: "✅ Set for this month", bonusNotSetLabel: "⚠️ Not set for this month (0 will apply)", monthlyBonusBtn: "Adjust Monthly Bonuses" },
+      th: { exportBtn: "ส่งออก (Excel / PDF)", factoryCalendar: "ปฏิทินโรงงาน", adminPanel: "การจัดการระบบ", appSubtitle: "ระบบเช็คชื่อและเงินเดือน", langMenu: "ภาษา", settings: "ตั้งค่า", logout: "ออกจากระบบ", workDays: "วันทำงาน / ชม.", doubleDays: "วันแรงงานสองเท่า", otDays: "วันที่ทำโอที / ชม.", otTotal: "โอทีปกติรวม", absent: "ขาดงาน (x)", medLeavePay: "ค่าจ้างลาป่วย", holiday: "วันหยุด (-)", pubHolPay: "ค่าจ้างวันหยุดนักขัตฤกษ์", nightShift: "กะดึก", nightAllowance: "ค่ากะกลางคืน", transport: "ค่าเดินทาง", foodOt: "ค่าอาหาร OT", foodNoOt: "ค่าอาหารกลางวัน", attBonus: "ค่าเบี้ยขยัน", totalIncome: "รายได้รวม (Gross)", ssoDeduct: "ประกันสังคม (SSO 5%)", netSalary: "เงินเดือนสุทธิ", holidayLbl: "สีเหลือง (วันหยุด)", doubleLbl: "สีน้ำเงิน (สองเท่า)", nameLbl: "ชื่อ", idLbl: "รหัสพนักงาน", deptLbl: "แผนก", monthLbl: "เลือกเดือน", dailyWageLbl: "ค่าแรงรายวัน", otRateLbl: "ค่าโอที/ชม.", bonusLbl: "เบี้ยขยัน", saveBtn: "💾 บันทึก", cancelBtn: "ยกเลิก", reqName: "กรุณากรอกชื่อของคุณ!", reqId: "กรุณากรอกรหัสพนักงานของคุณ!", reqBoth: "กรุณากรอกชื่อและรหัสพนักงานของคุณ!", holAlertPrefix: "📅 วันหยุด -\n\n", salarySlipBtn: "ดูใบแจ้งเงินเดือน", slipTitle: "ใบแจ้งเงินเดือน / Pay slip", slipIncome: "รายได้", slipAmount: "จำนวนเงิน", slipDeduct: "รายการหัก", slipBasic: "ฐานเงินเดือน", slipPubHol: "วันหยุดนักขัตฤกษ์", slipFood: "ค่าอาหาร", slipTrans: "ค่าเดินทาง", slipAtt: "ค่าเบี้ยขยัน", slipNight: "ค่ากะกลางคืน", slipOtFood: "ค่าอาหารOT", slipGross: "รายได้รวม", slipSso: "ประกันสังคม", slipTax: "ภาษี", slipTotDeduct: "รายการหักรวม", prevMonth: "⬅️ เดือนก่อนหน้า", nextMonth: "เดือนถัดไป ➡️", changePhoto: "อัพโหลดรูปใหม่", perfBonusLbl: "⭐ เบี้ยขยันตามผลงาน", perfBonusSub: "(อัตราต่อวัน)", specialBonusLbl: "🏅 โบนัสพิเศษ", positionAllowanceLbl: "🎖️ เงินตำแหน่ง", bonusMonthSelect: "📅 ตั้งค่าสำหรับเดือนนี้", bonusPresetNone: "0 ฿ (ยังไม่ได้เลือก)", bonusPresetCustom: "✏️ กรอกจำนวนเอง", bonusRatePlaceholder: "อัตรา", bonusSetLabel: "✅ ตั้งค่าแล้วสำหรับเดือนนี้", bonusNotSetLabel: "⚠️ ยังไม่ได้ตั้งค่าสำหรับเดือนนี้ (จะใช้ 0)", monthlyBonusBtn: "ปรับโบนัสรายเดือน" },
+      kh: { exportBtn: "នាំចេញ (Excel / PDF)", factoryCalendar: "ប្រតិទិនរោងចក្រ", adminPanel: "ផ្ទាំងគ្រប់គ្រង", appSubtitle: "វត្តមាន និងប្រាក់ខែ", langMenu: "ភាសា", settings: "ការកំណត់", logout: "ចាកចេញ", workDays: "ថ្ងៃធ្វើការ / ម៉ោង", doubleDays: "ថ្ងៃបង់ពីរដង", otDays: "ថ្ងៃធ្វើ OT / ម៉ោង", otTotal: "OT ធម្មតាសរុប", absent: "អវត្តមាន (x)", medLeavePay: "ប្រាក់ឈប់សម្រាកព្យាបាល", holiday: "ថ្ងៃឈប់សម្រាក (-)", pubHolPay: "ប្រាក់ថ្ងៃបិទរបស់រដ្ឋ", nightShift: "វេនយប់", nightAllowance: "ប្រាក់ឧបត្ថម្ភវេនយប់", transport: "ប្រាក់ឧបត្ថម្ភធ្វើដំណើរ", foodOt: "ប្រាក់អាហារ OT", foodNoOt: "ប្រាក់អាហារថ្ងៃត្រង់", attBonus: "ប្រាក់រង្វាន់វត្តមាន", totalIncome: "ចំណូលសរុប (Gross)", ssoDeduct: "សន្តិសុខសង្គម (SSO 5%)", netSalary: "ប្រាក់ខែសុទ្ធ", holidayLbl: "លឿង (ថ្ងៃឈប់)", doubleLbl: "ខៀវ (បង់ពីរដង)", nameLbl: "ឈ្មោះ", idLbl: "លេខសម្គាល់បុគ្គលិក", deptLbl: "ផ្នែក", monthLbl: "ជ្រើសខែ", dailyWageLbl: "ប្រាក់ឈ្នួលប្រចាំថ្ងៃ", otRateLbl: "តម្លៃ OT/ម៉ោង", bonusLbl: "ប្រាក់រង្វាន់វត្តមាន", saveBtn: "💾 រក្សាទុក", cancelBtn: "បោះបង់", reqName: "សូមបញ្ចូលឈ្មោះរបស់អ្នក!", reqId: "សូមបញ្ចូលលេខសម្គាល់បុគ្គលិករបស់អ្នក!", reqBoth: "សូមបញ្ចូលឈ្មោះ និងលេខសម្គាល់របស់អ្នក!", holAlertPrefix: "📅 ថ្ងៃឈប់សម្រាក -\n\n", salarySlipBtn: "មើលបញ្ជីប្រាក់ខែ", slipTitle: "ប័ណ្ណប្រាក់ខែ (Pay Slip)", slipIncome: "ចំណូល", slipAmount: "ចំនួន", slipDeduct: "ការកាត់ទុក", slipBasic: "ប្រាក់ខែមូលដ្ឋាន", slipPubHol: "ថ្ងៃបិទរបស់រដ្ឋ", slipFood: "ប្រាក់អាហារ", slipTrans: "ប្រាក់ធ្វើដំណើរ", slipAtt: "ប្រាក់រង្វាន់វត្តមាន", slipNight: "ប្រាក់វេនយប់", slipOtFood: "ប្រាក់អាហារ OT", slipGross: "ចំណូលសរុប", slipSso: "សន្តិសុខសង្គម", slipTax: "ពាន់ធនាគារ", slipTotDeduct: "ការកាត់ទុកសរុប", prevMonth: "⬅️ ខែមុន", nextMonth: "ខែបន្ទាប់ ➡️", changePhoto: "ផ្ទុករូបភាពថ្មី", perfBonusLbl: "⭐ ប្រាក់រង្វាន់តាមការអនុវត្ត", perfBonusSub: "(អត្រាក្នុងមួយថ្ងៃ)", specialBonusLbl: "🏅 ប្រាក់រង្វាន់ពិសេស", positionAllowanceLbl: "🎖️ ប្រាក់ឧបត្ថម្ភតួនាទី", bonusMonthSelect: "📅 កំណត់សម្រាប់ខែនេះ", bonusPresetNone: "0 ฿ (មិនទាន់កំណត់)", bonusPresetCustom: "✏️ បញ្ចូលចំនួនផ្ទាល់", bonusRatePlaceholder: "អត្រា", bonusSetLabel: "✅ បានកំណត់សម្រាប់ខែនេះ", bonusNotSetLabel: "⚠️ មិនទាន់កំណត់សម្រាប់ខែនេះ (នឹងប្រើ 0)", monthlyBonusBtn: "កែសម្រួលប្រាក់រង្វាន់ប្រចាំខែ" }
   };
 
   const weekdaysText = {
@@ -940,6 +986,9 @@
       document.querySelectorAll('[data-i18n]').forEach(el => {
           let key = el.getAttribute('data-i18n'); if(translations[lang][key]) el.innerText = translations[lang][key];
       });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+          let key = el.getAttribute('data-i18n-placeholder'); if(translations[lang][key]) el.placeholder = translations[lang][key];
+      });
       
       let om = otModalText[lang] || otModalText.my;
       let titleEl = document.getElementById('otModalTitle');
@@ -1028,9 +1077,6 @@
           dailyWage: document.getElementById('dailyWage').value,
           otRate: document.getElementById('otRate').value, 
           attBonusSetting: currentBonus,
-          performanceBonusRate: parseInt(document.getElementById('performanceBonusRate').value) || 0,
-          specialBonus: parseFloat(document.getElementById('specialBonus').value) || 0,
-          positionAllowance: parseFloat(document.getElementById('positionAllowance').value) || 0,
           bonusHistory: existingBonusHistory,
       }; 
       if (!appData.attendance) appData.attendance = {};
@@ -1146,10 +1192,6 @@
               document.getElementById('empDept').value = appData.settings.empDept || "MKB MFG FA(LH)"; 
               document.getElementById('dailyWage').value = appData.settings.dailyWage || 400;
               document.getElementById('otRate').value = appData.settings.otRate || 75;
-              // ★ New fields load ──
-              document.getElementById('performanceBonusRate').value = appData.settings.performanceBonusRate || 0;
-              document.getElementById('specialBonus').value = appData.settings.specialBonus || 0;
-              document.getElementById('positionAllowance').value = appData.settings.positionAllowance || 0;
 
               if(appData.settings.profilePhoto) {
                   window.currentProfilePhoto = appData.settings.profilePhoto;
@@ -1200,104 +1242,7 @@
           document.documentElement.style.setProperty('--app-bg-color', bodyColor);
           
           if(config.ssoHistory) { window.ssoHistory = config.ssoHistory; }
-          if(config.ssoSettings) { window.ssoConfig = config.ssoSettings; }
-          if (config.alerts) { window.customAlertMsgs = Object.assign(window.customAlertMsgs, config.alerts); }
-          
-          let annImgData = config.annImg || config.annImgUrl;
-
-          if(currentUser && currentUser.email === ADMIN_EMAIL) {
-              document.getElementById('adminHeaderColor').value = headerColor === 'white' ? '#ffffff' : headerColor;
-              document.getElementById('adminBodyColor').value = bodyColor === 'skyblue' ? '#87ceeb' : bodyColor;
-              
-              if(config.annDate) document.getElementById('adminAnnDate').value = config.annDate;
-              else document.getElementById('adminAnnDate').value = '';
-              
-              if(config.annText) document.getElementById('adminAnnText').value = config.annText;
-              else document.getElementById('adminAnnText').value = '';
-              
-              if(annImgData) {
-                  window.tempAnnImageBase64 = annImgData;
-                  document.getElementById('adminAnnImgStatus').innerText = "✓ Image loaded.";
-                  document.getElementById('adminAnnImgStatus').style.color = "#198754";
-                  document.getElementById('adminAnnImgStatus').style.display = 'block';
-              } else {
-                  window.tempAnnImageBase64 = null;
-                  document.getElementById('adminAnnImgStatus').style.display = 'none';
-              }
-              
-              changeAlertType();
-              
-              if(config.tickerText) {
-                  document.getElementById('adminTickerText').value = config.tickerText;
-              } else {
-                  document.getElementById('adminTickerText').value = "";
-              }
-          }
-          
-          if(config.tickerText && config.tickerText.trim() !== "") {
-              window._tickerRawText = config.tickerText;
-              document.getElementById('tickerBar').style.display = 'flex';
-              renderTickerText();
-          } else {
-              window._tickerRawText = "";
-              document.getElementById('tickerBar').style.display = 'none';
-              document.getElementById('tickerString').innerText = "";
-          }
-
-          let annDate = config.annDate;
-          if (annDate) {
-              let today = new Date();
-              let tzOffset = today.getTimezoneOffset() * 60000; 
-              let localISOTime = (new Date(today.getTime() - tzOffset)).toISOString().slice(0, -1);
-              let todayStr = localISOTime.split('T')[0];
-
-              if (annDate === todayStr) {
-                  let currentAnnId = annDate + "_" + (config.annText || "") + "_" + (annImgData ? annImgData.length : 0);
-                  let lastShownId = localStorage.getItem('lastAnnShownId');
-                  
-                  if (lastShownId !== currentAnnId) {
-                      setTimeout(() => {
-                          showAnnouncement(annImgData, config.annText);
-                      }, 500);
-                      localStorage.setItem('lastAnnShownId', currentAnnId); 
-                  }              }
-          }
-      });
-  }
-
-  window.openTickerModal = () => { document.getElementById('tickerModal').style.display = 'flex'; toggleMenu(null); };
-  window.closeTickerModal = () => { document.getElementById('tickerModal').style.display = 'none'; };
-  window.saveTickerText = () => { let txt = document.getElementById('adminTickerText').value.trim(); if(!txt) return showCustomAlert('⚠️ ကျေးဇူးပြု၍ ကြော်ငြာစာသား ထည့်ပါ!'); update(ref(db, 'appConfig'), { tickerText: txt }).then(() => { showCustomAlert('✅ စာရွေ့ကြော်ငြာ သိမ်းဆည်းပြီးပါပြီ!'); closeTickerModal(); }); };
-  window.deleteTickerText = () => { if(confirm('စာရွေ့ကြော်ငြာကို ဖျက်ပစ်မှာ သေချာပါသလား?')) { update(ref(db, 'appConfig'), { tickerText: null }).then(() => { showCustomAlert('🗑️ ကြော်ငြာဖျက်လိုက်ပါပြီ!'); document.getElementById('adminTickerText').value = ""; closeTickerModal(); }); } };
-  window.openSsoSettingsModal = () => {
-      toggleMenu(null);      setTimeout(() => {
-          let curMonth = document.getElementById('selectedMonth').value || '';          let sel = document.getElementById('ssoMonthSelect');
-          if (sel) sel.value = curMonth;
-          loadSsoForMonth();
-          document.getElementById('ssoSettingsModal').style.display = 'flex';
-      }, 100);
-  };
-
-  window.closeSsoSettingsModal = () => { document.getElementById('ssoSettingsModal').style.display = 'none'; };
-
-  window.loadSsoForMonth = () => {
-      let monthKey = (document.getElementById('ssoMonthSelect') || {}).value || '';
-      let labelEl = document.getElementById('ssoCurrentLabel');
-      let cfg = window.ssoHistory && monthKey && window.ssoHistory[monthKey]
-          ? window.ssoHistory[monthKey]
-          : { basic: true, pubHol: true, night: true, food: true };
-      document.getElementById('ssoOptBasic').checked = cfg.basic;
-      document.getElementById('ssoOptPubHol').checked = cfg.pubHol;
-      document.getElementById('ssoOptNight').checked = cfg.night;
-      document.getElementById('ssoOptFood').checked = cfg.food;
-      if (labelEl) {
-          if (window.ssoHistory && monthKey && window.ssoHistory[monthKey]) {
-              labelEl.innerText = '✅ ' + monthKey + ' — SSO setting ရှိပြီးသား';
-              labelEl.style.color = '#198754';
-          } else if (monthKey) {
-              labelEl.innerText = '⚠️ ' + monthKey + ' — မရှိသေး (default သုံးမည်)';
-              labelEl.style.color = '#fd7e14';
-          } else {
+          if(config.bonusExtrasHistory) { window.bonusExtrasHistory = config.bonusExtrasHist          } else {
               labelEl.innerText = '';
           }
       }
@@ -1321,6 +1266,96 @@
           loadSsoForMonth();
           calculateAll();
           closeSsoSettingsModal();
+      });
+  };
+
+  // ★★★ Monthly Bonus Settings (Performance / Special / Position) — SSO ပုံစံအတိုင်း လအလိုက်သာ သိမ်းမည် ★★★
+  window.openBonusSettingsModal = () => {
+      toggleMenu(null);
+      setTimeout(() => {
+          let curMonth = document.getElementById('selectedMonth').value || '';
+          let sel = document.getElementById('bonusMonthSelect');
+          if (sel) sel.value = curMonth;
+          loadBonusForMonth();
+          document.getElementById('bonusSettingsModal').style.display = 'flex';
+      }, 100);
+  };
+
+  window.closeBonusSettingsModal = () => { document.getElementById('bonusSettingsModal').style.display = 'none'; };
+
+  // Preset dropdown → show/hide custom rate input
+  window.onPerfPresetChange = (sel) => {
+      let input = document.getElementById('perfBonusCustomRate');
+      if (sel.value === 'custom') {
+          input.style.display = 'block';
+          input.focus();
+      } else {
+          input.style.display = 'none';
+          input.value = sel.value;
+      }
+  };
+
+  // Sync preset UI (select + custom input visibility) from a saved rate value
+  function syncPerfPresetUI(savedRate) {
+      let sel = document.getElementById('perfBonusPreset');
+      let input = document.getElementById('perfBonusCustomRate');
+      if (!sel || !input) return;
+      let val = String(parseFloat(savedRate) || 0);
+      if (val === '0') { sel.value = '0'; input.style.display = 'none'; input.value = 0; }
+      else if (val === '10') { sel.value = '10'; input.style.display = 'none'; input.value = 10; }
+      else if (val === '15') { sel.value = '15'; input.style.display = 'none'; input.value = 15; }
+      else { sel.value = 'custom'; input.style.display = 'block'; input.value = savedRate; }
+  }
+
+  window.loadBonusForMonth = () => {
+      let monthKey = (document.getElementById('bonusMonthSelect') || {}).value || '';
+      let labelEl = document.getElementById('bonusCurrentLabel');
+      let cfg = (window.bonusExtrasHistory && monthKey && window.bonusExtrasHistory[monthKey])
+          ? window.bonusExtrasHistory[monthKey]
+          : { perfRate: 0, special: 0, position: 0 };
+
+      syncPerfPresetUI(cfg.perfRate || 0);
+      document.getElementById('bonusSpecialInput').value = cfg.special || 0;
+      document.getElementById('bonusPositionInput').value = cfg.position || 0;
+
+      if (labelEl) {
+          let setLbl = translations[currentLang].bonusSetLabel || '✅ Set for this month';
+          let notSetLbl = translations[currentLang].bonusNotSetLabel || '⚠️ Not set for this month';
+          if (window.bonusExtrasHistory && monthKey && window.bonusExtrasHistory[monthKey]) {
+              labelEl.innerText = setLbl + ' (' + monthKey + ')';
+              labelEl.style.color = '#198754';
+          } else if (monthKey) {
+              labelEl.innerText = notSetLbl + ' (' + monthKey + ')';
+              labelEl.style.color = '#fd7e14';
+          } else {
+              labelEl.innerText = '';
+          }
+      }
+  };
+
+  window.saveBonusSettings = () => {
+      let monthKey = (document.getElementById('bonusMonthSelect') || {}).value || '';
+      if (!monthKey) { showCustomAlert('❌ ကျေးဇူးပြု၍ လကို ရွေးပါ'); return; }
+
+      let presetSel = document.getElementById('perfBonusPreset');
+      let perfRate = (presetSel.value === 'custom')
+          ? (parseFloat(document.getElementById('perfBonusCustomRate').value) || 0)
+          : (parseFloat(presetSel.value) || 0);
+
+      let newBonusCfg = {
+          perfRate: perfRate,
+          special: parseFloat(document.getElementById('bonusSpecialInput').value) || 0,
+          position: parseFloat(document.getElementById('bonusPositionInput').value) || 0
+      };
+
+      if (!window.bonusExtrasHistory) window.bonusExtrasHistory = {};
+      window.bonusExtrasHistory[monthKey] = newBonusCfg;
+
+      set(ref(db, 'appConfig/bonusExtrasHistory'), window.bonusExtrasHistory).then(() => {
+          showCustomAlert('✅ ' + monthKey + ' — ဆုကြေးများ Save ပြီးပါပြီ!');
+          loadBonusForMonth();
+          calculateAll();
+          closeBonusSettingsModal();
       });
   };
 
@@ -1821,9 +1856,15 @@
       const wage = parseFloat(document.getElementById('dailyWage').value) || 0; 
       const rate = parseFloat(document.getElementById('otRate').value) || 0; 
       const bonusSetting = parseFloat(document.getElementById('attBonusSetting').value) || 0;
-      const perfBonusRate = parseFloat(document.getElementById('performanceBonusRate').value) || 0;
-      const specialBonus = parseFloat(document.getElementById('specialBonus').value) || 0;
-      const positionAllowance = parseFloat(document.getElementById('positionAllowance').value) || 0;
+
+      // ★ Performance/Special/Position — လအလိုက်သာ (backfill မလုပ်) — history မရှိရင် 0 ★
+      let _bonusMonthKey = document.getElementById('selectedMonth').value || '';
+      let _bonusCfg = (window.bonusExtrasHistory && _bonusMonthKey && window.bonusExtrasHistory[_bonusMonthKey])
+          ? window.bonusExtrasHistory[_bonusMonthKey]
+          : { perfRate: 0, special: 0, position: 0 };
+      const perfBonusRate = parseFloat(_bonusCfg.perfRate) || 0;
+      const specialBonus = parseFloat(_bonusCfg.special) || 0;
+      const positionAllowance = parseFloat(_bonusCfg.position) || 0;
       
       let work=0, normalWorkDays=0, double=0, doubleExtraPay=0, absentUnpaid=0, medLeaveCount=0, medLeavePay=0, holiday=0, pubHolCount=0, pubHolPay=0, night=0, otDays=0, normalOtDays=0, total=0, transport=0, nightPay=0; 
       let lastFilledShift = 'day'; let slipBasicSalary = 0; 
